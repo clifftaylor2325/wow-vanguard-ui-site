@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Gets everything the build reads from the (private) addon repo into .cache/:
 //   - a clone of the addon repo (or uses FUI_SRC), with the pinned sourceRef present
-//   - the release metadata for every release (tag, date, notes, assets)
-//   - the release zip players download (the latest release, or FUI_RELEASE)
+//   - the release metadata for every release (tag, date, notes)
+// The site doesn't host or download the release zip: ForeverUI is going to be
+// installed through CurseForge, so only release metadata is read.
 // Needs the GitHub CLI (gh) signed in, or GH_TOKEN / GITHUB_TOKEN in the
 // environment. Nothing is ever pushed to the addon repo; the token is never printed.
 //
@@ -52,24 +53,11 @@ function ensureSource() {
 function fetchReleases() {
   const list = JSON.parse(run("gh", ["release", "list", "-R", cfg.addonRepo, "--limit", "50", "--json", "tagName,isLatest,isDraft,isPrerelease,publishedAt"]));
   const published = list.filter((r) => !r.isDraft);
-  const releases = published.map((r) => JSON.parse(run("gh", ["release", "view", r.tagName, "-R", cfg.addonRepo, "--json", "tagName,name,publishedAt,body,assets,isPrerelease"])));
+  const releases = published.map((r) => JSON.parse(run("gh", ["release", "view", r.tagName, "-R", cfg.addonRepo, "--json", "tagName,name,publishedAt,body,isPrerelease"])));
   const latest = cfg.release === "latest" ? (published.find((r) => r.isLatest) || published[0])?.tagName : cfg.release;
   if (!latest) throw new Error("the addon repo has no published release");
-  for (const r of releases) for (const a of r.assets) delete a.url, delete a.apiUrl;
+  for (const r of releases) delete r.assets;
   return { current: latest, releases };
-}
-
-// Downloads the current release's zip (skipped when already there with the right size).
-function fetchZip(meta) {
-  const rel = meta.releases.find((r) => r.tagName === meta.current);
-  const asset = rel.assets.find((a) => /^ForeverUI-.*\.zip$/.test(a.name));
-  if (!asset) throw new Error(`release ${rel.tagName} has no ForeverUI-<version>.zip`);
-  const out = path.join(cfg.releaseDir, asset.name);
-  if (!force && fs.existsSync(out) && fs.statSync(out).size === asset.size) return out;
-  fs.mkdirSync(cfg.releaseDir, { recursive: true });
-  run("gh", ["release", "download", rel.tagName, "-R", cfg.addonRepo, "-p", asset.name, "-D", cfg.releaseDir, "--clobber"]);
-  if (fs.statSync(out).size !== asset.size) throw new Error(`${asset.name}: size doesn't match the release`);
-  return out;
 }
 
 // Entry point.
@@ -78,8 +66,7 @@ function main() {
   const meta = fetchReleases();
   fs.mkdirSync(cfg.cacheDir, { recursive: true });
   fs.writeFileSync(cfg.releaseJson, JSON.stringify(meta, null, 2));
-  const zip = fetchZip(meta);
-  console.log(`source ${cfg.sourceRef.slice(0, 7)} · current release ${meta.current} · ${path.basename(zip)}`);
+  console.log(`source ${cfg.sourceRef.slice(0, 7)} · current release ${meta.current}`);
 }
 
 try {
