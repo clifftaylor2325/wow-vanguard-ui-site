@@ -1,0 +1,9 @@
+{
+  "addonRepo": "clifftaylor2325/wow-forever-ui",
+  "sourceRef": "bfef4e248fb76b35218480b80326538cdae597cc",
+  "release": "latest",
+  "sourcePath": ".cache/wow-forever-ui",
+  "cacheDir": ".cache",
+  "outDir": "dist",
+  "siteUrl": "https://foreverui.pages.dev"
+}
