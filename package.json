@@ -1,0 +1,23 @@
+{
+  "name": "wow-forever-ui-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The ForeverUI player website (foreverui.pages.dev), generated from the addon's Lua.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "fetch": "node scripts/fetch.mjs",
+    "build": "node scripts/fetch.mjs && node scripts/build.mjs",
+    "test": "node --test test/",
+    "check": "npm run build && npm test",
+    "shots": "node scripts/shots.mjs",
+    "serve": "node scripts/serve.mjs",
+    "deploy": "npx wrangler pages deploy dist --project-name foreverui"
+  },
+  "devDependencies": {
+    "playwright-core": "1.56"
+  }
+}
