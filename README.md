@@ -2,14 +2,14 @@
 
 Author: Cliff Hearthvale.
 
-The player website for [Vanguard](https://github.com/clifftaylor2325/wow-forever-ui), a fan UI addon for WoW Forever. Vanguard is going to be on CurseForge, so the site doesn't host or offer the addon as a download: it points players to CurseForge instead (a "Coming soon on CurseForge" badge until the listing is live). It's a static site (plain HTML and CSS, plus a little vanilla JS for search, copy buttons and the mobile menu). It is **generated from the addon's own source**, so the commands, modules, settings, colors and release facts on the site always match the addon.
+The player website for [Vanguard](https://github.com/clifftaylor2325/wow-vanguard-ui), a fan UI addon for WoW Forever. Vanguard is going to be on CurseForge, so the site doesn't host or offer the addon as a download: it points players to CurseForge instead (a "Coming soon on CurseForge" badge until the listing is live). It's a static site (plain HTML and CSS, plus a little vanilla JS for search, copy buttons and the mobile menu). It is **generated from the addon's own source**, so the commands, modules, settings, colors and release facts on the site always match the addon.
 
 Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Brass colors), Install & Update, Getting started, Features, Commands (searchable), Settings (searchable), Profiles & sharing, Troubleshooting & FAQ, Feedback, Changelog, Credits & license.
 
 ## Requirements
 
 - Node 20 or newer
-- [`gh`](https://cli.github.com/), signed in (or `GH_TOKEN` set) with read access to `clifftaylor2325/wow-forever-ui`. The addon repo is private, and the build uses `gh` to clone it and read its release metadata (tags, dates, notes).
+- [`gh`](https://cli.github.com/), signed in (or `GH_TOKEN` set) with read access to `clifftaylor2325/wow-vanguard-ui`. The addon repo is private, and the build uses `gh` to clone it and read its release metadata (tags, dates, notes).
 
 ## Commands
 
@@ -29,7 +29,7 @@ npm run deploy     # npx wrangler pages deploy dist --project-name vanguard-ui
 To build from a local checkout of the addon, skip the clone (use the same `FUI_SRC` for `npm test`):
 
 ```sh
-FUI_SRC=/path/to/wow-forever-ui npm run check
+FUI_SRC=/path/to/wow-vanguard-ui npm run check
 ```
 
 `npm run shots` looks for Chrome in the usual places; point `CHROME_PATH` at another Chromium browser (Edge works) if it isn't found. `SHOTS_PORT` picks the port of its local server (default: any free port) and `SHOTS_DIR` where the screenshots go (default: `shots/`, git-ignored). On every page it also presses Tab and Enter for real: the first Tab must focus the skip link, and Enter must move focus to `<main id="main">`.
@@ -40,7 +40,7 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
 
 `site.config.json` pins the addon source: `sourceRef` is the commit the site reads for the **next release**, and `release` (`latest`) is the GitHub release the site calls the **current release**.
 
-1. `scripts/fetch.mjs` clones the addon into `.cache/wow-forever-ui` (or uses `FUI_SRC`). It reads every release's metadata (tag, date, notes) into `.cache/release.json` with `gh release view`. It doesn't download the release zip.
+1. `scripts/fetch.mjs` clones the addon into `.cache/wow-vanguard-ui` (or uses `FUI_SRC`). It reads every release's metadata (tag, date, notes) into `.cache/release.json` with `gh release view`. It doesn't download the release zip.
 2. `scripts/build.mjs` reads the Lua at **two refs**: the release tag (the current release) and the pinned `sourceRef` (what's coming). Each file is read with `git show <ref>:<file>`, so the checkout is never changed. `scripts/lib/lua.mjs` is a small reader for the Lua tables the addon uses. `scripts/lib/extract.mjs` pulls out:
    - `Core/Slash.lua`: every command word, its aliases and its help line, verbatim
    - `Core/Modules.lua`, `Modules/*.lua` and `Core/Options.lua`: modules, their descriptions, and every options page, row, default, range and reload flag
