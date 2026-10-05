@@ -2,7 +2,7 @@
 // Checks every page for sideways scrolling at 390px and 360px wide, and takes
 // full-page screenshots of Home, Install, Features, Commands, Settings,
 // Feedback, Troubleshooting and Changelog at 1280px and 390px.
-// Uses playwright-core with an installed Chrome/Chromium (set CHROME_PATH if
+// Uses playwright-core with an installed Chrome/Chromium or Edge (set CHROME_PATH if
 // it isn't found). Screenshots go to SHOTS_DIR (default: shots/).
 //   npm run shots
 // It also walks the feedback form (field errors, the feature fields, the
@@ -22,7 +22,7 @@ import { serve } from "./serve.mjs";
 import { NAV } from "./lib/html.mjs";
 import { mockFeedback } from "./lib/feedback-mock.mjs";
 
-const CANDIDATES = [process.env.CHROME_PATH, "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "C:/Program Files/Google/Chrome/Application/chrome.exe"].filter(Boolean);
+const CANDIDATES = [process.env.CHROME_PATH, "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "C:/Program Files/Google/Chrome/Application/chrome.exe", "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", "C:/Program Files/Microsoft/Edge/Application/msedge.exe"].filter(Boolean);
 const outDir = path.resolve(root, process.env.SHOTS_DIR || "shots");
 const SHOOT = [["home", "/"], ["install", "/install/"], ["features", "/features/"], ["commands", "/commands/"], ["settings", "/settings/"], ["feedback", "/feedback/"], ["help", "/help/"], ["changelog", "/changelog/"]];
 
