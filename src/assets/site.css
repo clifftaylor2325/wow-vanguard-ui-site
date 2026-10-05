@@ -166,23 +166,17 @@ a.cf-cta:hover { filter: brightness(1.08); }
 .filters label { font-weight: 500; display: inline-flex; gap: 6px; align-items: center; }
 [hidden] { display: none !important; }
 
-/* Command list */
-.cmds { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.cmd { display: grid; gap: 6px; }
+/* Command table: its cells (the table and card look are the Settings ones, below) */
 .cmd-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
 .cmd-syntax { font-family: ui-monospace, Consolas, monospace; font-size: 1rem; color: var(--text); background: none; border: 0; padding: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .cmd-name { margin: 0; padding: 0; border: 0; font-size: 1.05rem; }
 .cmd-line { font-family: ui-monospace, Consolas, monospace; font-size: 0.92rem; color: var(--text2); white-space: pre-wrap; overflow-wrap: anywhere; }
 .filters input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
 .cmd-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cmd-text + .cmd-text, .cmd-text + .cmd-meta, .cmd-meta + .cmd-text { margin-top: 6px; }
 .cmd-meta { font-size: 0.9rem; color: var(--text2); margin: 0; }
 .copy { font: inherit; font-size: 0.85rem; color: var(--text); background: var(--raised); border: 1px solid var(--ui-line); border-radius: 3px; padding: 2px 8px; cursor: pointer; }
 .copy:hover { border-color: var(--accent); }
-@media (min-width: 900px) {
-  .cmd { grid-template-columns: minmax(260px, 34%) 1fr; column-gap: 20px; align-items: start; }
-  .cmd > .cmd-head { grid-column: 1; grid-row: 1 / span 3; flex-direction: column; align-items: flex-start; }
-  .cmd > :not(.cmd-head) { grid-column: 2; }
-}
 
 /* Settings tables: a real table from 900px; below that each row is a card. */
 .opt-page { margin-top: 28px; }
@@ -212,6 +206,16 @@ a.cf-cta:hover { filter: brightness(1.08); }
   .opt-table tbody th[scope="row"], .opt-table tr.h th { background: none; border: 0; }
   .opt-table td[data-label]::before { content: attr(data-label); display: block; font-size: 0.85rem; color: var(--text2); }
 }
+
+/* Commands: the Settings table with its own columns; the help text reads at full contrast. */
+.cmd-table thead th:nth-child(1) { width: 30%; }
+.cmd-table thead th:nth-child(2) { width: 44%; }
+.cmd-table thead th:nth-child(3) { width: 14%; }
+.cmd-table thead th:nth-child(4) { width: 12%; }
+.cmd-table td[data-label="What it does"] { color: var(--text); font-size: 0.95rem; }
+@media (min-width: 900px) { .cmd-table .cmd-head { flex-direction: column; align-items: flex-start; } }
+/* A search with no matches hides the empty table; its no-match message shows instead. */
+.cmd-table:not(:has(tr.cmd:not([hidden]))) { display: none; }
 
 /* Features */
 .mods { display: grid; gap: 10px; grid-template-columns: 1fr; }

@@ -461,6 +461,9 @@ export function featuresPage(model) {
 
 // ------------------------------------------------------------------ Commands
 
+// The Commands table's columns; the first is each row's header.
+const CMD_COLS = ["Command", "What it does", "Needs the module", "Version"];
+
 // The visible lines of one command entry.
 function cmdLines(e, version) {
   const show = (lines) => lines.map((l) => `<p class="cmd-text"><span class="cmd-line">/fui ${esc(l.syntax)}</span><br>${esc(l.text)}</p>`).join("");
@@ -482,54 +485,91 @@ function fuiAliases(slashes, keys) {
   return alts.length ? ` Also ${andList(alts.map((a) => `<code>${esc(a)}</code>`))}.` : "";
 }
 
-export function commandsPage(model) {
-  const { commands: c, version } = model;
-  const all = [...new Set([...c.nextKeys, ...c.relKeys])];
-  const item = (e) => {
-    const anchors = e.keys.map((k) => `<span id="cmd-${esc(k)}" data-command="${esc(k)}"></span>`).join("");
-    let head;
-    let body;
-    if (e.special === "fui") {
-      head = `<h2 class="cmd-name"><code class="cmd-syntax">/fui</code></h2>`;
-      body = `<p class="cmd-text">Opens (or closes) the options window.${fuiAliases(c.slashes, e.keys)} The help's first line says: “${esc(c.relIntro)}”</p>`;
-    } else if (e.special === "help") {
-      head = `<h2 class="cmd-name"><code class="cmd-syntax">/fui help</code></h2>`;
-      body = `<p class="cmd-text">Prints the list of commands in chat: the help lines quoted on this page.</p>`;
-    } else {
-      head = `<h2 class="cmd-name"><code class="cmd-syntax">/fui ${esc(e.keys.join(" | "))}</code></h2>`;
-      body = cmdLines(e, version);
-    }
-    const aliases = "";
-    const mods = e.modules.length ? `<p class="cmd-meta">Needs the module: ${e.modules.map((m) => { const mm = model.modules.find((x) => x.key === m); return `<a href="/features/#${mm ? mm.id : slug(m)}">${esc(mm ? mm.name : m)}</a>`; }).join(", ")}</p>` : "";
-    const search = [e.keys.join(" "), ...(e.relLines || []).map((l) => l.line), ...(e.nextLines || []).map((l) => l.line), e.special || ""].join(" ");
-    const first = e.special === "help" ? "/fui help" : e.special === "fui" ? "/fui" : `/fui ${e.keys[0] || ""}`.trim();
-    return `<li class="card cmd" id="entry-${esc(e.id)}" data-count data-avail="${avail(e.inRel, e.inNext)}" data-search="${esc(search)}">
-  <div class="cmd-head">${anchors}${head} ${badge(e.inRel, e.inNext, version)} <button class="copy" type="button" data-copy="${esc(first)}" aria-label="Copy ${esc(first)}">Copy</button></div>
-  ${body}${aliases}${mods}
-</li>`;
-  };
-  return {
-    path: "/commands/",
-    title: "Commands",
-    description: "Every /fui command with its help text, verbatim from the addon.",
-    body: `${pageHero("Commands", `ForeverUI has one chat command, <code>/fui</code> (or <code>/foreverui</code>), followed by a word. The help text below is quoted exactly as the addon prints it with <code>/fui help</code>.`)}
-${nextNotice(model)}
-<p><strong>${c.relKeys.size}</strong> command words in v${esc(version)} · <strong>${c.nextKeys.size}</strong> in the next release. An unknown word prints “${esc(c.unknown || "Unknown command. /fui help")}”.</p>
-<div class="search" data-target="#cmd-list" data-items=".cmd" data-noun="commands" data-noun-one="command">
+// The command as shown in its row: every word it accepts.
+function cmdTyped(e) {
+  if (e.special === "fui") return "/fui";
+  if (e.special === "help") return "/fui help";
+  return `/fui ${e.keys.join(" | ")}`;
+}
+
+// What the Copy button copies: the command with its first word.
+function cmdCopy(e) {
+  if (e.special === "fui") return "/fui";
+  if (e.special === "help") return "/fui help";
+  return `/fui ${e.keys[0] || ""}`.trim();
+}
+
+// What a command does: the addon's help lines, or a plain note for /fui and /fui help.
+function cmdWhat(e, c, version) {
+  if (e.special === "fui") return `<p class="cmd-text">Opens (or closes) the options window.${fuiAliases(c.slashes, e.keys)} The help's first line says: “${esc(c.relIntro)}”</p>`;
+  if (e.special === "help") return `<p class="cmd-text">Prints the list of commands in chat: the help lines quoted on this page.</p>`;
+  return cmdLines(e, version);
+}
+
+// Links to the Features sections of the modules a command needs.
+function cmdModules(e, model) {
+  return e.modules.map((m) => {
+    const mm = model.modules.find((x) => x.key === m);
+    return `<a href="/features/#${mm ? mm.id : slug(m)}">${esc(mm ? mm.name : m)}</a>`;
+  }).join(", ");
+}
+
+// The words the search box matches for a command.
+function cmdSearch(e) {
+  const lines = [...(e.relLines || []), ...(e.nextLines || [])].map((l) => l.line);
+  return [e.keys.join(" "), ...lines, e.special || ""].join(" ");
+}
+
+// The row header: an anchor for each word, the command and its Copy button.
+function cmdHead(e) {
+  const anchors = e.keys.map((k) => `<span id="cmd-${esc(k)}" data-command="${esc(k)}"></span>`).join("");
+  const copy = esc(cmdCopy(e));
+  return `<th scope="row" class="cmd-cap">${anchors}<div class="cmd-head"><code class="cmd-syntax">${esc(cmdTyped(e))}</code> <button class="copy" type="button" data-copy="${copy}" aria-label="Copy ${copy}">Copy</button></div></th>`;
+}
+
+// One command as a table row (a card on narrow screens); each cell carries its card label.
+function cmdRow(e, model) {
+  const cells = [cmdWhat(e, model.commands, model.version), cmdModules(e, model), badge(e.inRel, e.inNext, model.version)];
+  const tds = cells.map((h, i) => `<td data-label="${CMD_COLS[i + 1]}">${h}</td>`).join("");
+  return `<tr class="cmd opt-item" id="entry-${esc(e.id)}" data-count data-avail="${avail(e.inRel, e.inNext)}" data-search="${esc(cmdSearch(e))}">${cmdHead(e)}${tds}</tr>`;
+}
+
+// Every command in one table: a real table from 900px wide, one card per command below that.
+function cmdTable(model) {
+  const head = `<thead><tr>${CMD_COLS.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead>`;
+  const rows = model.commands.entries.map((e) => cmdRow(e, model)).join("\n");
+  return `<table class="opt-table cmd-table" id="cmd-list" aria-label="ForeverUI commands">${head}<tbody>\n${rows}\n</tbody></table>`;
+}
+
+// The search box's switches (the old-version one only when a command was dropped since).
+function cmdFilters(c, version) {
+  const old = [...c.relKeys].some((k) => !c.nextKeys.has(k)) ? `<label><input type="checkbox" data-filter="old" checked> Show v${esc(version)}-only commands</label>` : "";
+  return `<div class="filters"><label><input type="checkbox" data-filter="next" checked> Show next-release commands</label>${old}</div>`;
+}
+
+// The search box over the commands, with its switches and a live count.
+function cmdSearchBox(c, version) {
+  return `<div class="search" data-target="#cmd-list" data-items=".cmd" data-noun="commands" data-noun-one="command">
   <label for="cmd-q">Search commands</label>
   <input id="cmd-q" type="search" placeholder="for example: reset, profile, errors" autocomplete="off">
-  <div class="filters">
-    <label><input type="checkbox" data-filter="next" checked> Show next-release commands</label>
-    ${[...c.relKeys].some((k) => !c.nextKeys.has(k)) ? `<label><input type="checkbox" data-filter="old" checked> Show v${esc(version)}-only commands</label>` : ""}
-  </div>
+  ${cmdFilters(c, version)}
   <p class="count" aria-live="polite" role="status"></p>
-</div>
-<ul class="cmds" id="cmd-list">
-${c.entries.map(item).join("\n")}
-</ul>
-<p class="small">All ${all.length} command words: ${all.map((k) => `<a href="#cmd-${esc(k)}"><code>${esc(k)}</code></a>`).join(" ")}</p>
-${src("Core/Slash.lua (HELP, COMMANDS, SLASH_FOREVERUI1/2)")}`,
-  };
+</div>`;
+}
+
+// The Commands page body: intro, counts, search, the table and every command word.
+function commandsBody(model) {
+  const { commands: c, version } = model;
+  const all = [...new Set([...c.nextKeys, ...c.relKeys])];
+  const hero = pageHero("Commands", `ForeverUI has one chat command, <code>/fui</code> (or <code>/foreverui</code>), followed by a word. The help text below is quoted exactly as the addon prints it with <code>/fui help</code>.`);
+  const counts = `<p><strong>${c.relKeys.size}</strong> command words in v${esc(version)} · <strong>${c.nextKeys.size}</strong> in the next release. An unknown word prints “${esc(c.unknown || "Unknown command. /fui help")}”.</p>`;
+  const words = `<p class="small">All ${all.length} command words: ${all.map((k) => `<a href="#cmd-${esc(k)}"><code>${esc(k)}</code></a>`).join(" ")}</p>`;
+  return [hero, nextNotice(model), counts, cmdSearchBox(c, version), cmdTable(model), words, src("Core/Slash.lua (HELP, COMMANDS, SLASH_FOREVERUI1/2)")].join("\n");
+}
+
+// The Commands page.
+export function commandsPage(model) {
+  return { path: "/commands/", title: "Commands", description: "Every /fui command with its help text, verbatim from the addon.", body: commandsBody(model) };
 }
 
 // ------------------------------------------------------------------ Settings
