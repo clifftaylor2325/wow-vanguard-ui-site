@@ -91,7 +91,7 @@ SHOTS_BASE=http://localhost:8788 npm run shots   # optional: the form walk-throu
 ### What gets filed
 
 - Labels: `bug` + `from-site`, or `feature-request` + `from-site`.
-- Every free-text field and the pasted report go in fenced code blocks, each fence longer than any run of backticks inside, so nothing a player types can add headings, tables, quotes, lists, rules, HTML or mentions, or close its block early. HTML is stripped from free text. Titles have HTML stripped and `@mentions` and `#123` broken (GitHub shows titles as plain text); one-line values in the body, such as the environment table, also have inline markdown escaped.
+- Every free-text field and the pasted report go in fenced code blocks, each fence longer than any run of backticks inside, so nothing a player types can add headings, tables, quotes, lists, rules, HTML or mentions, or close its block early. Inside a fence HTML shows as typed, so nothing there is stripped (text like `a<b and c>d` stays as written). Titles have HTML stripped and `@mentions` and `#123` broken (GitHub shows titles as plain text). One-line values in the body, such as the environment table, also have HTML stripped, inline markdown escaped, and bare URLs broken with a zero-width space so they don't autolink.
 - Every report has its own reference (`Reference: FUI-…` and a hidden `<!-- fui-ref FUI-… -->`). A repeat of an open bug becomes a comment carrying the repeat reporter's own reference; the player gets that reference back, never the first reporter's.
 - Bugs with a caught error carry a fingerprint (`fp:` + 8 hex characters from the first error and its top stack line, with line numbers, addresses and counts removed). A second report of the same open bug becomes a comment on it.
 - Contact details (only when the player ticks the box) are kept in `FEEDBACK_KV` for 90 days, never in the issue. No IP address is stored: the rate cap keys are `sha256(IP + RL_SALT + date)`, kept for 2 hours.
@@ -115,7 +115,7 @@ This makes a fixed-hour reset and simple read-then-write races go away, but KV c
 
 - KV is eventually consistent. Writes are usually visible at once in the location that made them, but `list` results can lag (up to about a minute), and other locations can take longer. Requests that don't see each other's slots can all get through, so a burst spread across Cloudflare locations, or faster than KV shows writes, can still go over the cap.
 - Ties and clock differences between Cloudflare machines can make it refuse a send that could have gone through (it errs on the side of refusing).
-- Each send costs about 2 writes and 2 lists (plus deletes when refused), which counts against KV's daily limits.
+- Each send that passes Turnstile costs 2 writes (a player slot and a day slot) and 3 lists (today's player key, yesterday's player key, and the day key), plus a delete for each slot given back, and the usual `fp:`/`contact:` writes. That counts against KV's daily limits.
 
 For an exact cap, a future change could keep the counters in a Durable Object (one per player key, and one for the day), which handles requests one at a time, or rely on Turnstile as the main gate (for example a stricter widget mode or pre-clearance) with KV only as a backstop. Neither is built.
 
