@@ -2,7 +2,7 @@
 // Messages in quotes are copied from the addon's Lua; each section names its
 // source file. Where the current release and the next release differ, the
 // page says which is which.
-import { esc, md, badge } from "./html.mjs";
+import { esc, md, badge, pageHero } from "./html.mjs";
 import { src, dateET, nextNotice, says, saysIf, label } from "./pages-main.mjs";
 import { FACTS, SECTIONS } from "./help-content.mjs";
 import { RELEASE_NOTES, NEXT_RELEASE } from "./changelog-content.mjs";
@@ -62,8 +62,7 @@ export function profilesPage(model, read) {
     path: "/profiles/",
     title: "Profiles & sharing",
     description: "Share one ForeverUI layout across characters, or move it to another PC.",
-    body: `<h1>Profiles &amp; sharing</h1>
-<p class="lede">A profile holds all of ForeverUI's settings and frame positions. Profiles are saved for your whole account, and each character uses one of them. The first one is called <strong>${esc(defaultName)}</strong>.</p>
+    body: `${pageHero("Profiles &amp; sharing", `A profile holds all of ForeverUI's settings and frame positions. Profiles are saved for your whole account, and each character uses one of them. The first one is called <strong>${esc(defaultName)}</strong>.`)}
 ${nextNotice(model)}
 <h2 id="which">See which profile you're using</h2>
 <ul>
@@ -234,7 +233,7 @@ function helpFooter() {
 export function helpPage(model, read) {
   const facts = helpFacts(model, read);
   const sections = SECTIONS.map((s) => ({ ...s, shown: sourcedEntries(s, facts) }));
-  const body = [`<h1>Troubleshooting &amp; FAQ</h1>`, `<p class="lede">Each answer uses ForeverUI's own commands and quotes its real messages.</p>`,
+  const body = [pageHero("Troubleshooting &amp; FAQ", "Each answer uses ForeverUI's own commands and quotes its real messages."),
     nextNotice(model), helpJumps(sections), ...sections.map((s) => helpSection(s, facts)), helpFooter()];
   return { path: "/help/", title: "Troubleshooting & FAQ", description: "Fixes for common ForeverUI problems, using the addon's own commands and messages.", body: body.join("\n") };
 }
@@ -407,8 +406,7 @@ Why it would help me:`;
     title: "Feedback",
     description: "Report a ForeverUI bug or request a feature.",
     scripts: ["/assets/feedback.js"],
-    body: `<h1>Feedback</h1>
-<p class="lede">ForeverUI is an early release. Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us. No account or email is needed.</p>
+    body: `${pageHero("Feedback", `ForeverUI is an early release. Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us. No account or email is needed.`)}
 <section class="card fb" aria-labelledby="send">
 <h2 id="send" style="margin-top:0">Send a report</h2>
 <div class="notice todo fb-nojs" role="note"><p><strong>The form needs JavaScript.</strong> Turn JavaScript on to send a report from this page. Until then, get your report ready with the steps and templates below, and keep it.</p></div>
@@ -443,7 +441,7 @@ ${privacyNote()}
 <h4>Feature request template</h4>
 <pre class="template" id="feature-template">${esc(featureTemplate)}</pre>
 <button class="copy" type="button" data-copy-from="#feature-template" aria-label="Copy the feature request template">Copy template</button>
-<p class="small" style="margin-top:12px">Before you ask, check <a href="/features/">Features</a>: some things are already written and marked <span class="badge next">Next release</span>.</p>
+<p class="small template-note">Before you ask, check <a href="/features/">Features</a>: some things are already written and marked <span class="badge next">Next release</span>.</p>
 </section>
 </div>
 ${src("Core/Slash.lua (status, errors)", "Core/Modules.lua", "docs/SMOKE-TEST.md (Report block)", "README.md")}`,
@@ -493,7 +491,7 @@ ${releaseNotes(r)}
 // The Changelog page: the next release first, then every release, newest first.
 export function changelogPage(model) {
   const rels = model.releases.releases.slice().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
-  const body = [`<h1>Changelog</h1>`, `<p class="lede">Newest first: what each ForeverUI release changed, in plain words.</p>`,
+  const body = [pageHero("Changelog", "Newest first: what each ForeverUI release changed, in plain words."),
     nextSection(model), ...rels.map((r) => releaseSection(r, model)), `<p class="small">Every line comes from the changes merged into the addon for that release.</p>`];
   return { path: "/changelog/", title: "Changelog", description: "What changed in each ForeverUI release, newest first, and what's coming next.", body: body.join("\n") };
 }
@@ -516,7 +514,7 @@ export function creditsPage(model, site) {
     path: "/credits/",
     title: "Credits & license",
     description: "ForeverUI's license and the fonts, libraries and art it uses.",
-    body: `<h1>Credits &amp; license</h1>
+    body: `${pageHero("Credits &amp; license")}
 <h2 id="license">ForeverUI</h2>
 <p><strong>${esc(lic[0] || "")}</strong>. ${esc(lic[1] || "")}.</p>
 <p>From the v${esc(model.version)} README:</p>
