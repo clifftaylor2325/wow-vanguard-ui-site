@@ -517,6 +517,7 @@ thead th { border-bottom-color: color-mix(in oklab, var(--accent) 45%, var(--div
 .feature-areas { justify-content: flex-start; margin: 16px 0 8px; }
 .mod .mod-more { color: var(--text2); }
 .mod .facts { margin-top: 8px; }
+.mod .mod-src { margin: 8px 0 0; }
 
 /* Troubleshooting & FAQ: question cards and the jump links; Changelog lists */
 .help-jumps { justify-content: flex-start; margin: 16px 0 8px; }

@@ -408,6 +408,13 @@ function featureFacts(m, model) {
   return `<dl class="facts">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
 }
 
+// Where a card's words come from, in plain words (no file names).
+function featureSource(m, more) {
+  const parts = ["ForeverUI's own Modules page", m.pages.length && "its options", m.commands.length && "its commands", more && "the addon's own feature list"].filter(Boolean);
+  const list = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}` : parts[0];
+  return `<p class="small mod-src">Source: ${list}.</p>`;
+}
+
 // One module as a card: name, badges, the addon's one-liner, more, and its facts.
 function featureCard(m, model) {
   const off = startsOff(m, model) ? ` <span class="badge plain">Off until you switch it on</span>` : "";
@@ -416,6 +423,7 @@ function featureCard(m, model) {
   <h3>${esc(m.name)} ${badge(m.inRel, m.inNext, model.version)}${off}</h3>
   ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}${more ? `\n  <p class="mod-more">${esc(more)}</p>` : ""}
   ${featureFacts(m, model)}
+  ${featureSource(m, more)}
 </article>`;
 }
 
