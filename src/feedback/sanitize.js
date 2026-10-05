@@ -31,14 +31,35 @@ export function clean(value) {
     .trim();
 }
 
-// A one-line version of clean() for titles and table cells.
+// A one-line version of clean() for issue titles (GitHub shows titles as
+// plain text, apart from `code`).
 export function cleanLine(value) {
   return clean(String(value ?? "").replace(/\s+/g, " "));
 }
 
-// A table cell: one clean line with `|` escaped.
+// One clean line for inside an issue body, with the characters that make
+// inline markdown (code, emphasis, links, strikethrough, a table's `|`)
+// backslash-escaped so they show as typed, and bare URLs broken with a
+// zero-width space ("http:\u200b//", "www\u200b.") so GitHub doesn't autolink
+// them. (Emails are already broken at the "@".)
+export function inline(value) {
+  return cleanLine(value)
+    .replace(/[\\`*_[\]~|]/g, "\\$&")
+    .replace(/\b([a-z][a-z0-9+.-]*):\/\//gi, `$1:${ZWSP}//`)
+    .replace(/\bwww\./gi, `www${ZWSP}.`);
+}
+
+// A table cell: one inline-safe line.
 export function cell(value) {
-  return cleanLine(value).replace(/\|/g, "\\|");
+  return inline(value);
+}
+
+// A player's free text for an issue body, fenced so no heading, table,
+// quote, list, rule, HTML, mention or #123 in it takes effect and nothing in
+// it can close the block early. Inside a fence HTML shows as typed, so
+// nothing is stripped (text like "a<b and c>d" stays as written).
+export function block(value) {
+  return fence(plain(value).trim());
 }
 
 // Pasted text in a fenced block whose fence is longer than any run of

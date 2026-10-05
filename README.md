@@ -14,12 +14,13 @@ Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Bras
 ## Commands
 
 ```sh
-npm install        # once: dev tools (playwright-core, for screenshots only)
+npm install        # once: dev tools (playwright-core for screenshots, wawoff2 for fonts)
 npm run build      # fetch the addon source and release metadata, then generate dist/
 npm test           # check the generated site against the addon's Lua
 npm run check      # build, then test
 npm run serve      # serve dist/ at http://localhost:8080
-npm run shots      # full-page screenshots and a no-horizontal-scroll check at 390 and 360px (needs Chrome)
+npm run shots      # full-page screenshots, a no-horizontal-scroll check at 390 and 360px, and a keyboard check of the skip link (needs Chrome)
+npm run fonts      # re-make src/fonts/*.woff2 from the addon's TTF fonts (after npm run fetch)
 npm run stub:github  # a stand-in GitHub API on 127.0.0.1:8789 for the feedback Function (see Feedback form)
 npm run dev        # wrangler pages dev: dist/ plus the feedback Function, at http://localhost:8788
 npm run deploy     # npx wrangler pages deploy dist --project-name foreverui
@@ -30,6 +31,8 @@ To build from a local checkout of the addon, skip the clone (use the same `FUI_S
 ```sh
 FUI_SRC=/path/to/wow-forever-ui npm run check
 ```
+
+`npm run shots` looks for Chrome in the usual places; point `CHROME_PATH` at another Chromium browser (Edge works) if it isn't found. `SHOTS_PORT` picks the port of its local server (default: any free port) and `SHOTS_DIR` where the screenshots go (default: `shots/`, git-ignored). On every page it also presses Tab and Enter for real: the first Tab must focus the skip link, and Enter must move focus to `<main id="main">`.
 
 Other overrides: `FUI_REF` (the source commit to read for the next release) and `FUI_RELEASE` (a release tag instead of `latest`).
 
@@ -49,6 +52,14 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
    - Troubleshooting & FAQ (`scripts/lib/help-content.mjs`): every message an answer quotes is read from the addon at build time, each with its file. An answer whose message can't be found in the code is left off the page instead of guessed.
    - Changelog (`scripts/lib/changelog-content.mjs`): each release in player language, and "What's coming in the next release" from the changes merged since the current release. Every line lists the merged pull requests it came from (never shown on the site). The next-release part only shows while the release it was written after is still the current one.
 5. The pages (`scripts/lib/pages-*.mjs`) are written into `dist/`, with the Fira Sans Condensed fonts (and their OFL license) from the addon. No zip is copied into `dist/`.
+
+## Fonts
+
+The site serves the addon's own Fira Sans Condensed fonts. Each `@font-face` in `src/assets/site.css` lists the WOFF2 file first and the addon's TTF as the fallback, with `font-display: swap`. The WOFF2 files are committed in `src/fonts/`: `npm run fonts` (`scripts/fonts.mjs`) makes them from the TTFs at the current release with [wawoff2](https://www.npmjs.com/package/wawoff2) (Google's WOFF2 encoder as WebAssembly, so the output is the same on every OS). The build copies them into `dist/fonts/` next to the TTFs, and fails if one is missing. Run `npm run fonts` again if the addon's fonts change, and commit the result.
+
+## Page look
+
+Every page shares the Home page's Slate & Brass pieces, from `scripts/lib/html.mjs` and `src/assets/site.css`: `ornament()` (the brass divider), `heroFrame()` (the brass frame with corner pieces) and `pageHero()`, which opens every page but Home with its h1 and lede in a framed panel with the hero's sky. Cards (`.card`) share the Home feature cards' brass edge, glow and corner diamonds; section headings (`h2`) carry a brass diamond and rule.
 
 The site never links to the private GitHub repo from player-facing pages, and it offers no download.
 
@@ -76,24 +87,48 @@ Until they're all set, `GET /api/feedback` says it isn't accepting, and the page
 
 ### Running it locally
 
-Nothing is sent to GitHub: reports go to an in-memory stub on your machine. Turnstile uses Cloudflare's public test keys, which always pass. Wrangler 4 needs Node 22 or newer.
+`npm run shots` walks the form on its own (errors, feature fields, preview, confirmation, a repeat of the same bug): it answers the page's `/api/feedback` calls in-process with the real Function code, the GitHub stub, an in-memory KV and a Turnstile stand-in (`scripts/lib/feedback-mock.mjs`), so it needs no Wrangler and no network.
+
+To try the real thing with `wrangler pages dev`: nothing is sent to GitHub: reports go to an in-memory stub on your machine. Turnstile uses Cloudflare's public test keys, which always pass. Wrangler 4 needs Node 22 or newer.
 
 ```sh
 npm run build
 cp .dev.vars.example .dev.vars   # test keys and the stub address; .dev.vars is gitignored
 npm run stub:github              # terminal 1: the GitHub stand-in (lists what it got at http://127.0.0.1:8789/_stub/issues)
 npm run dev                      # terminal 2: http://localhost:8788/feedback/ (local KV for FEEDBACK_KV)
-SHOTS_BASE=http://localhost:8788 npm run shots   # optional: screenshots of the form's steps, sends 2 reports to the stub
+SHOTS_BASE=http://localhost:8788 npm run shots   # optional: the form walk-through against this server (3 reports to the stub)
 ```
 
 ### What gets filed
 
 - Labels: `bug` + `from-site`, or `feature-request` + `from-site`.
-- Player text is HTML-stripped, with `@mentions`, `#123` and image markdown broken. Pasted reports go in a fenced block.
-- Bugs with a caught error carry a fingerprint (`fp:` + 8 hex characters from the first error and its top stack line, with line numbers, addresses and counts removed). A second report of the same open bug becomes a comment on it, and the player gets the same reference.
+- Every free-text field and the pasted report go in fenced code blocks, each fence longer than any run of backticks inside, so nothing a player types can add headings, tables, quotes, lists, rules, HTML or mentions, or close its block early. Inside a fence HTML shows as typed, so nothing there is stripped (text like `a<b and c>d` stays as written). Titles have HTML stripped and `@mentions` and `#123` broken (GitHub shows titles as plain text). One-line values in the body, such as the environment table, also have HTML stripped, inline markdown escaped, and bare URLs broken with a zero-width space so they don't autolink.
+- Every report has its own reference (`Reference: FUI-…` and a hidden `<!-- fui-ref FUI-… -->`). A repeat of an open bug becomes a comment carrying the repeat reporter's own reference; the player gets that reference back, never the first reporter's.
+- Bugs with a caught error carry a fingerprint (`fp:` + 8 hex characters from the first error and its top stack line, with line numbers, addresses and counts removed). A second report of the same open bug becomes a comment on it.
 - Contact details (only when the player ticks the box) are kept in `FEEDBACK_KV` for 90 days, never in the issue. No IP address is stored: the rate cap keys are `sha256(IP + RL_SALT + date)`, kept for 2 hours.
-- Caps: 5 sends an hour per player, and 60 new issues a day in all.
+- Caps: 5 sends in any rolling hour per player, and 60 new issues per UTC day in all (see Rate caps).
 - No uploads in v1: a request with a screenshot or file field is refused.
+
+### Removal requests (maintainers)
+
+A player asks for removal by sending a report titled "Remove FUI-…" with their reference. References are shown only to the player who sent the report, and each report has its own, so:
+
+1. Search the repository's issues and comments for the reference (for example `"FUI-AB12CD"`, which matches the visible `Reference:` line).
+2. If it is in an **issue body**, that issue is the player's own report: delete the issue (if other players' comments are on it, delete or edit the body instead and keep their comments).
+3. If it is in a **comment**, delete only that comment; the issue and the other reports on it stay.
+4. Then delete the removal request issue too, and any `contact:<reference>:…` key in `FEEDBACK_KV`.
+
+### Rate caps
+
+Workers KV has no atomic increment, so the caps don't use counters. Each send that passes Turnstile **writes its own slot key first** (`rl:p:<sha256(IP + RL_SALT + UTC date)>:<time>:<random>`, kept 2 hours), then **lists** the player's slots from the last hour (today's and yesterday's key, so midnight doesn't reset it) and goes ahead only if fewer than 5 are as old as its own or older. Otherwise it deletes its slot and answers 429 with `retry-after` (when the oldest send in the way turns an hour old). The day cap works the same way with `rl:d:<date>:…` slots, one per new issue. A send that fails, and the day slot of a repeat that became a comment, are given back. Turnstile is checked before any of this, so a request without a valid token never writes to KV.
+
+This makes a fixed-hour reset and simple read-then-write races go away, but KV can't make it exact:
+
+- KV is eventually consistent. Writes are usually visible at once in the location that made them, but `list` results can lag (up to about a minute), and other locations can take longer. Requests that don't see each other's slots can all get through, so a burst spread across Cloudflare locations, or faster than KV shows writes, can still go over the cap.
+- Ties and clock differences between Cloudflare machines can make it refuse a send that could have gone through (it errs on the side of refusing).
+- Each send that passes Turnstile costs 2 writes (a player slot and a day slot) and 3 lists (today's player key, yesterday's player key, and the day key), plus a delete for each slot given back, and the usual `fp:`/`contact:` writes. That counts against KV's daily limits.
+
+For an exact cap, a future change could keep the counters in a Durable Object (one per player key, and one for the day), which handles requests one at a time, or rely on Turnstile as the main gate (for example a stricter widget mode or pre-clearance) with KV only as a backstop. Neither is built.
 
 ## CurseForge
 
@@ -109,10 +144,12 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 - that Home and Install have the CurseForge call to action (a non-link "Coming soon" badge while `CURSEFORGE_URL` is `null`)
 - that the home page's decoration is `aria-hidden` and its UI mock is labeled as an illustration
 - one `h1` per page and no duplicate ids
+- that the skip link is the first focusable element and targets `<main id="main">`, and that every inner page opens with the shared page hero
+- that each `@font-face` lists WOFF2 first and the TTF second, keeps `font-display: swap`, and that `dist/fonts/` ships the committed WOFF2 files
 - that every internal link and anchor resolves
 - that nothing in `dist/` links to github.com
 
-`test/feedback.test.mjs` covers the feedback form: sanitizing, the parser (with real `/fui status` and `/fui errors` output in `test/fixtures/`), fingerprints, the issue text and checks, and the Function's paths (create, duplicate → comment, spam, Turnstile, rate caps, missing settings) against a mock GitHub and an in-memory KV. It never calls GitHub.
+`test/feedback.test.mjs` covers the feedback form: sanitizing, the parser (with real `/fui status` and `/fui errors` output in `test/fixtures/`), fingerprints, the issue text and checks, hostile markdown in every free-text field, and the Function's paths (create, duplicate → comment with its own reference, spam, Turnstile, rate caps including 10 sends at once, the turn of the hour and midnight, missing settings) against a mock GitHub and an in-memory KV (`scripts/lib/memory-kv.mjs`). It never calls GitHub.
 
 ## License
 

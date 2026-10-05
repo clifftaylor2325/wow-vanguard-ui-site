@@ -6,12 +6,19 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import { execFileSync } from "node:child_process";
-import { loadConfig } from "../scripts/lib/config.mjs";
+import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { CURSEFORGE_URL, esc } from "../scripts/lib/html.mjs";
 import { helpPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
+import { featuresPage } from "../scripts/lib/pages-main.mjs";
+import { MORE } from "../scripts/lib/features-content.mjs";
+import { gitReader } from "../scripts/lib/source.mjs";
+import { extractAddon } from "../scripts/lib/extract.mjs";
+import { buildModel } from "../scripts/lib/model.mjs";
+import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
 
 const cfg = loadConfig();
 if (!fs.existsSync(path.join(cfg.sourcePath, ".git"))) {
@@ -296,6 +303,34 @@ test("no GitHub links in the output", () => {
   assert.deepEqual(bad, []);
 });
 
+test("fonts: WOFF2 first with the TTF as fallback, and the committed WOFF2 files ship", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1]);
+  assert.ok(faces.length >= 2, "expected the @font-face rules");
+  for (const f of faces) {
+    const m = f.match(/src:\s*url\("([^"]+)\.woff2"\)\s*format\("woff2"\),\s*url\("([^"]+)\.ttf"\)\s*format\("truetype"\)/);
+    assert.ok(m && m[1] === m[2], `@font-face must list WOFF2 then the same font as TTF: ${f.trim()}`);
+    assert.ok(/font-display:\s*swap/.test(f), "font-display: swap must stay");
+    for (const ext of ["woff2", "ttf"]) assert.ok(fs.existsSync(path.join(dist, `${m[1]}.${ext}`)), `${m[1]}.${ext} missing from dist/`);
+    const woff2 = fs.readFileSync(path.join(dist, `${m[1]}.woff2`));
+    assert.equal(woff2.subarray(0, 4).toString("latin1"), "wOF2", `${m[1]}.woff2 is not a WOFF2 file`);
+    assert.ok(woff2.equals(fs.readFileSync(path.join(root, "src", `${m[1]}.woff2`))), `${m[1]}.woff2 in dist/ differs from src/`);
+  }
+});
+
+test("every inner page and the 404 page open with the shared page hero, and the skip link comes first", () => {
+  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"];
+  for (const d of [...dirs, "404"]) {
+    const html = d === "404" ? fs.readFileSync(path.join(dist, "404.html"), "utf8") : page(d);
+    const body = html.slice(html.indexOf("<body"));
+    const first = body.match(/<(a|button|input|select|textarea)\b[^>]*>/);
+    assert.ok(first && /class="skip" href="#main"/.test(first[0]), `/${d}: the skip link must be the first focusable element`);
+    assert.ok(/<main id="main"/.test(html), `/${d}: the skip link target must be the main landmark`);
+    if (!d) continue;
+    assert.ok(/<div class="page-hero">\s*<div class="hero-art" aria-hidden="true">[\s\S]*?<h1 class="page-title">/.test(html), `/${d}: no page hero with the h1`);
+  }
+});
+
 // The help page's body built from the addon, with one fact's text cut out of
 // its file (in both refs) when `cut` is given.
 function helpWithout(cut) {
@@ -322,7 +357,7 @@ test("an FAQ entry is dropped when the addon no longer has its quote", () => {
     for (const e of shown) assert.ok(!body.includes(`id="${e.id}"`), `"${e.id}" still shown without ${fact[0]}`);
     checked++;
   }
-  assert.ok(checked >= 10, `only ${checked} facts were checked`);
+  assert.ok(checked >= 25, `only ${checked} facts were checked`);
 });
 
 // Each published release's section on the Changelog page.
@@ -339,4 +374,97 @@ test("next-release items stay out of the current release's section", () => {
   for (const s of releaseSections(html)) for (const i of items) assert.ok(!s.includes(esc(i.text)), `"${i.label}" is inside a release section`);
   const next = html.match(/<section class="card" aria-labelledby="next-h">[\s\S]*?<\/section>/);
   if (meta.current === NEXT_RELEASE.after) for (const i of items) assert.ok(next && next[0].includes(esc(i.text)), `"${i.label}" missing from What's coming`);
+});
+
+// Garbled characters or a byte-order mark in any text file of the repo or the built site.
+test("no garbled characters or byte-order marks in the source or the built site", () => {
+  const built = distFiles().filter((f) => /\.(html|js|css|xml|txt|json)$/.test(f)).map((f) => path.relative(root, f));
+  const bad = scanFiles(root, [...repoTextFiles(root), ...built]);
+  assert.deepEqual(bad, [], `encoding problems (see CONTRIBUTING.md):\n${bad.join("\n")}`);
+});
+
+// A planted bad file is caught, with its file and line: a BOM, a garbled line and a UTF-16 file.
+test("the encoding check catches planted bad files", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fui-encoding-"));
+  fs.writeFileSync(path.join(dir, "planted.md"), Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from("fine\nshows \u0393\u00c7\u00aa and \u00c3\u00a9 here\n", "utf8")]));
+  fs.writeFileSync(path.join(dir, "out-file.txt"), Buffer.from("\ufeffhello", "utf16le"));
+  fs.writeFileSync(path.join(dir, "clean.mjs"), "// \u2026 \u201cquoted\u201d \u2192 \u00b7\n");
+  const found = scanFiles(dir, ["planted.md", "out-file.txt", "clean.mjs"]);
+  assert.deepEqual(found, ["planted.md:1: UTF-8 byte-order mark (save without BOM)", "planted.md:2: garbled characters", "out-file.txt:1: UTF-16 file (save it as UTF-8)"]);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+// The site's model of the release and the newer source, made as the build makes it.
+function siteModel() {
+  const r = meta.releases.find((x) => x.tagName === meta.current);
+  const rel = extractAddon(gitReader(cfg.sourcePath, meta.current));
+  const next = extractAddon(gitReader(cfg.sourcePath, cfg.sourceRef));
+  return buildModel({ rel, next, release: { tag: r.tagName, publishedAt: r.publishedAt }, releases: meta });
+}
+
+// One module's card in a Features page body ("" when it isn't there).
+function featureCardOf(body, key) {
+  return (body.match(new RegExp(`<article class="card mod" id="[^"]+" data-module="${key}">[\\s\\S]*?</article>`)) || [""])[0];
+}
+
+// Taking any one checked phrase out of the README must drop that module's longer text.
+test("a Features paragraph drops out when its README phrase disappears", () => {
+  const model = siteModel();
+  const full = featuresPage(model).body;
+  for (const [key, entry] of Object.entries(MORE)) {
+    assert.ok(featureCardOf(full, key).includes("mod-more"), `${key} has no longer text with the full README`);
+    for (const phrase of entry.check) {
+      const cut = { ...model, next: { ...model.next, readme: model.next.readme.replaceAll(phrase, "") } };
+      assert.ok(!featureCardOf(featuresPage(cut).body, key).includes("mod-more"), `${key} keeps its text without "${phrase}"`);
+    }
+  }
+});
+
+// O.MODULE_INFO in Core/Options.lua: key -> [name, one-liner], read here on its own.
+function moduleInfo(ref) {
+  const lua = show(ref, "Core/Options.lua");
+  const at = lua.indexOf("O.MODULE_INFO = {");
+  const block = lua.slice(at, lua.indexOf("\n}\n", at));
+  const str = '"((?:[^"\\\\]|\\\\.)*)"';
+  const rows = [...block.matchAll(new RegExp(`^\\s{2}(\\w+)\\s*=\\s*\\{\\s*${str},\\s*${str}`, "gm"))];
+  return Object.fromEntries(rows.map((m) => [m[1], [m[2], m[3]].map((t) => t.replace(/\\(.)/g, "$1"))]));
+}
+
+// Each Features card quotes the addon's one-liner for that module word for word.
+test("the Features one-liners match the addon word for word", () => {
+  const html = page("features");
+  const info = Object.entries(moduleInfo(refs.next));
+  assert.ok(info.length >= 40, `only ${info.length} modules read from O.MODULE_INFO`);
+  const bad = info.filter(([key, [, desc]]) => !featureCardOf(html, key).includes(`<p>${esc(desc)}</p>`)).map(([key]) => key);
+  assert.deepEqual(bad, [], `one-liners not quoted verbatim: ${bad.join(", ")}`);
+});
+
+// Every Core/Modules Lua file's text at a ref, read once.
+const luaTexts = new Map();
+function luaFiles(ref) {
+  if (!luaTexts.has(ref)) {
+    const files = execFileSync("git", ["ls-tree", "-r", "--name-only", ref], { cwd: cfg.sourcePath }).toString().split("\n").filter((f) => /^(Core|Modules)\/.*\.lua$/.test(f));
+    luaTexts.set(ref, files.map((f) => show(ref, f)));
+  }
+  return luaTexts.get(ref);
+}
+
+// A module's top-level on/off defaults from its ns.Module(...) call, read here on its own.
+function moduleFlags(ref, key) {
+  const lua = luaFiles(ref).find((t) => t.includes(`ns.Module("${key}"`)) || "";
+  const start = lua.indexOf("defaults = {", lua.indexOf(`ns.Module("${key}"`));
+  if (start < 0) return [];
+  let depth = 0, i = lua.indexOf("{", start), body = "";
+  do { const c = lua[i++]; depth += c === "{" ? 1 : c === "}" ? -1 : 0; body += depth === 1 && c !== "{" ? c : depth > 1 ? " " : ""; } while (depth > 0 && i < lua.length);
+  return [...body.matchAll(/\b\w+\s*=\s*(true|false)\b/g)].map((m) => m[1] === "true");
+}
+
+// "Off until you switch it on" shows exactly where every switch defaults off and the addon says it starts off.
+test("the Features 'Off until you switch it on' labels match the addon defaults", () => {
+  const html = page("features");
+  const info = moduleInfo(refs.next);
+  const expected = Object.keys(info).filter((k) => { const f = moduleFlags(refs.next, k); return f.length && f.every((v) => !v) && /off until|switch it on/i.test(info[k][1]); });
+  const shown = Object.keys(info).filter((k) => featureCardOf(html, k).includes("Off until you switch it on"));
+  assert.ok(expected.length >= 1, "no module starts off: the defaults weren't read");
+  assert.deepEqual(shown.sort(), expected.sort());
 });

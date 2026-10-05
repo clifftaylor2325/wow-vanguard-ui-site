@@ -12,14 +12,17 @@
     "fetch": "node scripts/fetch.mjs",
     "build": "node scripts/fetch.mjs && node scripts/build.mjs",
     "test": "node --test test/site.test.mjs test/feedback.test.mjs",
-    "check": "npm run build && npm test",
+    "check": "npm run build && npm run check:encoding && npm test",
+    "check:encoding": "node scripts/check-encoding.mjs",
     "shots": "node scripts/shots.mjs",
     "serve": "node scripts/serve.mjs",
     "stub:github": "node scripts/github-stub.mjs",
     "dev": "npx --yes wrangler@4 pages dev dist --kv FEEDBACK_KV --port 8788 --compatibility-date 2025-09-01",
-    "deploy": "npx wrangler pages deploy dist --project-name foreverui"
+    "deploy": "npx wrangler pages deploy dist --project-name foreverui",
+    "fonts": "node scripts/fonts.mjs"
   },
   "devDependencies": {
-    "playwright-core": "1.56"
+    "playwright-core": "1.56",
+    "wawoff2": "2.0.1"
   }
 }
