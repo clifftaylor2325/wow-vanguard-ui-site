@@ -63,8 +63,18 @@ export const MORE = {
     check: ["phrases that ring a sound and show a toast you can click to whisper the sender", "Add phrases (\"LFM\"", "tick the channels to watch", "the whisper sound plays and a small accent-edged toast", "shows the sender and the line", "your own lines never ring"], from: "Chat watch" },
   MinimapButtons: { more: "Other addons' round minimap buttons are gathered into a drawer beside the map. The small \"...\" button on the map's left edge opens it.",
     check: ["other addons' round minimap buttons are gathered into a drawer beside the map; the small \"...\" button on the map's left edge opens it"], from: "Minimap drawer" },
-  AutoAccept: { more: "Accept summons (out of combat), accept resurrections, and decline duel requests. Each one is off until you switch it on, and each says in chat what it did.",
-    check: ["each off until you switch it on, under Bars, map, chat): accept summons (out of combat), accept resurrections", "decline duel requests. Each says in chat what it did"], from: "Auto-accept" },
+  AutoAccept: { more: "Accept summons (out of combat), accept resurrections, decline duel requests, and loot faster. Each one is off until you switch it on, and the first three say in chat what they did.",
+    check: ["each off until you switch it on, under Bars, map, chat): accept summons (out of combat), accept resurrections", "decline duel requests (each says in chat what it did), and faster auto-loot"], from: "Auto-accept" },
+  Waypoints: { more: "Type /way with coordinates, such as /way 45.2 61.8, to put a waypoint on the map you're on, and the game's own navigation arrow points to it. While the world map is open, a line along its bottom shows your coordinates and the cursor's.",
+    check: ["`/way 45.2 61.8` puts a waypoint on the map you're on and the game's own navigation arrow points to it", "While the world map is open, a line along its bottom shows your coordinates and the cursor's"], from: "Waypoints" },
+  Inventory: { more: "Vanguard remembers what each of your characters on a realm and side carries and keeps in the bank, and an item's tooltip lists who else has it under the count of your own.",
+    check: ["Vanguard remembers what each of your characters on a realm and side carries and keeps in the bank, and an item's tooltip lists who else has it under the count of your own"], from: "Other characters' items" },
+  Upgrades: { more: "An item's tooltip says how it compares with what you wear, such as \"Upgrade +12%\", an arrow marks upgrades in the combined bag, and another marks quest rewards that are upgrades. Items are scored by stat weights for your class and role.",
+    check: ["an item's tooltip says how it compares with what you wear (\"Upgrade +12% vs", "an arrow marks upgrades in the combined bag, and another marks quest rewards that are upgrades", "Items are scored by stat weights for your class and role"], from: "Gear upgrades" },
+  BossDocks: { more: "Two spots for boss mods' timer bars: the normal bars right of center above the action bars, and the big bars a timer moves to as it runs out, top center. In unlock mode they show as handles, so you move them with the rest of your layout.",
+    check: ["two spots for boss mods' timer bars", "the normal bars, right of center above the action bars", "the big bars a timer moves to as it runs out, top center", "shown as handles in unlock mode so you can move them with the rest of the layout"], from: "Boss mod docks" },
+  BrokerStrip: { more: "Other addons' data feeds, the kind Titan Panel shows (gold trackers, durability, guild counts and so on), in a thin strip along the top edge of the screen. Pick up to four.",
+    check: ["the kind Titan Panel shows: gold trackers, durability, guild counts and so on) in a thin strip along the top edge of the screen", "(up to four, in the order picked)"], from: "Broker strip" },
   QuestDialog: { more: "Talking to a quest giver opens Vanguard's own dialog instead of the game's quest and gossip windows: the NPC's portrait and name, the text, numbered lines, reward cards and the money and XP you'll get. Press a number to pick, Space for the main button and Escape to say goodbye.",
     check: ["talking to a quest giver opens Vanguard's own dialog", "instead of the game's quest and gossip windows", "the NPC's portrait", "numbered lines for quests", "reward cards with quality borders", "and the money and XP you'll get", "Press a number to pick a line or a reward, Space for the main button", "Escape to say goodbye"], from: "Quest dialog" },
   QuestTracker: { more: "Each quest you watch, with its level in its difficulty color, its objectives (green when done) or \"Ready to turn in\", and its quest item as a button beside it. Left-click a quest to open it, right-click to stop watching it, and order it as the game does or nearest first.",
@@ -280,7 +290,7 @@ export const LONGER = {
   QuestTracker: [
     R("A quest item's button shows its cooldown, and a red tint while the target is out of range.", "with its cooldown, a red tint while the target is out of range"),
     R("In combat the counts and text keep updating, and the item buttons take their new places when combat ends.", "In combat the counts and text keep updating", "they take their new places when combat ends"),
-    R("Quests that don't fit are counted (\"+3 more\").", "Quests that don't fit are counted (\"+3 more\")"),
+    R("With Questie loaded, Questie's own tracker shows instead and Vanguard's stays out of the way, so there are never two; With Questie loaded, under Quests, picks Vanguard's instead.", "Questie loaded, Questie's own tracker shows instead and Vanguard's stays out of the way, so there are never two", "With Questie loaded under Quests picks Vanguard's instead"),
     R("The game's tracker is hidden while it shows; switch it off to get the game's back, in Vanguard's look.", "The game's tracker is hidden while it shows; switch it off to get the game's back (in Vanguard's look)"),
   ],
   QuestLog: [
@@ -301,6 +311,33 @@ export const LONGER = {
   AutoAccept: [
     R("Turn each one on under Bars, map, chat.", "(each off until you switch it on, under Bars, map, chat)"),
     R("Accepting a resurrection closes the game's prompt, whichever kind it was.", "the game's prompt closes whichever kind it was"),
+    R("Faster auto-loot works while the game is auto-looting and takes every slot at once; an item still being rolled for stays in the loot window, and a bind-on-pickup item still asks first.", "when the game is auto-looting (its Auto Loot setting, or its auto-loot key held), every slot is taken at once instead of one by one", "a slot the game has locked (an item still being rolled for) stays in the loot window, and a bind-on-pickup item still asks first"),
+  ],
+  Waypoints: [
+    R("Name a zone and a title too, as in /way Elwynn Forest 42 65 Inn, and /way clear removes the waypoint.", "`/way Elwynn Forest 42 65 Inn` names a zone", "`/way clear` removes it"),
+    R("If another addon such as TomTom already has /way, use /vg way instead.", "`/way` is Vanguard's only while no other addon (TomTom, say) has it; `/vg way` always works"),
+    R("Both are on by default, under Bars, map, chat.", "Both are on by default, under Bars, map, chat."),
+  ],
+  Inventory: [
+    R("Each character gets one line, with the name in their class color and a count such as \"5 (bank 3)\", up to six, then \"+N more\" and the total.", "one line per character (the name in their class color, \"5 (bank 3)\"), at most six, then \"+N more\" and the total"),
+    R("The bank is read only while it's open, so each character's bank is as it was on their last visit.", "the bank only while it's open, so each character's bank is as it was on their last visit"),
+    R("/vg inventory lists the characters remembered, and /vg inventory forget or /vg inventory clear drops one or all of them.", "`/vg inventory` lists the characters remembered", "`/vg inventory forget <name>` drops one and `/vg inventory clear` forgets them all"),
+    R("While the Forever beta loses saved settings between sessions, other characters won't be remembered from one session to the next.", "While the Forever beta loses saved settings between sessions, other characters won't be remembered from one session to the next."),
+  ],
+  Upgrades: [
+    R("Rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands, and an empty slot is always an upgrade; gear you can't wear is left alone.", "rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands, and an empty slot is always an upgrade; gear you can't wear is left alone"),
+    R("The default weights are a starting point for Forever's vanilla-style stats, not simulated values.", "The default weights are a starting point for Forever's vanilla-style stats, not simulated values"),
+    R("/vg weights shows the weights in use, /vg weights set changes one, and export and import share them as a string; each profile keeps its own.", "`/vg weights` shows the ones in use", "`/vg weights set AGI 1.2` changes one", "`export`/`import` share them as a string. Each profile keeps its own."),
+  ],
+  BossDocks: [
+    R("/vg dock lines Deadly Boss Mods' bars up with them through DBM's own settings.", "`/vg dock`, or the button under Bars, map, chat → Boss mods", "lines Deadly Boss Mods' bars up with them through DBM's own settings"),
+    R("For BigWigs, chat says where the spots are so you can drag its anchors there.", "for BigWigs, which has no such setting, chat says where the spots are so you can drag its anchors there"),
+    R("Nothing moves on its own, and nothing moves in combat.", "Nothing moves on its own, and nothing moves in combat."),
+  ],
+  BrokerStrip: [
+    R("Each feed shows its icon and text, its own tooltip on hover, and takes your clicks.", "each shows its icon and text, its own tooltip on hover, and takes your clicks"),
+    R("Pick the feeds under Bars, map, chat → Data from other addons, and move the strip with /vg unlock.", "Pick the feeds under Bars, map, chat → Data from other addons", "movable with `/vg unlock`"),
+    R("The addons that share feeds bring what the strip needs, so with none of them installed it stays hidden.", "the addons that share feeds load it, so with none of them the strip stays hidden"),
   ],
   GameAlerts: [
     R("Loss of control (stunned, feared...) shows a little above your character and the talking head at the top center; hiding the talking head is your choice under Bars, map, chat.", "Loss of control (stunned, feared...) shows on a flat panel a little above your character", "the talking head on one at the top center (or hidden; your choice under Bars, map, chat)"),

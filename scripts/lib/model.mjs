@@ -9,11 +9,11 @@ import { defaultLabel } from "./extract.mjs";
 // isn't listed still shows, under "Other".
 export const AREAS = [
   ["Unit frames", ["UnitFrames", "CastBars", "FrameAuras", "PlayerAuras", "ComboPoints", "ClassBars", "PowerTicks", "SwingTimer", "UnitExtras", "PartyExtras"]],
-  ["Raid and group", ["RaidFrames", "RaidAuras", "RaidHealing", "RaidStatus", "MainTanks", "RaidTools", "ClickCast"]],
+  ["Raid and group", ["RaidFrames", "RaidAuras", "RaidHealing", "RaidStatus", "MainTanks", "RaidTools", "ClickCast", "BossDocks"]],
   ["Action bars", ["ActionBars", "SpecialBars", "DataBars"]],
-  ["Map and HUD", ["Minimap", "MinimapButtons", "InfoStrip", "MenuStrip"]],
+  ["Map and HUD", ["Minimap", "MinimapButtons", "InfoStrip", "MenuStrip", "BrokerStrip", "Waypoints"]],
   ["Chat", ["Chat", "ChatExtras", "ChatWatch"]],
-  ["Items and money", ["Bags", "Merchant", "VendorMemory", "AuctionHelper", "Errands"]],
+  ["Items and money", ["Bags", "Merchant", "VendorMemory", "AuctionHelper", "Errands", "Inventory", "Upgrades"]],
   ["Quests", ["QuestDialog", "QuestTracker", "QuestLog", "QuestAuto"]],
   ["Comfort and more", ["AfkScreen", "AutoAccept", "GameAlerts", "GameTools", "FightHistory", "InstancePrep", "Windows", "Tooltips", "Nameplates", "Situations"]],
 ];
