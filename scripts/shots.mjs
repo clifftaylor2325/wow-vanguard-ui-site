@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Checks every page for sideways scrolling at 390px and 360px wide, and takes
-// full-page screenshots of Home, Install, Commands, Settings and Feedback at 1280px and 390px.
+// full-page screenshots of Home, Install, Features, Commands, Settings and
+// Feedback at 1280px and 390px.
 // Uses playwright-core with an installed Chrome/Chromium (set CHROME_PATH if
 // it isn't found). Screenshots go to SHOTS_DIR (default: shots/).
 //   npm run shots
@@ -13,7 +14,7 @@ import { NAV } from "./lib/html.mjs";
 
 const CANDIDATES = [process.env.CHROME_PATH, "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "C:/Program Files/Google/Chrome/Application/chrome.exe"].filter(Boolean);
 const outDir = path.resolve(root, process.env.SHOTS_DIR || "shots");
-const SHOOT = [["home", "/"], ["install", "/install/"], ["commands", "/commands/"], ["settings", "/settings/"], ["feedback", "/feedback/"]];
+const SHOOT = [["home", "/"], ["install", "/install/"], ["features", "/features/"], ["commands", "/commands/"], ["settings", "/settings/"], ["feedback", "/feedback/"]];
 
 // The first browser binary that exists.
 function browserPath() {
