@@ -1,0 +1,14 @@
+|cffd9a441Vanguard:|r Vanguard 0.3.0  ·  interface 16001  ·  2 error(s) caught this session (3 in all), newest last:
+|cffd9a441Vanguard:|r Client WoW Forever  ·  build 1.16.0 (65000)  ·  update the game: this build loses settings at every launch  ·  auras on the engine  ·  aura values readable  ·  secure snippets: yes
+|cffd9a441Vanguard:|r RaidFrames: eval:2: attempt to index a nil value (local 't')  (x2)
+|cffd9a441Vanguard:|r     	Core/Events.lua:136: in metamethod '__index'
+|cffd9a441Vanguard:|r     	eval:2: in function <eval:2>
+|cffd9a441Vanguard:|r     	[JS]: in function 'xpcall'
+|cffd9a441Vanguard:|r     	Core/Events.lua:155: in field 'Try'
+|cffd9a441Vanguard:|r     	eval:2: in main chunk
+|cffd9a441Vanguard:|r Nameplates: eval:2: attempt to perform arithmetic on a table value  (x1)
+|cffd9a441Vanguard:|r     	Core/Events.lua:136: in metamethod '__add'
+|cffd9a441Vanguard:|r     	eval:2: in function <eval:2>
+|cffd9a441Vanguard:|r     	[JS]: in function 'xpcall'
+|cffd9a441Vanguard:|r     	Core/Events.lua:155: in field 'Try'
+|cffd9a441Vanguard:|r     	eval:2: in main chunk

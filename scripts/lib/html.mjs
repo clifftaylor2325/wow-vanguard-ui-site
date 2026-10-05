@@ -25,7 +25,7 @@ export function md(s) {
 
 // Every page in nav order: path, nav label, title.
 export const NAV = [
-  { path: "/", label: "Home", title: "ForeverUI" },
+  { path: "/", label: "Home", title: "Vanguard" },
   { path: "/install/", label: "Install", title: "Install & Update" },
   { path: "/start/", label: "Getting started", title: "Getting started" },
   { path: "/features/", label: "Features", title: "Features" },
@@ -38,7 +38,7 @@ export const NAV = [
   { path: "/credits/", label: "Credits", title: "Credits & license" },
 ];
 
-// ForeverUI's CurseForge page. ForeverUI isn't listed yet, so there's no URL:
+// Vanguard's CurseForge page. Vanguard isn't listed yet, so there's no URL:
 // every CurseForge call to action renders as a "Coming soon" badge, not a link.
 // When the listing is live, put its URL here (for example
 // "https://www.curseforge.com/wow/addons/<slug>") and rebuild: the badges
@@ -50,7 +50,7 @@ export const CURSEFORGE_URL = null;
 export function curseforgeCta({ size = "" } = {}) {
   const cls = `cf-cta${size ? ` cf-cta-${size}` : ""}`;
   const gem = `<svg class="cf-gem" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1 L15 8 L8 15 L1 8 Z"/><path d="M8 4.5 L11.5 8 L8 11.5 L4.5 8 Z"/></svg>`;
-  if (CURSEFORGE_URL) return `<a class="${cls}" data-curseforge="live" href="${esc(CURSEFORGE_URL)}">${gem}<span>Get ForeverUI on CurseForge</span></a>`;
+  if (CURSEFORGE_URL) return `<a class="${cls}" data-curseforge="live" href="${esc(CURSEFORGE_URL)}">${gem}<span>Get Vanguard on CurseForge</span></a>`;
   return `<span class="${cls} is-soon" data-curseforge="soon">${gem}<span>Coming soon on CurseForge</span></span>`;
 }
 
@@ -81,13 +81,13 @@ ${lede ? `<p class="lede">${lede}</p>` : ""}
 </div>`;
 }
 
-// The two linked diamonds of the ForeverUI logo, as a small inline SVG.
+// The two linked diamonds of the Vanguard logo, as a small inline SVG.
 const MARK = `<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M11 4 L20 16 L11 28 L2 16 Z" fill="none" stroke="var(--accent)" stroke-width="2.5"/><path d="M21 4 L30 16 L21 28 L12 16 Z" fill="none" stroke="var(--text)" stroke-width="2.5"/></svg>`;
 
 // A full HTML page with the shared header, nav and footer.
 export function layout({ path, title, description, body, site, scripts = [] }) {
   const nav = NAV.map((n) => `<li><a href="${n.path}"${n.path === path ? ' aria-current="page"' : ""}>${esc(n.label)}</a></li>`).join("");
-  const fullTitle = path === "/" ? `ForeverUI: a UI suite for WoW Forever` : `${title} · ForeverUI`;
+  const fullTitle = path === "/" ? `Vanguard: a UI suite for WoW Forever` : `${title} · Vanguard`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -106,7 +106,7 @@ export function layout({ path, title, description, body, site, scripts = [] }) {
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="header-inner">
-    <a class="brand" href="/">${MARK}<span>ForeverUI</span></a>
+    <a class="brand" href="/">${MARK}<span>Vanguard</span></a>
     <nav class="nav" aria-label="Main">
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">Menu</button>
       <ul id="nav-list">${nav}</ul>
@@ -119,8 +119,8 @@ ${body}
 <footer class="site-footer">
   ${ornament("footer-orn")}
   <div class="footer-inner">
-    <p style="margin:0">ForeverUI is a fan addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
-    <p style="margin:0">Current release: ForeverUI ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · Code under the ${esc(site.licenseName)} license · <a href="/credits/">Credits &amp; license</a> · <a href="/feedback/">Feedback</a></p>
+    <p style="margin:0">Vanguard is a fan addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
+    <p style="margin:0">Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · Code under the ${esc(site.licenseName)} license · <a href="/credits/">Credits &amp; license</a> · <a href="/feedback/">Feedback</a></p>
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>

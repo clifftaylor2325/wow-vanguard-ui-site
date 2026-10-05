@@ -2,7 +2,7 @@
 // Gets everything the build reads from the (private) addon repo into .cache/:
 //   - a clone of the addon repo (or uses FUI_SRC), with the pinned sourceRef present
 //   - the release metadata for every release (tag, date, notes)
-// The site doesn't host or download the release zip: ForeverUI is going to be
+// The site doesn't host or download the release zip: Vanguard is going to be
 // installed through CurseForge, so only release metadata is read.
 // Needs the GitHub CLI (gh) signed in, or GH_TOKEN / GITHUB_TOKEN in the
 // environment. Nothing is ever pushed to the addon repo; the token is never printed.

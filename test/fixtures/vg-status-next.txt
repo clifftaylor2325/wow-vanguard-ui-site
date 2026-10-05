@@ -1,0 +1,5 @@
+|cffd9a441Vanguard:|r Vanguard 0.3.0  ·  profile Default  ·  46/46 modules on
+|cffd9a441Vanguard:|r 0 skinned addon(s)  ·  149 painted frame(s)  ·  0 change(s) waiting on combat
+|cffd9a441Vanguard:|r Client WoW Forever  ·  build 1.16.0 (65000)  ·  update the game: this build loses settings at every launch  ·  auras on the engine  ·  aura values readable  ·  secure snippets: yes
+|cffd9a441Vanguard:|r Client has: auraContainer, eventValid, cooldownObject, cooldownMin, countdownText, keyPropagate, damageMeter, cooldownViewer, swingTimer  ·  lacks: pixelUtil, barEase, meterEnums
+|cffd9a441Vanguard:|r UI scale 1.00  ·  text 100%  ·  chat 12 (about 17 px on this screen)

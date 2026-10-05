@@ -1,7 +1,7 @@
 // POST /api/feedback: checks a report and files it as an issue in the
 // maintainers' private repository (FEEDBACK_REPO), or adds it to the open
 // issue for the same error. The player only ever gets a short reference
-// (FUI-AB12CD): never an issue URL, the repository's name, or anything
+// (VG-AB12CD): never an issue URL, the repository's name, or anything
 // about the token. GET /api/feedback tells the page whether reports are being
 // accepted and which Turnstile sitekey to use.
 //
@@ -65,7 +65,7 @@ export function handleGet(request, env) {
   return json(200, problem ? { accepting: false, sitekey: null } : { accepting: true, sitekey: env.TURNSTILE_SITEKEY });
 }
 
-// The "Part of ForeverUI" choices: value -> label, from the modules in the
+// The "Part of Vanguard" choices: value -> label, from the modules in the
 // built site's site-data.json, then the fallbacks.
 async function loadAreas(request, env) {
   const areas = new Map();
@@ -76,10 +76,11 @@ async function loadAreas(request, env) {
   return areas;
 }
 
-// A new reference: FUI- and six characters that can't be mistaken for each other.
+// A new reference: VG- and six characters that can't be mistaken for each other
+// (reports sent before the rename have FUI- references).
 function newReference() {
   const bytes = globalThis.crypto.getRandomValues(new Uint8Array(6));
-  return `FUI-${Array.from(bytes, (b) => REF_CHARS[b % REF_CHARS.length]).join("")}`;
+  return `VG-${Array.from(bytes, (b) => REF_CHARS[b % REF_CHARS.length]).join("")}`;
 }
 
 // The request's JSON object, or null when it isn't one (or is too big).

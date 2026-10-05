@@ -14,7 +14,7 @@ export const LIMITS = {
   why: [1, 2000],
 };
 
-// The "Part of ForeverUI" choices after the addon's modules: [value, label].
+// The "Part of Vanguard" choices after the addon's modules: [value, label].
 export const FALLBACK_AREAS = [
   ["command", "A command"],
   ["setting", "A setting"],
@@ -59,7 +59,7 @@ const BUG = [["report", "The pasted report"], ["did", "What you did"], ["expecte
 const FEATURE = [["want", "What you want"], ["why", "Why it would help"]];
 
 // Every problem with the fields: { field: message }; empty when they're fine.
-// areas: the allowed "Part of ForeverUI" values (a Set or array).
+// areas: the allowed "Part of Vanguard" values (a Set or array).
 export function validate(f, areas) {
   const errors = {};
   if (!f.kind) errors.kind = "Choose Report a bug or Request a feature.";
@@ -69,7 +69,7 @@ export function validate(f, areas) {
     if (e) errors[name] = e;
   }
   if (f.kind === "bug" && !f.report && !f.no_report) errors.no_report = "Paste your report, or tick the box to say you couldn't get one.";
-  if (f.kind === "feature" && !new Set(areas).has(f.area)) errors.area = "Choose the part of ForeverUI it's about.";
+  if (f.kind === "feature" && !new Set(areas).has(f.area)) errors.area = "Choose the part of Vanguard it's about.";
   if (!f.public_ack) errors.public_ack = "Please tick this to say you understand where the report goes.";
   return errors;
 }
