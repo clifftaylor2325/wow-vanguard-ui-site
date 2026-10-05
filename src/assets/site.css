@@ -243,7 +243,6 @@ thead th { border-bottom-color: color-mix(in oklab, var(--accent) 45%, var(--div
 .steps { padding-left: 1.4em; }
 .steps > li { margin-bottom: 0.8em; }
 .steps > li::marker { color: var(--accent); font-weight: 600; }
-.faq { margin-bottom: 12px; }
 
 /* Footer */
 .site-footer { position: relative; border-top: 1px solid var(--divider); background: var(--raised); color: var(--text2); font-size: 0.95rem; }
@@ -460,3 +459,9 @@ thead th { border-bottom-color: color-mix(in oklab, var(--accent) 45%, var(--div
   .embers i { bottom: auto; top: var(--y); opacity: 0.45; }
   .feat:hover, .feat:focus-visible { transform: none; }
 }
+
+/* Troubleshooting & FAQ: question cards and the jump links; Changelog lists */
+.help-jumps { justify-content: flex-start; margin: 16px 0 8px; }
+.help-entry { margin-bottom: 10px; }
+.help-entry h3 { margin-top: 0; }
+.changes li { margin-bottom: 4px; }
