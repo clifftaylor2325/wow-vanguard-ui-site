@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 // Checks every page for sideways scrolling, failed requests and console errors at
 // 390px and 360px wide, checks the Commands and Settings search, and takes
-// full-page screenshots of Home, Install, Commands, Settings and Feedback at 1280px and 390px.
-// Uses playwright-core with an installed Chrome/Chromium (set CHROME_PATH if
-// it isn't found). Screenshots go to SHOTS_DIR (default: shots/).
+// full-page screenshots of Home, Install, Features, Commands, Settings,
+// Feedback, Troubleshooting and Changelog at 1280px and 390px.
+// Uses playwright-core with the browser in CHROME_PATH, else Edge on Windows
+// (msedge.exe under Program Files or Program Files (x86)), else an installed
+// Chrome/Chromium. Screenshots go to SHOTS_DIR (default: shots/).
 //   npm run shots
 import fs from "node:fs";
 import path from "node:path";
@@ -12,14 +14,21 @@ import { loadConfig, root } from "./lib/config.mjs";
 import { serve } from "./serve.mjs";
 import { NAV } from "./lib/html.mjs";
 
-const CANDIDATES = [process.env.CHROME_PATH, "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "C:/Program Files/Google/Chrome/Application/chrome.exe"].filter(Boolean);
+// msedge.exe in the usual Windows install folders (none on other systems).
+function edgePaths() {
+  if (process.platform !== "win32") return [];
+  const dirs = [process.env.ProgramFiles || "C:\\Program Files", process.env["ProgramFiles(x86)"] || "C:\\Program Files (x86)"];
+  return dirs.map((d) => path.join(d, "Microsoft", "Edge", "Application", "msedge.exe"));
+}
+
+const CANDIDATES = [process.env.CHROME_PATH, ...edgePaths(), "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "C:/Program Files/Google/Chrome/Application/chrome.exe"].filter(Boolean);
 const outDir = path.resolve(root, process.env.SHOTS_DIR || "shots");
-const SHOOT = [["home", "/"], ["install", "/install/"], ["commands", "/commands/"], ["settings", "/settings/"], ["feedback", "/feedback/"]];
+const SHOOT = [["home", "/"], ["install", "/install/"], ["features", "/features/"], ["commands", "/commands/"], ["settings", "/settings/"], ["feedback", "/feedback/"], ["help", "/help/"], ["changelog", "/changelog/"]];
 
 // The first browser binary that exists.
 function browserPath() {
   const p = CANDIDATES.find((c) => fs.existsSync(c));
-  if (!p) throw new Error("no Chrome/Chromium found; set CHROME_PATH");
+  if (!p) throw new Error("no Edge, Chrome or Chromium found; set CHROME_PATH");
   return p;
 }
 

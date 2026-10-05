@@ -8,7 +8,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { loadConfig } from "../scripts/lib/config.mjs";
-import { CURSEFORGE_URL } from "../scripts/lib/html.mjs";
+import { CURSEFORGE_URL, esc } from "../scripts/lib/html.mjs";
+import { helpPage } from "../scripts/lib/pages-more.mjs";
+import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
+import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 
 const cfg = loadConfig();
 if (!fs.existsSync(path.join(cfg.sourcePath, ".git"))) {
@@ -147,12 +150,33 @@ test("the Settings counter counts only setting rows, so it matches the header", 
   assert.ok(fs.readFileSync(path.join(dist, "assets/site.js"), "utf8").includes('hasAttribute("data-count")'), "site.js must count data-count rows only");
 });
 
-test("both searches have singular and plural nouns and a no-match message", () => {
+test("both searches have singular and plural nouns, a no-match message and a Clear search button", () => {
   for (const [d, one, many] of [["settings", "setting", "settings"], ["commands", "command", "commands"]]) {
     assert.ok(page(d).includes(`data-noun="${many}" data-noun-one="${one}"`), `/${d} search needs data-noun and data-noun-one`);
   }
   const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
-  assert.ok(js.includes('"No " + noun + " match \\u201c" + query') && js.includes("Clear search"), "site.js must show a no-match message with a Clear search button");
+  assert.ok(js.includes('"No " + noun + " match \\u201c" + query'), "site.js must show a no-match message");
+  assert.match(js, /<button class="search-clear" type="button">Clear search<\/button>/, "the no-match message must render a Clear search button element");
+});
+
+test("the Settings repeat heading describes the table rows, not cards (#3)", () => {
+  const html = page("settings");
+  assert.ok(!html.includes("one card each"), "/settings/ still says (one card each)");
+  const heads = html.match(/The rows below repeat for (each &lt;\w+&gt; from|each of) \d+ to \d+/g) || [];
+  assert.ok(heads.length > 0, "/settings/ has no heading over the repeated rows");
+});
+
+test("the in-combat reload note says /reload exactly once (#3)", () => {
+  const note = (page("settings").match(/<div class="notice info" id="reload-in-combat">([\s\S]*?)<\/div>/) || [])[1];
+  if (!/ns\.Chat\("Type \/reload in chat/.test(show(refs.next, "Core/Dialog.lua"))) return assert.equal(note, undefined);
+  assert.ok(note, "/settings/ has no in-combat reload note");
+  assert.equal((note.match(/\/reload/g) || []).length, 1, "the in-combat reload note must say /reload once");
+});
+
+test("the Changelog has no doubled Next release label and no repo-only notes (#10)", () => {
+  const html = page("changelog");
+  assert.ok(!/Next release\s*<span class="badge next">Next release<\/span>/.test(html), "a heading repeats Next release beside its badge");
+  assert.ok(!/Release workflow/i.test(html), "a release note mentions the release workflow");
 });
 
 // Every file in dist/, as paths relative to it.
@@ -206,6 +230,17 @@ test("the home page decoration is hidden from screen readers and the mock is lab
   assert.ok(!/https?:\/\/(?!foreverui\.pages\.dev)[^"']+\.(png|jpe?g|webp|gif|svg|woff2?|ttf|otf)/i.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8") + html), "no external images or fonts");
 });
 
+test("player-facing copy describes the early release honestly", () => {
+  const banned = /checked in game yet|not checked in game|nothing has been checked/i;
+  const bad = distFiles()
+    .filter((f) => /\.html$/.test(f))
+    .filter((f) => banned.test(fs.readFileSync(f, "utf8")))
+    .map((f) => path.relative(dist, f));
+  assert.deepEqual(bad, [], `old unverified wording found in dist/: ${bad.join(", ")}`);
+  assert.match(page(""), /Parts have been tested in game, and some features are still being polished/);
+  assert.doesNotMatch(page(""), /None of this has been checked in game yet/);
+});
+
 test("pages are well formed: one h1, skip link, shared nav and footer", () => {
   const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"];
   for (const d of dirs) {
@@ -255,4 +290,49 @@ test("no GitHub links in the output", () => {
   };
   walk(dist);
   assert.deepEqual(bad, []);
+});
+
+// The help page's body built from the addon, with one fact's text cut out of
+// its file (in both refs) when `cut` is given.
+function helpWithout(cut) {
+  const read = (ref) => (file) => {
+    const text = show(ref, file) || null;
+    return cut && text && file === cut[2] ? text.replace(cut[3], "") : text;
+  };
+  return helpPage({ version: meta.current.replace(/^v/, ""), same: true }, { rel: read(refs.release), next: read(refs.next) }).body;
+}
+
+// The FAQ entries that quote a fact.
+function entriesUsing(key) {
+  return SECTIONS.flatMap((s) => s.entries).filter((e) => [e.a, ...e.src].some((t) => t.includes(`{${key}}`)));
+}
+
+// Cutting any quoted fact out of the addon must take its FAQ entries off the page.
+test("an FAQ entry is dropped when the addon no longer has its quote", () => {
+  const full = helpWithout(null);
+  let checked = 0;
+  for (const fact of FACTS) {
+    const shown = entriesUsing(fact[0]).filter((e) => full.includes(`id="${e.id}"`));
+    if (!shown.length) continue;
+    const body = helpWithout(fact);
+    for (const e of shown) assert.ok(!body.includes(`id="${e.id}"`), `"${e.id}" still shown without ${fact[0]}`);
+    checked++;
+  }
+  assert.ok(checked >= 10, `only ${checked} facts were checked`);
+});
+
+// Each published release's section on the Changelog page.
+function releaseSections(html) {
+  return [...html.matchAll(/<section aria-labelledby="rel-[^"]+">[\s\S]*?<\/section>/g)].map((m) => m[0]);
+}
+
+// What's coming lists next-release items; no published release's section may.
+test("next-release items stay out of the current release's section", () => {
+  const html = page("changelog");
+  const items = NEXT_RELEASE.groups.flatMap((g) => g.items);
+  const current = releaseSections(html).find((s) => s.includes("Current release"));
+  assert.ok(current, "no Current release section on /changelog/");
+  for (const s of releaseSections(html)) for (const i of items) assert.ok(!s.includes(esc(i.text)), `"${i.label}" is inside a release section`);
+  const next = html.match(/<section class="card" aria-labelledby="next-h">[\s\S]*?<\/section>/);
+  if (meta.current === NEXT_RELEASE.after) for (const i of items) assert.ok(next && next[0].includes(esc(i.text)), `"${i.label}" missing from What's coming`);
 });

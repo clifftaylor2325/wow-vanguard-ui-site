@@ -421,3 +421,14 @@ th { background: var(--raised); font-weight: 600; }
   .embers i { bottom: auto; top: var(--y); opacity: 0.45; }
   .feat:hover, .feat:focus-visible { transform: none; }
 }
+
+/* Features: area jump links and each module's longer description */
+.feature-areas { justify-content: flex-start; margin: 16px 0 8px; }
+.mod .mod-more { color: var(--text2); }
+.mod .facts { margin-top: 8px; }
+
+/* Troubleshooting & FAQ: question cards and the jump links; Changelog lists */
+.help-jumps { justify-content: flex-start; margin: 16px 0 8px; }
+.help-entry { margin-bottom: 10px; }
+.help-entry h3 { margin-top: 0; }
+.changes li { margin-bottom: 4px; }

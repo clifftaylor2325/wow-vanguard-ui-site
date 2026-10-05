@@ -97,7 +97,7 @@ ${body}
 <footer class="site-footer">
   ${ornament("footer-orn")}
   <div class="footer-inner">
-    <p style="margin:0">ForeverUI is a fan addon for WoW Forever, made by ${esc(site.author)}. It is an early release: nothing has been checked in game yet.</p>
+    <p style="margin:0">ForeverUI is a fan addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
     <p style="margin:0">Current release: ForeverUI ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · Code under the ${esc(site.licenseName)} license · <a href="/credits/">Credits &amp; license</a> · <a href="/feedback/">Feedback</a></p>
   </div>
 </footer>
