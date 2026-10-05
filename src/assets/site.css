@@ -240,6 +240,8 @@ thead th { border-bottom-color: color-mix(in oklab, var(--accent) 45%, var(--div
 .swatch i { width: 22px; height: 22px; border-radius: 3px; border: 1px solid var(--divider); display: inline-block; }
 
 .template { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* The note under the feature request template's Copy button. */
+.template-note { margin-top: 12px; }
 .steps { padding-left: 1.4em; }
 .steps > li { margin-bottom: 0.8em; }
 .steps > li::marker { color: var(--accent); font-weight: 600; }
@@ -459,6 +461,11 @@ thead th { border-bottom-color: color-mix(in oklab, var(--accent) 45%, var(--div
   .embers i { bottom: auto; top: var(--y); opacity: 0.45; }
   .feat:hover, .feat:focus-visible { transform: none; }
 }
+
+/* Features: area jump links and each module's longer description */
+.feature-areas { justify-content: flex-start; margin: 16px 0 8px; }
+.mod .mod-more { color: var(--text2); }
+.mod .facts { margin-top: 8px; }
 
 /* Troubleshooting & FAQ: question cards and the jump links; Changelog lists */
 .help-jumps { justify-content: flex-start; margin: 16px 0 8px; }

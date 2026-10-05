@@ -92,7 +92,7 @@ function main() {
   }
 
   const pages = [
-    homePage(model), installPage(model), startPage(model), featuresPage(model), commandsPage(model), settingsPage(model, read),
+    homePage(model), installPage(model), startPage(model, read), featuresPage(model), commandsPage(model), settingsPage(model, read),
     profilesPage(model, read), helpPage(model, read), feedbackPage(model, read), changelogPage(model), creditsPage(model, site),
   ];
   for (const p of pages) write(path.join(p.path, "index.html"), layout({ ...p, site }));

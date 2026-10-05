@@ -15,9 +15,11 @@
     "check": "npm run build && npm test",
     "shots": "node scripts/shots.mjs",
     "serve": "node scripts/serve.mjs",
-    "deploy": "npx wrangler pages deploy dist --project-name foreverui"
+    "deploy": "npx wrangler pages deploy dist --project-name foreverui",
+    "fonts": "node scripts/fonts.mjs"
   },
   "devDependencies": {
-    "playwright-core": "1.56"
+    "playwright-core": "1.56",
+    "wawoff2": "2.0.1"
   }
 }
