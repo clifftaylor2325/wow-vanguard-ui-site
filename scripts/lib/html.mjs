@@ -63,7 +63,7 @@ export function ornament(cls = "") {
 const MARK = `<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M11 4 L20 16 L11 28 L2 16 Z" fill="none" stroke="var(--accent)" stroke-width="2.5"/><path d="M21 4 L30 16 L21 28 L12 16 Z" fill="none" stroke="var(--text)" stroke-width="2.5"/></svg>`;
 
 // A full HTML page with the shared header, nav and footer.
-export function layout({ path, title, description, body, site }) {
+export function layout({ path, title, description, body, site, scripts = [] }) {
   const nav = NAV.map((n) => `<li><a href="${n.path}"${n.path === path ? ' aria-current="page"' : ""}>${esc(n.label)}</a></li>`).join("");
   const fullTitle = path === "/" ? `ForeverUI: a UI suite for WoW Forever` : `${title} · ForeverUI`;
   return `<!doctype html>
@@ -102,7 +102,7 @@ ${body}
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>
-</body>
+${scripts.map((s) => `<script type="module" src="${esc(s)}"></script>\n`).join("")}</body>
 </html>
 `;
 }

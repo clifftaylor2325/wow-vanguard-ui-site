@@ -7,6 +7,11 @@
 // (msedge.exe under Program Files or Program Files (x86)), else an installed
 // Chrome/Chromium. Screenshots go to SHOTS_DIR (default: shots/).
 //   npm run shots
+// With SHOTS_BASE set to a running `npm run dev` (wrangler pages dev with the
+// local GitHub stub, see README), it also walks the feedback form: field
+// errors, the feature fields, the preview and the confirmation, at 1280px and
+// 390px. Reports it sends go to the stub, never to GitHub.
+//   SHOTS_BASE=http://localhost:8788 npm run shots
 import fs from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright-core";
@@ -42,6 +47,24 @@ function report(failures, what, ok) {
 function watchErrors(page, failures) {
   page.on("response", (r) => { if (r.status() >= 400) report(failures, `${r.status()} ${r.url()}`, false); });
   page.on("console", (m) => { if (m.type() === "error") report(failures, `console error on ${page.url()}: ${m.text()}`, false); });
+}
+
+// The static server has no Pages Functions, so GET /api/feedback gets the reply the
+// Function gives when reports aren't set up (handleGet in functions/_lib/handler.js).
+// Any other method goes through, so it still 404s and fails the run.
+async function stubFeedbackApi(page) {
+  await page.route((url) => url.pathname === "/api/feedback", (route) => {
+    if (route.request().method() !== "GET") return route.continue();
+    return route.fulfill({ status: 200, contentType: "application/json; charset=utf-8", body: JSON.stringify({ accepting: false, sitekey: null }) });
+  });
+}
+
+// A page of the given width on the static server, with the feedback stub and the error watch.
+async function watchedPage(browser, width, failures) {
+  const page = await browser.newPage({ viewport: { width, height: 844 } });
+  await stubFeedbackApi(page);
+  watchErrors(page, failures);
+  return page;
 }
 
 // Types a search and returns the counter text and the no-match message (null while hidden).
@@ -81,6 +104,49 @@ async function checkSearch(browser, base, failures) {
   await page.close();
 }
 
+// Fails when the page scrolls sideways.
+async function noSideScroll(page, label, failures) {
+  const [sw, iw] = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
+  const ok = sw <= iw;
+  console.log(`${ok ? "ok  " : "FAIL"} ${label} scrollWidth ${sw} innerWidth ${iw}`);
+  if (!ok) failures.push(label);
+}
+
+// The feedback form's steps against a running wrangler pages dev (SHOTS_BASE).
+async function feedbackFlow(browser, base, failures) {
+  const report = fs.readFileSync(path.join(root, "test/fixtures/fui-errors-next.txt"), "utf8");
+  for (const width of [1280, 390]) {
+    const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
+    const shot = async (name) => {
+      const file = path.join(outDir, `feedback-${name}-${width}.png`);
+      await page.screenshot({ path: file, fullPage: true });
+      await noSideScroll(page, `feedback ${name} at ${width}px`, failures);
+      console.log(`shot ${path.relative(process.cwd(), file)}`);
+    };
+    await page.goto(`${base}/feedback/`, { waitUntil: "load" });
+    await page.evaluate(() => document.fonts.ready);
+    await page.click("#fb-form button[type=submit]");
+    await shot("errors");
+    await page.check("input[name=kind][value=feature]");
+    await shot("feature");
+    await page.check("input[name=kind][value=bug]");
+    await page.fill("#fb-title", "Raid frames go blank after a reload");
+    await page.fill("#fb-report", report);
+    await page.fill("#fb-did", "Typed /reload in a raid group.");
+    await page.fill("#fb-happened", "The raid frames stayed empty until I left the group.");
+    await page.check("#fb-public_ack");
+    await page.click("#fb-form button[type=submit]");
+    await page.waitForSelector("#fb-preview:not([hidden])");
+    await page.waitForFunction(() => (document.querySelector("#fb-turnstile input[name=cf-turnstile-response]") || {}).value, null, { timeout: 30000 });
+    await page.waitForTimeout(3500);
+    await shot("preview");
+    await page.click("#fb-send");
+    await page.waitForSelector("#fb-done:not([hidden])", { timeout: 30000 });
+    await shot("done");
+    await page.close();
+  }
+}
+
 // Entry point.
 async function main() {
   const server = await serve(loadConfig().outDir);
@@ -90,20 +156,17 @@ async function main() {
   fs.mkdirSync(outDir, { recursive: true });
   try {
     for (const width of [390, 360]) {
-      const page = await browser.newPage({ viewport: { width, height: 844 } });
-      watchErrors(page, failures);
+      const page = await watchedPage(browser, width, failures);
       for (const n of NAV) {
         await page.goto(base + n.path, { waitUntil: "load" });
-        const [sw, iw] = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
-        const ok = sw <= iw;
-        console.log(`${ok ? "ok  " : "FAIL"} ${width}px ${n.path} scrollWidth ${sw} innerWidth ${iw}`);
-        if (!ok) failures.push(`${n.path} at ${width}px`);
+        await noSideScroll(page, `${n.path} at ${width}px`, failures);
       }
       await page.close();
     }
     await checkSearch(browser, base, failures);
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
+      await stubFeedbackApi(page);
       for (const [name, url] of SHOOT) {
         await page.goto(base + url, { waitUntil: "load" });
         await page.evaluate(() => document.fonts.ready);
@@ -113,6 +176,7 @@ async function main() {
       }
       await page.close();
     }
+    if (process.env.SHOTS_BASE) await feedbackFlow(browser, process.env.SHOTS_BASE.replace(/\/+$/, ""), failures);
   } finally {
     await browser.close();
     server.close();

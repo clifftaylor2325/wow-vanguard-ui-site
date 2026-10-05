@@ -173,9 +173,11 @@ test("the in-combat reload note says /reload exactly once (#3)", () => {
   assert.equal((note.match(/\/reload/g) || []).length, 1, "the in-combat reload note must say /reload once");
 });
 
-test("the Changelog has no doubled Next release label and no repo-only notes (#10)", () => {
+test("the Changelog has no badge on a next-release heading and no repo-only notes (#10)", () => {
   const html = page("changelog");
-  assert.ok(!/Next release\s*<span class="badge next">Next release<\/span>/.test(html), "a heading repeats Next release beside its badge");
+  const heads = [...html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => m[1]).filter((h) => /next release/i.test(h.replace(/<[^>]+>/g, " ")));
+  assert.ok(heads.length > 0, "the Changelog has no next-release heading");
+  assert.ok(heads.every((h) => !/<span class="badge\b/.test(h)), `a next-release heading carries a badge: ${heads.join(" | ")}`);
   assert.ok(!/Release workflow/i.test(html), "a release note mentions the release workflow");
 });
 
@@ -203,7 +205,9 @@ test("no zip is shipped and nothing offers a download", () => {
       if (/\sdownload(?=[\s>=])/.test(m[0]) || /href="[^"]*(\.zip|\/download\/)/i.test(m[0])) bad.push(`${rel}: ${m[0]}`);
     }
     if (/\/download\//.test(t)) bad.push(`${rel}: mentions /download/`);
-    if (/SHA-256|sha256|checksum/i.test(t)) bad.push(`${rel}: shows a checksum`);
+    // The feedback form's shared code hashes error lines (Web Crypto "SHA-256") for the
+    // bug fingerprint; that is not a download checksum, so assets/feedback/ is skipped.
+    if (!rel.split(path.sep).join("/").startsWith("assets/feedback/") && /SHA-256|sha256|checksum/i.test(t)) bad.push(`${rel}: shows a checksum`);
   }
   assert.deepEqual(bad, [], `download links or checksums found: ${bad.join(" | ")}`);
 });
