@@ -3,7 +3,7 @@
 // release metadata); the prose around them only restates what those sources say.
 import { esc, md, slug, badge, avail, shot, ornament, curseforgeCta, CURSEFORGE_URL } from "./html.mjs";
 import { AREAS } from "./model.mjs";
-import { MORE } from "./features-content.mjs";
+import { MORE, longerOf, longerGaps } from "./features-content.mjs";
 
 // "September 27, 2026" in New York time.
 export function dateET(iso) {
@@ -415,9 +415,10 @@ function featureFacts(m, model) {
 function featureCard(m, model) {
   const off = startsOff(m, model) ? ` <span class="badge plain">Off until you switch it on</span>` : "";
   const more = moreOf(m, model);
+  const longer = longerOf(m.key);
   return `<article class="card mod" id="${m.id}" data-module="${esc(m.key)}">
   <h3>${esc(m.name)} ${badge(m.inRel, m.inNext, model.version)}${off}</h3>
-  ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}${more ? `\n  <p class="mod-more">${esc(more)}</p>` : ""}
+  ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}${more ? `\n  <p class="mod-more">${esc(more)}</p>` : ""}${longer.length ? `\n  <p class="mod-more mod-longer">${esc(longer.join(" "))}</p>` : ""}
   ${featureFacts(m, model)}
 </article>`;
 }
@@ -446,6 +447,8 @@ ${nextNotice(model)}
 
 // The Features page: one card per module, grouped by area.
 export function featuresPage(model) {
+  const gaps = longerGaps(model.next.readme);
+  if (gaps.length) throw new Error(`Features: the README no longer says what the longer text is written from:\n  ${gaps.join("\n  ")}`);
   const groups = featureAreas(model);
   const body = [`<h1>Features</h1>`, featuresIntro(model, groups), ...groups.map((g) => areaSection(g, model)), shot("raid frames and the options window")];
   return { path: "/features/", title: "Features", description: "Every ForeverUI module: what it does, where its settings are, and its commands.", body: body.join("\n") };

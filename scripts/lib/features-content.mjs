@@ -51,3 +51,259 @@ export const MORE = {
   Nameplates: { more: "Class, reaction and threat colors, the name in outlined text with the level, your debuffs with timers and your crowd control, casts, the raid icon, an accent border and diamond on your target, and a gold \"!\" by units your quests need.", check: ["class/reaction/threat colors", "a gold \"!\" by the name of units your quests need"], from: "Nameplates" },
   Situations: { more: "Record a different layout and settings for raids, PvP, instances or resting: pick what to record for, move frames and change settings, then save. They apply out of combat as you move between them, and leaving puts your own layout back.", check: ["**Stop recording and save**", "Leaving the situation puts your own layout back"], from: "Situations" },
 };
+
+// v1.1: a few more sentences per module, beyond `more`, still in player
+// language (clifftaylor2325/wow-forever-ui#107). Each sentence carries its
+// source: `readme` lists phrases the addon's README must still contain (the
+// build stops with an error if one is gone, so the page can't drift from the
+// README), or `code` names the addon file and lines the sentence was checked
+// against where the README says less (test/features.test.mjs checks those).
+// Sources are never shown on the site.
+const R = (s, ...readme) => ({ s, readme });
+const C = (s, file, ...has) => ({ s, code: { file, has } });
+
+export const LONGER = {
+  UnitFrames: [
+    R("The game's own boss frames are hidden.", "the game's own boss frames are hidden"),
+    R("The player and target frames are sized for a 1080p screen at the 80% UI scale that first-run setup picks.", "sized for a 1080p screen at setup's 80% UI scale"),
+    R("Player and target sit either side of your character, with your cast bar and swing timer between them, the pet and target of target outside them and the focus above the player.", "Player and target sit either side of your character with your cast bar and swing timer between them", "the pet and target of target outside them, the focus above the player"),
+  ],
+  CastBars: [
+    R("Your own cast bar sits between the player and target frames, with the swing timer.", "with your cast bar and swing timer between them"),
+    R("Like every ForeverUI frame, each cast bar can be moved with /fui unlock.", "Every frame can be moved in unlock mode (`/fui unlock`)"),
+  ],
+  FrameAuras: [
+    R("Each row wraps at the frame's width.", "each row wrapping at the frame's width"),
+    R("Timer numbers are off by default, since the dark sweep shows the time left, and can be turned on.", "Timer numbers are off by default (the dark sweep shows time left) and can be turned on"),
+    R("With the Masque addon installed, Masque skins these icons instead, as a group with its own skin.", "Masque skins the buttons instead of ForeverUI", "Target and focus auras), each with its own skin"),
+  ],
+  PlayerAuras: [
+    R("They replace the game's buff frame, and you can move them with /fui unlock.", "replace the game's buff frame", "Move them with `/fui unlock`."),
+    R("On WoW Forever a shaman's imbues show here too, which the game's own enchant cells miss.", "a shaman's imbues on WoW Forever, which the game's own enchant cells miss"),
+    R("With the Masque addon installed, your buffs, debuffs and weapon enchants are a Masque group with their own skin.", "Buffs and debuffs, with the weapon enchants"),
+  ],
+  ComboPoints: [
+    C("Five small pips light up in the energy color, and the row shows only while you have points on your target.", "Modules/ComboPoints.lua", "CP.MAX = 5", "\"energy\")", "CP.bar:SetShown(count > 0)"),
+    C("Other classes don't get the row.", "Modules/ComboPoints.lua", "local CLASSES = { ROGUE = true, DRUID = true }", "not CLASSES[class] then return end"),
+  ],
+  ClassBars: [
+    R("The game keeps totems and a druid's mana inside its own player frame, which ForeverUI replaces, so they get bars of their own.", "the game keeps both inside its own player frame, which ForeverUI replaces"),
+    C("The druid mana bar is a thin bar in the mana color just under the player frame, shown only while you're in a form.", "Modules/ClassBars.lua", "-- The thin mana bar just under the player frame, in the mana color.", "CB.manaHolder:SetShown(CB.InForm())"),
+    C("Each class gets only its own bar.", "Modules/ClassBars.lua", "if class == \"SHAMAN\" and settings.totems then", "if class == \"DRUID\" and settings.druidMana then"),
+  ],
+  PowerTicks: [
+    C("The mana spark is timed from your spells, not your mana: only a spell that costs mana starts the five seconds again.", "Modules/PowerTicks.lua", "-- One of your spells went off: a mana spell starts the five seconds again.", "PT.CostsMana(spellID) then PT.Start() end"),
+    C("The energy spark starts again each time your energy goes up, so it stays in step with the energy ticks.", "Modules/PowerTicks.lua", "-- Your power changed: energy going up is a server tick, and the sweep restarts from it.", "if now and PT.last and now > PT.last then PT.Start() end"),
+    C("When a druid changes form, the spark switches to the new kind of power.", "Modules/PowerTicks.lua", "-- Your power type may have changed (a druid's form): a new kind starts with no spark."),
+  ],
+  SwingTimer: [
+    R("It runs on WoW Forever's own swing events.", "from WoW Forever's own swing events"),
+    R("It sits between the player and target frames, with your cast bar.", "with your cast bar and swing timer between them"),
+  ],
+  UnitExtras: [
+    R("Each one shows only where your client answers.", "Each shows only where the client answers"),
+    C("The threat number sits at the top right of the target frame, and the mood dot in the pet frame's top-right corner.", "Modules/UnitExtras.lua", "UX.threat:SetPoint(\"BOTTOMRIGHT\", target, \"TOPRIGHT\"", "-- The mood dot in the pet frame's top-right corner, following your pet."),
+  ],
+  PartyExtras: [
+    R("Turn it on under Unit frames in /fui.", "off until you turn it on under Unit frames"),
+    R("Each tile shows only while its unit exists.", "each while its unit exists"),
+  ],
+  RaidFrames: [
+    R("Party and raid frames grow up from just above your player frame, centered on it.", "Party and raid frames grow up from just above your player frame, centered on it"),
+    R("A raid of more than 10 is drawn at 80% size, or 72% above 25.", "a raid of more than 10 is drawn smaller (80%, or 72% above 25)"),
+    R("A thin line in the full class color runs along each tile's top, so close colors like shaman and mage blues still tell apart; you can also pick dark bars with class-colored names, or bright class colors.", "so close colors (shaman and mage blues, rogue and paladin yellows) still tell apart", "or dark bars with class-colored names, or bright class colors"),
+    R("Tanks get a small shield and healers a cross before the name, and the raid's main tank gets the shield in your accent color.", "a small shield for tanks and a cross for healers before the name", "The raid's main tank gets the shield in your accent color"),
+  ],
+  RaidAuras: [
+    R("These small icons have no timer numbers.", "no timer numbers on these small icons"),
+    R("The color of a debuff you can dispel washes the tile from the bottom and colors its edge.", "washes the tile in its type's color from the bottom and colors its edge"),
+  ],
+  RaidHealing: [
+    R("Click casting and hover keys work on the tiles, and a hover key can carry Shift, Ctrl or Alt: with the pointer over a player, Shift-Q casts on them.", "a hover key can carry Shift, Ctrl or Alt: while the pointer is over a frame, Shift-Q casts on that player"),
+    R("Your target gets an accent edge, and the tile under the mouse a faint wash.", "an accent edge on your target, a faint wash under the mouse"),
+  ],
+  RaidStatus: [
+    R("The ready check and resurrection marks show big in the middle of the tile, and the missing-health text steps aside while they do.", "the ready check and resurrection big in the center", "the missing-health text steps aside"),
+    R("The ready check marks are drawn in the theme colors.", "a check, cross or three dots in the theme colors"),
+  ],
+  MainTanks: [
+    R("They sit beside the raid tools.", "(beside the raid tools)"),
+    R("Move them with /fui unlock, or turn them off under Modules.", "Move them with `/fui unlock`; turn them off under Modules"),
+  ],
+  RaidTools: [
+    R("Click a raid target icon to mark your target; the last button clears it.", "click to mark your target; the last button clears it"),
+    R("Click a world marker to place or remove it and right-click to clear it; the last button clears them all.", "click to place or remove one; right-click clears it; the last button clears them all"),
+    R("The bar shows and hides out of combat.", "It shows and hides out of combat"),
+  ],
+  ClickCast: [
+    R("Spells bind by name, so one you haven't learned yet starts working the day you learn it, and left click stays Target and middle click the unit menu.", "Spells bind by name, so one you haven't learned yet starts working the day you learn it", "Left click stays Target and middle click the unit menu"),
+    R("A spell with ranks binds at its highest rank unless you open its ranks and pick one; the cell then says \"Flash Heal (Rank 3)\".", "A spell with ranks binds as its highest rank unless you open its ranks and pick one", "Flash Heal (Rank 3)"),
+    R("Bindings are per character and spec, and changes apply at once, or when the fight ends if you're in one.", "Bindings are per character and spec; changes apply at once, or when the fight ends if you're in one"),
+    R("Where your client has its own click casting, a switch at the bottom of the page (off by default) uses the game's bindings instead.", "(where the client has its own click casting)", "a switch at the bottom of the page, off by default, uses the game's instead"),
+  ],
+  ActionBars: [
+    R("The bottom bars stack with bar 1 on top, and a bar with bigger buttons or more rows pushes the ones above it up.", "The bottom bars stack with bar 1 on top", "pushes the ones above it up"),
+    R("In keybind mode (/fui keybind), hover a button and press a key to bind it; it works out of combat only.", "Keybind mode (`/fui keybind`", "hover a button and press a key", "It works out of combat only"),
+    R("The right-edge bars (4 and 5) start off, and show on mouseover once you turn them on.", "The right-edge bars (4 and 5) start off; turned on, they show on mouseover"),
+    R("With the Masque addon installed, Masque skins the buttons instead.", "With the Masque addon installed, Masque skins the buttons instead of ForeverUI"),
+  ],
+  SpecialBars: [
+    R("They get their own spots because the game's spot for them lies over the bar stack.", "(the game's own spot for them lies over the bar stack)"),
+    R("Move them with /fui unlock, or turn that off under Action bars to leave them to the game's Edit Mode, where your client has it.", "or turn that off under Action bars to leave them to Edit Mode"),
+  ],
+  DataBars: [
+    C("Hover a bar to see its numbers: your level, XP and rested XP, or the watched faction's name and progress.", "Modules/DataBars.lua", "text = \"hover\"", "\"Level %d  %s / %s (%d%%)\"", "-- Shows the bar's text only while hovered (text = \"hover\"), or always."),
+    C("The XP bar shows rested XP as a lighter strip and hides at the level cap; the reputation bar takes its standing's color and shows only while you watch a faction.", "Modules/DataBars.lua", "-- The rested overlay: a lighter strip from the left edge", "-- Fills the XP bar, or hides it at max level", "-- Fills the reputation bar in its standing color, or hides it with no watched"),
+    R("They're always shown unless you pick another visibility (On mouseover, In combat, Hidden or the action bars' row of conditions), one setting for both.", "On mouseover, In combat, Hidden or the action bars' row of conditions", "so are the XP and reputation bars, which share one setting"),
+  ],
+  Minimap: [
+    R("The addon compartment moves onto a corner too, and the expansion button, which has nothing to show in vanilla content, is put away.", "the addon compartment and the group finder eye", "the expansion button (nothing to show in vanilla content) is put away"),
+    R("The game's emptied minimap frame at the top right stops taking mouse clicks.", "the game's emptied minimap frame at the top right stops taking mouse clicks"),
+    R("The brass corner diamonds take your accent color.", "brass diamonds on its corners, in your accent"),
+  ],
+  InfoStrip: [
+    R("Durability turns orange at 25% or less and red at 10% or less; ammo shows for hunters, warriors and rogues, and soul shards for warlocks.", "durability (orange at 25% or less, red at 10% or less)", "ammo for hunters, warriors and rogues (soul shards for warlocks"),
+    R("The leveling row waits a minute for the numbers to settle, and the XP figures hide at the level cap.", "they wait a minute for the numbers to settle, and the XP ones hide at the level cap"),
+    R("In a group, the fourth row can also show your place in the last fight's DPS (\"#2 of 5\"), also off until you turn it on.", "in a group, your place in that fight's DPS", "also off until you turn it on"),
+    R("The strip is always shown unless you pick another visibility for it, like On mouseover or In combat.", "The strip is always shown unless you pick another visibility for it"),
+  ],
+  MenuStrip: [
+    R("The bags sit in a row centered over the menu buttons, with the key ring too where your client has one.", "in a row centered over the menu buttons", "the key ring too, where the client has one"),
+    R("A bag's bar turns red when it's full (a soul bag or quiver counts only its own slots), and the backpack shows how many slots your bags have free.", "red when it is full; a soul bag or quiver counts only its own slots", "the backpack shows how many slots your bags have free"),
+    R("ForeverUI's line icons can stand in for the game's menu icons; they're off until you switch them on.", "ForeverUI's line icons can stand in for the game's menu icons (off until you switch them on"),
+    R("The bar is always shown, or you can pick On mouseover, Auto-hide after 10 s, In combat or Hidden under Bars, map, chat.", "Auto-hide after 10 s", "In combat, Hidden or the same row of conditions as the action bars instead, under Bars, map, chat"),
+  ],
+  MinimapButtons: [
+    R("The \"...\" button only shows once there's a button to gather.", "it only shows once there's a button to gather"),
+    C("Click \"...\" again to close the drawer.", "Modules/MinimapButtons.lua", "MB.drawer:SetShown(not MB.drawer:IsShown())"),
+    C("Buttons that other addons make late are gathered too: the drawer looks again a few seconds after you log in.", "Modules/MinimapButtons.lua", "MB.RESCAN_AFTER = 3", "C_Timer.After(MB.RESCAN_AFTER, MB.Scan)"),
+  ],
+  Chat: [
+    R("Chat is sized once in its spot; after you move it with /fui unlock, the game's own layout and your resizing are left alone.", "sized once; move it with `/fui unlock`", "the game's own layout and your resizing are left alone after that"),
+    R("You can switch the spot off under Bars, map, chat.", "or switch the spot off under Bars, map, chat"),
+    R("If you prefer, chat keeps the game's own chat size instead.", "or keeps the game's own chat size if you prefer"),
+    R("/fui status shows how many pixels tall chat text draws on your screen.", "how many pixels tall chat text draws on your screen"),
+  ],
+  ChatExtras: [
+    R("Short channel names are off until you switch them on: [2. Trade - City] shows as [T] and [Guild] as [G], and clicking the short tag still opens the channel.", "Short channel names (off until you switch it on)", "`[2. Trade - City]` shows as `[T]`, `[Guild]` as `[G]`", "clicking the short tag still opens the channel"),
+    R("The game's own chat timestamps and class-colored names can be set from /fui too, under Bars, map, chat → Chat.", "The game's own chat timestamps and class-colored names can be set under"),
+    R("Chat the game hides from addons in instances is left untouched, never shortened, and left out of the copy.", "Chat the game hides from addons (in instances) is left untouched, never shortened, and out of the copy"),
+  ],
+  ChatWatch: [
+    R("Add phrases under Bars, map, chat → Chat watch or with /fui watch add LFM; numbered channels such as Trade and LFG, and yell, are watched by default.", "with `/fui watch add LFM`", "numbered channels such as Trade and LFG, and yell, by default"),
+    R("A match ignores case and works on item links too; the toast stays for 8 seconds, and right-click dismisses it.", "(any case, item links included)", "for 8 seconds", "right-click to dismiss"),
+    R("There's one alert per sender and phrase every 30 seconds, for up to 20 phrases of 40 characters.", "One alert per sender and phrase every 30 seconds", "Up to 20 phrases of 40 characters"),
+    R("In dungeons, raids and encounters, where the game hides chat from addons, nothing matches.", "In dungeons, raids and encounters, where the game hides chat from addons, nothing matches"),
+  ],
+  Bags: [
+    R("The combined bag is switched on once, not at every login, and given back when you switch the module off.", "switched on once, not at every login, and given back when you switch the module off"),
+    R("Sort sits beside the search box where the game can sort bags, and search dimming is kept.", "with a Sort button beside the search box where the game can sort bags", "search dimming kept"),
+    R("In combat the bag keeps its layout and catches up when combat ends.", "in combat the bag keeps its layout and catches up when combat ends"),
+    R("One switch under Bars, map, chat gives back the plain grid at once.", "one switch under Bars, map, chat gives back the plain grid at once"),
+  ],
+  Merchant: [
+    R("Selling is tried again a few times, since the server limits how fast items sell.", "tried again a few times, since the server limits how fast items sell"),
+    R("Errors you can act on stay, shown by the game's own error line.", "errors you can act on stay, shown by the game's own error line"),
+  ],
+  Errands: [
+    R("Train all says what it cost, and buying and training stop in combat.", "and says what it cost", "Buying and training stop in combat"),
+    R("Type /fui stock, shift-click an item and add a number (say 20) to keep that many in your bags; ammo comes 200 at a time.", "`/fui stock <shift-click an item> 20` keeps 20 in your bags", "ammo comes 200 at a time"),
+    R("The flight timer's bar can be moved.", "shows a bar (movable) counting down to landing"),
+    R("Each has a switch under Bars, map, chat.", "Each has a switch under Bars, map, chat"),
+  ],
+  VendorMemory: [
+    R("Up to three merchants show per item, the one you saw last first.", "for up to three merchants per item, the one you saw last first"),
+    R("The Keep stocked list (/fui stock) says where to buy each item too.", "The Keep stocked list (`/fui stock`) says where to buy each item too"),
+    R("/fui vendors says how many merchants are remembered, and /fui vendors clear forgets them.", "`/fui vendors` says how many merchants are remembered and `/fui vendors clear` forgets them"),
+  ],
+  AuctionHelper: [
+    R("Up to 20 shopping lists of 50 items are kept for the account, and a list is searched at most one item a second, well under the game's limit.", "up to 20 lists of 50 items, kept for the account", "at most one a second, so well under the game's limit"),
+    R("The asking price is 1 silver under the cheapest (or 1 copper, 1 %, or the same price), or under your 7-day low when nothing is up.", "1 silver under the cheapest (or 1 copper, 1 %, or the same price", "else under the 7-day low when nothing is up"),
+    R("A full scan is allowed once every 15 minutes, the game's own limit, and after one, item tooltips everywhere show the price, like \"AH: 12s 50c (today)\".", "one scan every 15 minutes, the game's own limit", "AH: 12s 50c (today)"),
+    R("Prices are kept for every character on the account, with each day's low for two weeks.", "Prices are kept for every character on the account, with each day's low for two weeks"),
+  ],
+  QuestDialog: [
+    R("It sits just above the frames around your character, clear of the cast bars, and can be moved with /fui unlock.", "just above the frames around your character (clear of the cast bars)", "Movable with `/fui unlock`"),
+    R("Long text scrolls with the mouse wheel once the dialog reaches its greatest height.", "scrolls with the mouse wheel once the dialog reaches its greatest height"),
+    R("Hiding the whole UI with Alt-Z hides the dialog with it and keeps the conversation open.", "hiding the whole UI with Alt-Z hides the dialog with it and keeps the conversation open"),
+    R("Switch it off under /fui → Quests to get the game's windows back.", "switch it off under `/fui` → Quests to get the game's windows back"),
+  ],
+  QuestTracker: [
+    R("A quest item's button shows its cooldown, and a red tint while the target is out of range.", "with its cooldown, a red tint while the target is out of range"),
+    R("In combat the counts and text keep updating, and the item buttons take their new places when combat ends.", "In combat the counts and text keep updating", "they take their new places when combat ends"),
+    R("Quests that don't fit are counted (\"+3 more\").", "Quests that don't fit are counted (\"+3 more\")"),
+    R("The game's tracker is hidden while it shows; switch it off to get the game's back, in ForeverUI's look.", "The game's tracker is hidden while it shows; switch it off to get the game's back (in ForeverUI's look)"),
+  ],
+  QuestLog: [
+    R("The quest log button on the bag and menu bar opens it too, and clicking a quest in the tracker opens it here.", "the quest log button on the bag and menu bar", "Clicking a quest in the tracker opens it here"),
+    R("A quest ready to turn in gets a check, and Abandon goes through the game's own confirmation.", "with a check when ready to turn in", "Abandon (through the game's own confirmation)"),
+    R("A long list and a long quest text scroll with the mouse wheel.", "a long list, and a long quest text, scroll with the mouse wheel"),
+    R("Switch it off under /fui → Quests to keep the game's.", "Switch it off under `/fui` → Quests to keep the game's"),
+  ],
+  QuestAuto: [
+    R("Each part is off until you switch it on, under /fui → Quests.", "each off until you switch it on, under `/fui` → Quests"),
+    R("Each says in chat what it did.", "Each says in chat what it did"),
+  ],
+  AfkScreen: [
+    R("It shows when you type /afk or the game marks you idle.", "(`/afk`, or the game marks you idle)"),
+    R("A click or a key puts it away until you're next away.", "a click or a key puts it away until you're next away"),
+    R("It only shows out of combat and never hides the game's own frames.", "It only shows out of combat and never hides the game's own frames"),
+  ],
+  AutoAccept: [
+    R("Turn each one on under Bars, map, chat.", "(each off until you switch it on, under Bars, map, chat)"),
+    R("Accepting a resurrection closes the game's prompt, whichever kind it was.", "the game's prompt closes whichever kind it was"),
+  ],
+  GameAlerts: [
+    R("Loss of control (stunned, feared...) shows a little above your character and the talking head at the top center; hiding the talking head is your choice under Bars, map, chat.", "Loss of control (stunned, feared...) shows on a flat panel a little above your character", "the talking head on one at the top center (or hidden; your choice under Bars, map, chat)"),
+    R("The rare announcement is off until you switch it on under Bars, map, chat; it plays the raid warning sound with one chat line, once per rare.", "(off until you switch it on, under Bars, map, chat), a rare", "with the raid warning sound and one chat line, out of combat and once per rare"),
+  ],
+  InstancePrep: [
+    R("Each item you're short of gets a red mark and \"have / want\", and the reagents are your class's for your level.", "each with a red mark and \"have / want\"", "your class's reagents for your level"),
+    R("With nothing short it stays away.", "with nothing short it stays away"),
+    R("The card fades after 20 s or on its close button, never checks in combat, and moves with /fui unlock.", "It fades after 20 s or on its close button, never checks in combat"),
+    R("/fui prep want food 30 sets how many to carry.", "`/fui prep want food 30` sets how many to carry"),
+  ],
+  GameTools: [
+    R("Turn the Cooldown Manager on in the game's Options (Gameplay Enhancements), or with ForeverUI's switch \"Show the game's Cooldown Manager\" under Bars, map, chat.", "Options, Gameplay Enhancements", "Show the game's Cooldown Manager"),
+    R("With the damage meter there, the tooltip corner moves just above it.", "the tooltip corner moves just above it"),
+    C("Move them with /fui unlock; where your client has Edit Mode, ForeverUI stands aside while it's open, and one switch leaves placing them to Edit Mode.", "Core/Movers.lua", "local edit = _G.EditModeManagerFrame", "if type(edit) ~= \"table\" or not edit.HookScript then return end"),
+  ],
+  FightHistory: [
+    R("Turn it on under Bars, map, chat.", "(off until you turn it on under Bars, map, chat)"),
+    R("The latest fight is in your accent color, and a fight whose figure the game kept hidden leaves an empty slot.", "the latest in your accent color; a fight whose figure the game kept hidden leaves an empty slot"),
+    R("Fights are kept even while the strip is off, and it has its own visibility and moves with /fui unlock.", "Fights are kept even while the strip is off", "It has its own visibility"),
+  ],
+  Windows: [
+    R("Friends, the dressing room, the flight map, books and letters get the same look, with pages in light text on the dark panel.", "Friends, the dressing room, the flight map, books and letters (their pages in light text on the dark panel)"),
+    R("The quest and gossip windows get it only when ForeverUI's quest dialog is switched off.", "quest and gossip (only when ForeverUI's quest dialog is switched off)"),
+    R("The character pane shows each worn item's durability on its slot, colored like the info strip's.", "The character pane shows each worn item's durability on its slot, colored like the info strip's"),
+    R("Their own layout and buttons stay as the game has them.", "Their own layout and buttons stay as the game has them"),
+  ],
+  Tooltips: [
+    R("ForeverUI's text size slider (under General, 70% to 130%) sizes tooltip text too.", "one slider (/fui > General, 70% to 130%) sizes all of ForeverUI's text, chat and tooltips included"),
+    R("The sell price is left out where the game already shows a price.", "(unless the game already shows a price)"),
+  ],
+  Nameplates: [
+    R("The level is colored by how hard the unit is for you, and your target also gets a 2-pixel accent glow.", "the level (colored by how hard the unit is for you)", "a 2-pixel accent glow"),
+    R("The quest \"!\" shows only when the game says so plainly, and a switch turns it off.", "(only when the game says so plainly; a switch turns it off)"),
+    R("A plate first drawn during a fight uses ForeverUI's own icons, and switches to the game's when the fight ends.", "A plate first drawn during a fight uses ForeverUI's own icons", "switches to the client's when the fight ends"),
+  ],
+  Situations: [
+    R("One situation holds at a time: the first of PvP, Instance, Raid, Party, Resting and Solo.", "One situation holds at a time, the first of PvP"),
+    R("/fui situation record raid starts recording, and /fui situation stop saves it.", "`/fui situation record raid`", "(`/fui situation stop`)"),
+    R("Only what you changed is kept, and only frames' spot, scale and opacity, the info strip, menu bar and XP bar visibility, the info strip's parts and the nameplates' levels, threat colors, target border and quest marks can be recorded.", "only what you changed is kept", "nothing else is recorded"),
+    R("Your profile is always saved and exported with your own values, and profiles carry their situations.", "your profile is always saved and exported with your own values", "Profiles carry their overrides"),
+  ],
+};
+
+// A module's longer sentences, in order (empty when none).
+export function longerOf(key) {
+  return (LONGER[key] || []).map((x) => x.s);
+}
+
+// README phrases the longer text needs that the README no longer has, as "Module: phrase".
+export function longerGaps(readme) {
+  const gaps = [];
+  for (const [key, list] of Object.entries(LONGER)) for (const x of list) for (const p of x.readme || []) if (!readme.includes(p)) gaps.push(`${key}: ${p}`);
+  return gaps;
+}
