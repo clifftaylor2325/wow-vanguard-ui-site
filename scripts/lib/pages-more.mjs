@@ -377,6 +377,7 @@ function privacyNote() {
 <li>If you tick "OK being contacted", your Discord tag or email is kept privately for 90 days and is never put in the report.</li>
 <li>Your IP address is never stored or put in a report. To stop floods, the site keeps a scrambled key made from it for an hour or two, and that key changes every day.</li>
 <li>To have a report removed, send another report with the title “Remove FUI-…” and your reference. A maintainer deletes it.</li>
+<li>Every report gets its own reference, shown only to the person who sent it. If yours was added to an earlier report of the same error, your reference is on your part alone, so a removal request covers only what you sent.</li>
 </ul>
 </section>`;
 }
