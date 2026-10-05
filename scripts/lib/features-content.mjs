@@ -108,6 +108,8 @@ export const MORE = {
 // Sources are never shown on the site.
 const R = (s, ...readme) => ({ s, readme });
 const C = (s, file, ...has) => ({ s, code: { file, has } });
+// Both: README phrases (checked at build time) and the code that settles the rest.
+const RC = (s, readme, file, ...has) => ({ s, readme, code: { file, has } });
 
 export const LONGER = {
   UnitFrames: [
@@ -149,7 +151,7 @@ export const LONGER = {
   ],
   UnitExtras: [
     R("Each one shows only where your client answers.", "Each shows only where the client answers"),
-    C("The threat number sits at the top right of the target frame, and the mood dot in the pet frame's top-right corner.", "Modules/UnitExtras.lua", "UX.threat:SetPoint(\"BOTTOMRIGHT\", target, \"TOPRIGHT\"", "-- The mood dot in the pet frame's top-right corner, following your pet."),
+    C("The threat number sits just above the top-right corner of the target frame, and the mood dot in the pet frame's top-right corner.", "Modules/UnitExtras.lua", "UX.threat:SetPoint(\"BOTTOMRIGHT\", target, \"TOPRIGHT\"", "-- The mood dot in the pet frame's top-right corner, following your pet."),
   ],
   PartyExtras: [
     R("Turn it on under Unit frames in /fui.", "off until you turn it on under Unit frames"),
@@ -199,8 +201,8 @@ export const LONGER = {
     R("Move them with /fui unlock, or turn that off under Action bars to leave them to the game's Edit Mode, where your client has it.", "or turn that off under Action bars to leave them to Edit Mode"),
   ],
   DataBars: [
-    C("Hover a bar to see its numbers: your level, XP and rested XP, or the watched faction's name and progress.", "Modules/DataBars.lua", "text = \"hover\"", "\"Level %d  %s / %s (%d%%)\"", "-- Shows the bar's text only while hovered (text = \"hover\"), or always."),
-    C("The XP bar shows rested XP as a lighter strip and hides at the level cap; the reputation bar takes its standing's color and shows only while you watch a faction.", "Modules/DataBars.lua", "-- The rested overlay: a lighter strip from the left edge", "-- Fills the XP bar, or hides it at max level", "-- Fills the reputation bar in its standing color, or hides it with no watched"),
+    RC("Hover a bar to see its numbers: your level, XP and rested XP, or the watched faction's name and progress.", ["over thin XP and reputation bars", "Everything else**: XP and reputation bars"], "Modules/DataBars.lua", "text = \"hover\"", "\"Level %d  %s / %s (%d%%)\"", "-- Shows the bar's text only while hovered (text = \"hover\"), or always."),
+    RC("The XP bar shows rested XP as a lighter strip and hides at the level cap; the reputation bar takes its standing's color and shows only while you watch a faction.", ["over thin XP and reputation bars", "Everything else**: XP and reputation bars"], "Modules/DataBars.lua", "-- The rested overlay: a lighter strip from the left edge", "-- Fills the XP bar, or hides it at max level", "-- Fills the reputation bar in its standing color, or hides it with no watched"),
     R("They're always shown unless you pick another visibility (On mouseover, In combat, Hidden or the action bars' row of conditions), one setting for both.", "On mouseover, In combat, Hidden or the action bars' row of conditions", "so are the XP and reputation bars, which share one setting"),
   ],
   Minimap: [
@@ -302,7 +304,7 @@ export const LONGER = {
   ],
   GameAlerts: [
     R("Loss of control (stunned, feared...) shows a little above your character and the talking head at the top center; hiding the talking head is your choice under Bars, map, chat.", "Loss of control (stunned, feared...) shows on a flat panel a little above your character", "the talking head on one at the top center (or hidden; your choice under Bars, map, chat)"),
-    R("The rare announcement is off until you switch it on under Bars, map, chat; it plays the raid warning sound with one chat line, once per rare.", "(off until you switch it on, under Bars, map, chat), a rare", "with the raid warning sound and one chat line, out of combat and once per rare"),
+    R("The rare announcement is off until you switch it on under Bars, map, chat; it plays the raid warning sound with one chat line, out of combat and once per rare.", "(off until you switch it on, under Bars, map, chat), a rare", "with the raid warning sound and one chat line, out of combat and once per rare"),
   ],
   InstancePrep: [
     R("Each item you're short of gets a red mark and \"have / want\", and the reagents are your class's for your level.", "each with a red mark and \"have / want\"", "your class's reagents for your level"),
@@ -313,7 +315,7 @@ export const LONGER = {
   GameTools: [
     R("Turn the Cooldown Manager on in the game's Options (Gameplay Enhancements), or with ForeverUI's switch \"Show the game's Cooldown Manager\" under Bars, map, chat.", "Options, Gameplay Enhancements", "Show the game's Cooldown Manager"),
     R("With the damage meter there, the tooltip corner moves just above it.", "the tooltip corner moves just above it"),
-    C("Move them with /fui unlock; where your client has Edit Mode, ForeverUI stands aside while it's open, and one switch leaves placing them to Edit Mode.", "Core/Movers.lua", "local edit = _G.EditModeManagerFrame", "if type(edit) ~= \"table\" or not edit.HookScript then return end"),
+    RC("Move them with /fui unlock; where your client has Edit Mode, ForeverUI stands aside while it's open, and one switch leaves placing them to Edit Mode.", ["Move them with `/fui unlock`; while Edit Mode is open, ForeverUI stands aside", "One switch leaves placing them to Edit Mode"], "Core/Movers.lua", "local edit = _G.EditModeManagerFrame", "if type(edit) ~= \"table\" or not edit.HookScript then return end"),
   ],
   FightHistory: [
     R("Turn it on under Bars, map, chat.", "(off until you turn it on under Bars, map, chat)"),
@@ -338,7 +340,7 @@ export const LONGER = {
   Situations: [
     R("One situation holds at a time: the first of PvP, Instance, Raid, Party, Resting and Solo.", "One situation holds at a time, the first of PvP"),
     R("/fui situation record raid starts recording, and /fui situation stop saves it.", "`/fui situation record raid`", "(`/fui situation stop`)"),
-    R("Only what you changed is kept, and only frames' spot, scale and opacity, the info strip, menu bar and XP bar visibility, the info strip's parts and the nameplates' levels, threat colors, target border and quest marks can be recorded.", "only what you changed is kept", "nothing else is recorded"),
+    R("Only what you changed is kept, and only frames' spot, scale and opacity, the info strip, menu bar and XP bar visibility, the info strip's parts and the nameplates' levels, threat colors, target border and quest marks can be recorded.", "only what you changed is kept", "An override can hold any frame's spot, scale and opacity, the info strip's, menu bar's and XP bars' visibility, the info strip's blocks, and the nameplates' levels, threat colors, target border and quest marks; nothing else is recorded"),
     R("Your profile is always saved and exported with your own values, and profiles carry their situations.", "your profile is always saved and exported with your own values", "Profiles carry their overrides"),
   ],
 };

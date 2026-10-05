@@ -37,8 +37,17 @@ test("a sentence checked against the addon's code still matches that code", () =
   assert.deepEqual(missing, []);
 });
 
-test("every longer sentence has one kind of source: README phrases or addon code", () => {
-  for (const [key, x] of all) assert.ok(Boolean(x.readme && x.readme.length) !== Boolean(x.code && x.code.has.length), `${key}: ${x.s}`);
+test("every longer sentence has a source: README phrases, addon code, or both", () => {
+  for (const [key, x] of all) assert.ok(Boolean(x.readme && x.readme.length) || Boolean(x.code && x.code.has.length), `${key}: ${x.s}`);
+});
+
+// Bot 1's review: these lines are pinned to the README too, not only to the code.
+test("GameTools, Situations and the reputation bar lines are pinned to README phrases", () => {
+  const pinned = (key, re) => LONGER[key].filter((x) => re.test(x.s)).every((x) => x.readme && x.readme.length > 0);
+  for (const x of LONGER.GameTools) assert.ok(x.readme && x.readme.length > 0, `GameTools: ${x.s}`);
+  assert.ok(pinned("Situations", /can be recorded/), "the Situations list of what can be recorded");
+  assert.ok(pinned("DataBars", /reputation|faction/), "the DataBars reputation lines");
+  assert.ok(LONGER.Situations.some((x) => (x.readme || []).some((p) => p.startsWith("An override can hold"))), "the Situations list is checked against the README's own list");
 });
 
 test("every module card on /features/ shows 2 to 4 longer sentences, in order", () => {
