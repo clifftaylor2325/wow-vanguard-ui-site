@@ -156,17 +156,18 @@ function helpSection(s, facts) {
   return `<h2 id="${s.id}">${esc(s.title)}</h2>\n${s.shown.map((e) => helpEntry(e, facts)).join("\n")}`;
 }
 
-// The closing part: known issues and where to go next.
+// The closing part: known issues, then what to do when the page doesn't help.
 function helpFooter() {
   return `<h2 id="known-issues">Known issues</h2>
-<p>No known issues have been confirmed yet. ForeverUI is an early release: parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p>`;
+<p>No known issues have been confirmed yet. ForeverUI is an early release: parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p>
+<div class="notice info"><p><strong>Not covered here?</strong> Or the fix didn't help? Report it there as well, and include every line of <code>/fui status</code>.</p></div>`;
 }
 
 // The Troubleshooting & FAQ page (help-content.mjs holds its words and sources).
 export function helpPage(model, read) {
   const facts = helpFacts(model, read);
   const sections = SECTIONS.map((s) => ({ ...s, shown: sourcedEntries(s, facts) }));
-  const body = [`<h1>Troubleshooting &amp; FAQ</h1>`, `<p class="lede">Each answer uses ForeverUI's own commands and quotes its real messages. If your problem isn't here, or the fix doesn't help, please <a href="/feedback/">report it</a>.</p>`,
+  const body = [`<h1>Troubleshooting &amp; FAQ</h1>`, `<p class="lede">Each answer uses ForeverUI's own commands and quotes its real messages.</p>`,
     nextNotice(model), helpJumps(sections), ...sections.map((s) => helpSection(s, facts)), helpFooter()];
   return { path: "/help/", title: "Troubleshooting & FAQ", description: "Fixes for common ForeverUI problems, using the addon's own commands and messages.", body: body.join("\n") };
 }
@@ -255,7 +256,7 @@ function nextSection(model) {
   if (model.same || model.release.tag !== NEXT_RELEASE.after) return "";
   const intro = `<p>Not released yet, so it has no version number or date. Everything here is written and waiting; v${esc(model.version)} doesn't have it. On <a href="/features/">Features</a>, <a href="/commands/">Commands</a> and <a href="/settings/">Settings</a> these parts are marked ${NEXT}.</p>`;
   return `<section class="card" aria-labelledby="next-h">
-<h2 id="next-h" style="margin-top:0">What's coming in the next release ${NEXT}</h2>
+<h2 id="next-h" style="margin-top:0">What's coming in the next release</h2>
 ${intro}
 ${NEXT_RELEASE.groups.map(nextGroup).join("\n")}
 </section>`;
