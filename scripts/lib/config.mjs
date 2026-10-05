@@ -1,5 +1,5 @@
 // Loads site.config.json and applies environment overrides.
-//   FUI_SRC      path to a local clone of the addon repo (default: .cache/wow-forever-ui)
+//   FUI_SRC      path to a local clone of the addon repo (default: .cache/wow-vanguard-ui)
 //   FUI_REF      commit or branch of the addon source to document (default: the pinned sourceRef)
 //   FUI_RELEASE  release tag to document as "the current release" (default: latest)
 import fs from "node:fs";

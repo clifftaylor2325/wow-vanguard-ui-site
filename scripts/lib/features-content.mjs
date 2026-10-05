@@ -100,7 +100,7 @@ export const MORE = {
 };
 
 // v1.1: a few more sentences per module, beyond `more`, still in player
-// language (clifftaylor2325/wow-forever-ui#107). Each sentence carries its
+// language (clifftaylor2325/wow-vanguard-ui#107). Each sentence carries its
 // source: `readme` lists phrases the addon's README must still contain (the
 // build stops with an error if one is gone, so the page can't drift from the
 // README), or `code` names the addon file and lines the sentence was checked
