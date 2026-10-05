@@ -88,13 +88,13 @@ test("/start/: the layout and screen-preset tables match the wizard's own lists"
   assert.ok(keep && t.includes(keep), `"${keep}"`);
 });
 
-test("/start/: the Escape-menu button is in the menu, at the top only where the client supports it", () => {
+test("/start/: the Escape-menu button is at the top of the menu, or just under it", () => {
   const gm = show(NEXT, "Core/GameMenu.lua");
   const h = html("start");
   const li = (h.match(/<li>[^\n]*?<kbd>Escape<\/kbd> to open the game menu[\s\S]*?<\/li>/) || [])[0];
   assert.ok(li, "the Escape-menu way to open the options");
   const t = text(li);
-  assert.ok(t.includes("in the Escape menu (at the top where your client supports it)"), t);
+  assert.ok(t.includes("at the top of the Escape menu, or just under it where your client's menu can't take new buttons"), t);
   assert.doesNotMatch(text(h), /at the top of the (game )?menu/, "no flat 'at the top of the menu' claim");
   if (gm) {
     // The addon places it first in a menu that lays out its buttons, else under the menu.
