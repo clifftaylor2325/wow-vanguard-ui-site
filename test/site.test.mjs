@@ -105,6 +105,12 @@ function distFiles(dir = dist) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? distFiles(path.join(dir, e.name)) : [path.join(dir, e.name)]));
 }
 
+test("dist contains no old author name", () => {
+  const oldName = Buffer.from("clifftaylor2325", "utf8");
+  const bad = distFiles().filter((f) => fs.readFileSync(f).includes(oldName)).map((f) => path.relative(dist, f));
+  assert.deepEqual(bad, [], `old author name found in dist/: ${bad.join(", ")}`);
+});
+
 test("no zip is shipped and nothing offers a download", () => {
   const files = distFiles();
   const zips = files.filter((f) => /\.zip$/i.test(f)).map((f) => path.relative(dist, f));
