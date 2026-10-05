@@ -303,6 +303,34 @@ test("no GitHub links in the output", () => {
   assert.deepEqual(bad, []);
 });
 
+test("fonts: WOFF2 first with the TTF as fallback, and the committed WOFF2 files ship", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1]);
+  assert.ok(faces.length >= 2, "expected the @font-face rules");
+  for (const f of faces) {
+    const m = f.match(/src:\s*url\("([^"]+)\.woff2"\)\s*format\("woff2"\),\s*url\("([^"]+)\.ttf"\)\s*format\("truetype"\)/);
+    assert.ok(m && m[1] === m[2], `@font-face must list WOFF2 then the same font as TTF: ${f.trim()}`);
+    assert.ok(/font-display:\s*swap/.test(f), "font-display: swap must stay");
+    for (const ext of ["woff2", "ttf"]) assert.ok(fs.existsSync(path.join(dist, `${m[1]}.${ext}`)), `${m[1]}.${ext} missing from dist/`);
+    const woff2 = fs.readFileSync(path.join(dist, `${m[1]}.woff2`));
+    assert.equal(woff2.subarray(0, 4).toString("latin1"), "wOF2", `${m[1]}.woff2 is not a WOFF2 file`);
+    assert.ok(woff2.equals(fs.readFileSync(path.join(root, "src", `${m[1]}.woff2`))), `${m[1]}.woff2 in dist/ differs from src/`);
+  }
+});
+
+test("every inner page and the 404 page open with the shared page hero, and the skip link comes first", () => {
+  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"];
+  for (const d of [...dirs, "404"]) {
+    const html = d === "404" ? fs.readFileSync(path.join(dist, "404.html"), "utf8") : page(d);
+    const body = html.slice(html.indexOf("<body"));
+    const first = body.match(/<(a|button|input|select|textarea)\b[^>]*>/);
+    assert.ok(first && /class="skip" href="#main"/.test(first[0]), `/${d}: the skip link must be the first focusable element`);
+    assert.ok(/<main id="main"/.test(html), `/${d}: the skip link target must be the main landmark`);
+    if (!d) continue;
+    assert.ok(/<div class="page-hero">\s*<div class="hero-art" aria-hidden="true">[\s\S]*?<h1 class="page-title">/.test(html), `/${d}: no page hero with the h1`);
+  }
+});
+
 // The help page's body built from the addon, with one fact's text cut out of
 // its file (in both refs) when `cut` is given.
 function helpWithout(cut) {

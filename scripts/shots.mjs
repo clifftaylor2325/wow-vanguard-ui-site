@@ -6,6 +6,9 @@
 // Uses playwright-core with the browser in CHROME_PATH, else Edge on Windows
 // (msedge.exe under Program Files or Program Files (x86)), else an installed
 // Chrome/Chromium. Screenshots go to SHOTS_DIR (default: shots/).
+// It also checks the skip link with the keyboard on every page: the first Tab
+// must focus it, and Enter must move focus to <main id="main">.
+// The local server listens on SHOTS_PORT (default: any free port).
 //   npm run shots
 // With SHOTS_BASE set to a running `npm run dev` (wrangler pages dev with the
 // local GitHub stub, see README), it also walks the feedback form: field
@@ -149,7 +152,7 @@ async function feedbackFlow(browser, base, failures) {
 
 // Entry point.
 async function main() {
-  const server = await serve(loadConfig().outDir);
+  const server = await serve(loadConfig().outDir, Number(process.env.SHOTS_PORT || 0));
   const base = `http://127.0.0.1:${server.address().port}`;
   const browser = await chromium.launch({ executablePath: browserPath() });
   const failures = [];
@@ -160,6 +163,22 @@ async function main() {
       for (const n of NAV) {
         await page.goto(base + n.path, { waitUntil: "load" });
         await noSideScroll(page, `${n.path} at ${width}px`, failures);
+      }
+      await page.close();
+    }
+    // Skip link, with real keyboard focus: first Tab, then Enter.
+    {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+      for (const n of NAV) {
+        await page.goto(base + n.path, { waitUntil: "load" });
+        await page.keyboard.press("Tab");
+        const first = await page.evaluate(() => document.activeElement?.matches("a.skip[href='#main']") || false);
+        await page.keyboard.press("Enter");
+        await page.waitForFunction(() => location.hash === "#main", null, { timeout: 2000 }).catch(() => {});
+        const toMain = await page.evaluate(() => document.activeElement === document.querySelector("main#main"));
+        const ok = first && toMain;
+        console.log(`${ok ? "ok  " : "FAIL"} skip link ${n.path} first Tab: ${first ? "skip link" : "something else"}, Enter: ${toMain ? "focus on main" : "focus not on main"}`);
+        if (!ok) failures.push(`skip link on ${n.path}`);
       }
       await page.close();
     }
