@@ -408,6 +408,39 @@ th { background: var(--raised); font-weight: 600; }
 .chips a:hover { border-color: var(--accent); color: var(--accent); }
 .home-sec + .small { margin-top: 40px; text-align: center; }
 
+/* Feedback form (/feedback/). The form needs JS; without it the steps and
+   templates below still work. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.fb-needs-js { display: none; }
+.js .fb-needs-js:not([hidden]) { display: block; }
+.js .fb-nojs { display: none; }
+.card.fb { margin-bottom: 20px; }
+.fb-form { max-width: 46rem; }
+.fb-form fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.fb-form .field { margin: 0 0 16px; min-width: 0; }
+.fb-form label { font-weight: 600; }
+.fb-form .fb-kind legend { font-weight: 600; margin-bottom: 6px; padding: 0; }
+.fb-form .fb-kind label { display: inline-flex; align-items: center; gap: 6px; margin: 0 18px 4px 0; font-weight: 500; }
+.fb-form input[type=text], .fb-form input:not([type]), .fb-form input[type=email], .fb-form textarea, .fb-form select {
+  display: block; width: 100%; max-width: 100%; margin-top: 4px; font: inherit; color: var(--text); background: var(--raised);
+  border: 1px solid var(--divider); border-radius: 4px; padding: 8px 10px;
+}
+.fb-form textarea { resize: vertical; min-height: 4.5em; }
+.fb-form input:focus-visible, .fb-form textarea:focus-visible, .fb-form select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.fb-form [aria-invalid="true"] { border-color: var(--bad); }
+.fb-form .check label { display: flex; align-items: flex-start; gap: 8px; font-weight: 500; }
+.fb-form .check input { margin-top: 0.3em; flex: none; }
+.fb-form .opt { font-weight: 500; color: var(--text2); }
+.fb-form .hint { margin: 4px 0 0; font-size: 0.9rem; color: var(--text2); }
+.err { margin: 4px 0 0; color: var(--bad); font-weight: 600; font-size: 0.95rem; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.fb-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+.fb-step h3:focus { outline: none; }
+.fb-preview-body { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 28rem; overflow-y: auto; }
+.fb-turnstile { margin: 12px 0; min-height: 0; max-width: 100%; overflow: hidden; }
+.notice.bad { border-left-color: var(--bad); }
+.fb-ref { font-size: 1.2rem; color: var(--accent); letter-spacing: 0.04em; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
   /* Embers stay put as faint sparks instead of drifting. */
