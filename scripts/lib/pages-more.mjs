@@ -159,7 +159,7 @@ function helpSection(s, facts) {
 // The closing part: known issues and where to go next.
 function helpFooter() {
   return `<h2 id="known-issues">Known issues</h2>
-<p>None confirmed yet: nothing has been checked in game. Problems confirmed by players will be listed here.</p>
+<p>None listed yet. ForeverUI is an early release: problems confirmed by players will be listed here.</p>
 <div class="notice info"><p><strong>Not covered here?</strong> Or the fix didn't help? Please <a href="/feedback/">report it on the Feedback page</a>, with the lines from <code>/fui status</code>.</p></div>`;
 }
 
