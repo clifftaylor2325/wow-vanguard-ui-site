@@ -3,6 +3,7 @@
 // release metadata); the prose around them only restates what those sources say.
 import { esc, md, slug, badge, avail, shot, ornament, curseforgeCta, CURSEFORGE_URL } from "./html.mjs";
 import { AREAS } from "./model.mjs";
+import { MORE } from "./features-content.mjs";
 
 // "September 27, 2026" in New York time.
 export function dateET(iso) {
@@ -317,27 +318,73 @@ ${relHas("setup") ? "" : ""}`,
 
 // ------------------------------------------------------------------ Features
 
-export function featuresPage(model) {
-  const groups = [...AREAS.map(([a]) => a), "Other"].map((area) => [area, model.modules.filter((m) => m.area === area)]).filter(([, l]) => l.length);
-  const card = (m) => `<article class="card mod" id="${m.id}" data-module="${esc(m.key)}">
-  <h3>${esc(m.name)} ${badge(m.inRel, m.inNext, model.version)}</h3>
-  ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}
-  <p class="small">Module <code>${esc(m.key)}</code>${m.pages.length ? ` · Settings: ${m.pages.map((p) => `<a href="/settings/#${p.id}">${esc(p.title)}</a>`).join(", ")}` : ""}${m.commands.length ? ` · Commands: ${m.commands.map((c) => `<a href="/commands/#cmd-${esc(c)}"><code>/fui ${esc(c)}</code></a>`).join(", ")}` : ""}</p>
+// True when the addon says a module starts off: every switch in its defaults
+// is off and its own description says so ("off until", "switch it on").
+function startsOff(m, model) {
+  const d = model.next.modules.find((x) => x.name === m.key)?.defaults || {};
+  const flags = Object.values(d).filter((v) => typeof v === "boolean");
+  return flags.length > 0 && flags.every((v) => !v) && /off until|switch it on/i.test(m.desc);
+}
+
+// The module's longer description, while the README still says what it's written from.
+function moreOf(m, model) {
+  const entry = MORE[m.key];
+  return entry && entry.check.every((c) => model.next.readme.includes(c)) ? entry.more : null;
+}
+
+// A command's help text as the addon prints it (newest source first).
+function helpText(model, id) {
+  const e = model.commands.entries.find((x) => x.id === id);
+  return ((e?.nextLines || e?.relLines || [])[0] || {}).text || "";
+}
+
+// The "Settings / Commands / Turn it off" lines under a module.
+function featureFacts(m, model) {
+  const rows = [];
+  if (m.pages.length) rows.push(["Settings", m.pages.map((p) => `<a href="/settings/#${p.id}">${esc(p.title)}</a>`).join(", ")]);
+  for (const c of m.commands) rows.push(["Command", `<a href="/commands/#cmd-${esc(c)}"><code>/fui ${esc(c)}</code></a> ${esc(helpText(model, c))}`]);
+  rows.push(["Turn it off", `<strong>/fui → Modules</strong>, then reload`]);
+  return `<dl class="facts">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
+}
+
+// One module as a card: name, badges, the addon's one-liner, more, and its facts.
+function featureCard(m, model) {
+  const off = startsOff(m, model) ? ` <span class="badge plain">Off until you switch it on</span>` : "";
+  const more = moreOf(m, model);
+  return `<article class="card mod" id="${m.id}" data-module="${esc(m.key)}">
+  <h3>${esc(m.name)} ${badge(m.inRel, m.inNext, model.version)}${off}</h3>
+  ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}${more ? `\n  <p class="mod-more">${esc(more)}</p>` : ""}
+  ${featureFacts(m, model)}
 </article>`;
-  return {
-    path: "/features/",
-    title: "Features",
-    description: "Every ForeverUI module, what it does, and whether it's in the current release.",
-    body: `<h1>Features</h1>
-<p class="lede">ForeverUI is built from modules. Each one replaces or adds one part of the game's interface, and each can be turned off under <strong>/fui → Modules</strong>.</p>
+}
+
+// The feature areas that have modules, in the plan's order, then "Other".
+function featureAreas(model) {
+  const names = [...AREAS.map(([a]) => a), "Other"];
+  return names.map((area) => [area, model.modules.filter((m) => m.area === area)]).filter(([, list]) => list.length);
+}
+
+// One area: its heading and its module cards.
+function areaSection([area, list], model) {
+  return `<section aria-labelledby="area-${slug(area)}"><h2 id="area-${slug(area)}">${esc(area)}</h2>
+<div class="mods">${list.map((m) => featureCard(m, model)).join("\n")}</div></section>`;
+}
+
+// The intro: what modules are, the counts, and the jump links to each area.
+function featuresIntro(model, groups) {
+  const count = (f) => model.modules.filter(f).length;
+  return `<p class="lede">ForeverUI is built from parts called modules. Each one replaces or adds one piece of the game's interface, and each can be turned off on its own under <strong>/fui → Modules</strong>.</p>
 ${nextNotice(model)}
-<p class="small">The one-line descriptions are the ones the addon shows on its Modules page (<code>O.MODULE_INFO</code> in <code>Core/Options.lua</code>), taken from its newest source. A module marked <span class="badge rel">In v${esc(model.version)}</span> is in that release, but some details in its description may have arrived after that release; the <a href="/settings/">Settings</a> page shows exactly which options each version has.</p>
-<p><strong>${model.modules.filter((m) => m.inRel).length}</strong> modules in v${esc(model.version)} · <strong>${model.modules.filter((m) => m.inNext).length}</strong> in the next release.</p>
-<nav aria-label="Feature areas"><ul class="filters" style="list-style:none;padding:0">${groups.map(([a]) => `<li><a href="#area-${slug(a)}">${esc(a)}</a></li>`).join("")}</ul></nav>
-${groups.map(([area, list]) => `<section aria-labelledby="area-${slug(area)}"><h2 id="area-${slug(area)}">${esc(area)}</h2><div class="mods">${list.map(card).join("\n")}</div></section>`).join("\n")}
-${shot("raid frames and the options window")}
-${src("Core/Options.lua (O.MODULE_INFO)", "ns.Module(...) calls in Modules/*.lua")}`,
-  };
+<p>The name and first line of each module are the ones the addon shows on its Modules page. The longer text under it describes the module as it is in the newest version, so v${esc(model.version)} may not have every detail yet. Every module is on until you turn it off, except where it says <span class="badge plain">Off until you switch it on</span>. The <a href="/settings/">Settings</a> page shows exactly which options each release has.</p>
+<p><strong>${count((m) => m.inRel)}</strong> modules in v${esc(model.version)} · <strong>${count((m) => m.inNext)}</strong> in the next release.</p>
+<nav aria-label="Feature areas"><ul class="chips feature-areas">${groups.map(([a]) => `<li><a href="#area-${slug(a)}">${esc(a)}</a></li>`).join("")}</ul></nav>`;
+}
+
+// The Features page: one card per module, grouped by area.
+export function featuresPage(model) {
+  const groups = featureAreas(model);
+  const body = [`<h1>Features</h1>`, featuresIntro(model, groups), ...groups.map((g) => areaSection(g, model)), shot("raid frames and the options window")];
+  return { path: "/features/", title: "Features", description: "Every ForeverUI module: what it does, where its settings are, and its commands.", body: body.join("\n") };
 }
 
 // ------------------------------------------------------------------ Commands
