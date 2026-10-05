@@ -114,6 +114,47 @@ test("the Settings page quotes what a Reload button built in combat says", () =>
   assert.ok(html.includes(line), `/settings/ doesn't quote "${line}"`);
 });
 
+test("every page links the favicon, and it is shipped", () => {
+  for (const d of ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"]) {
+    assert.ok(page(d).includes('<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">'), `/${d} has no favicon link`);
+  }
+  assert.ok(/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/.test(fs.readFileSync(path.join(dist, "assets/favicon.svg"), "utf8")), "dist/assets/favicon.svg missing or not an SVG");
+});
+
+test("sitemap.xml lists every page under siteUrl, and robots.txt points to it", () => {
+  const base = cfg.siteUrl.replace(/\/+$/, "");
+  const xml = fs.readFileSync(path.join(dist, "sitemap.xml"), "utf8");
+  const want = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"].map((d) => `${base}/${d ? d + "/" : ""}`);
+  assert.ok(/^<\?xml version="1\.0" encoding="UTF-8"\?>\n<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/.test(xml), "sitemap.xml has no urlset");
+  assert.deepEqual([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]).sort(), want.sort(), "sitemap.xml must list exactly the 11 pages");
+  assert.match(fs.readFileSync(path.join(dist, "robots.txt"), "utf8"), new RegExp(`^Sitemap: ${base.replace(/[.]/g, "\\.")}/sitemap\\.xml$`, "m"));
+});
+
+// The rows of the Settings page that the search counter counts, by availability.
+function countedRows(html) {
+  const tags = [...html.matchAll(/<tr\b[^>]*>/g)].map((m) => m[0]).filter((t) => /\sdata-count[\s>]/.test(t));
+  return { tags, avail: (...a) => tags.filter((t) => a.some((x) => t.includes(`data-avail="${x}"`))).length };
+}
+
+test("the Settings counter counts only setting rows, so it matches the header", () => {
+  const html = page("settings");
+  const head = html.match(/<strong>(\d+)<\/strong> settings in v[^<]*<strong>(\d+)<\/strong> in the next release/);
+  const rows = countedRows(html);
+  assert.ok(head, "the header count is missing");
+  assert.ok(rows.tags.every((t) => /class="opt-row opt-item"/.test(t)), "only setting rows may carry data-count (no notes or headings)");
+  assert.equal(rows.avail("rel", "old"), Number(head[1]), "rows counted with next-release hidden must match the header's release count");
+  assert.equal(rows.avail("rel", "next"), Number(head[2]), "rows counted with v-only hidden must match the header's next-release count");
+  assert.ok(fs.readFileSync(path.join(dist, "assets/site.js"), "utf8").includes('hasAttribute("data-count")'), "site.js must count data-count rows only");
+});
+
+test("both searches have singular and plural nouns and a no-match message", () => {
+  for (const [d, one, many] of [["settings", "setting", "settings"], ["commands", "command", "commands"]]) {
+    assert.ok(page(d).includes(`data-noun="${many}" data-noun-one="${one}"`), `/${d} search needs data-noun and data-noun-one`);
+  }
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  assert.ok(js.includes('"No " + noun + " match \\u201c" + query') && js.includes("Clear search"), "site.js must show a no-match message with a Clear search button");
+});
+
 // Every file in dist/, as paths relative to it.
 function distFiles(dir = dist) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? distFiles(path.join(dir, e.name)) : [path.join(dir, e.name)]));
