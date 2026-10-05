@@ -194,6 +194,13 @@ a.cf-cta:hover { filter: brightness(1.08); }
 .mod h3 { margin: 0 0 6px; font-size: 1.1rem; }
 .mod p { margin: 0 0 6px; }
 
+/* The message a search with no matches shows under the list (site.js). */
+.search-empty[hidden] { display: none; }
+.search-empty { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.search-empty p { margin: 0; flex: 1 1 16em; }
+.search-clear { font: inherit; font-size: 0.9rem; color: var(--text); background: var(--raised); border: 1px solid var(--divider); border-radius: 3px; padding: 4px 10px; cursor: pointer; }
+.search-clear:hover { border-color: var(--accent); }
+
 /* Tables (small, never wider than the screen) */
 .table-wrap { max-width: 100%; overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }

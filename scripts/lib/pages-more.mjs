@@ -521,7 +521,7 @@ export function creditsPage(model, site) {
 <p><strong>${esc(lic[0] || "")}</strong>. ${esc(lic[1] || "")}.</p>
 <p>From the v${esc(model.version)} README:</p>
 <blockquote class="card prose"><p>${md(relLicense)}</p></blockquote>
-${nextLicense && nextLicense !== relLicense ? `<p>The next release ${NEXT} also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>` : ""}
+${nextLicense && nextLicense !== relLicense ? `<p>The next release also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>` : ""}
 ${bullets.length ? `<h2 id="credits">Fonts, libraries and art</h2><p>As listed in the addon's README for the next release:</p><ul>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` : ""}
 <h2 id="site">This website</h2>
 <p>ForeverUI is made by ${esc(site.author)}.</p>
