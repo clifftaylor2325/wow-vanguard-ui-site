@@ -1,0 +1,16 @@
+# Local settings for `npm run dev` (wrangler pages dev). Copy this file to
+# .dev.vars (gitignored) and keep the values below: they file reports into the
+# local GitHub stub (npm run stub:github) and use Cloudflare's public Turnstile
+# test keys, which always pass. Never put a real token or key in this file.
+# The Function refuses the test keys and the stub anywhere but localhost.
+
+# Any non-empty string: the stub only checks that one is sent.
+GITHUB_TOKEN=local-stub-token-not-a-secret
+# The local stub (scripts/github-stub.mjs). Leave unset in production.
+GITHUB_API_URL=http://127.0.0.1:8789
+FEEDBACK_REPO=local/feedback-stub
+# Cloudflare Turnstile test keys (always pass):
+# https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+TURNSTILE_SITEKEY=1x00000000000000000000AA
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+RL_SALT=local-salt-change-me
