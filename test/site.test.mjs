@@ -6,6 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { CURSEFORGE_URL, esc } from "../scripts/lib/html.mjs";
@@ -17,6 +18,7 @@ import { MORE } from "../scripts/lib/features-content.mjs";
 import { gitReader } from "../scripts/lib/source.mjs";
 import { extractAddon } from "../scripts/lib/extract.mjs";
 import { buildModel } from "../scripts/lib/model.mjs";
+import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
 
 const cfg = loadConfig();
 if (!fs.existsSync(path.join(cfg.sourcePath, ".git"))) {
@@ -282,18 +284,22 @@ test("next-release items stay out of the current release's section", () => {
   if (meta.current === NEXT_RELEASE.after) for (const i of items) assert.ok(next && next[0].includes(esc(i.text)), `"${i.label}" missing from What's coming`);
 });
 
-// Mojibake: UTF-8 read as code page 437 or Windows-1252, then saved again.
-const MOJIBAKE = /Γ[ÇåÄ]|┬[╖░]|â€|Ã[\^@-\u00BF]|Â[\u00A0-\u00BF]|\uFFFD/;
+// Garbled characters or a byte-order mark in any text file of the repo or the built site.
+test("no garbled characters or byte-order marks in the source or the built site", () => {
+  const built = distFiles().filter((f) => /\.(html|js|css|xml|txt|json)$/.test(f)).map((f) => path.relative(root, f));
+  const bad = scanFiles(root, [...repoTextFiles(root), ...built]);
+  assert.deepEqual(bad, [], `encoding problems (see CONTRIBUTING.md):\n${bad.join("\n")}`);
+});
 
-test("no garbled characters in the source or the built site", () => {
-  const files = [
-    ...distFiles().filter((f) => /\.(html|js|css|xml|txt)$/.test(f)),
-    ...fs.readdirSync(path.join(root, "scripts/lib")).map((f) => path.join(root, "scripts/lib", f)),
-    ...["scripts/build.mjs", "src/assets/site.js", "src/assets/site.css"].map((f) => path.join(root, f)),
-  ];
-  const bad = files.flatMap((f) => fs.readFileSync(f, "utf8").split("\n")
-    .map((l, i) => (MOJIBAKE.test(l) ? `${path.relative(root, f)}:${i + 1}` : null)).filter(Boolean));
-  assert.deepEqual(bad, [], `garbled characters at: ${bad.join(", ")}`);
+// A planted bad file is caught, with its file and line: a BOM, a garbled line and a UTF-16 file.
+test("the encoding check catches planted bad files", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fui-encoding-"));
+  fs.writeFileSync(path.join(dir, "planted.md"), Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from("fine\nshows \u0393\u00c7\u00aa and \u00c3\u00a9 here\n", "utf8")]));
+  fs.writeFileSync(path.join(dir, "out-file.txt"), Buffer.from("\ufeffhello", "utf16le"));
+  fs.writeFileSync(path.join(dir, "clean.mjs"), "// \u2026 \u201cquoted\u201d \u2192 \u00b7\n");
+  const found = scanFiles(dir, ["planted.md", "out-file.txt", "clean.mjs"]);
+  assert.deepEqual(found, ["planted.md:1: UTF-8 byte-order mark (save without BOM)", "planted.md:2: garbled characters", "out-file.txt:1: UTF-16 file (save it as UTF-8)"]);
+  fs.rmSync(dir, { recursive: true, force: true });
 });
 
 // The site's model of the release and the newer source, made as the build makes it.
