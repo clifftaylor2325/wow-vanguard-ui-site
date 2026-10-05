@@ -242,77 +242,141 @@ ${src("ForeverUI.toc (SavedVariables)")}
 
 // ------------------------------------------------------------------ Getting started
 
-// The setup wizard section (from Core/Setup.lua), when the source has one.
-function wizardSection(setup, inRel) {
+// A message or label quoted from one addon file: each string part must appear in that
+// file word for word (else the build stops); a { v } part is a placeholder like <name>.
+export function says(text, file, ...parts) {
+  return parts.map((p) => {
+    if (typeof p !== "string") return `&lt;${esc(p.v)}&gt;`;
+    if (!(text || "").includes(p)) throw new Error(`${file}: "${p}" not found in the addon source`);
+    return esc(p);
+  }).join("");
+}
+
+// The same, or null when a part is missing (for text that may only exist in one release).
+export function saysIf(text, file, ...parts) {
+  try { return says(text, file, ...parts); } catch { return null; }
+}
+
+// A button or field label: the build stops unless the file has it as a whole quoted string.
+export function label(text, file, name) {
+  says(text, file, `"${name}"`);
+  return esc(name);
+}
+
+// A number read from a file by a regex with one capture group (the build stops when it's missing).
+function num(text, file, re) {
+  const m = (text || "").match(re);
+  if (!m) throw new Error(`${file}: ${re} not found in the addon source`);
+  return m[1];
+}
+
+// The setup wizard section (from Core/Setup.lua), when the source has one. Plain player
+// language only: every label and message is quoted from the addon and checked by says().
+function wizardSection(setup, inRel, read) {
   if (!setup) return "";
+  const S = read.next("Core/Setup.lua");
+  const D = read.next("Core/Dialog.lua");
+  const O = read.next("Core/Options.lua");
+  const s = (...p) => says(S, "Core/Setup.lua", ...p);
   const b = inRel ? "" : ` <span class="badge next">Next release</span>`;
   const n = setup.steps.length;
   const caption = (i) => setup.caption.replace("%d", i + 1).replace("%d", n).replace("%s", setup.steps[i]);
+  const wide = num(S, "Core/Setup.lua", /if w \/ h >= ([\d.]+) then return "ultrawide"/);
+  const tall4k = num(S, "Core/Setup.lua", /if h >= (\d+) then return "4k"/);
+  const tall1440 = num(S, "Core/Setup.lua", /return h >= (\d+) and "1440"/);
+  const reloadAsk = says(D, "Core/Dialog.lua", " Reload the UI now to apply it?");
+  const reloadBtn = label(D, "Core/Dialog.lua", "Reload");
+  const laterBtn = label(D, "Core/Dialog.lua", "Later");
+  const pixel = says(O, "Core/Options.lua", "Pixel-perfect scale (crisp 1-pixel lines)");
+  const layoutName = (key) => esc(setup.layouts.find((l) => l.key === key)?.text || "");
+  const scr = (key) => esc(setup.screens.find((p) => p.key === key)?.text || "");
+  const screenRow = (p) => `${esc(p.text)} (${p.w} x ${p.h})`;
   return `<h2 id="setup-wizard">The setup wizard${b}</h2>
-${inRel ? "" : `<p><strong>The setup wizard isn't in the current release.</strong> It is written and waits for the next release. This is what it will do, read straight from the addon's code.</p>`}
-<p>The first time you log in on an account, a ${n}-step wizard (“${esc(setup.title)}”) opens: ${setup.steps.map((s) => esc(s)).join(", ")}. It waits until you're out of combat (it says “${esc(setup.combat)}”). Done, the close button and Escape all end it, and it doesn't come back on its own: <code>/fui setup</code> reopens it.</p>
-<h3>Step 1 · ${esc(setup.steps[0])}</h3>
-<p>“${esc(setup.questions[0] || "")}”</p>
+${inRel ? "" : `<p><strong>The setup wizard isn't in the current release.</strong> It's ready for the next release, and this is what it will do.</p>`}
+<p>The first time you log in on an account, a window called “${esc(setup.title)}” opens. It has ${n} steps: ${setup.steps.map((x) => esc(x)).join(", ")}. The line under the title says where you are, for example “${esc(caption(0))}”. <strong>${label(S, "Core/Setup.lua", "Next")}</strong> goes on (on the last step it reads <strong>${label(S, "Core/Setup.lua", "Done")}</strong>) and <strong>${label(S, "Core/Setup.lua", "Back")}</strong> goes back a step.</p>
+<p>It never opens during a fight. If you're in combat it says “${esc(setup.combat)}” and waits. If a fight starts while it's open, it gets out of the way and comes back on the same step when the fight is over.</p>
+
+<h3 id="setup-layout">Step 1 · ${esc(setup.steps[0])}</h3>
+<p>It asks: “${esc(setup.questions[0] || "")}” <strong>${layoutName(setup.layouts[0].key)}</strong> is picked when the window opens. Click a layout to see what it does under the list. Your choice takes effect when you click <strong>${label(S, "Core/Setup.lua", "Next")}</strong>.</p>
 <div class="table-wrap"><table class="stack"><thead><tr><th scope="col">Layout</th><th scope="col">What it does</th></tr></thead><tbody>
 ${setup.layouts.map((l, i) => `<tr><td data-label="Layout"><strong>${esc(l.text)}</strong>${i === 0 ? ` <span class="badge plain">Default</span>` : ""}</td><td data-label="What it does">${esc(l.hint)}</td></tr>`).join("\n")}
 </tbody></table></div>
-<h3>Step 2 · ${esc(setup.steps[1])}</h3>
-<p>“${esc(setup.questions[1] || "")}” The preset that matches your screen is marked “· ${esc(setup.yourScreen || "your screen")}”; on a screen under ${esc(setup.keepBelow)} pixels tall, “${esc(setup.keepText)}” is picked.</p>
-<div class="table-wrap"><table class="stack"><thead><tr><th scope="col">Preset</th><th scope="col">Made for</th><th scope="col">What it sets</th></tr></thead><tbody>
-${setup.screens.map((s) => `<tr><td data-label="Preset"><strong>${esc(s.text)}</strong></td><td data-label="Made for">${s.w} x ${s.h}</td><td data-label="What it sets">${esc(s.hint)}</td></tr>`).join("\n")}
-<tr><td data-label="Preset"><strong>${esc(setup.keepText)}</strong></td><td data-label="Made for">any screen</td><td data-label="What it sets">${esc(setup.keepHint)}</td></tr>
+<ul>
+  <li><strong>${layoutName("healing")}</strong> also turns on the raid frames and click casting if they were off.</li>
+  <li>Each layout first puts back anything another layout moved, so picking <strong>${layoutName("damage")}</strong> later undoes the others.</li>
+</ul>
+
+<h3 id="setup-screen">Step 2 · ${esc(setup.steps[1])}</h3>
+<p>It asks: “${esc(setup.questions[1] || "")}” The wizard picks the preset for your screen when it opens and marks it “${s("your screen")}”: <strong>${scr("ultrawide")}</strong> for a screen at least ${esc(wide)} times as wide as it is tall; otherwise by height: <strong>${scr("4k")}</strong> from ${esc(tall4k)} pixels tall, <strong>${scr("1440")}</strong> from ${esc(tall1440)}, and <strong>${scr("1080")}</strong> from ${esc(setup.keepBelow)}. On a screen under ${esc(setup.keepBelow)} pixels tall, <strong>${esc(setup.keepText)}</strong> is picked. Your choice takes effect when you click <strong>${label(S, "Core/Setup.lua", "Next")}</strong>.</p>
+<div class="table-wrap"><table class="stack"><thead><tr><th scope="col">Choice</th><th scope="col">What it sets</th></tr></thead><tbody>
+${setup.screens.map((p) => `<tr><td data-label="Choice"><strong>${screenRow(p)}</strong></td><td data-label="What it sets">${esc(p.hint)}</td></tr>`).join("\n")}
+<tr><td data-label="Choice"><strong>${esc(setup.keepText)}</strong></td><td data-label="What it sets">${esc(setup.keepHint)}</td></tr>
 </tbody></table></div>
-<h3>Step 3 · ${esc(setup.steps[2])}</h3>
-<p>Pick an accent color (the swatches below) and a raid frame style: ${setup.styles.map((s) => `<strong>${esc(s[2])}</strong> (${esc(s[1])})`).join(", ")}.</p>
-<h3>Step 4 · ${esc(setup.steps[3])}</h3>
+<p>The UI scale a preset sets is the game's own UI scale (the one in the game's graphics settings). It changes once you're out of combat, and choosing a preset turns off <strong>${pixel}</strong> under <strong>General → Look</strong>. ${esc(setup.reloadTile)}</p>
+
+<h3 id="setup-look">Step 3 · ${esc(setup.steps[2])}</h3>
+<ul>
+  <li><strong>${label(S, "Core/Setup.lua", "Accent")}:</strong> click a swatch to change the accent color right away. They're the same colors as in <a href="#accent">Pick an accent color</a> below.</li>
+  <li><strong>${label(S, "Core/Setup.lua", "Raid frame style")}:</strong> three small raid tiles, each drawn in its style. Click one to switch to it right away: ${setup.styles.map((x) => `<strong>${esc(x[2])}</strong> (${esc(x[1])})`).join(", ")}.</li>
+</ul>
+
+<h3 id="setup-move">Step 4 · ${esc(setup.steps[3])}</h3>
+<p>On this step your frames are unlocked, and the wizard says:</p>
 <ul>${setup.moveLines.map((l) => `<li>“${esc(l)}”</li>`).join("")}</ul>
-<p>With the defaults it's Next, Next, Next, Done. It may then offer a reload: “${esc(setup.reloadModule)}” or “${esc(setup.reloadTile)}”</p>
-<p class="small">The wizard's caption reads like “${esc(caption(0))}”.</p>
-${shot("the setup wizard, step 1")}
-${src("Core/Setup.lua", "README.md (First-run setup)")}`;
+<p>Arrow keys are <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd>; hold <kbd>Shift</kbd> to move 10 px at a time.</p>
+
+<h3 id="setup-finish">Finishing</h3>
+<p>With the defaults it takes four clicks: <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Done")}</strong>. <strong>${label(S, "Core/Setup.lua", "Done")}</strong>, the window's close button and <kbd>Escape</kbd> all end the wizard and lock your frames again. It doesn't come back by itself; type <code>/fui setup</code> to run it again.</p>
+<p>If setup changed something that needs a reload, it then asks, with <strong>${reloadBtn}</strong> and <strong>${laterBtn}</strong> buttons:</p>
+<ul>
+  <li>“${esc(setup.reloadModule)}${reloadAsk}” (for example after <strong>${layoutName("healing")}</strong> turned the raid frames on)</li>
+  <li>“${esc(setup.reloadTile)}${reloadAsk}”</li>
+</ul>
+${shot("the setup wizard, step 1")}`;
 }
 
-export function startPage(model) {
-  const { rel, next, version } = model;
+export function startPage(model, read) {
+  const { rel, next } = model;
   const presets = next.theme.presetOrder.map((k) => [k, next.theme.presets[k]]).filter((x) => x[1]);
-  const relHas = (k) => model.commands.relKeys.has(k);
   const gameMenu = next.has("Core/GameMenu.lua") && !rel.has("Core/GameMenu.lua");
   const popoverNext = /scale and opacity/.test(JSON.stringify(next.pages)) && !/scale and opacity/.test(JSON.stringify(rel.pages));
+  const OW = read.next("Core/OptionsWindow.lua");
+  const O = read.next("Core/Options.lua");
+  const GM = read.next("Core/GameMenu.lua");
+  const ow = (...p) => says(OW, "Core/OptionsWindow.lua", ...p);
+  const o = (...p) => says(O, "Core/Options.lua", ...p);
   return {
     path: "/start/",
     title: "Getting started",
-    description: "Open the ForeverUI options, move your frames and pick an accent.",
+    description: "Open the ForeverUI options, run the setup wizard, move your frames and pick an accent.",
     body: `<h1>Getting started</h1>
 <p class="lede">After you <a href="/install/">install</a> ForeverUI and log in, its frames replace the game's. Here's how to find the options and put things where you want them.</p>
 ${nextNotice(model)}
 <h2 id="options">Open the options</h2>
-<ul>
-  <li>Type <code>/fui</code> (or <code>/foreverui</code>) in chat. <code>/fui</code> again closes it.</li>
-  <li>Or left-click ForeverUI on the game's addons button by the minimap. Right-click it to turn move mode on or off.</li>
-  ${gameMenu ? `<li>Or the <strong>ForeverUI</strong> button at the top of the game menu (<kbd>Escape</kbd>). <span class="badge next">Next release</span></li>` : ""}
-</ul>
-<p>The options window has a page per area. Use <strong>Search settings</strong> at the top to find a setting: pages that don't match fade, and <kbd>Enter</kbd> opens the first match. Some changes need a reload: the window then says “Some changes need a reload” and shows a <strong>Reload now</strong> button. Every page and setting is listed on <a href="/settings/">Settings</a>.</p>
-${src("Core/Options.lua (ForeverUI_OnAddonCompartmentClick)", "Core/OptionsWindow.lua", "Core/Slash.lua")}
+<p>There are three ways:</p>
+<ol class="steps">
+  <li>Type <code>/fui</code> (or <code>/foreverui</code>) in chat. Type <code>/fui</code> again to close it.</li>
+  <li>Left-click ForeverUI on the game's addons button by the minimap. Right-click it instead to turn move mode on or off.</li>
+  ${gameMenu ? `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "ForeverUI")}</strong> button at the top of the menu. <span class="badge next">Next release</span></li>` : `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>ForeverUI</strong> button at the top of the menu.</li>`}
+</ol>
+<p>The options window has a page for each area. To find a setting, type in <strong>${label(OW, "Core/OptionsWindow.lua", "Search settings")}</strong> at the top: pages that don't match fade, and <kbd>Enter</kbd> opens the first match. Some changes need a reload; the window then says “${ow("Some changes need a reload")}” and shows a <strong>${label(OW, "Core/OptionsWindow.lua", "Reload now")}</strong> button.${saysIf(read.rel("Core/OptionsWindow.lua") || "", "Core/OptionsWindow.lua", "if ReloadUI then ReloadUI()") ? ` In v${esc(model.version)}, type <code>/reload</code> in chat instead: that release's button asks the game to reload directly, and WoW Forever blocks that for addons (see <a href="/help/#reload">Troubleshooting</a>).` : ""} Every page and setting is listed on <a href="/settings/">Settings</a>.</p>
+${wizardSection(next.setup, !!rel.setup, read)}
 
 <h2 id="move">Move your frames</h2>
 <ol class="steps">
-  <li>Type <code>/fui unlock</code> (or <code>/fui move</code>), or click <strong>Move frames</strong> under <strong>General → Layout</strong>. Every ForeverUI frame gets a drag handle.</li>
-  <li>Drag a handle to move that frame. Click a handle, then the arrow keys nudge it (<kbd>Shift</kbd>: 10 px).</li>
+  <li>Type <code>/fui unlock</code> (or <code>/fui move</code>), or click <strong>${label(O, "Core/Options.lua", "Move frames")}</strong> under <strong>General → Layout</strong>. Every ForeverUI frame gets a drag handle.</li>
+  <li>Drag a handle to move that frame. Or click a handle, then use the arrow keys to nudge it (hold <kbd>Shift</kbd> to move 10 px).</li>
   <li>Right-click a handle for its exact anchor and offsets${popoverNext ? `; the next release adds its scale (50% to 200%) and opacity (10% to 100%) there too <span class="badge next">Next release</span>` : ""}.</li>
   <li>Type <code>/fui lock</code> when you're done.</li>
 </ol>
-<p>While moving: <code>/fui grid [size|on|off]</code> shows a grid (size 8 to 256 px) and <code>/fui snap on|off</code> snaps frames to each other. <code>/fui frames</code> lists the movable frames and <code>/fui reset &lt;frame|all&gt;</code> puts one (or all) back. Unlocking doesn't work during combat.</p>
-${src("Core/Slash.lua (HELP, gridCommand)", "Core/Options.lua (layoutRows)", "Core/Movers.lua")}
+<p>While you're moving frames, <code>/fui grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/fui snap on|off</code> makes frames snap to each other. <code>/fui frames</code> lists the frames you can move, and <code>/fui reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.</p>
 
 <h2 id="accent">Pick an accent color</h2>
-<p>Click a swatch under <strong>/fui → General → Look</strong>, or type <code>/fui accent &lt;name&gt;</code> with one of these names (or any <code>rrggbb</code> color). <code>/fui accent reset</code> puts the default back.</p>
+<p>Click a swatch under <strong>/fui → General → Look</strong>, or type <code>/fui accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/fui accent reset</code> puts the default back.</p>
 <ul class="swatches">${presets.map(([k, hex], i) => `<li class="swatch"><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? " (default)" : ""} <span class="small">${esc(hex)}</span></span></li>`).join("")}</ul>
-${src("Core/Theme.lua (T.PRESETS)", "Core/Slash.lua (accentCommand)")}
 
 <h2 id="modules">Keep the game's version of something</h2>
-<p>Every part of ForeverUI is a module you can turn off under <strong>/fui → Modules</strong> (or <code>/fui disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “A module that's off builds nothing and costs nothing.” The list is on <a href="/features/">Features</a>.</p>
-${wizardSection(next.setup, !!rel.setup)}
-${relHas("setup") ? "" : ""}`,
+<p>Every part of ForeverUI is a module you can turn off under <strong>/fui → Modules</strong> (or type <code>/fui disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “${o("A module that's off builds nothing and costs nothing.")}” The list is on <a href="/features/">Features</a>.</p>`,
   };
 }
 
