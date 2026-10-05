@@ -415,6 +415,11 @@ th { background: var(--raised); font-weight: 600; }
   .feat:hover, .feat:focus-visible { transform: none; }
 }
 
+/* Features: area jump links and each module's longer description */
+.feature-areas { justify-content: flex-start; margin: 16px 0 8px; }
+.mod .mod-more { color: var(--text2); }
+.mod .facts { margin-top: 8px; }
+
 /* Troubleshooting & FAQ: question cards and the jump links; Changelog lists */
 .help-jumps { justify-content: flex-start; margin: 16px 0 8px; }
 .help-entry { margin-bottom: 10px; }
