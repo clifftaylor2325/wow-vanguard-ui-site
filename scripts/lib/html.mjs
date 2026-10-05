@@ -59,6 +59,28 @@ export function ornament(cls = "") {
   return `<svg class="ornament${cls ? ` ${cls}` : ""}" viewBox="0 0 240 16" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path class="orn-line" d="M4 8 H92 M148 8 H236"/><path class="orn-line" d="M28 8 l4 -3 l4 3 l-4 3 Z M204 8 l4 -3 l4 3 l-4 3 Z"/><path class="orn-gem" d="M111 8 L119 1 L127 8 L119 15 Z"/><path class="orn-line" d="M101 8 L109 1.5 L117 8 L109 14.5 Z M121 8 L129 1.5 L137 8 L129 14.5 Z"/></svg>`;
 }
 
+// The brass frame with corner pieces drawn inside a hero panel (decorative;
+// it sits in an aria-hidden .hero-art layer). Shared by the Home hero and the
+// inner-page heroes.
+export function heroFrame() {
+  const corner = `<path d="M2 46 V12 L12 2 H46"/><path d="M8 40 V15 L15 8 H40" class="fr-thin"/><path d="M2 2 l7 0 l-7 7 Z" class="fr-gem"/><path d="M18 18 l5 -5 l5 5 l-5 5 Z" class="fr-gem"/><path d="M46 2 l6 0" class="fr-thin"/><path d="M2 46 l0 6" class="fr-thin"/>`;
+  return `<div class="hero-frame">${["tl", "tr", "bl", "br"].map((c) => `<svg class="fr fr-${c}" viewBox="0 0 54 54" focusable="false">${corner}</svg>`).join("")}</div>`;
+}
+
+// The top of every inner page: the page's h1 and its lede in a framed panel
+// that carries the Home hero's sky, brass frame and ornament. title and lede
+// are HTML (already escaped by the caller); lede is optional.
+export function pageHero(title, lede = "") {
+  return `<div class="page-hero">
+<div class="hero-art" aria-hidden="true"><div class="hero-sky"></div>${heroFrame()}</div>
+<div class="page-hero-inner">
+<h1 class="page-title">${title}</h1>
+${ornament("page-orn")}
+${lede ? `<p class="lede">${lede}</p>` : ""}
+</div>
+</div>`;
+}
+
 // The two linked diamonds of the ForeverUI logo, as a small inline SVG.
 const MARK = `<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M11 4 L20 16 L11 28 L2 16 Z" fill="none" stroke="var(--accent)" stroke-width="2.5"/><path d="M21 4 L30 16 L21 28 L12 16 Z" fill="none" stroke="var(--text)" stroke-width="2.5"/></svg>`;
 

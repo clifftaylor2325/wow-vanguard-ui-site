@@ -2,7 +2,7 @@
 // Messages in quotes are copied from the addon's Lua; each section names its
 // source file. Where the current release and the next release differ, the
 // page says which is which.
-import { esc, md, badge } from "./html.mjs";
+import { esc, md, badge, pageHero } from "./html.mjs";
 import { src, dateET, nextNotice, earlyQuote } from "./pages-main.mjs";
 
 const NEXT = `<span class="badge next">Next release</span>`;
@@ -36,8 +36,7 @@ export function profilesPage(model, read) {
     path: "/profiles/",
     title: "Profiles & sharing",
     description: "Share one ForeverUI layout across characters, or move it to another PC.",
-    body: `<h1>Profiles &amp; sharing</h1>
-<p class="lede">A profile holds all of ForeverUI's settings and frame positions. Profiles are saved for your whole account, and each character uses one of them. The first one is called <strong>Default</strong>.</p>
+    body: `${pageHero("Profiles &amp; sharing", `A profile holds all of ForeverUI's settings and frame positions. Profiles are saved for your whole account, and each character uses one of them. The first one is called <strong>Default</strong>.`)}
 ${nextNotice(model)}
 <h2 id="same-account">Use one layout on several characters</h2>
 <ul>
@@ -99,13 +98,12 @@ export function helpPage(model, read) {
   const noSnip = grab(nextSlash, /"  ·  (secure snippets: no \(hover keys off\))"/);
   const setupCombat = model.next.setup?.combat;
   const profReset = grab(read.rel("Core/Slash.lua"), /OfferReload\("Profile " \.\. ns\.ProfileName\(\) \.\. " (is back to defaults\.)"\)/);
-  const entry = (id, q, a, extra = "") => `<section class="card" id="${id}" style="margin-bottom:10px"><h3 style="margin-top:0">${q} ${extra}</h3>${a}</section>`;
+  const entry = (id, q, a, extra = "") => `<section class="card faq" id="${id}"><h3>${q} ${extra}</h3>${a}</section>`;
   return {
     path: "/help/",
     title: "Troubleshooting & FAQ",
     description: "Fixes for common ForeverUI problems, using the addon's own commands and messages.",
-    body: `<h1>Troubleshooting &amp; FAQ</h1>
-<p class="lede">Most problems have a quick fix with a <code>/fui</code> command. If yours isn't here, or the fix doesn't help, please <a href="/feedback/">report it</a>.</p>
+    body: `${pageHero("Troubleshooting &amp; FAQ", `Most problems have a quick fix with a <code>/fui</code> command. If yours isn't here, or the fix doesn't help, please <a href="/feedback/">report it</a>.`)}
 ${nextNotice(model)}
 <h2>In v${esc(v)} (the current release)</h2>
 ${entry("frame-moved", "A frame is off-screen or in the wrong place", `<p><code>/fui frames</code> lists the movable frames. <code>/fui reset &lt;frame&gt;</code> puts one back at its default spot; <code>/fui reset all</code> (or <strong>Reset all positions</strong> under <strong>General → Layout</strong>) puts every frame back.</p>`)}
@@ -158,12 +156,11 @@ Screenshot or mock-up (attach it, if you have one):`;
     path: "/feedback/",
     title: "Feedback",
     description: "Report a ForeverUI bug or request a feature.",
-    body: `<h1>Feedback</h1>
-<p class="lede">ForeverUI is an early release${quote ? `, and in its own words: “${esc(quote)}”` : "."} There are two ways to help.</p>
+    body: `${pageHero("Feedback", `ForeverUI is an early release${quote ? `, and in its own words: “${esc(quote)}”` : "."} There are two ways to help.`)}
 <div class="notice todo" role="note"><p><strong>Coming soon: where to send reports.</strong> The place to send bug reports and feature requests hasn't been set up yet. Until it is, get your report ready with the steps below, and keep it: this page will say where to send it.</p></div>
 <div class="grid two">
 <section class="card" aria-labelledby="bug">
-<h2 id="bug" style="margin-top:0">Report a bug</h2>
+<h2 id="bug">Report a bug</h2>
 <ol class="steps">
   <li><strong>Write down what you did</strong>, what you expected, and what happened instead.</li>
   <li><strong>Type <code>/fui status</code></strong> and copy all of its lines. In v${esc(v)} it prints ${relStatusLines} lines: the version, profile and module count, then skins, painted frames and changes waiting on combat.${nextStatusLines > relStatusLines ? ` ${NEXT} prints ${nextStatusLines}, adding the client, what it has, and your UI scale and text size.` : ""}</li>
@@ -176,7 +173,7 @@ Screenshot or mock-up (attach it, if you have one):`;
 <button class="copy" type="button" data-copy-from="#bug-template" aria-label="Copy the bug report template">Copy template</button>
 </section>
 <section class="card" aria-labelledby="feature">
-<h2 id="feature" style="margin-top:0">Request a feature</h2>
+<h2 id="feature">Request a feature</h2>
 <p>Tell us what would make ForeverUI better for you. Please answer:</p>
 <ol class="steps">
   <li><strong>What you want.</strong></li>
@@ -188,7 +185,7 @@ Screenshot or mock-up (attach it, if you have one):`;
 <h3>Feature request template</h3>
 <pre class="template" id="feature-template">${esc(featureTemplate)}</pre>
 <button class="copy" type="button" data-copy-from="#feature-template" aria-label="Copy the feature request template">Copy template</button>
-<p class="small" style="margin-top:12px">Before you ask, check <a href="/features/">Features</a>: some things are already written and marked <span class="badge next">Next release</span>.</p>
+<p class="small">Before you ask, check <a href="/features/">Features</a>: some things are already written and marked <span class="badge next">Next release</span>.</p>
 </section>
 </div>
 ${src("Core/Slash.lua (status, errors)", "Core/Modules.lua", "docs/SMOKE-TEST.md (Report block)", "README.md")}`,
@@ -213,10 +210,9 @@ export function changelogPage(model) {
     path: "/changelog/",
     title: "Changelog",
     description: "What changed in each ForeverUI release, newest first.",
-    body: `<h1>Changelog</h1>
-<p class="lede">Newest first. Each release lists the changes that went into it.</p>
+    body: `${pageHero("Changelog", "Newest first. Each release lists the changes that went into it.")}
 ${model.same ? "" : `<section class="card" aria-labelledby="next-h">
-<h2 id="next-h" style="margin-top:0">Next release ${NEXT}</h2>
+<h2 id="next-h">Next release ${NEXT}</h2>
 <p>Not released yet, so there's no version number or date. This is what the addon's source holds today that v${esc(v)} doesn't, worked out from the code itself:</p>
 <h3>${newMods.length} new modules</h3>
 <ul>${newMods.map((m) => `<li><a href="/features/#${m.id}">${esc(m.name)}</a>: ${esc(m.desc)}</li>`).join("")}</ul>
@@ -254,7 +250,7 @@ export function creditsPage(model) {
     path: "/credits/",
     title: "Credits & license",
     description: "ForeverUI's license and the fonts, libraries and art it uses.",
-    body: `<h1>Credits &amp; license</h1>
+    body: `${pageHero("Credits &amp; license")}
 <h2 id="license">ForeverUI</h2>
 <p><strong>${esc(lic[0] || "")}</strong>. ${esc(lic[1] || "")}.</p>
 <p>From the v${esc(model.version)} README:</p>

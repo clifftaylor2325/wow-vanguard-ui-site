@@ -3,6 +3,7 @@
 // full-page screenshots of Home, Install, Commands and Feedback at 1280px and 390px.
 // Uses playwright-core with an installed Chrome/Chromium (set CHROME_PATH if
 // it isn't found). Screenshots go to SHOTS_DIR (default: shots/).
+// The local server listens on SHOTS_PORT (default: any free port).
 //   npm run shots
 import fs from "node:fs";
 import path from "node:path";
@@ -24,7 +25,7 @@ function browserPath() {
 
 // Entry point.
 async function main() {
-  const server = await serve(loadConfig().outDir);
+  const server = await serve(loadConfig().outDir, Number(process.env.SHOTS_PORT || 0));
   const base = `http://127.0.0.1:${server.address().port}`;
   const browser = await chromium.launch({ executablePath: browserPath() });
   const failures = [];

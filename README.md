@@ -12,12 +12,13 @@ Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Bras
 ## Commands
 
 ```sh
-npm install        # once: dev tools (playwright-core, for screenshots only)
+npm install        # once: dev tools (playwright-core for screenshots, wawoff2 for fonts)
 npm run build      # fetch the addon source and release metadata, then generate dist/
 npm test           # check the generated site against the addon's Lua
 npm run check      # build, then test
 npm run serve      # serve dist/ at http://localhost:8080
 npm run shots      # full-page screenshots and a no-horizontal-scroll check at 390 and 360px (needs Chrome)
+npm run fonts      # re-make src/fonts/*.woff2 from the addon's TTF fonts (after npm run fetch)
 npm run deploy     # npx wrangler pages deploy dist --project-name foreverui
 ```
 
@@ -26,6 +27,8 @@ To build from a local checkout of the addon, skip the clone (use the same `FUI_S
 ```sh
 FUI_SRC=/path/to/wow-forever-ui npm run check
 ```
+
+`npm run shots` looks for Chrome in the usual places; point `CHROME_PATH` at another Chromium browser (Edge works) if it isn't found. `SHOTS_PORT` picks the port of its local server (default: any free port) and `SHOTS_DIR` where the screenshots go (default: `shots/`, git-ignored).
 
 Other overrides: `FUI_REF` (the source commit to read for the next release) and `FUI_RELEASE` (a release tag instead of `latest`).
 
@@ -43,6 +46,14 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
 3. `scripts/lib/model.mjs` merges the two refs. Everything is labeled **In v0.3.0** (in the current release), **Next release** (only in the pinned source) or **v0.3.0 only**. The site never presents next-release features as part of the current release.
 4. The pages (`scripts/lib/pages-*.mjs`) are written into `dist/`, with the Fira Sans Condensed fonts (and their OFL license) from the addon. No zip is copied into `dist/`.
 
+## Fonts
+
+The site serves the addon's own Fira Sans Condensed fonts. Each `@font-face` in `src/assets/site.css` lists the WOFF2 file first and the addon's TTF as the fallback, with `font-display: swap`. The WOFF2 files are committed in `src/fonts/`: `npm run fonts` (`scripts/fonts.mjs`) makes them from the TTFs at the current release with [wawoff2](https://www.npmjs.com/package/wawoff2) (Google's WOFF2 encoder as WebAssembly, so the output is the same on every OS). The build copies them into `dist/fonts/` next to the TTFs, and fails if one is missing. Run `npm run fonts` again if the addon's fonts change, and commit the result.
+
+## Page look
+
+Every page shares the Home page's Slate & Brass pieces, from `scripts/lib/html.mjs` and `src/assets/site.css`: `ornament()` (the brass divider), `heroFrame()` (the brass frame with corner pieces) and `pageHero()`, which opens every page but Home with its h1 and lede in a framed panel with the hero's sky. Cards (`.card`) share the Home feature cards' brass edge, glow and corner diamonds; section headings (`h2`) carry a brass diamond and rule.
+
 The site never links to the private GitHub repo from player-facing pages, and it offers no download.
 
 ## CurseForge
@@ -59,6 +70,8 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 - that Home and Install have the CurseForge call to action (a non-link "Coming soon" badge while `CURSEFORGE_URL` is `null`)
 - that the home page's decoration is `aria-hidden` and its UI mock is labeled as an illustration
 - one `h1` per page and no duplicate ids
+- that the skip link is the first focusable element and targets `<main id="main">`, and that every inner page opens with the shared page hero
+- that each `@font-face` lists WOFF2 first and the TTF second, keeps `font-display: swap`, and that `dist/fonts/` ships the committed WOFF2 files
 - that every internal link and anchor resolves
 - that nothing in `dist/` links to github.com
 
