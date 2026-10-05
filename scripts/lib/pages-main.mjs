@@ -1,17 +1,12 @@
 // Home, Install & Update, Getting started, Features, Commands and Settings.
 // Generated parts come from the model (the addon's Lua, TOC, README and the
-// release); the prose around them only restates what those sources say.
-import { esc, md, slug, badge, avail, shot } from "./html.mjs";
+// release metadata); the prose around them only restates what those sources say.
+import { esc, md, slug, badge, avail, shot, ornament, curseforgeCta, CURSEFORGE_URL } from "./html.mjs";
 import { AREAS } from "./model.mjs";
 
 // "September 27, 2026" in New York time.
 export function dateET(iso) {
   return new Date(iso).toLocaleDateString("en-US", { timeZone: "America/New_York", year: "numeric", month: "long", day: "numeric" });
-}
-
-// "259,589 bytes (254 KB)".
-export function sizeText(bytes) {
-  return `${bytes.toLocaleString("en-US")} bytes (${Math.round(bytes / 1024)} KB)`;
 }
 
 // A short "Source: ..." line.
@@ -30,82 +25,201 @@ export function earlyQuote(readme) {
   return m ? m[0].replace(/\s+/g, " ") : null;
 }
 
-// The download box: button, version, date, size and SHA-256.
-export function downloadBox(model) {
-  const { release, zip } = model;
-  return `<section class="card download" aria-labelledby="dl-h">
-  <div>
-    <h2 id="dl-h" style="margin:0 0 8px;border:0;padding:0;font-size:1.2rem">Download ForeverUI ${esc(model.version)}</h2>
-    <a class="button" href="/download/${esc(zip.name)}" download>Download ${esc(zip.name)}</a>
+// The CurseForge card used on Home and Install: the call to action, plus the
+// facts about the current release (no file, size or checksum: the site hosts none).
+export function curseforgeBox(model, { heading = true } = {}) {
+  const { release } = model;
+  return `<section class="card cf-box" aria-labelledby="cf-h">
+  <div class="cf-box-main">
+    <h2 id="cf-h" class="cf-box-h">${heading ? (CURSEFORGE_URL ? "Get ForeverUI on CurseForge" : "ForeverUI is coming to CurseForge") : ""}</h2>
+    ${curseforgeCta({ size: "lg" })}
+    <p class="small cf-box-note">${CURSEFORGE_URL ? "Install and update it with the CurseForge app or from its page on the CurseForge website." : "No link yet: this badge becomes a link to ForeverUI's CurseForge page as soon as it's listed. Until then there's nothing to download here."}</p>
   </div>
   <dl class="facts">
-    <dt>Version</dt><dd>${esc(model.version)} (release ${esc(release.tag)})</dd>
+    <dt>Current release</dt><dd>${esc(model.version)} (release ${esc(release.tag)})</dd>
     <dt>Published</dt><dd>${esc(dateET(release.publishedAt))}</dd>
-    <dt>Size</dt><dd>${esc(sizeText(zip.size))}</dd>
-    <dt>SHA-256</dt><dd class="hash" data-sha256>${esc(zip.sha256)}</dd>
     <dt>Game</dt><dd>WoW Forever (the addon declares Interface ${esc(model.rel.meta.Interface)})</dd>
   </dl>
 </section>`;
 }
 
-// The "current download vs next release" notice used on several pages.
+// The "current release vs next release" notice used on several pages.
 export function nextNotice(model) {
   if (model.same) return "";
   const newMods = model.modules.filter((m) => m.inNext && !m.inRel).length;
   const newCmds = [...model.commands.nextKeys].filter((k) => !model.commands.relKeys.has(k)).length;
-  return `<div class="notice info"><p><strong>The current download is ${esc(model.version)}.</strong> The addon has moved on since that release: ${newMods} more modules and ${newCmds} more commands are written and waiting for the next release, which isn't out yet. This site marks those <span class="badge next">Next release</span>. They are not in the zip you can download today.</p></div>`;
+  return `<div class="notice info"><p><strong>The current release is ${esc(model.version)}.</strong> The addon has moved on since that release: ${newMods} more modules and ${newCmds} more commands are written and waiting for the next release, which isn't out yet. This site marks those <span class="badge next">Next release</span>. They are not in v${esc(model.version)}.</p></div>`;
 }
 
 // ------------------------------------------------------------------ Home
+
+// The README's opening tagline: "A from-scratch UI suite for WoW Forever".
+export function tagline(readme) {
+  const m = (readme || "").match(/^# ForeverUI\s*\n+([^\n(]+?)\s*(?:\(|\.|\n)/);
+  return m ? m[1].trim() : "";
+}
+
+// The modules featured on the home page, in this order, when the current
+// release has them. Names and descriptions come from O.MODULE_INFO.
+const HIGHLIGHTS = ["UnitFrames", "RaidFrames", "ClickCast", "ActionBars", "Bags", "Nameplates"];
+
+// Small abstract glyphs for the highlight cards (decorative only).
+const GLYPHS = {
+  UnitFrames: `<rect x="3" y="7" width="14" height="5" rx="1"/><rect x="3" y="14" width="14" height="2.5" rx="1" class="g-fill"/><rect x="21" y="7" width="12" height="5" rx="1"/><rect x="21" y="14" width="12" height="2.5" rx="1" class="g-fill"/><path d="M18 22 l2 -2 l2 2 l-2 2 Z" class="g-fill"/>`,
+  RaidFrames: `<rect x="3" y="5" width="8" height="6" rx="1"/><rect x="14" y="5" width="8" height="6" rx="1" class="g-fill"/><rect x="25" y="5" width="8" height="6" rx="1"/><rect x="3" y="14" width="8" height="6" rx="1" class="g-fill"/><rect x="14" y="14" width="8" height="6" rx="1"/><rect x="25" y="14" width="8" height="6" rx="1"/><path d="M3 24 H33"/>`,
+  ClickCast: `<rect x="4" y="5" width="20" height="10" rx="1.5"/><path d="M20 12 L20 27 L24 23 L28 29 L30 28 L26 22 L31 21 Z" class="g-fill"/><path d="M7 18 H15"/>`,
+  ActionBars: `<rect x="2" y="8" width="7" height="7" rx="1"/><rect x="11" y="8" width="7" height="7" rx="1" class="g-fill"/><rect x="20" y="8" width="7" height="7" rx="1"/><rect x="29" y="8" width="5" height="7" rx="1"/><rect x="2" y="18" width="7" height="7" rx="1"/><rect x="11" y="18" width="7" height="7" rx="1"/><rect x="20" y="18" width="7" height="7" rx="1" class="g-fill"/><rect x="29" y="18" width="5" height="7" rx="1"/>`,
+  Bags: `<rect x="4" y="4" width="28" height="24" rx="2"/><path d="M4 11 H32"/><rect x="8" y="14" width="5" height="5" class="g-fill"/><rect x="15" y="14" width="5" height="5"/><rect x="22" y="14" width="5" height="5"/><rect x="8" y="21" width="5" height="4"/><rect x="15" y="21" width="5" height="4" class="g-fill"/>`,
+  Nameplates: `<path d="M18 4 l3 3 l-3 3 l-3 -3 Z" class="g-fill"/><rect x="5" y="13" width="26" height="6" rx="1"/><rect x="5" y="13" width="17" height="6" rx="1" class="g-fill"/><rect x="5" y="22" width="5" height="5"/><rect x="12" y="22" width="5" height="5"/>`,
+};
+
+// One highlight card.
+function highlightCard(m, version) {
+  const glyph = GLYPHS[m.key] || `<path d="M18 4 L32 18 L18 32 L4 18 Z"/>`;
+  return `<li><a class="feat" href="/features/#${esc(m.id)}">
+  <span class="feat-glyph"><svg viewBox="0 0 36 32" aria-hidden="true" focusable="false">${glyph}</svg></span>
+  <span class="feat-name">${esc(m.name)}</span>
+  <span class="feat-desc">${esc(m.desc)}</span>
+  <span class="feat-foot">${badge(m.inRel, m.inNext, version)}<span class="feat-more">Read more<span class="visually-hidden"> about ${esc(m.name)}</span> <span aria-hidden="true">→</span></span></span>
+</a></li>`;
+}
+
+// The decorative CSS "UI mock": abstract shapes in the layout the README
+// describes (centered frames, bars below, raid tiles above, square minimap,
+// chat bottom left). Marked as an illustration, never a screenshot.
+function uiMock() {
+  const n = (k, cls) => Array.from({ length: k }, () => `<i${cls ? ` class="${cls}"` : ""}></i>`).join("");
+  return `<figure class="mock-wrap">
+  <div class="mock" role="img" aria-label="Illustration, not a screenshot: abstract shapes suggesting unit frames, action bars, raid tiles, chat and a square minimap.">
+    <div class="mk-minimap"><b></b><b></b><b></b><b></b></div>
+    <div class="mk-raid">${n(10)}</div>
+    <div class="mk-small mk-focus"><span></span></div>
+    <div class="mk-small mk-pet"><span></span></div>
+    <div class="mk-player"><span class="mk-hp"></span><span class="mk-pw"></span></div>
+    <div class="mk-small mk-tot"><span></span></div>
+    <div class="mk-cast"><span></span></div>
+    <div class="mk-self" aria-hidden="true"></div>
+    <div class="mk-target"><span class="mk-hp"></span><span class="mk-pw"></span></div>
+    <div class="mk-bars"><div>${n(12)}</div><div>${n(12)}</div><div>${n(12)}</div><span class="mk-xp"></span></div>
+    <div class="mk-chat">${n(5)}</div>
+  </div>
+  <figcaption><span class="mock-tag">Illustration</span> Not a screenshot: an abstract sketch of the centered layout the addon's README describes, with player and target either side of your character, bars underneath, raid tiles above, chat bottom left and a square minimap. Real screenshots will come once it has been checked in game.</figcaption>
+</figure>`;
+}
+
+// The hero's decorative layers: sky, glow, rune ring, ridges, embers and frame.
+function heroArt() {
+  const embers = Array.from({ length: 18 }, (_, i) => {
+    const x = (i * 37 + 11) % 100;
+    const d = 7 + ((i * 5) % 9);
+    const delay = -((i * 1.7) % d).toFixed(1);
+    const s = 2 + (i % 3);
+    const y = 18 + ((i * 23) % 64);
+    return `<i style="--x:${x}%;--y:${y}%;--d:${d}s;--t:${delay}s;--s:${s}px"${i % 4 === 0 ? ' class="e2"' : ""}></i>`;
+  }).join("");
+  const ticks = Array.from({ length: 24 }, (_, i) => `<path d="M100 8 v${i % 3 === 0 ? 9 : 5}" transform="rotate(${i * 15} 100 100)"/>`).join("");
+  const corner = `<path d="M2 46 V12 L12 2 H46"/><path d="M8 40 V15 L15 8 H40" class="fr-thin"/><path d="M2 2 l7 0 l-7 7 Z" class="fr-gem"/><path d="M18 18 l5 -5 l5 5 l-5 5 Z" class="fr-gem"/><path d="M46 2 l6 0" class="fr-thin"/><path d="M2 46 l0 6" class="fr-thin"/>`;
+  return `<div class="hero-art" aria-hidden="true">
+  <div class="hero-sky"></div>
+  <div class="hero-glow"></div>
+  <svg class="hero-ring" viewBox="0 0 200 200" focusable="false"><circle cx="100" cy="100" r="92" class="ring-a"/><circle cx="100" cy="100" r="78" class="ring-b"/>${ticks}<path d="M100 14 l4 6 l-4 6 l-4 -6 Z M186 100 l-6 4 l-6 -4 l6 -4 Z M100 186 l-4 -6 l4 -6 l4 6 Z M14 100 l6 -4 l6 4 l-6 4 Z" class="ring-gem"/></svg>
+  <svg class="hero-ridges" viewBox="0 0 1200 260" preserveAspectRatio="none" focusable="false">
+    <path class="ridge-3" d="M0 150 L80 118 L150 136 L240 92 L330 128 L420 98 L520 140 L600 104 L690 132 L790 86 L880 124 L960 100 L1050 134 L1130 108 L1200 126 V260 H0 Z"/>
+    <path class="ridge-2" d="M0 190 L110 150 L190 172 L300 134 L380 166 L470 142 L560 178 L660 140 L760 170 L850 146 L940 176 L1040 138 L1120 164 L1200 150 V260 H0 Z"/>
+    <path class="ridge-1" d="M0 230 L140 196 L260 214 L380 188 L520 220 L640 196 L780 222 L900 192 L1030 218 L1200 196 V260 H0 Z"/>
+  </svg>
+  <div class="embers">${embers}</div>
+  <div class="hero-frame">${["tl", "tr", "bl", "br"].map((c) => `<svg class="fr fr-${c}" viewBox="0 0 54 54" focusable="false">${corner}</svg>`).join("")}</div>
+</div>`;
+}
 
 export function homePage(model) {
   const { rel } = model;
   const quote = earlyQuote(rel.readme) || earlyQuote(model.next.readme);
   const relMods = model.modules.filter((m) => m.inRel);
+  const line = tagline(model.next.readme) || tagline(rel.readme);
+  const notes = String(rel.meta.Notes || "");
+  const parts = notes.includes(":") ? notes.slice(notes.indexOf(":") + 1).trim() : "";
+  const highlights = HIGHLIGHTS.map((k) => model.modules.find((m) => m.key === k)).filter((m) => m && m.inRel && m.desc);
   return {
     path: "/",
     title: "ForeverUI",
     description: rel.meta.Notes,
-    body: `<h1>ForeverUI</h1>
-<p class="lede">${esc(rel.meta.Notes)}</p>
-<p class="prose">${esc(scratchLine(rel.readme))}</p>
-${downloadBox(model)}
-<div class="notice"><p><strong>Early release, not checked in game yet.</strong> ${quote ? `In the addon's own words: “${esc(quote)}”` : ""} Every report helps: see <a href="/feedback/">Feedback</a>.</p></div>
-${nextNotice(model)}
-<h2>What do you want to do?</h2>
-<div class="grid four">
-  <a class="card tile" href="/install/"><strong>Install</strong>Download the zip and put it in your AddOns folder.</a>
-  <a class="card tile" href="/start/"><strong>Set up</strong>Open the options, move your frames, pick an accent.</a>
-  <a class="card tile" href="/commands/"><strong>Commands</strong>Every <code>/fui</code> command, searchable.</a>
-  <a class="card tile" href="/help/"><strong>Fix a problem</strong>Self-fixes, then how to report a bug.</a>
+    body: `<section class="hero" aria-labelledby="hero-title">
+${heroArt()}
+<div class="hero-inner">
+  <p class="hero-kicker">A fan addon for WoW Forever</p>
+  <h1 id="hero-title" class="hero-title">ForeverUI</h1>
+  ${ornament("hero-orn")}
+  <p class="hero-tagline">${esc(line)}.</p>
+  ${parts ? `<p class="hero-parts">${parts.replace(/\.$/, "").split(/,\s*/).map((x) => esc(x)).join(`<span class="visually-hidden">,</span> <span class="hero-dot" aria-hidden="true">◆</span> `)}</p>` : ""}
+  <div class="hero-actions">${curseforgeCta({ size: "lg" })}<a class="button ghost" href="/features/">Explore the features</a></div>
+  <p class="hero-meta">Current release v${esc(model.version)} · ${relMods.length} modules · the Slate &amp; Brass theme</p>
 </div>
-<h2>In the ${esc(model.version)} download</h2>
-<p>${relMods.length} modules, each of which can be turned off under <strong>/fui → Modules</strong>:</p>
-<ul class="grid two" style="list-style:none;padding:0">${relMods.map((m) => `<li><a href="/features/#${m.id}">${esc(m.name)}</a></li>`).join("")}</ul>
-${shot("ForeverUI's default layout in game")}
-${src("ForeverUI.toc", "README.md")}`,
+</section>
+
+<div class="honesty">
+  <div class="note-card warn"><svg class="note-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1 L19 10 L10 19 L1 10 Z"/><path d="M10 6 V11 M10 13.5 V14.5"/></svg><p><strong>Early release, not checked in game yet.</strong> ${quote ? `In the addon's own words: “${esc(quote)}”` : ""} Every report helps: see <a href="/feedback/">Feedback</a>.</p></div>
+  ${model.same ? "" : `<div class="note-card info"><svg class="note-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1 L19 10 L10 19 L1 10 Z"/><path d="M10 9 V14.5 M10 5.5 V6.5"/></svg>${nextNotice(model).replace(/^<div class="notice info">|<\/div>$/g, "")}</div>`}
+</div>
+
+<section class="home-sec" aria-labelledby="hl-h">
+  <div class="sec-head">${ornament()}<h2 id="hl-h">In the v${esc(model.version)} release</h2><p>A few of its ${relMods.length} modules, in the words the addon uses on its own Modules page.</p></div>
+  <ul class="feats">${highlights.map((m) => highlightCard(m, model.version)).join("\n")}</ul>
+</section>
+
+<section class="home-sec" aria-labelledby="mock-h">
+  <div class="sec-head">${ornament()}<h2 id="mock-h">One layout, centered on you</h2></div>
+  ${uiMock()}
+</section>
+
+<section class="home-sec" aria-labelledby="todo-h">
+  <div class="sec-head">${ornament()}<h2 id="todo-h">What do you want to do?</h2></div>
+  <div class="grid four">
+    <a class="card tile" href="/install/"><strong>Install</strong>How installing through CurseForge will work.</a>
+    <a class="card tile" href="/start/"><strong>Set up</strong>Open the options, move your frames, pick an accent.</a>
+    <a class="card tile" href="/commands/"><strong>Commands</strong>Every <code>/fui</code> command, searchable.</a>
+    <a class="card tile" href="/help/"><strong>Fix a problem</strong>Self-fixes, then how to report a bug.</a>
+  </div>
+</section>
+
+<section class="home-sec" aria-labelledby="all-h">
+  <div class="sec-head">${ornament()}<h2 id="all-h">All ${relMods.length} modules in v${esc(model.version)}</h2><p>Each can be turned off under <strong>/fui → Modules</strong>.</p></div>
+  <ul class="chips">${relMods.map((m) => `<li><a href="/features/#${m.id}">${esc(m.name)}</a></li>`).join("")}</ul>
+</section>
+${src("ForeverUI.toc", "README.md", "Core/Options.lua (O.MODULE_INFO)")}`,
   };
 }
 
 // ------------------------------------------------------------------ Install
 
 export function installPage(model) {
-  const { rel, zip } = model;
+  const { rel } = model;
   const readme = rel.readme;
   const where = readme.match(/unzip the `ForeverUI` folder into `([^`]+)`\s*\(([^)]+)\)/);
   const sv = rel.meta.SavedVariables;
   const svc = rel.meta.SavedVariablesPerCharacter;
+  const listed = !!CURSEFORGE_URL;
   return {
     path: "/install/",
     title: "Install & Update",
-    description: "Install, update and remove ForeverUI by hand from the zip.",
+    description: "How to install, update and remove ForeverUI: through CurseForge once it's listed.",
     body: `<h1>Install &amp; Update</h1>
-<p class="lede">ForeverUI installs by hand from a zip. That's the only way the addon supports today: it isn't listed on any addon manager.</p>
-${downloadBox(model)}
-<h2 id="install">Install</h2>
+<p class="lede">ForeverUI is going to be on CurseForge. ${listed ? "Install and update it through CurseForge: the CurseForge app or the CurseForge website." : "Once it's listed, you'll install and update it through CurseForge: with the CurseForge app, or from ForeverUI's page on the CurseForge website. It isn't listed yet, and this site doesn't offer it as a download."}</p>
+${curseforgeBox(model)}
+
+<h2 id="curseforge">Install through CurseForge</h2>
+<ul>
+  <li><strong>With the CurseForge app:</strong> find ForeverUI in the app and install it. The app puts it in your AddOns folder and can keep it up to date.</li>
+  <li><strong>From the CurseForge website:</strong> ForeverUI's page there offers its files. ${listed ? "The button above goes to that page." : "When it's listed, the button above turns into a link to that page."} Then follow <a href="#by-hand">If you install by hand</a>.</li>
+</ul>
+<div class="notice todo"><p><strong>To be confirmed:</strong> the exact steps for the WoW Forever client in the CurseForge app will be written here once ForeverUI is listed.</p></div>
+<p>Then turn it on at character select (<strong>AddOns</strong>, tick <strong>ForeverUI</strong>), log in, and type <code>/fui</code> in chat to open the options. See <a href="/start/">Getting started</a>.</p>
+
+<h2 id="by-hand">If you install by hand</h2>
+<p>For when you take the file from ForeverUI's CurseForge page instead of using the app.</p>
 <ol class="steps">
-  <li><strong>Download</strong> <a href="/download/${esc(zip.name)}" download>${esc(zip.name)}</a> (above).</li>
-  <li><strong>Unzip it.</strong> Inside is one folder called <code>ForeverUI</code>.</li>
+  <li><strong>Unzip the file.</strong> Inside is one folder called <code>ForeverUI</code>.</li>
   <li><strong>Put the <code>ForeverUI</code> folder in your AddOns folder.</strong> The addon's README says: unzip the <code>ForeverUI</code> folder into <code>${esc(where ? where[1] : "Interface/AddOns/")}</code> (${esc(where ? where[2] : "your Forever client's AddOns folder")}).
     <div class="notice todo"><p><strong>To be confirmed:</strong> the exact AddOns folder for the WoW Forever client (on Windows and macOS) is still being checked. Until then, use the folder of your Forever client that has <code>Interface/AddOns</code> in it.</p></div>
   </li>
@@ -114,23 +228,20 @@ ${downloadBox(model)}
 </ol>
 ${src("README.md (Install)", "scripts/package.mjs (zip layout)", "docs/SMOKE-TEST.md (step 1.2)")}
 
-<h2 id="check">Check your download (optional)</h2>
-<p>The SHA-256 of the file you downloaded should be exactly:</p>
-<p class="hash card">${esc(zip.sha256)}</p>
-<p>On Windows: <code>certutil -hashfile ${esc(zip.name)} SHA256</code>. On macOS or Linux: <code>shasum -a 256 ${esc(zip.name)}</code>.</p>
-
 <h2 id="update">Update</h2>
+<p><strong>With the CurseForge app:</strong> update ForeverUI there when a new version is out.</p>
+<p><strong>By hand:</strong></p>
 <ol class="steps">
   <li>Log out of the game (or close it).</li>
   <li>Delete the old <code>ForeverUI</code> folder from your AddOns folder.</li>
-  <li>Unzip the new download and put its <code>ForeverUI</code> folder in the same place.</li>
+  <li>Unzip the new version and put its <code>ForeverUI</code> folder in the same place.</li>
 </ol>
 <p>Your settings are kept. ForeverUI saves them in the game's SavedVariables (<code>${esc(sv)}</code> for the account, <code>${esc(svc)}</code> for each character), not in the addon folder.</p>
-<p>There is no automatic update: each new version is a new zip on this site. The <a href="/changelog/">Changelog</a> says what changed.</p>
-${src("ForeverUI.toc (SavedVariables)", ".github/workflows/release.yml")}
+<p>The <a href="/changelog/">Changelog</a> says what changed in each release.</p>
+${src("ForeverUI.toc (SavedVariables)")}
 
 <h2 id="uninstall">Uninstall</h2>
-<p>Delete the <code>ForeverUI</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.</p>
+<p>Remove ForeverUI in the CurseForge app, or delete the <code>ForeverUI</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.</p>
 <p>To go back to the game's own version of just one part (say, its action bars), you don't need to uninstall: turn that module off under <strong>/fui → Modules</strong> and reload. See <a href="/help/#one-feature">Troubleshooting</a>.</p>`,
   };
 }
@@ -144,7 +255,7 @@ function wizardSection(setup, inRel) {
   const n = setup.steps.length;
   const caption = (i) => setup.caption.replace("%d", i + 1).replace("%d", n).replace("%s", setup.steps[i]);
   return `<h2 id="setup-wizard">The setup wizard${b}</h2>
-${inRel ? "" : `<p><strong>The setup wizard isn't in the ${"current"} download.</strong> It is written and waits for the next release. This is what it will do, read straight from the addon's code.</p>`}
+${inRel ? "" : `<p><strong>The setup wizard isn't in the current release.</strong> It is written and waits for the next release. This is what it will do, read straight from the addon's code.</p>`}
 <p>The first time you log in on an account, a ${n}-step wizard (“${esc(setup.title)}”) opens: ${setup.steps.map((s) => esc(s)).join(", ")}. It waits until you're out of combat (it says “${esc(setup.combat)}”). Done, the close button and Escape all end it, and it doesn't come back on its own: <code>/fui setup</code> reopens it.</p>
 <h3>Step 1 · ${esc(setup.steps[0])}</h3>
 <p>“${esc(setup.questions[0] || "")}”</p>
@@ -223,12 +334,12 @@ export function featuresPage(model) {
   return {
     path: "/features/",
     title: "Features",
-    description: "Every ForeverUI module, what it does, and whether it's in the current download.",
+    description: "Every ForeverUI module, what it does, and whether it's in the current release.",
     body: `<h1>Features</h1>
 <p class="lede">ForeverUI is built from modules. Each one replaces or adds one part of the game's interface, and each can be turned off under <strong>/fui → Modules</strong>.</p>
 ${nextNotice(model)}
-<p class="small">The one-line descriptions are the ones the addon shows on its Modules page (<code>O.MODULE_INFO</code> in <code>Core/Options.lua</code>), taken from its newest source. A module marked <span class="badge rel">In v${esc(model.version)}</span> is in the download, but some details in its description may have arrived after that release; the <a href="/settings/">Settings</a> page shows exactly which options each version has.</p>
-<p><strong>${model.modules.filter((m) => m.inRel).length}</strong> modules in the v${esc(model.version)} download · <strong>${model.modules.filter((m) => m.inNext).length}</strong> in the next release.</p>
+<p class="small">The one-line descriptions are the ones the addon shows on its Modules page (<code>O.MODULE_INFO</code> in <code>Core/Options.lua</code>), taken from its newest source. A module marked <span class="badge rel">In v${esc(model.version)}</span> is in that release, but some details in its description may have arrived after that release; the <a href="/settings/">Settings</a> page shows exactly which options each version has.</p>
+<p><strong>${model.modules.filter((m) => m.inRel).length}</strong> modules in v${esc(model.version)} · <strong>${model.modules.filter((m) => m.inNext).length}</strong> in the next release.</p>
 <nav aria-label="Feature areas"><ul class="filters" style="list-style:none;padding:0">${groups.map(([a]) => `<li><a href="#area-${slug(a)}">${esc(a)}</a></li>`).join("")}</ul></nav>
 ${groups.map(([area, list]) => `<section aria-labelledby="area-${slug(area)}"><h2 id="area-${slug(area)}">${esc(area)}</h2><div class="mods">${list.map(card).join("\n")}</div></section>`).join("\n")}
 ${shot("raid frames and the options window")}
@@ -280,7 +391,7 @@ export function commandsPage(model) {
     body: `<h1>Commands</h1>
 <p class="lede">ForeverUI has one chat command, <code>/fui</code> (or <code>/foreverui</code>), followed by a word. The help text below is quoted exactly as the addon prints it with <code>/fui help</code>.</p>
 ${nextNotice(model)}
-<p><strong>${c.relKeys.size}</strong> command words in the v${esc(version)} download · <strong>${c.nextKeys.size}</strong> in the next release. An unknown word prints “${esc(c.unknown || "Unknown command. /fui help")}”.</p>
+<p><strong>${c.relKeys.size}</strong> command words in v${esc(version)} · <strong>${c.nextKeys.size}</strong> in the next release. An unknown word prints “${esc(c.unknown || "Unknown command. /fui help")}”.</p>
 <div class="search" data-target="#cmd-list" data-items=".cmd" data-noun="commands">
   <label for="cmd-q">Search commands</label>
   <input id="cmd-q" type="search" placeholder="for example: reset, profile, errors" autocomplete="off">

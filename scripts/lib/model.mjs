@@ -1,5 +1,5 @@
-// Merges two extractions into what the site shows: `rel` is the release
-// players can download, `next` is the newer source (what the next release
+// Merges two extractions into what the site shows: `rel` is the current
+// release, `next` is the newer source (what the next release
 // will hold). Every command, module and setting carries where it exists, so
 // the pages can say "In v0.3.0", "Next release" or "v0.3.0 only".
 import { slug } from "./html.mjs";
@@ -105,9 +105,9 @@ function mergeModules(rel, next, pages, commands) {
 }
 
 // The model every page is rendered from.
-export function buildModel({ rel, next, release, zip, releases }) {
+export function buildModel({ rel, next, release, releases }) {
   const commands = mergeCommands(rel, next);
   const pages = mergePages(rel, next);
   const modules = mergeModules(rel, next, pages, commands);
-  return { rel, next, release, zip, releases, commands, pages, modules, version: rel.meta.Version, same: rel.commit === next.commit };
+  return { rel, next, release, releases, commands, pages, modules, version: rel.meta.Version, same: rel.commit === next.commit };
 }

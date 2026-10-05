@@ -1,6 +1,6 @@
 // Profiles & sharing, Troubleshooting & FAQ, Feedback, Changelog, Credits.
 // Messages in quotes are copied from the addon's Lua; each section names its
-// source file. Where the current download and the next release differ, the
+// source file. Where the current release and the next release differ, the
 // page says which is which.
 import { esc, md, badge } from "./html.mjs";
 import { src, dateET, nextNotice, earlyQuote } from "./pages-main.mjs";
@@ -107,7 +107,7 @@ export function helpPage(model, read) {
     body: `<h1>Troubleshooting &amp; FAQ</h1>
 <p class="lede">Most problems have a quick fix with a <code>/fui</code> command. If yours isn't here, or the fix doesn't help, please <a href="/feedback/">report it</a>.</p>
 ${nextNotice(model)}
-<h2>In v${esc(v)} (the current download)</h2>
+<h2>In v${esc(v)} (the current release)</h2>
 ${entry("frame-moved", "A frame is off-screen or in the wrong place", `<p><code>/fui frames</code> lists the movable frames. <code>/fui reset &lt;frame&gt;</code> puts one back at its default spot; <code>/fui reset all</code> (or <strong>Reset all positions</strong> under <strong>General → Layout</strong>) puts every frame back.</p>`)}
 ${entry("look", "Colors or fonts look wrong", `<p><code>/fui theme reset</code> (or <strong>Reset theme</strong> under <strong>General → Look</strong>) puts every theme setting back to default. <code>/fui accent reset</code> resets just the accent color.</p>`)}
 ${entry("one-feature", "One part of ForeverUI misbehaves", `<p>Type <code>/fui modules</code> to list the modules, then <code>/fui disable &lt;module&gt;</code> and <code>/reload</code>. That part goes back to the game's own version (“A module that's off builds nothing and costs nothing.”). <code>/fui enable &lt;module&gt;</code> and <code>/reload</code> bring it back. Please <a href="/feedback/">report</a> what went wrong.</p>`)}
@@ -217,7 +217,7 @@ export function changelogPage(model) {
 <p class="lede">Newest first. Each release lists the changes that went into it.</p>
 ${model.same ? "" : `<section class="card" aria-labelledby="next-h">
 <h2 id="next-h" style="margin-top:0">Next release ${NEXT}</h2>
-<p>Not released yet, so there's no version number or date. This is what the addon's source holds today that the v${esc(v)} download doesn't, worked out from the code itself:</p>
+<p>Not released yet, so there's no version number or date. This is what the addon's source holds today that v${esc(v)} doesn't, worked out from the code itself:</p>
 <h3>${newMods.length} new modules</h3>
 <ul>${newMods.map((m) => `<li><a href="/features/#${m.id}">${esc(m.name)}</a>: ${esc(m.desc)}</li>`).join("")}</ul>
 <h3>${newCmds.length} new commands</h3>
@@ -227,11 +227,9 @@ ${newPages.length ? `<h3>New options pages</h3><ul>${newPages.map((p) => `<li><a
 </section>`}
 ${rels.map((r) => {
   const notes = notesOf(r.body);
-  const asset = r.assets.find((a) => /\.zip$/.test(a.name));
   return `<section aria-labelledby="rel-${esc(r.tagName)}">
-<h2 id="rel-${esc(r.tagName)}">${esc(r.tagName)} <span class="small">· ${esc(dateET(r.publishedAt))}</span>${r.tagName === model.release.tag ? ` <span class="badge rel">Current download</span>` : ""}</h2>
+<h2 id="rel-${esc(r.tagName)}">${esc(r.tagName)} <span class="small">· ${esc(dateET(r.publishedAt))}</span>${r.tagName === model.release.tag ? ` <span class="badge rel">Current release</span>` : ""}</h2>
 ${notes.length ? `<ul>${notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : "<p>No notes.</p>"}
-${asset ? `<p class="small">${esc(asset.name)}, ${asset.size.toLocaleString("en-US")} bytes${r.tagName === model.release.tag ? ` · <a href="/download/${esc(asset.name)}" download>download</a>` : " · older versions aren't offered for download"}</p>` : ""}
 </section>`;
 }).join("\n")}
 <p class="small">Release notes list the titles of the changes merged for each release, from the addon's GitHub releases.</p>`,
