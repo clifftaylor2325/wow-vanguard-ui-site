@@ -177,7 +177,7 @@ async function onSend() {
 // The confirmation: the reference only.
 function sent(data) {
   $("#fb-ref").textContent = data.reference;
-  $("#fb-done-dup").textContent = data.duplicate ? "Another player reported the same error, so your notes were added to that report." : "";
+  $("#fb-done-dup").textContent = data.duplicate ? "Another player reported the same error, so your notes were added to that report. This reference is yours alone." : "";
   step("done");
 }
 

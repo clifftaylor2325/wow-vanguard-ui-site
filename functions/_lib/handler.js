@@ -14,11 +14,10 @@
 //   FEEDBACK_KV        KV namespace: rate caps, fingerprint -> issue, contact details (90 days)
 //   GITHUB_API_URL     local only: a stub GitHub on this machine (scripts/github-stub.mjs)
 import { readFields, validate, REFUSED, FALLBACK_AREAS } from "../../src/feedback/fields.js";
-import { bugIssue, featureIssue, duplicateComment, refIn } from "../../src/feedback/body.js";
-import { sha256Hex } from "../../src/feedback/report.js";
+import { bugIssue, featureIssue, duplicateComment } from "../../src/feedback/body.js";
 import { gitHub, apiBase, GitHubError } from "./github.js";
 import { verifyTurnstile, TEST_SECRETS, TEST_SITEKEYS } from "./turnstile.js";
-import { capKeys, checkCaps, countSubmission } from "./ratelimit.js";
+import { capKeys, reserve, release } from "./ratelimit.js";
 
 const MAX_BODY = 64 * 1024;
 const MIN_SECONDS = 3;
@@ -81,14 +80,6 @@ async function loadAreas(request, env) {
 function newReference() {
   const bytes = globalThis.crypto.getRandomValues(new Uint8Array(6));
   return `FUI-${Array.from(bytes, (b) => REF_CHARS[b % REF_CHARS.length]).join("")}`;
-}
-
-// The reference of an issue made before references existed: from its number.
-async function referenceOf(issue) {
-  const known = refIn(issue.body);
-  if (known) return known;
-  const hex = await sha256Hex(`issue ${issue.number}`);
-  return `FUI-${Array.from(hex.slice(0, 6), (c) => REF_CHARS[parseInt(c, 16)]).join("")}`;
 }
 
 // The request's JSON object, or null when it isn't one (or is too big).
@@ -154,6 +145,8 @@ async function findBug(gh, env, fp) {
 }
 
 // Files the report: a comment on the matching open bug, or a new issue.
+// Every report gets its own reference, written into the issue body or into
+// its own comment, so a removal request names exactly one player's part.
 // Returns { reference, duplicate, issueNumber, created }.
 async function file(gh, env, f, areas) {
   const reference = newReference();
@@ -165,8 +158,8 @@ async function file(gh, env, f, areas) {
   const issue = await bugIssue(f, reference);
   const match = issue.fp ? await findBug(gh, env, issue.fp) : null;
   if (match) {
-    await gh.addComment(match.number, duplicateComment(f, issue.env, issue.fp));
-    return { reference: await referenceOf(match), duplicate: true, issueNumber: match.number, created: false };
+    await gh.addComment(match.number, duplicateComment(f, issue.env, issue.fp, reference));
+    return { reference, duplicate: true, issueNumber: match.number, created: false };
   }
   const made = await gh.createIssue(issue.title, issue.body, issue.labels);
   if (issue.fp) await quietly("remember fingerprint", () => env.FEEDBACK_KV.put(`fp:${issue.fp}`, String(made.number), { expirationTtl: FP_TTL }));
@@ -198,20 +191,28 @@ export async function handlePost(request, env, deps = {}) {
     return fail(503, "unavailable");
   }
   const ip = request.headers.get("cf-connecting-ip") || "local";
-  const keys = await capKeys(ip, env.RL_SALT, now);
-  const capped = await checkCaps(env.FEEDBACK_KV, keys, now);
-  if (capped) return fail(429, "rate_limited", { retryAfter: capped.retryAfter }, { "retry-after": String(capped.retryAfter) });
+  // Turnstile first: a request without a valid token never touches KV.
   const human = await verifyTurnstile({ secret: env.TURNSTILE_SECRET, token: data.turnstile, ip: ip === "local" ? "" : ip, hostname, fetchFn });
   if (!human) return fail(403, "turnstile");
+  const keys = await capKeys(ip, env.RL_SALT, now);
+  let held;
+  try {
+    held = await reserve(env.FEEDBACK_KV, keys, now);
+  } catch {
+    console.error("feedback: KV unavailable for the rate caps");
+    return fail(503, "unavailable");
+  }
+  if (held.retryAfter) return fail(429, "rate_limited", { retryAfter: held.retryAfter }, { "retry-after": String(held.retryAfter) });
   const gh = gitHub({ base: apiBase(env), token: env.GITHUB_TOKEN, repo: env.FEEDBACK_REPO, fetchFn });
   let result;
   try {
     result = await file(gh, env, f, areas);
   } catch (e) {
     console.error(`feedback: ${e instanceof GitHubError ? e.message : "filing failed"}`);
+    await quietly("release caps", () => release(env.FEEDBACK_KV, held.slots, { failed: true }));
     return fail(503, "unavailable");
   }
-  await quietly("count submission", () => countSubmission(env.FEEDBACK_KV, keys, result.created));
+  if (!result.created) await quietly("release day cap", () => release(env.FEEDBACK_KV, held.slots, { failed: false }));
   await quietly("keep contact", () => keepContact(env, f, result, now));
   return json(200, { reference: result.reference, duplicate: result.duplicate });
 }
