@@ -6,12 +6,19 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { CURSEFORGE_URL, esc } from "../scripts/lib/html.mjs";
 import { helpPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
+import { featuresPage } from "../scripts/lib/pages-main.mjs";
+import { MORE } from "../scripts/lib/features-content.mjs";
+import { gitReader } from "../scripts/lib/source.mjs";
+import { extractAddon } from "../scripts/lib/extract.mjs";
+import { buildModel } from "../scripts/lib/model.mjs";
+import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
 
 const cfg = loadConfig();
 if (!fs.existsSync(path.join(cfg.sourcePath, ".git"))) {
@@ -142,6 +149,70 @@ test("the Commands table has a row for every command in site-data.json", () => {
   assert.ok(data.commands.length >= 10, `only ${data.commands.length} commands in site-data.json`);
   assert.deepEqual(data.commands.flatMap((c) => rowGaps(c, rows.get(String(c.id)))), []);
   assert.equal(rows.size, data.commands.length, "the table has rows that aren't in site-data.json");
+});
+
+test("every page links the favicon, and it is shipped", () => {
+  for (const d of ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"]) {
+    assert.ok(page(d).includes('<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">'), `/${d} has no favicon link`);
+  }
+  assert.ok(/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/.test(fs.readFileSync(path.join(dist, "assets/favicon.svg"), "utf8")), "dist/assets/favicon.svg missing or not an SVG");
+});
+
+test("sitemap.xml lists every page under siteUrl, and robots.txt points to it", () => {
+  const base = cfg.siteUrl.replace(/\/+$/, "");
+  const xml = fs.readFileSync(path.join(dist, "sitemap.xml"), "utf8");
+  const want = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"].map((d) => `${base}/${d ? d + "/" : ""}`);
+  assert.ok(/^<\?xml version="1\.0" encoding="UTF-8"\?>\n<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/.test(xml), "sitemap.xml has no urlset");
+  assert.deepEqual([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]).sort(), want.sort(), "sitemap.xml must list exactly the 11 pages");
+  assert.match(fs.readFileSync(path.join(dist, "robots.txt"), "utf8"), new RegExp(`^Sitemap: ${base.replace(/[.]/g, "\\.")}/sitemap\\.xml$`, "m"));
+});
+
+// The rows of the Settings page that the search counter counts, by availability.
+function countedRows(html) {
+  const tags = [...html.matchAll(/<tr\b[^>]*>/g)].map((m) => m[0]).filter((t) => /\sdata-count[\s>]/.test(t));
+  return { tags, avail: (...a) => tags.filter((t) => a.some((x) => t.includes(`data-avail="${x}"`))).length };
+}
+
+test("the Settings counter counts only setting rows, so it matches the header", () => {
+  const html = page("settings");
+  const head = html.match(/<strong>(\d+)<\/strong> settings in v[^<]*<strong>(\d+)<\/strong> in the next release/);
+  const rows = countedRows(html);
+  assert.ok(head, "the header count is missing");
+  assert.ok(rows.tags.every((t) => /class="opt-row opt-item"/.test(t)), "only setting rows may carry data-count (no notes or headings)");
+  assert.equal(rows.avail("rel", "old"), Number(head[1]), "rows counted with next-release hidden must match the header's release count");
+  assert.equal(rows.avail("rel", "next"), Number(head[2]), "rows counted with v-only hidden must match the header's next-release count");
+  assert.ok(fs.readFileSync(path.join(dist, "assets/site.js"), "utf8").includes('hasAttribute("data-count")'), "site.js must count data-count rows only");
+});
+
+test("both searches have singular and plural nouns, a no-match message and a Clear search button", () => {
+  for (const [d, one, many] of [["settings", "setting", "settings"], ["commands", "command", "commands"]]) {
+    assert.ok(page(d).includes(`data-noun="${many}" data-noun-one="${one}"`), `/${d} search needs data-noun and data-noun-one`);
+  }
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  assert.ok(js.includes('"No " + noun + " match \\u201c" + query'), "site.js must show a no-match message");
+  assert.match(js, /<button class="search-clear" type="button">Clear search<\/button>/, "the no-match message must render a Clear search button element");
+});
+
+test("the Settings repeat heading describes the table rows, not cards (#3)", () => {
+  const html = page("settings");
+  assert.ok(!html.includes("one card each"), "/settings/ still says (one card each)");
+  const heads = html.match(/The rows below repeat for (each &lt;\w+&gt; from|each of) \d+ to \d+/g) || [];
+  assert.ok(heads.length > 0, "/settings/ has no heading over the repeated rows");
+});
+
+test("the in-combat reload note says /reload exactly once (#3)", () => {
+  const note = (page("settings").match(/<div class="notice info" id="reload-in-combat">([\s\S]*?)<\/div>/) || [])[1];
+  if (!/ns\.Chat\("Type \/reload in chat/.test(show(refs.next, "Core/Dialog.lua"))) return assert.equal(note, undefined);
+  assert.ok(note, "/settings/ has no in-combat reload note");
+  assert.equal((note.match(/\/reload/g) || []).length, 1, "the in-combat reload note must say /reload once");
+});
+
+test("the Changelog has no badge on a next-release heading and no repo-only notes (#10)", () => {
+  const html = page("changelog");
+  const heads = [...html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => m[1]).filter((h) => /next release/i.test(h.replace(/<[^>]+>/g, " ")));
+  assert.ok(heads.length > 0, "the Changelog has no next-release heading");
+  assert.ok(heads.every((h) => !/<span class="badge\b/.test(h)), `a next-release heading carries a badge: ${heads.join(" | ")}`);
+  assert.ok(!/Release workflow/i.test(html), "a release note mentions the release workflow");
 });
 
 // Every file in dist/, as paths relative to it.
@@ -313,7 +384,7 @@ test("an FAQ entry is dropped when the addon no longer has its quote", () => {
     for (const e of shown) assert.ok(!body.includes(`id="${e.id}"`), `"${e.id}" still shown without ${fact[0]}`);
     checked++;
   }
-  assert.ok(checked >= 10, `only ${checked} facts were checked`);
+  assert.ok(checked >= 25, `only ${checked} facts were checked`);
 });
 
 // Each published release's section on the Changelog page.
@@ -330,4 +401,97 @@ test("next-release items stay out of the current release's section", () => {
   for (const s of releaseSections(html)) for (const i of items) assert.ok(!s.includes(esc(i.text)), `"${i.label}" is inside a release section`);
   const next = html.match(/<section class="card" aria-labelledby="next-h">[\s\S]*?<\/section>/);
   if (meta.current === NEXT_RELEASE.after) for (const i of items) assert.ok(next && next[0].includes(esc(i.text)), `"${i.label}" missing from What's coming`);
+});
+
+// Garbled characters or a byte-order mark in any text file of the repo or the built site.
+test("no garbled characters or byte-order marks in the source or the built site", () => {
+  const built = distFiles().filter((f) => /\.(html|js|css|xml|txt|json)$/.test(f)).map((f) => path.relative(root, f));
+  const bad = scanFiles(root, [...repoTextFiles(root), ...built]);
+  assert.deepEqual(bad, [], `encoding problems (see CONTRIBUTING.md):\n${bad.join("\n")}`);
+});
+
+// A planted bad file is caught, with its file and line: a BOM, a garbled line and a UTF-16 file.
+test("the encoding check catches planted bad files", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fui-encoding-"));
+  fs.writeFileSync(path.join(dir, "planted.md"), Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from("fine\nshows \u0393\u00c7\u00aa and \u00c3\u00a9 here\n", "utf8")]));
+  fs.writeFileSync(path.join(dir, "out-file.txt"), Buffer.from("\ufeffhello", "utf16le"));
+  fs.writeFileSync(path.join(dir, "clean.mjs"), "// \u2026 \u201cquoted\u201d \u2192 \u00b7\n");
+  const found = scanFiles(dir, ["planted.md", "out-file.txt", "clean.mjs"]);
+  assert.deepEqual(found, ["planted.md:1: UTF-8 byte-order mark (save without BOM)", "planted.md:2: garbled characters", "out-file.txt:1: UTF-16 file (save it as UTF-8)"]);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+// The site's model of the release and the newer source, made as the build makes it.
+function siteModel() {
+  const r = meta.releases.find((x) => x.tagName === meta.current);
+  const rel = extractAddon(gitReader(cfg.sourcePath, meta.current));
+  const next = extractAddon(gitReader(cfg.sourcePath, cfg.sourceRef));
+  return buildModel({ rel, next, release: { tag: r.tagName, publishedAt: r.publishedAt }, releases: meta });
+}
+
+// One module's card in a Features page body ("" when it isn't there).
+function featureCardOf(body, key) {
+  return (body.match(new RegExp(`<article class="card mod" id="[^"]+" data-module="${key}">[\\s\\S]*?</article>`)) || [""])[0];
+}
+
+// Taking any one checked phrase out of the README must drop that module's longer text.
+test("a Features paragraph drops out when its README phrase disappears", () => {
+  const model = siteModel();
+  const full = featuresPage(model).body;
+  for (const [key, entry] of Object.entries(MORE)) {
+    assert.ok(featureCardOf(full, key).includes("mod-more"), `${key} has no longer text with the full README`);
+    for (const phrase of entry.check) {
+      const cut = { ...model, next: { ...model.next, readme: model.next.readme.replaceAll(phrase, "") } };
+      assert.ok(!featureCardOf(featuresPage(cut).body, key).includes("mod-more"), `${key} keeps its text without "${phrase}"`);
+    }
+  }
+});
+
+// O.MODULE_INFO in Core/Options.lua: key -> [name, one-liner], read here on its own.
+function moduleInfo(ref) {
+  const lua = show(ref, "Core/Options.lua");
+  const at = lua.indexOf("O.MODULE_INFO = {");
+  const block = lua.slice(at, lua.indexOf("\n}\n", at));
+  const str = '"((?:[^"\\\\]|\\\\.)*)"';
+  const rows = [...block.matchAll(new RegExp(`^\\s{2}(\\w+)\\s*=\\s*\\{\\s*${str},\\s*${str}`, "gm"))];
+  return Object.fromEntries(rows.map((m) => [m[1], [m[2], m[3]].map((t) => t.replace(/\\(.)/g, "$1"))]));
+}
+
+// Each Features card quotes the addon's one-liner for that module word for word.
+test("the Features one-liners match the addon word for word", () => {
+  const html = page("features");
+  const info = Object.entries(moduleInfo(refs.next));
+  assert.ok(info.length >= 40, `only ${info.length} modules read from O.MODULE_INFO`);
+  const bad = info.filter(([key, [, desc]]) => !featureCardOf(html, key).includes(`<p>${esc(desc)}</p>`)).map(([key]) => key);
+  assert.deepEqual(bad, [], `one-liners not quoted verbatim: ${bad.join(", ")}`);
+});
+
+// Every Core/Modules Lua file's text at a ref, read once.
+const luaTexts = new Map();
+function luaFiles(ref) {
+  if (!luaTexts.has(ref)) {
+    const files = execFileSync("git", ["ls-tree", "-r", "--name-only", ref], { cwd: cfg.sourcePath }).toString().split("\n").filter((f) => /^(Core|Modules)\/.*\.lua$/.test(f));
+    luaTexts.set(ref, files.map((f) => show(ref, f)));
+  }
+  return luaTexts.get(ref);
+}
+
+// A module's top-level on/off defaults from its ns.Module(...) call, read here on its own.
+function moduleFlags(ref, key) {
+  const lua = luaFiles(ref).find((t) => t.includes(`ns.Module("${key}"`)) || "";
+  const start = lua.indexOf("defaults = {", lua.indexOf(`ns.Module("${key}"`));
+  if (start < 0) return [];
+  let depth = 0, i = lua.indexOf("{", start), body = "";
+  do { const c = lua[i++]; depth += c === "{" ? 1 : c === "}" ? -1 : 0; body += depth === 1 && c !== "{" ? c : depth > 1 ? " " : ""; } while (depth > 0 && i < lua.length);
+  return [...body.matchAll(/\b\w+\s*=\s*(true|false)\b/g)].map((m) => m[1] === "true");
+}
+
+// "Off until you switch it on" shows exactly where every switch defaults off and the addon says it starts off.
+test("the Features 'Off until you switch it on' labels match the addon defaults", () => {
+  const html = page("features");
+  const info = moduleInfo(refs.next);
+  const expected = Object.keys(info).filter((k) => { const f = moduleFlags(refs.next, k); return f.length && f.every((v) => !v) && /off until|switch it on/i.test(info[k][1]); });
+  const shown = Object.keys(info).filter((k) => featureCardOf(html, k).includes("Off until you switch it on"));
+  assert.ok(expected.length >= 1, "no module starts off: the defaults weren't read");
+  assert.deepEqual(shown.sort(), expected.sort());
 });

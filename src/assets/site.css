@@ -160,6 +160,8 @@ a.cf-cta:hover { filter: brightness(1.08); }
 .search input[type=search] { width: 100%; font: inherit; color: var(--text); background: var(--raised); border: 1px solid var(--ui-line); border-radius: 4px; padding: 10px 12px; }
 .search input[type=search]::placeholder { color: var(--text2); }
 .search .count { color: var(--text2); font-size: 0.95rem; }
+/* The counter's number-of-results line gets a small brass diamond, like the h2s. */
+.search .count:not(:empty)::before { content: ""; display: inline-block; width: 6px; height: 6px; margin: 0 8px 1px 0; transform: rotate(45deg); background: var(--accent); vertical-align: middle; }
 .filters { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 0.95rem; }
 .filters label { font-weight: 500; display: inline-flex; gap: 6px; align-items: center; }
 [hidden] { display: none !important; }
@@ -212,12 +214,22 @@ a.cf-cta:hover { filter: brightness(1.08); }
 .cmd-table thead th:nth-child(4) { width: 12%; }
 .cmd-table td[data-label="What it does"] { color: var(--text); font-size: 0.95rem; }
 @media (min-width: 900px) { .cmd-table .cmd-head { flex-direction: column; align-items: flex-start; } }
+/* A search with no matches hides the empty table; its no-match message shows instead. */
+.cmd-table:not(:has(tr.cmd:not([hidden]))) { display: none; }
 
 /* Features */
 .mods { display: grid; gap: 10px; grid-template-columns: 1fr; }
 @media (min-width: 720px) { .mods { grid-template-columns: 1fr 1fr; } }
 .mod h3 { margin: 0 0 6px; font-size: 1.1rem; }
 .mod p { margin: 0 0 6px; }
+
+/* The message a search with no matches shows under the list (site.js). It is a .notice,
+   so it has the brass hairline; Clear search shares the Copy buttons' --ui-line edge. */
+.search-empty[hidden] { display: none; }
+.search-empty { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.search-empty p { margin: 0; flex: 1 1 16em; }
+.search-clear { font: inherit; font-size: 0.9rem; color: var(--text); background: var(--raised); border: 1px solid var(--ui-line); border-radius: 3px; padding: 4px 10px; cursor: pointer; }
+.search-clear:hover { border-color: var(--accent); }
 
 /* Tables (small, never wider than the screen) */
 .table-wrap { max-width: 100%; overflow-x: auto; }
@@ -509,6 +521,7 @@ thead th { border-bottom-color: color-mix(in oklab, var(--accent) 45%, var(--div
 .feature-areas { justify-content: flex-start; margin: 16px 0 8px; }
 .mod .mod-more { color: var(--text2); }
 .mod .facts { margin-top: 8px; }
+.mod .mod-src { margin: 8px 0 0; }
 
 /* Troubleshooting & FAQ: question cards and the jump links; Changelog lists */
 .help-jumps { justify-content: flex-start; margin: 16px 0 8px; }

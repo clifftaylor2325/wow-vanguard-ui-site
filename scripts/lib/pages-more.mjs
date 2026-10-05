@@ -159,7 +159,7 @@ ${relImport ? `<p>In v${esc(v)}, this character switches to it straight away (�
 // becomes the next placeholder, <name> by default, and each %s an ellipsis.
 function luaText(text, names = []) {
   let i = 0;
-  return text.replace(/" \.\. [\w.():]+ \.\. "/g, () => `<${names[i++] || "name"}>`).replace(/%s/g, "ΓÇª");
+  return text.replace(/" \.\. [\w.():]+ \.\. "/g, () => `<${names[i++] || "name"}>`).replace(/%s/g, "…");
 }
 
 // One fact from FACTS: the captured text, or null when it isn't in the code
@@ -191,7 +191,7 @@ function fill(text, facts) {
   return text.replace(/\{(\w+)\}/g, (_, k) => {
     if (k === "NEXT") return NEXT;
     const v = facts[k];
-    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>ΓÇ£${esc(r)}ΓÇ¥</li>`).join("")}</ul>` : esc(v);
+    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>“${esc(r)}”</li>`).join("")}</ul>` : esc(v);
   });
 }
 
@@ -483,7 +483,7 @@ function releaseNotes(r) {
 function releaseSection(r, model) {
   const current = r.tagName === model.release.tag ? ` <span class="badge rel">Current release</span>` : "";
   return `<section aria-labelledby="rel-${esc(r.tagName)}">
-<h2 id="rel-${esc(r.tagName)}">${esc(r.tagName)} <span class="small">┬╖ ${esc(dateET(r.publishedAt))}</span>${current}</h2>
+<h2 id="rel-${esc(r.tagName)}">${esc(r.tagName)} <span class="small">· ${esc(dateET(r.publishedAt))}</span>${current}</h2>
 ${releaseNotes(r)}
 </section>`;
 }
@@ -519,7 +519,7 @@ export function creditsPage(model, site) {
 <p><strong>${esc(lic[0] || "")}</strong>. ${esc(lic[1] || "")}.</p>
 <p>From the v${esc(model.version)} README:</p>
 <blockquote class="card prose"><p>${md(relLicense)}</p></blockquote>
-${nextLicense && nextLicense !== relLicense ? `<p>The next release ${NEXT} also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>` : ""}
+${nextLicense && nextLicense !== relLicense ? `<p>The next release also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>` : ""}
 ${bullets.length ? `<h2 id="credits">Fonts, libraries and art</h2><p>As listed in the addon's README for the next release:</p><ul>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` : ""}
 <h2 id="site">This website</h2>
 <p>ForeverUI is made by ${esc(site.author)}.</p>

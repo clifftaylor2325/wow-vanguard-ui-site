@@ -141,7 +141,7 @@ export function homePage(model) {
     body: `<section class="hero" aria-labelledby="hero-title">
 ${heroArt()}
 <div class="hero-inner">
-  <p class="hero-kicker">A fan addon for WoW Forever</p>
+  <p class="hero-kicker">A fan addon for WoW&nbsp;Forever</p>
   <h1 id="hero-title" class="hero-title">ForeverUI</h1>
   ${ornament("hero-orn")}
   <p class="hero-tagline">${esc(line)}.</p>
@@ -203,7 +203,7 @@ ${curseforgeBox(model)}
 <h2 id="curseforge">Install through CurseForge</h2>
 <ul>
   <li><strong>With the CurseForge app:</strong> find ForeverUI in the app and install it. The app puts it in your AddOns folder and can keep it up to date.</li>
-  <li><strong>From the CurseForge website:</strong> ForeverUI's page there offers its files. ${listed ? "The button above goes to that page." : "When it's listed, the button above turns into a link to that page."} Then follow <a href="#by-hand">If you install by hand</a>.</li>
+  <li><strong>From the CurseForge website:</strong> ForeverUI's page there offers its files. ${listed ? "The button above goes to that page." : "When it's listed, the button above turns into a link to that page."} Then follow the steps under <a href="#by-hand">If you install by hand</a>.</li>
 </ul>
 <div class="notice todo"><p><strong>To be confirmed:</strong> the exact steps for the WoW Forever client in the CurseForge app will be written here once ForeverUI is listed.</p></div>
 <p>Then turn it on at character select (<strong>AddOns</strong>, tick <strong>ForeverUI</strong>), log in, and type <code>/fui</code> in chat to open the options. See <a href="/start/">Getting started</a>.</p>
@@ -408,6 +408,13 @@ function featureFacts(m, model) {
   return `<dl class="facts">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
 }
 
+// Where a card's words come from, in plain words (no file names).
+function featureSource(m, more) {
+  const parts = ["ForeverUI's own Modules page", m.pages.length && "its options", m.commands.length && "its commands", more && "the addon's own feature list"].filter(Boolean);
+  const list = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}` : parts[0];
+  return `<p class="small mod-src">Source: ${list}.</p>`;
+}
+
 // One module as a card: name, badges, the addon's one-liner, more, and its facts.
 function featureCard(m, model) {
   const off = startsOff(m, model) ? ` <span class="badge plain">Off until you switch it on</span>` : "";
@@ -416,6 +423,7 @@ function featureCard(m, model) {
   <h3>${esc(m.name)} ${badge(m.inRel, m.inNext, model.version)}${off}</h3>
   ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}${more ? `\n  <p class="mod-more">${esc(more)}</p>` : ""}
   ${featureFacts(m, model)}
+  ${featureSource(m, more)}
 </article>`;
 }
 
@@ -464,6 +472,18 @@ function cmdLines(e, version) {
   return "";
 }
 
+// "a", "a and b", "a, b and c".
+function andList(items) {
+  if (items.length < 2) return items.join("");
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+// The other ways to open the options window, without repeating /fui itself.
+function fuiAliases(slashes, keys) {
+  const alts = [...slashes.filter((s) => s !== "/fui"), ...keys.map((k) => `/fui ${k}`)];
+  return alts.length ? ` Also ${andList(alts.map((a) => `<code>${esc(a)}</code>`))}.` : "";
+}
+
 // The command as shown in its row: every word it accepts.
 function cmdTyped(e) {
   if (e.special === "fui") return "/fui";
@@ -480,8 +500,7 @@ function cmdCopy(e) {
 
 // What a command does: the addon's help lines, or a plain note for /fui and /fui help.
 function cmdWhat(e, c, version) {
-  const also = e.keys.length ? `, and <code>/fui ${e.keys.map(esc).join("</code>, <code>/fui ")}</code>` : "";
-  if (e.special === "fui") return `<p class="cmd-text">Opens (or closes) the options window. Also <code>${c.slashes.map(esc).join("</code>, <code>")}</code>${also}. The help's first line says: “${esc(c.relIntro)}”</p>`;
+  if (e.special === "fui") return `<p class="cmd-text">Opens (or closes) the options window.${fuiAliases(c.slashes, e.keys)} The help's first line says: “${esc(c.relIntro)}”</p>`;
   if (e.special === "help") return `<p class="cmd-text">Prints the list of commands in chat: the help lines quoted on this page.</p>`;
   return cmdLines(e, version);
 }
@@ -511,7 +530,7 @@ function cmdHead(e) {
 function cmdRow(e, model) {
   const cells = [cmdWhat(e, model.commands, model.version), cmdModules(e, model), badge(e.inRel, e.inNext, model.version)];
   const tds = cells.map((h, i) => `<td data-label="${CMD_COLS[i + 1]}">${h}</td>`).join("");
-  return `<tr class="cmd opt-item" id="entry-${esc(e.id)}" data-avail="${avail(e.inRel, e.inNext)}" data-search="${esc(cmdSearch(e))}">${cmdHead(e)}${tds}</tr>`;
+  return `<tr class="cmd opt-item" id="entry-${esc(e.id)}" data-count data-avail="${avail(e.inRel, e.inNext)}" data-search="${esc(cmdSearch(e))}">${cmdHead(e)}${tds}</tr>`;
 }
 
 // Every command in one table: a real table from 900px wide, one card per command below that.
@@ -529,7 +548,7 @@ function cmdFilters(c, version) {
 
 // The search box over the commands, with its switches and a live count.
 function cmdSearchBox(c, version) {
-  return `<div class="search" data-target="#cmd-list" data-items=".cmd" data-noun="commands">
+  return `<div class="search" data-target="#cmd-list" data-items=".cmd" data-noun="commands" data-noun-one="command">
   <label for="cmd-q">Search commands</label>
   <input id="cmd-q" type="search" placeholder="for example: reset, profile, errors" autocomplete="off">
   ${cmdFilters(c, version)}
@@ -608,7 +627,13 @@ function optRow(r, version, pageTitle, id) {
   const loop = r.loop ? ` <span class="small">(${esc(r.loop.variable)} = ${r.loop.from} to ${r.loop.to})</span>` : "";
   const notes = `${r.reload ? `<span class="badge reload">Needs reload</span> ` : ""}${badge(r.inRel, r.inNext, version)}`;
   const cells = [KIND_NAME[r.kind] || "", valuesText(r), defaultText(r, version), notes].map((h, i) => `<td data-label="${COLS[i + 1]}">${h}</td>`);
-  return `<tr class="opt-row opt-item" id="${id}" ${attrs}><th scope="row" class="opt-cap">${esc(r.caption)}${loop}</th>${cells.join("")}</tr>`;
+  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(r.caption)}${loop}</th>${cells.join("")}</tr>`;
+}
+
+// The heading over rows the options window repeats, e.g. "The rows below repeat for each n from 1 to 8".
+function repeatHeading(rep) {
+  const each = rep.variable ? `each ${esc(`<${rep.variable}>`)} from` : "each of";
+  return `The rows below repeat for ${each} ${rep.from} to ${rep.to}`;
 }
 
 // A page's table rows, with a heading before rows repeated for every bar.
@@ -617,7 +642,7 @@ function pageRows(p, version, used) {
   let inRepeat = null;
   for (const r of p.rows) {
     const rep = r.repeated ? JSON.stringify(r.repeated) : null;
-    if (rep && rep !== inRepeat) out.push(groupRow(`For each of ${r.repeated.from} to ${r.repeated.to} (one card each)`, `data-search="${esc(p.title)} each"`));
+    if (rep && rep !== inRepeat) out.push(groupRow(repeatHeading(r.repeated), `data-search="${esc(p.title)} each"`));
     inRepeat = rep;
     out.push(optRow(r, version, p.title, rowId(p.id, r.caption, used)));
   }
@@ -653,7 +678,7 @@ function combatReloadNote(read) {
   const line = combatReloadLine(read.next("Core/Dialog.lua"));
   if (!line) return "";
   const b = combatReloadLine(read.rel("Core/Dialog.lua")) ? "" : `<span class="badge next">Next release</span> `;
-  return `<div class="notice info" id="reload-in-combat"><p>${b}WoW Forever lets an addon reload only from a click on a secure button, so that's what <strong>Reload now</strong> and the <strong>Reload</strong> button in ForeverUI's reload prompt are. That secure part can't be built during a fight: a Reload button made in combat gets it when the fight ends. Until then, clicking it only says “${esc(line)}” If that happens, type <code>/reload</code> in chat.</p></div>`;
+  return `<div class="notice info" id="reload-in-combat"><p>${b}WoW Forever lets an addon reload only from a click on a secure button, so that's what <strong>Reload now</strong> and the <strong>Reload</strong> button in ForeverUI's reload prompt are. That secure part can't be built during a fight: a Reload button made in combat gets it when the fight ends. Until then, clicking it doesn't reload; it says “${esc(line)}”</p></div>`;
 }
 
 export function settingsPage(model, read) {
@@ -670,7 +695,7 @@ ${nextNotice(model)}
 ${combatReloadNote(read)}
 <p><strong>${count((r) => r.inRel)}</strong> settings in v${esc(version)} · <strong>${count((r) => r.inNext)}</strong> in the next release · <strong>${pages.length}</strong> pages.</p>
 <nav aria-label="Options pages"><ul class="chips chips-page">${pages.map((p) => `<li><a href="#${p.id}">${esc(p.title)}</a>${p.inRel ? "" : " <span class=\"badge next\">Next release</span>"}</li>`).join("")}</ul></nav>
-<div class="search" data-target="#opt-list" data-items=".opt-row" data-groups=".opt-page" data-noun="settings">
+<div class="search" data-target="#opt-list" data-items=".opt-row" data-groups=".opt-page" data-noun="settings" data-noun-one="setting">
   <label for="opt-q">Search settings</label>
   <input id="opt-q" type="search" placeholder="for example: raid, tooltip, chat" autocomplete="off">
   <div class="filters">
