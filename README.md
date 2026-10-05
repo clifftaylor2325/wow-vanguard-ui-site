@@ -63,6 +63,15 @@ Every page shares the Home page's Slate & Brass pieces, from `scripts/lib/html.m
 
 The site never links to the private GitHub repo from player-facing pages, and it offers no download.
 
+## Deploying
+
+The site is published to the Cloudflare Pages project `vanguard-ui` (`https://vanguard-ui.pages.dev`). Two ways:
+
+- **From GitHub (no local setup):** add three repository secrets (Settings → Secrets and variables → Actions): `ADDON_READ_TOKEN` (read-only token for the addon repo, also used by the check), `CLOUDFLARE_API_TOKEN` (a Cloudflare API token with the **Cloudflare Pages: Edit** permission) and `CLOUDFLARE_ACCOUNT_ID` (dashboard → Workers & Pages, right-hand column). Then Actions → **deploy** → **Run workflow**. It runs the full check first, creates the Pages project the first time, and uploads `dist/` with the feedback Function. It only runs when started by hand.
+- **From your machine:** `npm run check`, then `npm run deploy` (Wrangler asks you to sign in to Cloudflare the first time, and offers to create the project).
+
+The site works without the feedback form's bindings; until they're set (see Feedback form → Bindings), the form says reports can't be sent from the page right now.
+
 ## Feedback form
 
 `/feedback/` has a form (with a preview step) that sends a bug report or feature request to a Cloudflare Pages Function, `POST /api/feedback` (`functions/api/feedback.js`, with the code in `functions/_lib/`). The Function checks the report, runs Cloudflare Turnstile, applies the rate caps, and files it as an issue in the maintainers' private repository (or comments on the open issue for the same error). The player gets a short reference like `VG-AB12CD`, never a link or the repository's name. `dist/_routes.json` sends only `/api/*` to the Function.
