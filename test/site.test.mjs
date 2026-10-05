@@ -7,11 +7,16 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { loadConfig } from "../scripts/lib/config.mjs";
+import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { CURSEFORGE_URL, esc } from "../scripts/lib/html.mjs";
 import { helpPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
+import { featuresPage } from "../scripts/lib/pages-main.mjs";
+import { MORE } from "../scripts/lib/features-content.mjs";
+import { gitReader } from "../scripts/lib/source.mjs";
+import { extractAddon } from "../scripts/lib/extract.mjs";
+import { buildModel } from "../scripts/lib/model.mjs";
 
 const cfg = loadConfig();
 if (!fs.existsSync(path.join(cfg.sourcePath, ".git"))) {
@@ -256,7 +261,7 @@ test("an FAQ entry is dropped when the addon no longer has its quote", () => {
     for (const e of shown) assert.ok(!body.includes(`id="${e.id}"`), `"${e.id}" still shown without ${fact[0]}`);
     checked++;
   }
-  assert.ok(checked >= 10, `only ${checked} facts were checked`);
+  assert.ok(checked >= 25, `only ${checked} facts were checked`);
 });
 
 // Each published release's section on the Changelog page.
@@ -273,4 +278,93 @@ test("next-release items stay out of the current release's section", () => {
   for (const s of releaseSections(html)) for (const i of items) assert.ok(!s.includes(esc(i.text)), `"${i.label}" is inside a release section`);
   const next = html.match(/<section class="card" aria-labelledby="next-h">[\s\S]*?<\/section>/);
   if (meta.current === NEXT_RELEASE.after) for (const i of items) assert.ok(next && next[0].includes(esc(i.text)), `"${i.label}" missing from What's coming`);
+});
+
+// Mojibake: UTF-8 read as code page 437 or Windows-1252, then saved again.
+const MOJIBAKE = /Γ[ÇåÄ]|┬[╖░]|â€|Ã[\^@-\u00BF]|Â[\u00A0-\u00BF]|\uFFFD/;
+
+test("no garbled characters in the source or the built site", () => {
+  const files = [
+    ...distFiles().filter((f) => /\.(html|js|css|xml|txt)$/.test(f)),
+    ...fs.readdirSync(path.join(root, "scripts/lib")).map((f) => path.join(root, "scripts/lib", f)),
+    ...["scripts/build.mjs", "src/assets/site.js", "src/assets/site.css"].map((f) => path.join(root, f)),
+  ];
+  const bad = files.flatMap((f) => fs.readFileSync(f, "utf8").split("\n")
+    .map((l, i) => (MOJIBAKE.test(l) ? `${path.relative(root, f)}:${i + 1}` : null)).filter(Boolean));
+  assert.deepEqual(bad, [], `garbled characters at: ${bad.join(", ")}`);
+});
+
+// The site's model of the release and the newer source, made as the build makes it.
+function siteModel() {
+  const r = meta.releases.find((x) => x.tagName === meta.current);
+  const rel = extractAddon(gitReader(cfg.sourcePath, meta.current));
+  const next = extractAddon(gitReader(cfg.sourcePath, cfg.sourceRef));
+  return buildModel({ rel, next, release: { tag: r.tagName, publishedAt: r.publishedAt }, releases: meta });
+}
+
+// One module's card in a Features page body ("" when it isn't there).
+function featureCardOf(body, key) {
+  return (body.match(new RegExp(`<article class="card mod" id="[^"]+" data-module="${key}">[\\s\\S]*?</article>`)) || [""])[0];
+}
+
+// Taking any one checked phrase out of the README must drop that module's longer text.
+test("a Features paragraph drops out when its README phrase disappears", () => {
+  const model = siteModel();
+  const full = featuresPage(model).body;
+  for (const [key, entry] of Object.entries(MORE)) {
+    assert.ok(featureCardOf(full, key).includes("mod-more"), `${key} has no longer text with the full README`);
+    for (const phrase of entry.check) {
+      const cut = { ...model, next: { ...model.next, readme: model.next.readme.replaceAll(phrase, "") } };
+      assert.ok(!featureCardOf(featuresPage(cut).body, key).includes("mod-more"), `${key} keeps its text without "${phrase}"`);
+    }
+  }
+});
+
+// O.MODULE_INFO in Core/Options.lua: key -> [name, one-liner], read here on its own.
+function moduleInfo(ref) {
+  const lua = show(ref, "Core/Options.lua");
+  const at = lua.indexOf("O.MODULE_INFO = {");
+  const block = lua.slice(at, lua.indexOf("\n}\n", at));
+  const str = '"((?:[^"\\\\]|\\\\.)*)"';
+  const rows = [...block.matchAll(new RegExp(`^\\s{2}(\\w+)\\s*=\\s*\\{\\s*${str},\\s*${str}`, "gm"))];
+  return Object.fromEntries(rows.map((m) => [m[1], [m[2], m[3]].map((t) => t.replace(/\\(.)/g, "$1"))]));
+}
+
+// Each Features card quotes the addon's one-liner for that module word for word.
+test("the Features one-liners match the addon word for word", () => {
+  const html = page("features");
+  const info = Object.entries(moduleInfo(refs.next));
+  assert.ok(info.length >= 40, `only ${info.length} modules read from O.MODULE_INFO`);
+  const bad = info.filter(([key, [, desc]]) => !featureCardOf(html, key).includes(`<p>${esc(desc)}</p>`)).map(([key]) => key);
+  assert.deepEqual(bad, [], `one-liners not quoted verbatim: ${bad.join(", ")}`);
+});
+
+// Every Core/Modules Lua file's text at a ref, read once.
+const luaTexts = new Map();
+function luaFiles(ref) {
+  if (!luaTexts.has(ref)) {
+    const files = execFileSync("git", ["ls-tree", "-r", "--name-only", ref], { cwd: cfg.sourcePath }).toString().split("\n").filter((f) => /^(Core|Modules)\/.*\.lua$/.test(f));
+    luaTexts.set(ref, files.map((f) => show(ref, f)));
+  }
+  return luaTexts.get(ref);
+}
+
+// A module's top-level on/off defaults from its ns.Module(...) call, read here on its own.
+function moduleFlags(ref, key) {
+  const lua = luaFiles(ref).find((t) => t.includes(`ns.Module("${key}"`)) || "";
+  const start = lua.indexOf("defaults = {", lua.indexOf(`ns.Module("${key}"`));
+  if (start < 0) return [];
+  let depth = 0, i = lua.indexOf("{", start), body = "";
+  do { const c = lua[i++]; depth += c === "{" ? 1 : c === "}" ? -1 : 0; body += depth === 1 && c !== "{" ? c : depth > 1 ? " " : ""; } while (depth > 0 && i < lua.length);
+  return [...body.matchAll(/\b\w+\s*=\s*(true|false)\b/g)].map((m) => m[1] === "true");
+}
+
+// "Off until you switch it on" shows exactly where every switch defaults off and the addon says it starts off.
+test("the Features 'Off until you switch it on' labels match the addon defaults", () => {
+  const html = page("features");
+  const info = moduleInfo(refs.next);
+  const expected = Object.keys(info).filter((k) => { const f = moduleFlags(refs.next, k); return f.length && f.every((v) => !v) && /off until|switch it on/i.test(info[k][1]); });
+  const shown = Object.keys(info).filter((k) => featureCardOf(html, k).includes("Off until you switch it on"));
+  assert.ok(expected.length >= 1, "no module starts off: the defaults weren't read");
+  assert.deepEqual(shown.sort(), expected.sort());
 });

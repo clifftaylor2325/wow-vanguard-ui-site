@@ -158,7 +158,7 @@ ${relImport ? `<p>In v${esc(v)}, this character switches to it straight away (�
 // becomes the next placeholder, <name> by default, and each %s an ellipsis.
 function luaText(text, names = []) {
   let i = 0;
-  return text.replace(/" \.\. [\w.():]+ \.\. "/g, () => `<${names[i++] || "name"}>`).replace(/%s/g, "ΓÇª");
+  return text.replace(/" \.\. [\w.():]+ \.\. "/g, () => `<${names[i++] || "name"}>`).replace(/%s/g, "…");
 }
 
 // One fact from FACTS: the captured text, or null when it isn't in the code
@@ -190,7 +190,7 @@ function fill(text, facts) {
   return text.replace(/\{(\w+)\}/g, (_, k) => {
     if (k === "NEXT") return NEXT;
     const v = facts[k];
-    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>ΓÇ£${esc(r)}ΓÇ¥</li>`).join("")}</ul>` : esc(v);
+    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>“${esc(r)}”</li>`).join("")}</ul>` : esc(v);
   });
 }
 
@@ -274,7 +274,7 @@ Screenshot or mock-up (attach it, if you have one):`;
 <ol class="steps">
   <li><strong>Write down what you did</strong>, what you expected, and what happened instead.</li>
   <li><strong>Type <code>/fui status</code></strong> and copy all of its lines. In v${esc(v)} it prints ${relStatusLines} lines: the version, profile and module count, then skins, painted frames and changes waiting on combat.${nextStatusLines > relStatusLines ? ` ${NEXT} prints ${nextStatusLines}, adding the client, what it has, and your UI scale and text size.` : ""}</li>
-  <li><strong>${relErrors ? "Type <code>/fui errors</code>" : "Copy any error lines"}</strong>${relErrors ? " and copy all of it." : `. v${esc(v)} has no <code>/fui errors</code> yet; if chat showed ${failLine ? `ΓÇ£${esc(failLine.replace(/%s/g, "ΓÇª"))}ΓÇ¥` : "an error"}, copy that whole line. ${NEXT} <code>/fui errors</code> lists the errors ForeverUI caught this session, with stacks and counts, ready for a bug report.`}</li>
+  <li><strong>${relErrors ? "Type <code>/fui errors</code>" : "Copy any error lines"}</strong>${relErrors ? " and copy all of it." : `. v${esc(v)} has no <code>/fui errors</code> yet; if chat showed ${failLine ? `“${esc(failLine.replace(/%s/g, "…"))}”` : "an error"}, copy that whole line. ${NEXT} <code>/fui errors</code> lists the errors ForeverUI caught this session, with stacks and counts, ready for a bug report.`}</li>
   <li><strong>Take a screenshot</strong> with <kbd>Print Screen</kbd>. The files land in the game's Screenshots folder.</li>
 </ol>
 <p class="small">Can't copy text from chat? A screenshot of the chat lines works too. ${model.commands.nextKeys.has("copy") && !model.commands.relKeys.has("copy") ? `In the next release, <code>/fui copy</code> opens the recent chat as plain text, ready to copy.` : ""}</p>
@@ -337,7 +337,7 @@ function releaseNotes(r) {
 function releaseSection(r, model) {
   const current = r.tagName === model.release.tag ? ` <span class="badge rel">Current release</span>` : "";
   return `<section aria-labelledby="rel-${esc(r.tagName)}">
-<h2 id="rel-${esc(r.tagName)}">${esc(r.tagName)} <span class="small">┬╖ ${esc(dateET(r.publishedAt))}</span>${current}</h2>
+<h2 id="rel-${esc(r.tagName)}">${esc(r.tagName)} <span class="small">· ${esc(dateET(r.publishedAt))}</span>${current}</h2>
 ${releaseNotes(r)}
 </section>`;
 }
