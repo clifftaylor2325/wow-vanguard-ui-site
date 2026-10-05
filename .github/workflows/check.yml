@@ -1,0 +1,43 @@
+# Builds the site and runs every check (encoding, drift and page tests) on pull requests.
+# It never deploys and never pushes. The build reads the private addon repo
+# (clifftaylor2325/wow-forever-ui) through gh, so it needs a read-only token
+# for that repo in the ADDON_READ_TOKEN secret; see the pull request that
+# added this file. Without it, the "Addon access" step fails with a message.
+name: check
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Addon access
+        env:
+          GH_TOKEN: ${{ secrets.ADDON_READ_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::ADDON_READ_TOKEN is not set. The build reads the private addon repo clifftaylor2325/wow-forever-ui; add a read-only token for it as a repository secret."
+            exit 1
+          fi
+
+      - run: npm run check
+        env:
+          GH_TOKEN: ${{ secrets.ADDON_READ_TOKEN }}
