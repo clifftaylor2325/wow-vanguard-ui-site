@@ -216,6 +216,10 @@ a.cf-cta:hover { filter: brightness(1.08); }
 @media (min-width: 900px) { .cmd-table .cmd-head { flex-direction: column; align-items: flex-start; } }
 /* A search with no matches hides the empty table; its no-match message shows instead. */
 .cmd-table:not(:has(tr.cmd:not([hidden]))) { display: none; }
+/* The table's caption: a plain line over it with a brass diamond, like the search count and the h2s. */
+.cmd-table caption { caption-side: top; text-align: left; font-weight: 600; color: var(--text); padding: 0 0 10px; }
+.cmd-table caption::before { content: ""; display: inline-block; width: 7px; height: 7px; margin: 0 10px 1px 2px; transform: rotate(45deg); background: var(--accent); vertical-align: middle; }
+@media (max-width: 899px) { .cmd-table caption { display: block; } }
 
 /* Features */
 .mods { display: grid; gap: 10px; grid-template-columns: 1fr; }
