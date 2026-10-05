@@ -8,49 +8,101 @@
     return (el.getAttribute("data-search") || el.textContent || "").toLowerCase();
   }
 
-  // Wires one search form: <div class="search" data-target="#list" data-items=".item">.
-  function wireSearch(box) {
-    var input = box.querySelector("input[type=search]");
-    var count = box.querySelector(".count");
+  // Reads one search form: <div class="search" data-target="#list" data-items=".item">.
+  function searchState(box) {
     var list = document.querySelector(box.getAttribute("data-target"));
     var itemSel = box.getAttribute("data-items");
-    var groupSel = box.getAttribute("data-groups");
-    var filterBoxes = box.querySelectorAll("input[type=checkbox][data-filter]");
-    if (!input || !list) return;
-    var items = list.querySelectorAll(itemSel);
-    var noun = box.getAttribute("data-noun") || "items";
+    return {
+      box: box, list: list, itemSel: itemSel, groupSel: box.getAttribute("data-groups"),
+      input: box.querySelector("input[type=search]"), count: box.querySelector(".count"),
+      filters: box.querySelectorAll("input[type=checkbox][data-filter]"),
+      items: list ? list.querySelectorAll(itemSel) : []
+    };
+  }
 
-    function allowed(el) {
-      for (var i = 0; i < filterBoxes.length; i++) {
-        var f = filterBoxes[i];
-        if (!f.checked && el.getAttribute("data-avail") === f.getAttribute("data-filter")) return false;
-      }
-      return true;
+  // Whether an item passes the version boxes (an unticked box hides its data-avail).
+  function allowed(filters, el) {
+    for (var i = 0; i < filters.length; i++) {
+      var f = filters[i];
+      if (!f.checked && el.getAttribute("data-avail") === f.getAttribute("data-filter")) return false;
     }
+    return true;
+  }
 
-    function apply() {
-      var words = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
-      var shown = 0;
-      for (var i = 0; i < items.length; i++) {
-        var text = hay(items[i]);
-        var ok = allowed(items[i]) && words.every(function (w) { return text.indexOf(w) >= 0; });
-        items[i].hidden = !ok;
-        if (ok && !items[i].classList.contains("h")) shown++;
-      }
-      if (groupSel) {
-        var groups = list.querySelectorAll(groupSel);
-        for (var g = 0; g < groups.length; g++) {
-          var any = groups[g].querySelector(itemSel + ":not([hidden]):not(.h)");
-          groups[g].hidden = !any;
-        }
-      }
-      if (count) count.textContent = shown + " " + noun + " shown";
+  // Shows the items that pass the boxes and hold every word; returns how many
+  // real entries (data-count: not headings or notes) are shown.
+  function filterItems(s, words) {
+    var shown = 0;
+    for (var i = 0; i < s.items.length; i++) {
+      var text = hay(s.items[i]);
+      var ok = allowed(s.filters, s.items[i]) && words.every(function (w) { return text.indexOf(w) >= 0; });
+      s.items[i].hidden = !ok;
+      if (ok && s.items[i].hasAttribute("data-count")) shown++;
     }
+    return shown;
+  }
 
-    input.addEventListener("input", apply);
-    for (var i = 0; i < filterBoxes.length; i++) filterBoxes[i].addEventListener("change", apply);
-    if (location.hash === "" && input.value) apply();
-    apply();
+  // Hides each group (a settings page) with no visible entry left.
+  function hideEmptyGroups(s) {
+    var groups = s.list.querySelectorAll(s.groupSel);
+    for (var g = 0; g < groups.length; g++) {
+      groups[g].hidden = !groups[g].querySelector(s.itemSel + ":not([hidden]):not(.h)");
+    }
+  }
+
+  // True when any version box is unticked.
+  function anyUnticked(filters) {
+    for (var i = 0; i < filters.length; i++) if (!filters[i].checked) return true;
+    return false;
+  }
+
+  // The counter line: "1 setting shown", "12 settings shown".
+  function countText(box, shown) {
+    var one = box.getAttribute("data-noun-one") || "item";
+    var many = box.getAttribute("data-noun") || "items";
+    return shown + " " + (shown === 1 ? one : many) + " shown";
+  }
+
+  // Makes the message shown under the list when nothing matches (hidden until then).
+  function makeEmpty(list) {
+    var empty = document.createElement("div");
+    empty.className = "notice search-empty";
+    empty.hidden = true;
+    empty.innerHTML = '<p></p><button class="search-clear" type="button">Clear search</button>';
+    list.parentNode.insertBefore(empty, list.nextSibling);
+    return empty;
+  }
+
+  // Fills in or hides the no-match message: what was searched, and what to try.
+  function showEmpty(s, shown, query) {
+    s.empty.hidden = shown > 0;
+    if (shown > 0) return;
+    var noun = s.box.getAttribute("data-noun") || "items";
+    var what = query ? "No " + noun + " match \u201c" + query + "\u201d." : "No " + noun + " to show.";
+    var boxes = anyUnticked(s.filters) ? "tick the Show boxes above" : "";
+    var hint = query ? " Check the spelling" + (boxes ? ", or " + boxes : ", or try fewer words") : (boxes ? " Tick the Show boxes above" : "");
+    s.empty.querySelector("p").textContent = what + hint + (hint ? "." : "");
+  }
+
+  // Filters the list by the search words and boxes, then updates the counter and the no-match message.
+  function apply(s) {
+    var query = s.input.value.trim();
+    var shown = filterItems(s, query.toLowerCase().split(/\s+/).filter(Boolean));
+    if (s.groupSel) hideEmptyGroups(s);
+    if (s.count) s.count.textContent = countText(s.box, shown);
+    showEmpty(s, shown, query);
+  }
+
+  // Wires one search form to its list, with a Clear search button in its no-match message.
+  function wireSearch(box) {
+    var s = searchState(box);
+    if (!s.input || !s.list) return;
+    s.empty = makeEmpty(s.list);
+    var run = function () { apply(s); };
+    s.input.addEventListener("input", run);
+    for (var i = 0; i < s.filters.length; i++) s.filters[i].addEventListener("change", run);
+    s.empty.querySelector("button").addEventListener("click", function () { s.input.value = ""; run(); s.input.focus(); });
+    run();
   }
 
   // Copies text and briefly says so on the button.

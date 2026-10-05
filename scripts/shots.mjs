@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-// Checks every page for sideways scrolling at 390px and 360px wide, and takes
+// Checks every page for sideways scrolling, failed requests and console errors at
+// 390px and 360px wide, checks the Commands and Settings search, and takes
 // full-page screenshots of Home, Install, Features, Commands, Settings,
 // Feedback, Troubleshooting and Changelog at 1280px and 390px.
-// Uses playwright-core with an installed Chrome/Chromium (set CHROME_PATH if
-// it isn't found). Screenshots go to SHOTS_DIR (default: shots/).
+// Uses playwright-core with the browser in CHROME_PATH, else Edge on Windows
+// (msedge.exe under Program Files or Program Files (x86)), else an installed
+// Chrome/Chromium. Screenshots go to SHOTS_DIR (default: shots/).
 //   npm run shots
 // With SHOTS_BASE set to a running `npm run dev` (wrangler pages dev with the
 // local GitHub stub, see README), it also walks the feedback form: field
@@ -17,15 +19,89 @@ import { loadConfig, root } from "./lib/config.mjs";
 import { serve } from "./serve.mjs";
 import { NAV } from "./lib/html.mjs";
 
-const CANDIDATES = [process.env.CHROME_PATH, "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "C:/Program Files/Google/Chrome/Application/chrome.exe"].filter(Boolean);
+// msedge.exe in the usual Windows install folders (none on other systems).
+function edgePaths() {
+  if (process.platform !== "win32") return [];
+  const dirs = [process.env.ProgramFiles || "C:\\Program Files", process.env["ProgramFiles(x86)"] || "C:\\Program Files (x86)"];
+  return dirs.map((d) => path.join(d, "Microsoft", "Edge", "Application", "msedge.exe"));
+}
+
+const CANDIDATES = [process.env.CHROME_PATH, ...edgePaths(), "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "C:/Program Files/Google/Chrome/Application/chrome.exe"].filter(Boolean);
 const outDir = path.resolve(root, process.env.SHOTS_DIR || "shots");
 const SHOOT = [["home", "/"], ["install", "/install/"], ["features", "/features/"], ["commands", "/commands/"], ["settings", "/settings/"], ["feedback", "/feedback/"], ["help", "/help/"], ["changelog", "/changelog/"], ["start", "/start/"], ["profiles", "/profiles/"]];
 
 // The first browser binary that exists.
 function browserPath() {
   const p = CANDIDATES.find((c) => fs.existsSync(c));
-  if (!p) throw new Error("no Chrome/Chromium found; set CHROME_PATH");
+  if (!p) throw new Error("no Edge, Chrome or Chromium found; set CHROME_PATH");
   return p;
+}
+
+// Logs one check and records it when it fails.
+function report(failures, what, ok) {
+  console.log(`${ok ? "ok  " : "FAIL"} ${what}`);
+  if (!ok) failures.push(what);
+}
+
+// Records every response of 400 or more and every console error on a page (a missing favicon shows up here).
+function watchErrors(page, failures) {
+  page.on("response", (r) => { if (r.status() >= 400) report(failures, `${r.status()} ${r.url()}`, false); });
+  page.on("console", (m) => { if (m.type() === "error") report(failures, `console error on ${page.url()}: ${m.text()}`, false); });
+}
+
+// The static server has no Pages Functions, so GET /api/feedback gets the reply the
+// Function gives when reports aren't set up (handleGet in functions/_lib/handler.js).
+// Any other method goes through, so it still 404s and fails the run.
+async function stubFeedbackApi(page) {
+  await page.route((url) => url.pathname === "/api/feedback", (route) => {
+    if (route.request().method() !== "GET") return route.continue();
+    return route.fulfill({ status: 200, contentType: "application/json; charset=utf-8", body: JSON.stringify({ accepting: false, sitekey: null }) });
+  });
+}
+
+// A page of the given width on the static server, with the feedback stub and the error watch.
+async function watchedPage(browser, width, failures) {
+  const page = await browser.newPage({ viewport: { width, height: 844 } });
+  await stubFeedbackApi(page);
+  watchErrors(page, failures);
+  return page;
+}
+
+// Types a search and returns the counter text and the no-match message (null while hidden).
+async function searchFor(page, query) {
+  await page.fill(".search input[type=search]", query);
+  return page.evaluate(() => {
+    const e = document.querySelector(".search-empty");
+    return { count: document.querySelector(".search .count").textContent, empty: e && !e.hidden ? e.textContent : null };
+  });
+}
+
+// A search with no matches shows a message, and Clear search empties the box and hides it.
+async function checkNoMatch(page, base, url, noun, failures) {
+  await page.goto(base + url, { waitUntil: "load" });
+  const r = await searchFor(page, "zzqqxx");
+  report(failures, `${url} "zzqqxx": ${r.count}; message: ${r.empty}`, r.count === `0 ${noun} shown` && (r.empty || "").includes(`No ${noun} match “zzqqxx”`));
+  await page.click(".search-clear");
+  const after = await page.evaluate(() => [document.querySelector(".search-empty").hidden, document.querySelector(".search input[type=search]").value]);
+  report(failures, `${url} Clear search empties the box and hides the message`, after[0] === true && after[1] === "");
+}
+
+// With "Show next-release settings" unticked, the counter matches the header's release count.
+async function checkSettingsCount(page, base, failures) {
+  await page.goto(base + "/settings/", { waitUntil: "load" });
+  const want = await page.evaluate(() => [...document.querySelectorAll("main p")].find((p) => / settings in v/.test(p.textContent)).querySelector("strong").textContent);
+  await page.uncheck('.search input[data-filter="next"]');
+  const r = await searchFor(page, "");
+  report(failures, `/settings/ next release hidden: "${r.count}" (header ${want})`, r.count === `${want} settings shown`);
+}
+
+// The search checks for Commands and Settings, at 390px.
+async function checkSearch(browser, base, failures) {
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await checkNoMatch(page, base, "/commands/", "commands", failures);
+  await checkNoMatch(page, base, "/settings/", "settings", failures);
+  await checkSettingsCount(page, base, failures);
+  await page.close();
 }
 
 // Fails when the page scrolls sideways.
@@ -80,15 +156,17 @@ async function main() {
   fs.mkdirSync(outDir, { recursive: true });
   try {
     for (const width of [390, 360]) {
-      const page = await browser.newPage({ viewport: { width, height: 844 } });
+      const page = await watchedPage(browser, width, failures);
       for (const n of NAV) {
         await page.goto(base + n.path, { waitUntil: "load" });
         await noSideScroll(page, `${n.path} at ${width}px`, failures);
       }
       await page.close();
     }
+    await checkSearch(browser, base, failures);
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
+      await stubFeedbackApi(page);
       for (const [name, url] of SHOOT) {
         await page.goto(base + url, { waitUntil: "load" });
         await page.evaluate(() => document.fonts.ready);
@@ -104,7 +182,7 @@ async function main() {
     server.close();
   }
   if (failures.length) {
-    console.error(`horizontal scroll on: ${failures.join(", ")}`);
+    console.error(`failed: ${failures.join(", ")}`);
     process.exit(1);
   }
 }
