@@ -15,6 +15,7 @@ import { buildModel } from "./lib/model.mjs";
 import { layout, NAV } from "./lib/html.mjs";
 import { homePage, installPage, startPage, featuresPage, commandsPage, settingsPage } from "./lib/pages-main.mjs";
 import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage } from "./lib/pages-more.mjs";
+import { longerGaps } from "./lib/features-content.mjs";
 
 const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js"];
 
@@ -95,6 +96,8 @@ function main() {
   need(`v${rel.meta.Version}` === release.tag, `release ${release.tag} has TOC version ${rel.meta.Version}`);
   const releases = { ...meta, releases: meta.releases.map((r) => ({ ...r, body: publicText(r.body) })) };
   const model = buildModel({ rel, next, release, releases });
+  const gaps = longerGaps(model.next.readme);
+  need(!gaps.length, `the README no longer says what the Features longer text is written from:\n  ${gaps.join("\n  ")}`);
   const theme = themeCss(next.theme);
   const site = { theme: theme.vars, author: SITE_AUTHOR, version: rel.meta.Version, licenseName: rel.meta["X-License"] || "MIT" };
   const read = { rel: relReader.read, next: nextReader.read };

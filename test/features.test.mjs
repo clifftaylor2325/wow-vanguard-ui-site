@@ -49,7 +49,7 @@ test("every module card on /features/ shows 2 to 4 longer sentences, in order", 
     assert.ok(list.length >= 2 && list.length <= 4, `${key}: ${list.length} longer sentences`);
     const at = html.indexOf(`data-module="${key}"`);
     const card = html.slice(at, html.indexOf("</article>", at));
-    const p = (card.match(/<p class="mod-more mod-longer">([^<]*)<\/p>/) || [])[1];
+    const p = (card.match(/<p class="mod-longer">([^<]*)<\/p>/) || [])[1];
     assert.ok(p, `${key}: no longer text in its card`);
     assert.equal(decode(p), list.map((x) => x.s).join(" "));
   }
