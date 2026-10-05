@@ -5,3 +5,6 @@ shots/
 *.log
 .DS_Store
 .wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
