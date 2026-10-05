@@ -3,7 +3,7 @@
 // source file. Where the current release and the next release differ, the
 // page says which is which.
 import { esc, md, badge, pageHero } from "./html.mjs";
-import { src, dateET, nextNotice, earlyQuote } from "./pages-main.mjs";
+import { src, dateET, nextNotice } from "./pages-main.mjs";
 
 const NEXT = `<span class="badge next">Next release</span>`;
 
@@ -122,7 +122,7 @@ ${setupCombat ? entry("setup", "The setup wizard didn't open", `<p>The wizard is
 ${entry("errors-badge", "A red number on the addons button", `<p>In the next release, that's how many errors ForeverUI caught this session. <code>/fui errors</code> lists them for a bug report, and <code>/fui errors clear</code> empties the list.</p>`, NEXT)}
 ${entry("perf", "Is ForeverUI slowing my game down?", `<p>In the next release, <code>/fui perf</code> shows ForeverUI's CPU and memory now; <code>/fui perf cpu</code> turns the game's CPU profiling on or off (after a reload), and <code>/fui perf watch</code> prints them every minute. No performance numbers are published yet.</p>`, NEXT)}
 <h2>Known issues</h2>
-<p>None confirmed yet: nothing has been checked in game. Problems confirmed by players will be listed here.</p>
+<p>No known issues have been confirmed yet. ForeverUI is an early release: parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p>
 ${src("Core/Slash.lua", "Core/Modules.lua", "Core/Serialize.lua", "Core/Setup.lua", "README.md")}`,
   };
 }
@@ -135,7 +135,6 @@ export function feedbackPage(model, read) {
   const nextStatusLines = (grab(read.next("Core/Slash.lua"), /local function statusCommand\(\)([\s\S]*?)\nend/) || "").match(/chat\(/g)?.length || 0;
   const relErrors = model.commands.relKeys.has("errors");
   const failLine = grab(read.rel("Core/Modules.lua"), /string\.format\("(module %s failed to load: %s)"/);
-  const quote = earlyQuote(model.rel.readme) || earlyQuote(model.next.readme);
   const bugTemplate = `ForeverUI bug report
 What I did:
 What I expected:
@@ -156,7 +155,7 @@ Screenshot or mock-up (attach it, if you have one):`;
     path: "/feedback/",
     title: "Feedback",
     description: "Report a ForeverUI bug or request a feature.",
-    body: `${pageHero("Feedback", `ForeverUI is an early release${quote ? `, and in its own words: “${esc(quote)}”` : "."} There are two ways to help.`)}
+    body: `${pageHero("Feedback", `ForeverUI is an early release. Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>. There are two ways to help.`)}
 <div class="notice todo" role="note"><p><strong>Coming soon: where to send reports.</strong> The place to send bug reports and feature requests hasn't been set up yet. Until it is, get your report ready with the steps below, and keep it: this page will say where to send it.</p></div>
 <div class="grid two">
 <section class="card" aria-labelledby="bug">
@@ -240,7 +239,7 @@ function section(readme, name) {
   return m ? m[1].trim() : "";
 }
 
-export function creditsPage(model) {
+export function creditsPage(model, site) {
   const lic = model.rel.license.split("\n").slice(0, 3).filter(Boolean);
   const relLicense = section(model.rel.readme, "License");
   const nextCredits = section(model.next.readme, "Credits");
@@ -258,6 +257,7 @@ export function creditsPage(model) {
 ${nextLicense && nextLicense !== relLicense ? `<p>The next release ${NEXT} also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>` : ""}
 ${bullets.length ? `<h2 id="credits">Fonts, libraries and art</h2><p>As listed in the addon's README for the next release:</p><ul>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` : ""}
 <h2 id="site">This website</h2>
+<p>ForeverUI is made by ${esc(site.author)}.</p>
 <p>This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href="/fonts/OFL.txt">license text</a>. Its colors are ForeverUI's own theme colors.</p>
 <p>ForeverUI is a fan addon for WoW Forever.</p>
 ${src("LICENSE", "README.md (License, Credits)", "Media/Fonts/OFL.txt")}`,

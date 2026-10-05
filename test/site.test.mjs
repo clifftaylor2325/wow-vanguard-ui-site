@@ -100,10 +100,30 @@ for (const [label, ref] of Object.entries(refs)) {
   });
 }
 
+test("the Settings page is a table with column and row headers", () => {
+  const html = page("settings");
+  assert.ok(/<table class="opt-table"/.test(html), "/settings/ has no settings table");
+  assert.ok(/<th scope="col">Setting<\/th>/.test(html), "/settings/ tables need <th scope=\"col\"> headers");
+  assert.ok(/<tr class="opt-row opt-item" id="[^"]+"[^>]*><th scope="row"/.test(html), "/settings/ rows need an id and a <th scope=\"row\"> caption");
+});
+
+test("the Settings page quotes what a Reload button built in combat says", () => {
+  const line = (show(refs.next, "Core/Dialog.lua").match(/ns\.Chat\("(Type \/reload in chat[^"]*)"\)/) || [])[1];
+  const html = decode(page("settings"));
+  if (!line) return assert.ok(!html.includes('id="reload-in-combat"'), "reload note shown but Core/Dialog.lua has no such line");
+  assert.ok(html.includes(line), `/settings/ doesn't quote "${line}"`);
+});
+
 // Every file in dist/, as paths relative to it.
 function distFiles(dir = dist) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? distFiles(path.join(dir, e.name)) : [path.join(dir, e.name)]));
 }
+
+test("dist contains no old author name", () => {
+  const oldName = Buffer.from("clifftaylor2325", "utf8");
+  const bad = distFiles().filter((f) => fs.readFileSync(f).includes(oldName)).map((f) => path.relative(dist, f));
+  assert.deepEqual(bad, [], `old author name found in dist/: ${bad.join(", ")}`);
+});
 
 test("no zip is shipped and nothing offers a download", () => {
   const files = distFiles();
@@ -143,6 +163,17 @@ test("the home page decoration is hidden from screen readers and the mock is lab
   assert.ok(/class="mock" role="img" aria-label="Illustration, not a screenshot/.test(html), "UI mock must be labeled as an illustration");
   assert.ok(!/<img\b/.test(html), "the home page uses no images");
   assert.ok(!/https?:\/\/(?!foreverui\.pages\.dev)[^"']+\.(png|jpe?g|webp|gif|svg|woff2?|ttf|otf)/i.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8") + html), "no external images or fonts");
+});
+
+test("player-facing copy describes the early release honestly", () => {
+  const banned = /checked in game yet|not checked in game|nothing has been checked/i;
+  const bad = distFiles()
+    .filter((f) => /\.html$/.test(f))
+    .filter((f) => banned.test(fs.readFileSync(f, "utf8")))
+    .map((f) => path.relative(dist, f));
+  assert.deepEqual(bad, [], `old unverified wording found in dist/: ${bad.join(", ")}`);
+  assert.match(page(""), /Parts have been tested in game, and some features are still being polished/);
+  assert.doesNotMatch(page(""), /None of this has been checked in game yet/);
 });
 
 test("pages are well formed: one h1, skip link, shared nav and footer", () => {
