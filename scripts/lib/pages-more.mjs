@@ -3,7 +3,7 @@
 // source file. Where the current release and the next release differ, the
 // page says which is which.
 import { esc, md, badge } from "./html.mjs";
-import { src, dateET, nextNotice, earlyQuote } from "./pages-main.mjs";
+import { src, dateET, nextNotice, earlyQuote, says, saysIf, label } from "./pages-main.mjs";
 
 const NEXT = `<span class="badge next">Next release</span>`;
 
@@ -15,73 +15,128 @@ function grab(text, re) {
 
 // ------------------------------------------------------------------ Profiles
 
+// Profiles & sharing. Plain player language only: every button, label and message is
+// quoted from the addon (says() and label() stop the build when the addon's text changes).
 export function profilesPage(model, read) {
   const v = model.version;
-  const relSlash = read.rel("Core/Slash.lua");
-  const nextSlash = read.next("Core/Slash.lua");
-  const relProf = read.rel("Core/Profiles.lua");
-  const nextProf = read.next("Core/Profiles.lua");
-  const nameRule = grab(relSlash, /"(Profile names are [^"]+)"/);
-  const relSwitch = grab(relSlash, /OfferReload\("(This character now uses profile )"/);
-  const nextSwitch = grab(nextSlash, /OfferReload\("(This character will use profile )"/);
-  const relImported = grab(relProf, /return "(Imported as profile )"/);
-  const nextImported = grab(nextProf, /return "(Imported as profile " \.\. name \.\. "[^"]*)"/);
-  const nextImportedText = nextImported ? nextImported.replace(/" \.\. name \.\. "/, "Imported") : null;
-  const uiQ = grab(nextProf, /string\.format\("(This profile was made at UI scale[^"]+)"/);
-  const editMissing = grab(nextProf, /Chat\("Profile " \.\. ns\.ProfileName\(\) \.\. " (uses Edit Mode layout " \.\. name \.\. ", which this account doesn't have\.)"\)/);
-  const noSpecs = grab(nextSlash, /"(This client has no specializations[^"]+)"/);
-  const relNoSpec = grab(relSlash, /"(No specialization on this character yet\.)"/);
-  const hasShareNext = /shareBuilder/.test(read.next("Modules/ClickCastOptions.lua") || "") && !/shareBuilder/.test(read.rel("Modules/ClickCastOptions.lua") || "");
+  const f = {
+    slash: "Core/Slash.lua", prof: "Core/Profiles.lua", opt: "Core/Options.lua", list: "Core/OptionsProfiles.lua",
+    dlg: "Core/Dialog.lua", db: "Core/DB.lua", ser: "Core/Serialize.lua", cco: "Modules/ClickCastOptions.lua", cc: "Modules/ClickCast.lua",
+  };
+  const N = Object.fromEntries(Object.entries(f).map(([k, file]) => [k, read.next(file) || ""]));
+  const R = Object.fromEntries(Object.entries(f).map(([k, file]) => [k, read.rel(file) || ""]));
+  const q = (k, ...p) => says(N[k], f[k], ...p);
+  const qr = (k, ...p) => saysIf(R[k], f[k], ...p);
+  const L = (k, name) => label(N[k], f[k], name);
+  const name = { v: "name" };
+  const reloadAsk = q("dlg", " Reload the UI now to apply it?");
+  const reloadBtns = `<strong>${L("dlg", "Reload")}</strong> or <strong>${L("dlg", "Later")}</strong>`;
+  // What's new since the current release.
+  const staged = !qr("slash", "This character will use profile ");
+  const listNew = !R.list;
+  const relUse = qr("opt", '"Use " .. name');
+  const relImport = qr("prof", "Imported as profile ", name, " and switched to it.");
+  const displayNew = !qr("prof", "This profile was made at UI scale");
+  const editNew = !qr("prof", "Edit Mode layout ");
+  const specCardNew = !qr("slash", "This client has no specializations");
+  const shareNew = !/shareBuilder/.test(R.cco);
+  const nb = (isNew) => (isNew ? ` ${NEXT}` : "");
+  const uiQ = q("prof", "This profile was made at UI scale %d%%%s (yours: %d%%). Use its UI scale?")
+    .replace("%d%%%s", "&lt;its scale&gt;% on a &lt;width&gt; x &lt;height&gt; screen").replace("%d%%", "&lt;yours&gt;%");
+  const defaultName = (N.db.match(/local DEFAULT_PROFILE = "([^"]+)"/) || [])[1];
+  if (!defaultName) throw new Error(`${f.db}: the first profile's name not found in the addon source`);
   return {
     path: "/profiles/",
     title: "Profiles & sharing",
     description: "Share one ForeverUI layout across characters, or move it to another PC.",
     body: `<h1>Profiles &amp; sharing</h1>
-<p class="lede">A profile holds all of ForeverUI's settings and frame positions. Profiles are saved for your whole account, and each character uses one of them. The first one is called <strong>Default</strong>.</p>
+<p class="lede">A profile holds all of ForeverUI's settings and frame positions. Profiles are saved for your whole account, and each character uses one of them. The first one is called <strong>${esc(defaultName)}</strong>.</p>
 ${nextNotice(model)}
+<h2 id="which">See which profile you're using</h2>
+<ul>
+  <li>Type <code>/fui profile</code>. Chat answers “${q("slash", "Profile: ")}${esc(defaultName)}${q("slash", "   (all: ")}…)”, with every profile on your account.${staged ? ` ${NEXT} When you've picked another profile that's waiting for a reload, it adds that one: “Profile: ${esc(defaultName)}; &lt;name&gt;${q("slash", " after a reload")}   (all: …)”.` : ""}</li>
+  <li>Or open <strong>/fui → Profiles</strong>. At the top it says “${q("opt", "This character uses ")}${esc(defaultName)}.”${staged ? ` ${NEXT} While a switch is waiting for a reload it says “This character uses ${esc(defaultName)}${q("opt", " until you reload, then ")}&lt;name&gt;.”` : ""}</li>
+</ul>
+
 <h2 id="same-account">Use one layout on several characters</h2>
+<p>Log in on each character and pick the same profile, in chat or on the Profiles page.</p>
 <ul>
-  <li><code>/fui profile</code> shows which profile this character uses, and all of them.</li>
-  <li><code>/fui profile &lt;name&gt;</code> switches this character to that profile, making it if it's new. In v${esc(v)} it then offers a reload: “${esc(relSwitch || "This character now uses profile ")}&lt;name&gt;.”</li>
-  <li>Or in the options: <strong>/fui → Profiles</strong>, where v${esc(v)} shows a <strong>Use &lt;name&gt;</strong> button for other profiles.</li>
-  <li>${esc(nameRule || "")}</li>
+  <li>Type <code>/fui profile &lt;name&gt;</code>. If there's no profile with that name yet, ForeverUI makes it. ${q("slash", "Profile names are 1-32 letters, digits, spaces, - or _.")}</li>
+  ${relUse ? `<li>In v${esc(v)}, the Profiles page has a <strong>Use &lt;name&gt;</strong> button for each of your other profiles (up to five), under <strong>Switch profile</strong>.${listNew ? ` The next release replaces them with a list (below).` : ""}</li>` : ""}
 </ul>
-${nextSwitch ? `<p>${NEXT} Choosing a profile takes effect at your next reload; until then you're still editing the profile you were using. The message becomes “${esc(nextSwitch)}&lt;name&gt; after the reload.”</p>` : ""}
-<h3>Manage profiles</h3>
+${staged ? `<p>In v${esc(v)}, switching happens straight away and ForeverUI offers a reload: “${qr("slash", "This character now uses profile ") || ""}&lt;name&gt;.${reloadAsk}”</p>
+<p>${NEXT} A new profile takes effect at your next reload. Until then the frames on screen still belong to the profile you were using, so anything you change goes into that one. ForeverUI asks: “${q("slash", "This character will use profile ", name, " after the reload.")}${reloadAsk}” Click ${reloadBtns}. If you pick the profile you're already using, it says “${q("slash", "This character already uses profile ", name, ".")}”</p>` : `<p>A new profile takes effect at your next reload. Until then the frames on screen still belong to the profile you were using, so anything you change goes into that one. ForeverUI asks: “${q("slash", "This character will use profile ", name, " after the reload.")}${reloadAsk}” Click ${reloadBtns}.</p>`}
+
+<h3 id="profile-list">The list on the Profiles page${nb(listNew)}</h3>
+<p>Under <strong>${L("opt", "Your profiles")}</strong>, each profile has a row with its name and buttons:</p>
 <ul>
-  <li><code>/fui profile new &lt;name&gt;</code> makes an empty profile.</li>
-  <li><code>/fui profile copy &lt;name&gt;</code> copies another profile's settings over the one you're using (then offers a reload).</li>
-  <li><code>/fui profile delete &lt;name&gt;</code> deletes a profile. You can't delete the one in use.</li>
-  <li><code>/fui profile reset</code> (or <strong>Reset profile</strong>) puts the profile you're using back to defaults.</li>
+  <li><strong>${L("list", "Use")}</strong>: this character switches to that profile at your next reload.</li>
+  <li><strong>${L("list", "Copy here")}</strong>: copies that profile's settings over the profile you're using.</li>
+  <li><strong>${L("list", "Delete")}</strong>: deletes that profile.</li>
 </ul>
-${src("Core/DB.lua", "Core/Profiles.lua", "Core/Slash.lua (profileCommand)", "Core/Options.lua (profileRows)")}
+<p><strong>${L("list", "Copy here")}</strong> and <strong>${L("list", "Delete")}</strong> can't be undone, so the first click only changes the button to “${q("list", "Sure?")}”. Click again to do it.</p>
+<p>Next to the names you'll see “${q("list", "(in use)")}”, or, while a switch waits for a reload, “${q("list", "(in use until reload)")}” on the profile you're using now and “${q("list", "(after reload)")}” on the one that takes over. The profile that takes over has no buttons. The one you're using now only has <strong>${L("list", "Use")}</strong>, which cancels the switch.</p>
+<p>At the bottom, type a name in the <strong>${L("list", "New profile")}</strong> box and click <strong>${L("list", "Create")}</strong> (or press <kbd>Enter</kbd>). The new profile is empty, and this character switches to it at your next reload. If the name is already used or has characters that aren't allowed, the box says “${q("list", "Name taken or not allowed")}”.</p>
+
+<h3 id="manage">Manage profiles in chat</h3>
+<div class="table-wrap"><table class="stack"><thead><tr><th scope="col">Type</th><th scope="col">What it does</th><th scope="col">Chat says</th></tr></thead><tbody>
+<tr><td data-label="Type"><code>/fui profile new &lt;name&gt;</code></td><td data-label="What it does">Makes an empty profile. You stay on the one you're using.</td><td data-label="Chat says">“${q("slash", "Created profile ", name, ".")}” or “${q("slash", "That name is taken or not allowed.")}”</td></tr>
+<tr><td data-label="Type"><code>/fui profile copy &lt;name&gt;</code></td><td data-label="What it does">Copies that profile's settings over the one you're using, then offers a reload.</td><td data-label="Chat says">“${q("slash", "Copied ", name, " into ")}&lt;your profile&gt;.${reloadAsk}” or “${q("slash", "No other profile called ", name, ".")}”</td></tr>
+<tr><td data-label="Type"><code>/fui profile delete &lt;name&gt;</code></td><td data-label="What it does">Deletes a profile. You can't delete the one you're using${staged ? `. ${NEXT} You also can't delete the one waiting for a reload` : ", or the one waiting for a reload"}.</td><td data-label="Chat says">“${q("slash", "Deleted profile ", name, ".")}” or “${q("slash", "Can't delete that one (missing, or in use).")}”</td></tr>
+<tr><td data-label="Type"><code>/fui profile reset</code></td><td data-label="What it does">Puts every setting in the profile you're using back to its default, then offers a reload.</td><td data-label="Chat says">“Profile &lt;your profile&gt;${q("slash", " is back to defaults.")}${reloadAsk}”</td></tr>
+</tbody></table></div>
+<p>On the Profiles page, <strong>${L("opt", "Reset profile")}</strong> does the same as <code>/fui profile reset</code>, straight away and without asking first. The options window then shows its <strong>Reload now</strong> button.</p>
 
 <h2 id="share">Move a profile to another account or PC</h2>
+<p>You copy your profile out as a line of text, and paste that text into ForeverUI on the other PC.</p>
 <ol class="steps">
-  <li>On the first PC: <code>/fui export</code> (or <strong>Export profile</strong> on the Profiles page) shows a string; press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy it. <code>/fui export &lt;module&gt;</code> exports just one module's settings.</li>
-  <li>On the other PC: <code>/fui import</code> (or <strong>Import</strong>), paste the string, then Import.</li>
+  <li><strong>Export.</strong> Click <strong>${L("opt", "Export profile")}</strong> on the Profiles page, or type <code>/fui export</code>. A window opens with the text already selected. Its title says “${q("opt", "ForeverUI export  Ctrl+C to copy")}” (with <code>/fui export</code>: “${q("slash", "ForeverUI export (")}profile &lt;name&gt;)${q("slash", "  Ctrl+C to copy")}”). Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy it, then click <strong>${L("dlg", "Close")}</strong>.</li>
+  <li><strong>Send it to yourself</strong> in any way you like, as long as the whole text arrives.</li>
+  <li><strong>Import.</strong> On the other PC, click <strong>${L("opt", "Import")}</strong> on the Profiles page or type <code>/fui import</code>. A window titled “${q("slash", "Paste a ForeverUI string, then Import")}” opens. Paste with <kbd>Ctrl</kbd>+<kbd>V</kbd> and click <strong>${L("dlg", "Import")}</strong>.</li>
 </ol>
-<ul>
-  <li>A whole profile is saved as a new profile called “Imported” (then “Imported 2”, and so on). In v${esc(v)} this character switches to it at once (“${esc(relImported || "Imported as profile ")}Imported and switched to it.”), and a reload is offered.</li>
-  <li>One module's settings replace that module's settings in the profile you're using.</li>
-  <li>Strings start with <code>FUI1:</code>. If one won't import, see <a href="/help/#import">Troubleshooting</a>.</li>
-</ul>
-${nextImportedText || uiQ || editMissing ? `<h3>In the next release ${NEXT}</h3><ul>
-${nextImportedText ? `<li>A whole imported profile is used after a reload: “${esc(nextImportedText)}”</li>` : ""}
-${uiQ ? `<li>A whole-profile string also carries the UI scale and screen size it was made on. Importing one asks: “${esc(uiQ.replace("%d%%%s", "X% on a W x H screen").replace("%d%%", "Y%"))}”</li>` : ""}
-${editMissing ? `<li>A profile remembers which of the game's Edit Mode layouts you use with it. If your account doesn't have that layout, ForeverUI says: “Profile &lt;name&gt; ${esc(editMissing.replace(/" \.\. name \.\. "/, "<layout>"))}”</li>` : ""}
-<li>Exports always hold your profile's own values, never a Situations override that happens to be active.</li>
-<li>Vendor memory and auction prices are kept for the whole account, so every character shares them.</li>
-</ul>` : ""}
-${src("Core/Serialize.lua", "Core/Profiles.lua", "Core/Slash.lua (exportCommand, importCommand)", "README.md")}
+<h3 id="import-whole">What importing a whole profile does</h3>
+<p>The profile is saved as a new profile called “Imported”. If you already have one with that name, it's called “Imported 2”, then “Imported 3”, and so on. Nothing you already have is overwritten.</p>
+${relImport ? `<p>In v${esc(v)}, this character switches to it straight away (“Imported as profile Imported and switched to it.”), and ForeverUI offers a reload.</p>` : ""}
+<ol class="steps">
+  <li>${displayNew ? `${NEXT} ` : ""}If the string has the UI scale it was made at, ForeverUI asks first, for example: “${uiQ}” Click <strong>${q("prof", "Use it")}</strong> to switch to that UI scale (it changes once you're out of combat), or <strong>${L("dlg", "No")}</strong> to keep yours. If the string doesn't say what screen it was made on, the question leaves out the screen part.</li>
+  <li>${staged ? `${NEXT} ` : ""}Then it asks: “${q("prof", "Imported as profile ")}Imported${q("prof", "; this character will use it after a reload.")}${reloadAsk}” Click ${reloadBtns}.</li>
+</ol>
+<h3 id="import-module">Just one module</h3>
+<p><code>/fui export &lt;module&gt;</code> copies just one module's settings (the module names are on <a href="/features/">Features</a> and in <code>/fui modules</code>). Importing that text replaces that module's settings in the profile you're using: “${q("prof", "Imported ")}&lt;module&gt;${q("prof", " settings into profile ")}&lt;your profile&gt;.${reloadAsk}” If that module has nothing saved yet, export says “${q("slash", "Nothing to export: ")}${q("prof", "nothing saved for ")}&lt;module&gt;${q("prof", " yet")}.”</p>
 
-${hasShareNext ? `<h2 id="click-casting">Click-casting bindings ${NEXT}</h2>
-<p>Click-casting bindings are kept per character and specialization, apart from profiles. In the next release the Click casting page has a <strong>Share</strong> card to Export and Import them as a string, and to copy them to another spec where the client has specs.</p>
-${src("Modules/ClickCastOptions.lua (shareBuilder)", "README.md (Click casting)")}` : ""}
+<h3 id="string">What's in the text</h3>
+<ul>
+  <li>It starts with <code>${q("ser", "FUI1")}:</code>. ForeverUI only reads settings from it and never runs anything in it. A built-in check notices when part of the text is missing.</li>
+  <li>The settings and frame positions saved in the profile.</li>
+  <li>The profile's own settings, never a temporary change from Situations that happens to be active.${nb(!qr("prof", "Situations"))}</li>
+  <li>${displayNew ? `${NEXT} ` : ""}For a whole profile, the UI scale (to the nearest percent) and the screen size it was made on.</li>
+  <li>${editNew ? `${NEXT} ` : ""}The name of the game's Edit Mode layout that goes with the profile (see below).</li>
+</ul>
+<p>If the text can't be used, chat says “${q("slash", "Import failed: ")}” and the reason. The reasons are listed under <a href="/help/#import">Troubleshooting</a>.</p>
+
+<h2 id="edit-mode">The game's Edit Mode layout${nb(editNew)}</h2>
+<p>A profile remembers which of the game's Edit Mode layouts you use with it. When a character loads a different profile than last time (a switch, an import, or a specialization profile), ForeverUI switches Edit Mode to that layout once you're out of combat and says “${q("prof", "Edit Mode layout ", { v: "layout" }, ", from profile ", name, ".")}”</p>
+<p>If your account has no Edit Mode layout with that name, nothing changes, and chat says “Profile &lt;name&gt; ${q("prof", " uses Edit Mode layout ").trim()} &lt;layout&gt;${q("prof", ", which this account doesn't have.")}” Make a layout with that name in Edit Mode if you want it.</p>
+
+<h2 id="click-casting">Click-casting bindings${nb(shareNew)}</h2>
+<p>Click-casting bindings aren't part of a profile. They're saved per character and per specialization, so importing a profile doesn't change them. They have their own sharing, under <strong>/fui → Click casting → ${L("cco", "Share")}</strong>:</p>
+<ul>
+  <li><strong>${L("cco", "Export")}</strong> opens a window titled “${q("cco", "Click-casting bindings")}” with the text to copy (<kbd>Ctrl</kbd>+<kbd>C</kbd>).</li>
+  <li><strong>${L("cco", "Import")}</strong> opens “${q("cco", "Paste a click-casting string")}”. Paste and click <strong>${L("dlg", "Import")}</strong>. It <strong>replaces</strong> the bindings for this character (and this specialization) and says “${q("cco", "Imported ", { v: "number" }, " click-casting bindings.")}” If the text isn't right it says “${q("cco", "Can't import: ")}&lt;reason&gt;.”, for example “${q("cc", "not a click-casting string")}” when you paste a profile instead.</li>
+  <li>On game clients with specializations there's also <strong>${q("cco", "Copy to spec...")}</strong>, which copies your bindings over another spec's: “${q("cco", "Click-casting bindings copied to spec ")}&lt;number&gt;.” WoW Forever has no specializations, so it doesn't show there.</li>
+</ul>
 
 <h2 id="spec">Profiles by specialization</h2>
-<p><code>/fui spec [profile|off]</code> uses a profile whenever you're in this specialization. This is for clients that have specializations: the addon's code notes that WoW Forever has none. In v${esc(v)}, when the character has no specialization, <code>/fui spec</code> answers “${esc(relNoSpec || "")}”.${noSpecs ? ` ${NEXT} It says instead: “${esc(noSpecs)}”, and the Profiles page hides the Specialization card.` : ""}</p>
-${src("Core/Profiles.lua (specGetter)", "Core/Slash.lua (specCommand)")}`,
+<p>This only works on game clients that have specializations. WoW Forever has none, so there <code>/fui spec</code> answers “${q("slash", "This client has no specializations, so profiles don't switch by spec.")}” and the Profiles page has no <strong>${L("opt", "Specialization")}</strong> section.${nb(specCardNew)}${specCardNew && qr("slash", "No specialization on this character yet.") ? ` In v${esc(v)}, <code>/fui spec</code> answers “${qr("slash", "No specialization on this character yet.")}” instead, and the <strong>Specialization</strong> section still shows.` : ""}</p>
+<p>On a client that has them:</p>
+<ul>
+  <li><code>/fui spec &lt;profile&gt;</code>, or <strong>${L("opt", "Use this profile for this spec")}</strong> on the Profiles page, makes your current specialization use that profile. <code>/fui spec off</code> or <strong>${L("opt", "Stop spec switching")}</strong> stops it. <code>/fui spec</code> on its own says which profile your spec uses.</li>
+  <li>When you change specialization, ForeverUI asks: “${q("prof", "Your specialization uses profile ", name, ".")}${reloadAsk}” When you log in, it uses your spec's profile without asking.</li>
+  <li>A character with no specialization yet gets “${q("slash", "No specialization on this character yet.")}”</li>
+</ul>
+
+<h2 id="account-wide">Shared by every character on your account${nb(!read.rel("Modules/VendorMemory.lua") && !read.rel("Modules/AuctionPrices.lua"))}</h2>
+<p>These aren't part of any profile, and every character on your account shares them: vendor memory (which merchants sell what) and auction house prices.</p>`,
   };
 }
 
