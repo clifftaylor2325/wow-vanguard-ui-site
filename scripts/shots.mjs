@@ -134,9 +134,9 @@ async function feedbackFlow(browser, base, failures, distDir) {
     const mock = process.env.SHOTS_BASE ? null : await mockFeedback(context, distDir);
     const page = await context.newPage();
     await page.setViewportSize({ width, height: width === 390 ? 844 : 800 });
-    // Failed requests and console errors fail the run here too (against the
-    // in-process mock; a real server's Turnstile widget is left out of it).
-    if (mock) watchErrors(page, failures);
+    // Failed requests (400 or more) and console errors fail the run here too,
+    // with the in-process mock and with SHOTS_BASE alike.
+    watchErrors(page, failures);
     const shot = async (name) => {
       const file = path.join(outDir, `feedback-${name}-${width}.png`);
       await page.screenshot({ path: file, fullPage: true });

@@ -501,7 +501,9 @@ test("no client file names the repository or a token", () => {
 
 // ------------------------------------------------------- hostile markdown
 
+// Starts as ordinary text, so the fence it opens later is inside the player's text.
 const HOSTILE = [
+  "Ordinary words first, then a HOSTILE fence opener:",
   "```",
   "# HOSTILE heading",
   "| HOSTILE | table |",
