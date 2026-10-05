@@ -1,4 +1,4 @@
-// ForeverUI site: list filtering (Commands, Settings) and copy buttons.
+// Vanguard site: list filtering (Commands, Settings) and copy buttons.
 // Everything is in the HTML already; without JS the full lists still show.
 (function () {
   "use strict";

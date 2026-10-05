@@ -2,7 +2,7 @@
 // Builds the site into dist/ from the addon repo:
 //   - the current release (latest, or FUI_RELEASE): its code is what the site
 //     calls "the current release". The site hosts no zip and offers no
-//     download: ForeverUI is going to be installed through CurseForge.
+//     download: Vanguard is going to be installed through CurseForge.
 //   - the pinned newer source (sourceRef, or FUI_REF): what the next release
 //     will hold, marked "Next release" wherever it differs
 // Run `npm run fetch` first (npm run build does) so .cache/ has both.
@@ -60,7 +60,7 @@ function themeCss(theme) {
   return { css: `/* Generated from Core/Theme.lua (TOKENS, PRESETS). Do not edit. */\n:root {\n${lines.join("\n")}\n}\n`, vars };
 }
 
-// The favicon: the two linked diamonds of the ForeverUI mark, in the theme colors.
+// The favicon: the two linked diamonds of the Vanguard mark, in the theme colors.
 function faviconSvg(vars) {
   const diamond = (d, color) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.5"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="${vars.bg}"/>${diamond("M11 4 L20 16 L11 28 L2 16 Z", vars.accent)}${diamond("M21 4 L30 16 L21 28 L12 16 Z", vars.text)}</svg>\n`;

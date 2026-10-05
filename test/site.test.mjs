@@ -90,7 +90,7 @@ for (const [label, ref] of Object.entries(refs)) {
     const lines = [...block.matchAll(/^\s+"((?:[^"\\]|\\.)*)",?$/gm)].map((m) => m[1]);
     const missing = lines.slice(1).filter((l) => {
       const [syntax, text] = l.split(/\s{2,}(?=\S)/);
-      return !html.includes(`/fui ${syntax.replace(/\s+/g, " ")}`) || (text && !html.includes(text.replace(/\s+/g, " ")));
+      return !html.includes(`/vg ${syntax.replace(/\s+/g, " ")}`) || (text && !html.includes(text.replace(/\s+/g, " ")));
     });
     assert.deepEqual(missing, [], `help lines not on /commands/: ${missing.join(" || ")}`);
   });
@@ -268,7 +268,7 @@ test("the home page decoration is hidden from screen readers and the mock is lab
   assert.ok(/<div class="hero-art" aria-hidden="true">/.test(html), "hero decoration must be aria-hidden");
   assert.ok(/class="mock" role="img" aria-label="Illustration, not a screenshot/.test(html), "UI mock must be labeled as an illustration");
   assert.ok(!/<img\b/.test(html), "the home page uses no images");
-  assert.ok(!/https?:\/\/(?!foreverui\.pages\.dev)[^"']+\.(png|jpe?g|webp|gif|svg|woff2?|ttf|otf)/i.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8") + html), "no external images or fonts");
+  assert.ok(!/https?:\/\/(?!vanguard-ui\.pages\.dev)[^"']+\.(png|jpe?g|webp|gif|svg|woff2?|ttf|otf)/i.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8") + html), "no external images or fonts");
 });
 
 test("player-facing copy describes the early release honestly", () => {

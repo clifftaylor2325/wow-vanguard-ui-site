@@ -100,7 +100,7 @@ test("/start/: the Escape-menu button is at the top of the menu, or just under i
     // The addon places it first in a menu that lays out its buttons, else under the menu.
     assert.match(gm, /b\.layoutIndex = FIRST/);
     assert.match(gm, /SetPoint\("TOP", menu, "BOTTOM"/);
-    assert.ok(gm.includes('"ForeverUI"') && t.includes("ForeverUI"), "button label");
+    assert.ok(gm.includes('"Vanguard"') && t.includes("Vanguard"), "button label");
   }
   if (gm && !show(REL, "Core/GameMenu.lua")) assert.ok(li.includes("Next release"), "marked Next release while only the source has it");
 });
@@ -130,7 +130,7 @@ test("/profiles/: the chat commands table has every profile action and its messa
   assert.ok(table, "commands table");
   const rows = [...table.matchAll(/<tr><td[\s\S]*?<\/tr>/g)].map((m) => text(m[0]));
   for (const key of [...actions.matchAll(/^\s{2}(\w+) = function/gm)].map((m) => m[1])) {
-    assert.ok(rows.some((r) => r.startsWith(`/fui profile ${key}`)), `row for /fui profile ${key}`);
+    assert.ok(rows.some((r) => r.startsWith(`/vg profile ${key}`)), `row for /vg profile ${key}`);
   }
   const t = text(table);
   for (const lit of literals(actions).map((s) => s.trim()).filter((s) => s.length > 3)) assert.ok(t.includes(lit), `message text "${lit}"`);
@@ -146,12 +146,12 @@ test("/profiles/: export and import steps use the addon's buttons and window tit
   assert.match(steps[0], /^Export\./);
   assert.match(steps[2], /^Import\./);
   for (const b of ["Export profile", "Import"]) assert.ok(opts.includes(`{ "button", "${b}"`) , `Profiles page button ${b}`);
-  assert.ok(steps[0].includes("Export profile") && steps[0].includes("/fui export"), steps[0]);
-  const exportTitle = (opts.match(/ns\.ShowText\("(ForeverUI export[^"]+)", ns\.ExportProfile\(\)\)/) || [])[1];
+  assert.ok(steps[0].includes("Export profile") && steps[0].includes("/vg export"), steps[0]);
+  const exportTitle = (opts.match(/ns\.ShowText\("(Vanguard export[^"]+)", ns\.ExportProfile\(\)\)/) || [])[1];
   assert.ok(exportTitle && steps[0].includes(`“${exportTitle.replace(/\s+/g, " ")}”`), `export window title "${exportTitle}"`);
   const importTitle = (slash.match(/ns\.AskText\("([^"]+)"/) || [])[1];
   assert.ok(importTitle && steps[2].includes(`“${importTitle}”`), `import window title "${importTitle}"`);
-  assert.ok(steps[2].includes("/fui import"), steps[2]);
+  assert.ok(steps[2].includes("/vg import"), steps[2]);
   assert.match(sec, /<kbd>Ctrl<\/kbd>\+<kbd>C<\/kbd>/);
   assert.match(sec, /<kbd>Ctrl<\/kbd>\+<kbd>V<\/kbd>/);
 });

@@ -12,7 +12,7 @@ export function dateET(iso) {
 
 // A short "Source: ..." line.
 export function src(...files) {
-  return `<p class="small">Source: ${files.map((f) => `<code>${esc(f)}</code>`).join(", ")} in the ForeverUI addon repository.</p>`;
+  return `<p class="small">Source: ${files.map((f) => `<code>${esc(f)}</code>`).join(", ")} in the Vanguard addon repository.</p>`;
 }
 
 // The README's "Written from scratch..." sentence (release README).
@@ -26,9 +26,9 @@ export function curseforgeBox(model, { heading = true } = {}) {
   const { release } = model;
   return `<section class="card cf-box" aria-labelledby="cf-h">
   <div class="cf-box-main">
-    <h2 id="cf-h" class="cf-box-h">${heading ? (CURSEFORGE_URL ? "Get ForeverUI on CurseForge" : "ForeverUI is coming to CurseForge") : ""}</h2>
+    <h2 id="cf-h" class="cf-box-h">${heading ? (CURSEFORGE_URL ? "Get Vanguard on CurseForge" : "Vanguard is coming to CurseForge") : ""}</h2>
     ${curseforgeCta({ size: "lg" })}
-    <p class="small cf-box-note">${CURSEFORGE_URL ? "Install and update it with the CurseForge app or from its page on the CurseForge website." : "No link yet: this badge becomes a link to ForeverUI's CurseForge page as soon as it's listed. Until then there's nothing to download here."}</p>
+    <p class="small cf-box-note">${CURSEFORGE_URL ? "Install and update it with the CurseForge app or from its page on the CurseForge website." : "No link yet: this badge becomes a link to Vanguard's CurseForge page as soon as it's listed. Until then there's nothing to download here."}</p>
   </div>
   <dl class="facts">
     <dt>Current release</dt><dd>${esc(model.version)} (release ${esc(release.tag)})</dd>
@@ -50,7 +50,7 @@ export function nextNotice(model) {
 
 // The README's opening tagline: "A from-scratch UI suite for WoW Forever".
 export function tagline(readme) {
-  const m = (readme || "").match(/^# ForeverUI\s*\n+([^\n(]+?)\s*(?:\(|\.|\n)/);
+  const m = (readme || "").match(/^# Vanguard\s*\n+([^\n(]+?)\s*(?:\(|\.|\n)/);
   return m ? m[1].trim() : "";
 }
 
@@ -136,13 +136,13 @@ export function homePage(model) {
   const highlights = HIGHLIGHTS.map((k) => model.modules.find((m) => m.key === k)).filter((m) => m && m.inRel && m.desc);
   return {
     path: "/",
-    title: "ForeverUI",
+    title: "Vanguard",
     description: rel.meta.Notes,
     body: `<section class="hero" aria-labelledby="hero-title">
 ${heroArt()}
 <div class="hero-inner">
   <p class="hero-kicker">A fan addon for WoW&nbsp;Forever</p>
-  <h1 id="hero-title" class="hero-title">ForeverUI</h1>
+  <h1 id="hero-title" class="hero-title">Vanguard</h1>
   ${ornament("hero-orn")}
   <p class="hero-tagline">${esc(line)}.</p>
   ${parts ? `<p class="hero-parts">${parts.replace(/\.$/, "").split(/,\s*/).map((x) => esc(x)).join(`<span class="visually-hidden">,</span> <span class="hero-dot" aria-hidden="true">◆</span> `)}</p>` : ""}
@@ -152,7 +152,7 @@ ${heroArt()}
 </section>
 
 <div class="honesty">
-  <div class="note-card warn"><svg class="note-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1 L19 10 L10 19 L1 10 Z"/><path d="M10 6 V11 M10 13.5 V14.5"/></svg><p><strong>ForeverUI is an early release.</strong> Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p></div>
+  <div class="note-card warn"><svg class="note-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1 L19 10 L10 19 L1 10 Z"/><path d="M10 6 V11 M10 13.5 V14.5"/></svg><p><strong>Vanguard is an early release.</strong> Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p></div>
   ${model.same ? "" : `<div class="note-card info"><svg class="note-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1 L19 10 L10 19 L1 10 Z"/><path d="M10 9 V14.5 M10 5.5 V6.5"/></svg>${nextNotice(model).replace(/^<div class="notice info">|<\/div>$/g, "")}</div>`}
 </div>
 
@@ -171,16 +171,16 @@ ${heroArt()}
   <div class="grid four">
     <a class="card tile" href="/install/"><strong>Install</strong>How installing through CurseForge will work.</a>
     <a class="card tile" href="/start/"><strong>Set up</strong>Open the options, move your frames, pick an accent.</a>
-    <a class="card tile" href="/commands/"><strong>Commands</strong>Every <code>/fui</code> command, searchable.</a>
+    <a class="card tile" href="/commands/"><strong>Commands</strong>Every <code>/vg</code> command, searchable.</a>
     <a class="card tile" href="/help/"><strong>Fix a problem</strong>Self-fixes, then how to report a bug.</a>
   </div>
 </section>
 
 <section class="home-sec" aria-labelledby="all-h">
-  <div class="sec-head">${ornament()}<h2 id="all-h">All ${relMods.length} modules in v${esc(model.version)}</h2><p>Each can be turned off under <strong>/fui → Modules</strong>.</p></div>
+  <div class="sec-head">${ornament()}<h2 id="all-h">All ${relMods.length} modules in v${esc(model.version)}</h2><p>Each can be turned off under <strong>/vg → Modules</strong>.</p></div>
   <ul class="chips">${relMods.map((m) => `<li><a href="/features/#${m.id}">${esc(m.name)}</a></li>`).join("")}</ul>
 </section>
-${src("ForeverUI.toc", "README.md", "Core/Options.lua (O.MODULE_INFO)")}`,
+${src("Vanguard.toc", "README.md", "Core/Options.lua (O.MODULE_INFO)")}`,
   };
 }
 
@@ -189,52 +189,53 @@ ${src("ForeverUI.toc", "README.md", "Core/Options.lua (O.MODULE_INFO)")}`,
 export function installPage(model) {
   const { rel } = model;
   const readme = rel.readme;
-  const where = readme.match(/unzip the `ForeverUI` folder into `([^`]+)`\s*\(([^)]+)\)/);
+  const where = readme.match(/unzip the `(?:Vanguard|ForeverUI)` folder into `([^`]+)`\s*\(([^)]+)\)/);
   const sv = rel.meta.SavedVariables;
   const svc = rel.meta.SavedVariablesPerCharacter;
   const listed = !!CURSEFORGE_URL;
   return {
     path: "/install/",
     title: "Install & Update",
-    description: "How to install, update and remove ForeverUI: through CurseForge once it's listed.",
-    body: `${pageHero("Install &amp; Update", `ForeverUI is going to be on CurseForge. ${listed ? "Install and update it through CurseForge: the CurseForge app or the CurseForge website." : "Once it's listed, you'll install and update it through CurseForge: with the CurseForge app, or from ForeverUI's page on the CurseForge website. It isn't listed yet, and this site doesn't offer it as a download."}`)}
+    description: "How to install, update and remove Vanguard: through CurseForge once it's listed.",
+    body: `${pageHero("Install &amp; Update", `Vanguard is going to be on CurseForge. ${listed ? "Install and update it through CurseForge: the CurseForge app or the CurseForge website." : "Once it's listed, you'll install and update it through CurseForge: with the CurseForge app, or from Vanguard's page on the CurseForge website. It isn't listed yet, and this site doesn't offer it as a download."}`)}
 ${curseforgeBox(model)}
 
 <h2 id="curseforge">Install through CurseForge</h2>
 <ul>
-  <li><strong>With the CurseForge app:</strong> find ForeverUI in the app and install it. The app puts it in your AddOns folder and can keep it up to date.</li>
-  <li><strong>From the CurseForge website:</strong> ForeverUI's page there offers its files. ${listed ? "The button above goes to that page." : "When it's listed, the button above turns into a link to that page."} Then follow the steps under <a href="#by-hand">If you install by hand</a>.</li>
+  <li><strong>With the CurseForge app:</strong> find Vanguard in the app and install it. The app puts it in your AddOns folder and can keep it up to date.</li>
+  <li><strong>From the CurseForge website:</strong> Vanguard's page there offers its files. ${listed ? "The button above goes to that page." : "When it's listed, the button above turns into a link to that page."} Then follow the steps under <a href="#by-hand">If you install by hand</a>.</li>
 </ul>
-<div class="notice todo"><p><strong>To be confirmed:</strong> the exact steps for the WoW Forever client in the CurseForge app will be written here once ForeverUI is listed.</p></div>
-<p>Then turn it on at character select (<strong>AddOns</strong>, tick <strong>ForeverUI</strong>), log in, and type <code>/fui</code> in chat to open the options. See <a href="/start/">Getting started</a>.</p>
+<div class="notice todo"><p><strong>To be confirmed:</strong> the exact steps for the WoW Forever client in the CurseForge app will be written here once Vanguard is listed.</p></div>
+<p>Then turn it on at character select (<strong>AddOns</strong>, tick <strong>Vanguard</strong>), log in, and type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.</p>
 
 <h2 id="by-hand">If you install by hand</h2>
-<p>For when you take the file from ForeverUI's CurseForge page instead of using the app.</p>
+<p>For when you take the file from Vanguard's CurseForge page instead of using the app.</p>
 <ol class="steps">
-  <li><strong>Unzip the file.</strong> Inside is one folder called <code>ForeverUI</code>.</li>
-  <li><strong>Put the <code>ForeverUI</code> folder in your AddOns folder.</strong> The addon's README says: unzip the <code>ForeverUI</code> folder into <code>${esc(where ? where[1] : "Interface/AddOns/")}</code> (${esc(where ? where[2] : "your Forever client's AddOns folder")}).
+  <li><strong>Unzip the file.</strong> Inside is one folder called <code>Vanguard</code>.</li>
+  <li><strong>Put the <code>Vanguard</code> folder in your AddOns folder.</strong> The addon's README says: unzip the <code>Vanguard</code> folder into <code>${esc(where ? where[1] : "Interface/AddOns/")}</code> (${esc(where ? where[2] : "your Forever client's AddOns folder")}).
     <div class="notice todo"><p><strong>To be confirmed:</strong> the exact AddOns folder for the WoW Forever client (on Windows and macOS) is still being checked. Until then, use the folder of your Forever client that has <code>Interface/AddOns</code> in it.</p></div>
   </li>
-  <li><strong>Turn it on at character select:</strong> open <strong>AddOns</strong> and tick <strong>ForeverUI</strong>, then log in.</li>
-  <li>Type <code>/fui</code> in chat to open the options. See <a href="/start/">Getting started</a>.</li>
+  <li><strong>Turn it on at character select:</strong> open <strong>AddOns</strong> and tick <strong>Vanguard</strong>, then log in.</li>
+  <li>Type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.</li>
 </ol>
 ${src("README.md (Install)", "scripts/package.mjs (zip layout)", "docs/SMOKE-TEST.md (step 1.2)")}
 
 <h2 id="update">Update</h2>
-<p><strong>With the CurseForge app:</strong> update ForeverUI there when a new version is out.</p>
+<p><strong>With the CurseForge app:</strong> update Vanguard there when a new version is out.</p>
 <p><strong>By hand:</strong></p>
 <ol class="steps">
   <li>Log out of the game (or close it).</li>
-  <li>Delete the old <code>ForeverUI</code> folder from your AddOns folder.</li>
-  <li>Unzip the new version and put its <code>ForeverUI</code> folder in the same place.</li>
+  <li>Delete the old <code>Vanguard</code> folder from your AddOns folder.</li>
+  <li>Unzip the new version and put its <code>Vanguard</code> folder in the same place.</li>
 </ol>
-<p>Your settings are kept. ForeverUI saves them in the game's SavedVariables (<code>${esc(sv)}</code> for the account, <code>${esc(svc)}</code> for each character), not in the addon folder.</p>
+<p>Your settings are kept. Vanguard saves them in the game's SavedVariables (<code>${esc(sv)}</code> for the account, <code>${esc(svc)}</code> for each character), not in the addon folder.</p>
+<div class="notice" id="renamed"><p><strong>Coming from ForeverUI?</strong> Vanguard was called ForeverUI up to v0.3.0. It was renamed because another, unrelated addon is published under that name. The settings file is named after the addon, so your settings don't move over by themselves: before you update, type <code>/fui export</code> in game and keep the text; after updating, type <code>/vg import</code> and paste it (text from ForeverUI imports fine). Then delete the old <code>ForeverUI</code> folder from your AddOns folder.</p></div>
 <p>The <a href="/changelog/">Changelog</a> says what changed in each release.</p>
-${src("ForeverUI.toc (SavedVariables)")}
+${src("Vanguard.toc (SavedVariables)")}
 
 <h2 id="uninstall">Uninstall</h2>
-<p>Remove ForeverUI in the CurseForge app, or delete the <code>ForeverUI</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.</p>
-<p>To go back to the game's own version of just one part (say, its action bars), you don't need to uninstall: turn that module off under <strong>/fui → Modules</strong> and reload. See <a href="/help/#one-feature">Troubleshooting</a>.</p>`,
+<p>Remove Vanguard in the CurseForge app, or delete the <code>Vanguard</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.</p>
+<p>To go back to the game's own version of just one part (say, its action bars), you don't need to uninstall: turn that module off under <strong>/vg → Modules</strong> and reload. See <a href="/help/#one-feature">Troubleshooting</a>.</p>`,
   };
 }
 
@@ -324,7 +325,7 @@ ${setup.screens.map((p) => `<tr><td data-label="Choice"><strong>${screenRow(p)}<
 <p>Arrow keys are <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd>; hold <kbd>Shift</kbd> to move 10 px at a time.</p>
 
 <h3 id="setup-finish">Finishing</h3>
-<p>With the defaults it takes four clicks: <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Done")}</strong>. <strong>${label(S, "Core/Setup.lua", "Done")}</strong>, the window's close button and <kbd>Escape</kbd> all end the wizard and lock your frames again. It doesn't come back by itself; type <code>/fui setup</code> to run it again.</p>
+<p>With the defaults it takes four clicks: <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Done")}</strong>. <strong>${label(S, "Core/Setup.lua", "Done")}</strong>, the window's close button and <kbd>Escape</kbd> all end the wizard and lock your frames again. It doesn't come back by itself; type <code>/vg setup</code> to run it again.</p>
 <p>If setup changed something that needs a reload, it then asks, with <strong>${reloadBtn}</strong> and <strong>${laterBtn}</strong> buttons:</p>
 <ul>
   <li>“${esc(setup.reloadModule)}${reloadAsk}” (for example after <strong>${layoutName("healing")}</strong> turned the raid frames on)</li>
@@ -346,34 +347,34 @@ export function startPage(model, read) {
   return {
     path: "/start/",
     title: "Getting started",
-    description: "Open the ForeverUI options, run the setup wizard, move your frames and pick an accent.",
-    body: `${pageHero("Getting started", `After you <a href="/install/">install</a> ForeverUI and log in, its frames replace the game's. Here's how to find the options and put things where you want them.`)}
+    description: "Open the Vanguard options, run the setup wizard, move your frames and pick an accent.",
+    body: `${pageHero("Getting started", `After you <a href="/install/">install</a> Vanguard and log in, its frames replace the game's. Here's how to find the options and put things where you want them.`)}
 ${nextNotice(model)}
 <h2 id="options">Open the options</h2>
 <p>There are three ways:</p>
 <ol class="steps">
-  <li>Type <code>/fui</code> (or <code>/foreverui</code>) in chat. Type <code>/fui</code> again to close it.</li>
-  <li>Left-click ForeverUI on the game's addons button by the minimap. Right-click it instead to turn move mode on or off.</li>
-  ${gameMenu ? `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "ForeverUI")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons. <span class="badge next">Next release</span></li>` : `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "ForeverUI")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons.</li>`}
+  <li>Type <code>/vg</code> (or <code>/vanguard</code>) in chat. Type <code>/vg</code> again to close it.</li>
+  <li>Left-click Vanguard on the game's addons button by the minimap. Right-click it instead to turn move mode on or off.</li>
+  ${gameMenu ? `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "Vanguard")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons. <span class="badge next">Next release</span></li>` : `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "Vanguard")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons.</li>`}
 </ol>
 <p>The options window has a page for each area. To find a setting, type in <strong>${label(OW, "Core/OptionsWindow.lua", "Search settings")}</strong> at the top: pages that don't match fade, and <kbd>Enter</kbd> opens the first match. Some changes need a reload; the window then says “${ow("Some changes need a reload")}” and shows a <strong>${label(OW, "Core/OptionsWindow.lua", "Reload now")}</strong> button.${saysIf(read.rel("Core/OptionsWindow.lua") || "", "Core/OptionsWindow.lua", "if ReloadUI then ReloadUI()") ? ` In v${esc(model.version)}, type <code>/reload</code> in chat instead: that release's button asks the game to reload directly, and WoW Forever blocks that for addons (see <a href="/help/#reload">Troubleshooting</a>).` : ""} Every page and setting is listed on <a href="/settings/">Settings</a>.</p>
 ${wizardSection(next.setup, !!rel.setup, read)}
 
 <h2 id="move">Move your frames</h2>
 <ol class="steps">
-  <li>Type <code>/fui unlock</code> (or <code>/fui move</code>), or click <strong>${label(O, "Core/Options.lua", "Move frames")}</strong> under <strong>General → Layout</strong>. Every ForeverUI frame gets a drag handle.</li>
+  <li>Type <code>/vg unlock</code> (or <code>/vg move</code>), or click <strong>${label(O, "Core/Options.lua", "Move frames")}</strong> under <strong>General → Layout</strong>. Every Vanguard frame gets a drag handle.</li>
   <li>Drag a handle to move that frame. Or click a handle, then use the arrow keys to nudge it (hold <kbd>Shift</kbd> to move 10 px).</li>
   <li>Right-click a handle for its exact anchor and offsets${popoverNext ? `; the next release adds its scale (50% to 200%) and opacity (10% to 100%) there too <span class="badge next">Next release</span>` : ""}.</li>
-  <li>Type <code>/fui lock</code> when you're done.</li>
+  <li>Type <code>/vg lock</code> when you're done.</li>
 </ol>
-<p>While you're moving frames, <code>/fui grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/fui snap on|off</code> makes frames snap to each other. <code>/fui frames</code> lists the frames you can move, and <code>/fui reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.</p>
+<p>While you're moving frames, <code>/vg grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/vg snap on|off</code> makes frames snap to each other. <code>/vg frames</code> lists the frames you can move, and <code>/vg reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.</p>
 
 <h2 id="accent">Pick an accent color</h2>
-<p>Click a swatch under <strong>/fui → General → Look</strong>, or type <code>/fui accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/fui accent reset</code> puts the default back.</p>
+<p>Click a swatch under <strong>/vg → General → Look</strong>, or type <code>/vg accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/vg accent reset</code> puts the default back.</p>
 <ul class="swatches">${presets.map(([k, hex], i) => `<li class="swatch"><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? " (default)" : ""} <span class="small">${esc(hex)}</span></span></li>`).join("")}</ul>
 
 <h2 id="modules">Keep the game's version of something</h2>
-<p>Every part of ForeverUI is a module you can turn off under <strong>/fui → Modules</strong> (or type <code>/fui disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “${o("A module that's off builds nothing and costs nothing.")}” The list is on <a href="/features/">Features</a>.</p>`,
+<p>Every part of Vanguard is a module you can turn off under <strong>/vg → Modules</strong> (or type <code>/vg disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “${o("A module that's off builds nothing and costs nothing.")}” The list is on <a href="/features/">Features</a>.</p>`,
   };
 }
 
@@ -403,14 +404,14 @@ function helpText(model, id) {
 function featureFacts(m, model) {
   const rows = [];
   if (m.pages.length) rows.push(["Settings", m.pages.map((p) => `<a href="/settings/#${p.id}">${esc(p.title)}</a>`).join(", ")]);
-  for (const c of m.commands) rows.push(["Command", `<a href="/commands/#cmd-${esc(c)}"><code>/fui ${esc(c)}</code></a> ${esc(helpText(model, c))}`]);
-  rows.push(["Turn it off", `<strong>/fui → Modules</strong>, then reload`]);
+  for (const c of m.commands) rows.push(["Command", `<a href="/commands/#cmd-${esc(c)}"><code>/vg ${esc(c)}</code></a> ${esc(helpText(model, c))}`]);
+  rows.push(["Turn it off", `<strong>/vg → Modules</strong>, then reload`]);
   return `<dl class="facts">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
 }
 
 // Where a card's words come from, in plain words (no file names).
 function featureSource(m, more) {
-  const parts = ["ForeverUI's own Modules page", m.pages.length && "its options", m.commands.length && "its commands", more && "the addon's own feature list"].filter(Boolean);
+  const parts = ["Vanguard's own Modules page", m.pages.length && "its options", m.commands.length && "its commands", more && "the addon's own feature list"].filter(Boolean);
   const list = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}` : parts[0];
   return `<p class="small mod-src">Source: ${list}.</p>`;
 }
@@ -441,7 +442,7 @@ function areaSection([area, list], model) {
 }
 
 // The Features lede, shown in the page hero.
-const FEATURES_LEDE = `ForeverUI is built from parts called modules. Each one replaces or adds one piece of the game's interface, and each can be turned off on its own under <strong>/fui → Modules</strong>.`;
+const FEATURES_LEDE = `Vanguard is built from parts called modules. Each one replaces or adds one piece of the game's interface, and each can be turned off on its own under <strong>/vg → Modules</strong>.`;
 
 // The intro under the page hero: the next-release notice, the counts, and the jump links to each area.
 function featuresIntro(model, groups) {
@@ -456,7 +457,7 @@ function featuresIntro(model, groups) {
 export function featuresPage(model) {
   const groups = featureAreas(model);
   const body = [pageHero("Features", FEATURES_LEDE), featuresIntro(model, groups), ...groups.map((g) => areaSection(g, model)), shot("raid frames and the options window")];
-  return { path: "/features/", title: "Features", description: "Every ForeverUI module: what it does, where its settings are, and its commands.", body: body.join("\n") };
+  return { path: "/features/", title: "Features", description: "Every Vanguard module: what it does, where its settings are, and its commands.", body: body.join("\n") };
 }
 
 // ------------------------------------------------------------------ Commands
@@ -466,7 +467,7 @@ const CMD_COLS = ["Command", "What it does", "Needs the module", "Version"];
 
 // The visible lines of one command entry.
 function cmdLines(e, version) {
-  const show = (lines) => lines.map((l) => `<p class="cmd-text"><span class="cmd-line">/fui ${esc(l.syntax)}</span><br>${esc(l.text)}</p>`).join("");
+  const show = (lines) => lines.map((l) => `<p class="cmd-text"><span class="cmd-line">/vg ${esc(l.syntax)}</span><br>${esc(l.text)}</p>`).join("");
   if (e.relLines && !e.changed) return show(e.relLines);
   if (e.relLines && e.changed) return `${show(e.relLines)}<p class="cmd-meta">In the next release the help line reads:</p>${show(e.nextLines)}`;
   if (e.nextLines) return show(e.nextLines);
@@ -479,27 +480,27 @@ function andList(items) {
   return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
 
-// The other ways to open the options window, without repeating /fui itself.
+// The other ways to open the options window, without repeating /vg itself.
 function fuiAliases(slashes, keys) {
-  const alts = [...slashes.filter((s) => s !== "/fui"), ...keys.map((k) => `/fui ${k}`)];
+  const alts = [...slashes.filter((s) => s !== "/vg"), ...keys.map((k) => `/vg ${k}`)];
   return alts.length ? ` Also ${andList(alts.map((a) => `<code>${esc(a)}</code>`))}.` : "";
 }
 
 // The command as shown in its row: every word it accepts.
 function cmdTyped(e) {
-  if (e.special === "fui") return "/fui";
-  if (e.special === "help") return "/fui help";
-  return `/fui ${e.keys.join(" | ")}`;
+  if (e.special === "fui") return "/vg";
+  if (e.special === "help") return "/vg help";
+  return `/vg ${e.keys.join(" | ")}`;
 }
 
 // What the Copy button copies: the command with its first word.
 function cmdCopy(e) {
-  if (e.special === "fui") return "/fui";
-  if (e.special === "help") return "/fui help";
-  return `/fui ${e.keys[0] || ""}`.trim();
+  if (e.special === "fui") return "/vg";
+  if (e.special === "help") return "/vg help";
+  return `/vg ${e.keys[0] || ""}`.trim();
 }
 
-// What a command does: the addon's help lines, or a plain note for /fui and /fui help.
+// What a command does: the addon's help lines, or a plain note for /vg and /vg help.
 function cmdWhat(e, c, version) {
   if (e.special === "fui") return `<p class="cmd-text">Opens (or closes) the options window.${fuiAliases(c.slashes, e.keys)} The help's first line says: “${esc(c.relIntro)}”</p>`;
   if (e.special === "help") return `<p class="cmd-text">Prints the list of commands in chat: the help lines quoted on this page.</p>`;
@@ -538,7 +539,7 @@ function cmdRow(e, model) {
 function cmdTable(model) {
   const head = `<thead><tr>${CMD_COLS.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead>`;
   const rows = model.commands.entries.map((e) => cmdRow(e, model)).join("\n");
-  return `<table class="opt-table cmd-table" id="cmd-list"><caption>Every command you can type in chat, what it does, and which part of ForeverUI it needs</caption>${head}<tbody>\n${rows}\n</tbody></table>`;
+  return `<table class="opt-table cmd-table" id="cmd-list"><caption>Every command you can type in chat, what it does, and which part of Vanguard it needs</caption>${head}<tbody>\n${rows}\n</tbody></table>`;
 }
 
 // The search box's switches (the old-version one only when a command was dropped since).
@@ -561,15 +562,15 @@ function cmdSearchBox(c, version) {
 function commandsBody(model) {
   const { commands: c, version } = model;
   const all = [...new Set([...c.nextKeys, ...c.relKeys])];
-  const hero = pageHero("Commands", `ForeverUI has one chat command, <code>/fui</code> (or <code>/foreverui</code>), followed by a word. The help text below is quoted exactly as the addon prints it with <code>/fui help</code>.`);
-  const counts = `<p><strong>${c.relKeys.size}</strong> command words in v${esc(version)} · <strong>${c.nextKeys.size}</strong> in the next release. An unknown word prints “${esc(c.unknown || "Unknown command. /fui help")}”.</p>`;
+  const hero = pageHero("Commands", `Vanguard has one chat command, <code>/vg</code> (or <code>/vanguard</code>), followed by a word. The help text below is quoted exactly as the addon prints it with <code>/vg help</code>.`);
+  const counts = `<p><strong>${c.relKeys.size}</strong> command words in v${esc(version)} · <strong>${c.nextKeys.size}</strong> in the next release. An unknown word prints “${esc(c.unknown || "Unknown command. /vg help")}”.</p>`;
   const words = `<p class="small">All ${all.length} command words: ${all.map((k) => `<a href="#cmd-${esc(k)}"><code>${esc(k)}</code></a>`).join(" ")}</p>`;
-  return [hero, nextNotice(model), counts, cmdSearchBox(c, version), cmdTable(model), words, src("Core/Slash.lua (HELP, COMMANDS, SLASH_FOREVERUI1/2)")].join("\n");
+  return [hero, nextNotice(model), counts, cmdSearchBox(c, version), cmdTable(model), words, src("Core/Slash.lua (HELP, COMMANDS, SLASH_VANGUARD1/2)")].join("\n");
 }
 
 // The Commands page.
 export function commandsPage(model) {
-  return { path: "/commands/", title: "Commands", description: "Every /fui command with its help text, verbatim from the addon.", body: commandsBody(model) };
+  return { path: "/commands/", title: "Commands", description: "Every /vg command with its help text, verbatim from the addon.", body: commandsBody(model) };
 }
 
 // ------------------------------------------------------------------ Settings
@@ -679,7 +680,7 @@ function combatReloadNote(read) {
   const line = combatReloadLine(read.next("Core/Dialog.lua"));
   if (!line) return "";
   const b = combatReloadLine(read.rel("Core/Dialog.lua")) ? "" : `<span class="badge next">Next release</span> `;
-  return `<div class="notice info" id="reload-in-combat"><p>${b}WoW Forever lets an addon reload only from a click on a secure button, so that's what <strong>Reload now</strong> and the <strong>Reload</strong> button in ForeverUI's reload prompt are. That secure part can't be built during a fight: a Reload button made in combat gets it when the fight ends. Until then, clicking it doesn't reload; it says “${esc(line)}”</p></div>`;
+  return `<div class="notice info" id="reload-in-combat"><p>${b}WoW Forever lets an addon reload only from a click on a secure button, so that's what <strong>Reload now</strong> and the <strong>Reload</strong> button in Vanguard's reload prompt are. That secure part can't be built during a fight: a Reload button made in combat gets it when the fight ends. Until then, clicking it doesn't reload; it says “${esc(line)}”</p></div>`;
 }
 
 export function settingsPage(model, read) {
@@ -689,8 +690,8 @@ export function settingsPage(model, read) {
   return {
     path: "/settings/",
     title: "Settings",
-    description: "Every page and setting in the ForeverUI options window, with defaults.",
-    body: `${pageHero("Settings", `Every page of the options window (<code>/fui</code>) and every setting on it, with the caption exactly as the addon shows it.`)}
+    description: "Every page and setting in the Vanguard options window, with defaults.",
+    body: `${pageHero("Settings", `Every page of the options window (<code>/vg</code>) and every setting on it, with the caption exactly as the addon shows it.`)}
 ${nextNotice(model)}
 <p>Settings marked <span class="badge reload">Needs reload</span> apply after a reload: the window says “Some changes need a reload” and offers <strong>Reload now</strong>. Defaults are shown where the addon's code states one; where it doesn't, none is shown.</p>
 ${combatReloadNote(read)}

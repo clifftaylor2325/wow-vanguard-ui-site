@@ -1,28 +1,31 @@
-// Reads what a player pastes from the game: a `/fui report` block (between
-// "### ForeverUI report v1 ###" and "### end ###"), or the lines of
-// `/fui status` and `/fui errors` copied from chat, or the two status lines
-// v0.3.0 prints. It finds the version, client, build and interface, the caught
+// Reads what a player pastes from the game: a `/vg report` block (between
+// "### Vanguard report v1 ###" and "### end ###"), or the lines of
+// `/vg status` and `/vg errors` copied from chat, or the two status lines
+// v0.3.0 prints. Pastes from before the rename (ForeverUI 0.3.0 and earlier:
+// "### ForeverUI report v1 ###", "ForeverUI:" chat lines) read the same. It finds the version, client, build and interface, the caught
 // errors, and the error fingerprint used to spot the same bug twice.
 // The line formats are Core/Slash.lua's (statusCommand, errorsCommand,
 // clientLine) and Core/Events.lua's chat prefix.
 
-export const REPORT_START = "### ForeverUI report v1 ###";
+export const REPORT_START = "### Vanguard report v1 ###";
+// The report header before the addon was renamed from ForeverUI.
+export const OLD_REPORT_START = "### ForeverUI report v1 ###";
 export const REPORT_END = "### end ###";
 
 // One pasted line without the game's color codes, a chat timestamp, or the
-// "ForeverUI: " prefix chat puts in front of each line.
+// "Vanguard: " (or, before the rename, "ForeverUI: ") prefix chat puts in front of each line.
 function plainLine(line) {
   return line
     .replace(/\|c[0-9a-fA-F]{8}/g, "")
     .replace(/\|r/g, "")
-    .replace(/^\s*\[?\d{1,2}:\d{2}(?::\d{2})?\]?\s+(?=ForeverUI:)/, "")
-    .replace(/^ForeverUI: ?/, "");
+    .replace(/^\s*\[?\d{1,2}:\d{2}(?::\d{2})?\]?\s+(?=(?:Vanguard|ForeverUI):)/, "")
+    .replace(/^(?:Vanguard|ForeverUI): ?/, "");
 }
 
 // The lines to read: inside the report markers when they are there.
 function reportLines(text) {
   const lines = String(text ?? "").replace(/\r\n?/g, "\n").split("\n").map(plainLine);
-  const start = lines.findIndex((l) => l.trim() === REPORT_START);
+  const start = lines.findIndex((l) => l.trim() === REPORT_START || l.trim() === OLD_REPORT_START);
   if (start < 0) return { format: "chat", lines };
   const end = lines.findIndex((l, i) => i > start && l.trim() === REPORT_END);
   return { format: "v1", lines: lines.slice(start + 1, end < 0 ? undefined : end) };
@@ -64,7 +67,7 @@ export function parseReport(text) {
   const build = lines.map((l) => l.match(/\bbuild (\S+) \((\d+)\)/)).find(Boolean);
   return {
     format,
-    version: grab(lines, /^\s*ForeverUI v?(\d[\w.-]*)\b/),
+    version: grab(lines, /^\s*(?:Vanguard|ForeverUI) v?(\d[\w.-]*)\b/),
     client: grab(lines, /^\s*Client (WoW Forever|Retail)\b/),
     release: build ? build[1] : "",
     build: build ? build[2] : "",
