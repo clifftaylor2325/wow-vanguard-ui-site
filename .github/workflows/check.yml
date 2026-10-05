@@ -1,18 +1,20 @@
-# Builds the site and runs every check (encoding, drift and page tests) on pull requests.
-# It never deploys and never pushes. The build reads the private addon repo
-# (clifftaylor2325/wow-forever-ui) through gh, so it needs a read-only token
-# for that repo in the ADDON_READ_TOKEN secret; see the pull request that
-# added this file. Without it, the "Addon access" step fails with a message.
+# Builds the site and runs every check (encoding, drift and page tests) on pull
+# requests, or by hand from the Actions tab. It never deploys and never pushes.
+# The build reads the private addon repo (clifftaylor2325/wow-forever-ui)
+# through gh, so it needs a read-only token for that repo in the
+# ADDON_READ_TOKEN secret; see the pull request that added this file. Without
+# it, the "Addon access" step fails with a message saying why.
 name: check
 
 on:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: check-${{ github.event.pull_request.number }}
+  group: check-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -20,11 +22,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
         with:
-          node-version: 20
+          persist-credentials: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
           cache: npm
 
       - run: npm ci
@@ -32,11 +36,16 @@ jobs:
       - name: Addon access
         env:
           GH_TOKEN: ${{ secrets.ADDON_READ_TOKEN }}
+          FROM_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+          ACTOR: ${{ github.actor }}
         run: |
-          if [ -z "$GH_TOKEN" ]; then
-            echo "::error::ADDON_READ_TOKEN is not set. The build reads the private addon repo clifftaylor2325/wow-forever-ui; add a read-only token for it as a repository secret."
-            exit 1
+          if [ -n "$GH_TOKEN" ]; then exit 0; fi
+          if [ "$FROM_FORK" = "true" ] || [ "$ACTOR" = "dependabot[bot]" ]; then
+            echo "::error::Repository secrets aren't available to pull requests from forks or Dependabot, so this run can't read the private addon repo. A maintainer must run this check by hand (Actions tab, check, Run workflow) or from a branch in this repo."
+          else
+            echo "::error::The repository secret ADDON_READ_TOKEN isn't set. The build reads the private addon repo clifftaylor2325/wow-forever-ui; add a read-only token for it as that secret."
           fi
+          exit 1
 
       - run: npm run check
         env:
