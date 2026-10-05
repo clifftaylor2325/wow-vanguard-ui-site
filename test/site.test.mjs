@@ -13,7 +13,7 @@ import { CURSEFORGE_URL, esc } from "../scripts/lib/html.mjs";
 import { helpPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
-import { featuresPage } from "../scripts/lib/pages-main.mjs";
+import { featuresPage, startsOff } from "../scripts/lib/pages-main.mjs";
 import { MORE } from "../scripts/lib/features-content.mjs";
 import { gitReader } from "../scripts/lib/source.mjs";
 import { extractAddon } from "../scripts/lib/extract.mjs";
@@ -124,11 +124,11 @@ test("the Settings page quotes what a Reload button built in combat says", () =>
   assert.ok(html.includes(line), `/settings/ doesn't quote "${line}"`);
 });
 
-// The rows of the Commands table, keyed by entry id.
+// The rows of the Commands table, as [entry id, row html], duplicates kept.
 function commandRows(html) {
   const at = html.indexOf('<table class="opt-table cmd-table"');
   const table = at < 0 ? "" : html.slice(at, html.indexOf("</table>", at));
-  return new Map([...table.matchAll(/<tr class="cmd[^"]*" id="entry-([^"]+)"[\s\S]*?<\/tr>/g)].map((m) => [m[1], m[0]]));
+  return [...table.matchAll(/<tr class="cmd[^"]*" id="entry-([^"]+)"[\s\S]*?<\/tr>/g)].map((m) => [m[1], m[0]]);
 }
 
 // What a site-data.json command is missing from its table row ([] when nothing).
@@ -146,9 +146,12 @@ test("the Commands table has a row for every command in site-data.json", () => {
   const data = JSON.parse(fs.readFileSync(path.join(dist, "site-data.json"), "utf8"));
   const rows = commandRows(html);
   assert.ok(/<th scope="col">Command<\/th>/.test(html), "the Commands table needs column headers");
+  assert.ok(/<table class="opt-table cmd-table"[^>]*><caption>[^<]+<\/caption>/.test(html), "the Commands table needs a visible caption");
   assert.ok(data.commands.length >= 10, `only ${data.commands.length} commands in site-data.json`);
-  assert.deepEqual(data.commands.flatMap((c) => rowGaps(c, rows.get(String(c.id)))), []);
-  assert.equal(rows.size, data.commands.length, "the table has rows that aren't in site-data.json");
+  const counts = data.commands.map((c) => [c.id, rows.filter(([id]) => id === String(c.id)).length]);
+  assert.deepEqual(counts.filter(([, n]) => n !== 1), [], "every command needs exactly one row: [id, rows]");
+  assert.equal(rows.length, data.commands.length, "the table's row count must equal the number of commands");
+  assert.deepEqual(data.commands.flatMap((c) => rowGaps(c, new Map(rows).get(String(c.id)))), []);
 });
 
 test("every page links the favicon, and it is shipped", () => {
@@ -373,18 +376,29 @@ function entriesUsing(key) {
   return SECTIONS.flatMap((s) => s.entries).filter((e) => [e.a, ...e.src].some((t) => t.includes(`{${key}}`)));
 }
 
-// Cutting any quoted fact out of the addon must take its FAQ entries off the page.
-test("an FAQ entry is dropped when the addon no longer has its quote", () => {
+// The FAQ entries on the page that quote a fact; each must leave the page once
+// that fact is cut from the addon.
+function dropsFor(fact, full) {
+  const shown = entriesUsing(fact[0]).filter((e) => full.includes(`id="${e.id}"`));
+  const body = shown.length ? helpWithout(fact) : "";
+  for (const e of shown) assert.ok(!body.includes(`id="${e.id}"`), `"${e.id}" still shown without ${fact[0]}`);
+  return shown.map((e) => e.id);
+}
+
+// Cuts each quoted fact in turn. Returns how many FAQ entries on the page and
+// how many quotes were checked that way.
+function faqDrops() {
   const full = helpWithout(null);
-  let checked = 0;
-  for (const fact of FACTS) {
-    const shown = entriesUsing(fact[0]).filter((e) => full.includes(`id="${e.id}"`));
-    if (!shown.length) continue;
-    const body = helpWithout(fact);
-    for (const e of shown) assert.ok(!body.includes(`id="${e.id}"`), `"${e.id}" still shown without ${fact[0]}`);
-    checked++;
-  }
-  assert.ok(checked >= 25, `only ${checked} facts were checked`);
+  const hits = FACTS.map((f) => dropsFor(f, full)).filter((ids) => ids.length);
+  return { entries: new Set(hits.flat()).size, quotes: hits.length };
+}
+
+// Cutting any quoted fact out of the addon must take its FAQ entries off the
+// page. The minimum counts rendered FAQ entries checked this way (16 today).
+test("an FAQ entry is dropped when the addon no longer has its quote", () => {
+  const { entries, quotes } = faqDrops();
+  assert.ok(entries >= 14, `only ${entries} FAQ entries on the page were checked`);
+  assert.ok(quotes >= 25, `only ${quotes} quotes were checked`);
 });
 
 // Each published release's section on the Changelog page.
@@ -494,4 +508,18 @@ test("the Features 'Off until you switch it on' labels match the addon defaults"
   const shown = Object.keys(info).filter((k) => featureCardOf(html, k).includes("Off until you switch it on"));
   assert.ok(expected.length >= 1, "no module starts off: the defaults weren't read");
   assert.deepEqual(shown.sort(), expected.sort());
+});
+
+// A made-up module with these switch defaults, as startsOff reads it.
+function offCase(defaults, desc = "Off until you switch it on.") {
+  return startsOff({ key: "Made", desc }, { next: { modules: [{ name: "Made", defaults }] } });
+}
+
+// The label needs every switch off, not just one: one switch on means no label.
+test("'Off until you switch it on' needs every switch off, not any", () => {
+  assert.equal(offCase({ a: false, b: false, c: false }), true, "all switches off: the label must show");
+  assert.equal(offCase({ a: false, b: true, c: false }), false, "one switch on: no label");
+  assert.equal(offCase({ a: true, b: false }), false, "first switch on: no label");
+  assert.equal(offCase({ a: false, b: false }, "Shows a frame."), false, "the addon doesn't say it starts off: no label");
+  assert.equal(offCase({ size: 3 }), false, "no switches at all: no label");
 });
