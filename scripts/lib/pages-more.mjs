@@ -41,6 +41,15 @@ export function profilesPage(model, read) {
   const specCardNew = !qr("slash", "This client has no specializations");
   const shareNew = !/shareBuilder/.test(R.cco);
   const nb = (isNew) => (isNew ? ` ${NEXT}` : "");
+  // The string's prefix, read from the exact line that writes it.
+  const fuiPrefix = (N.ser.match(/string\.format\("(FUI1:)%s:%s:%s", scope, S\.Checksum\(body\), body\)/) || [])[1];
+  if (!fuiPrefix) throw new Error(`${f.ser}: the export string format not found in the addon source`);
+  // Exports leave out an active Situations override: the export call, and the module's own name.
+  const OWN = "if ns.OwnValues then return ns.OwnValues(encode, scope) end";
+  q("prof", OWN);
+  says(N.opt, f.opt, 'Situations = { "Situations",');
+  const ownNew = !R.prof.includes(OWN);
+  const relReloadUI = saysIf(read.rel("Core/Dialog.lua") || "", f.dlg, "ReloadUI()");
   const uiQ = q("prof", "This profile was made at UI scale %d%%%s (yours: %d%%). Use its UI scale?")
     .replace("%d%%%s", "&lt;its scale&gt;% on a &lt;width&gt; x &lt;height&gt; screen").replace("%d%%", "&lt;yours&gt;%");
   const defaultName = (N.db.match(/local DEFAULT_PROFILE = "([^"]+)"/) || [])[1];
@@ -65,6 +74,7 @@ ${nextNotice(model)}
   ${relUse ? `<li>In v${esc(v)}, the Profiles page has a <strong>Use &lt;name&gt;</strong> button for each of your other profiles (up to five), under <strong>Switch profile</strong>.${listNew ? ` The next release replaces them with a list (below).` : ""}</li>` : ""}
 </ul>
 ${staged ? `<p>In v${esc(v)}, switching happens straight away and ForeverUI offers a reload: “${qr("slash", "This character now uses profile ") || ""}&lt;name&gt;.${reloadAsk}”</p>
+${relReloadUI ? `<p>In v${esc(v)}, if the <strong>Reload</strong> button doesn't reload, type <code>/reload</code> in chat: that release's button asks the game to reload directly, and WoW Forever blocks that for addons. See <a href="/help/#reload">Troubleshooting</a>.</p>` : ""}
 <p>${NEXT} A new profile takes effect at your next reload. Until then the frames on screen still belong to the profile you were using, so anything you change goes into that one. ForeverUI asks: “${q("slash", "This character will use profile ", name, " after the reload.")}${reloadAsk}” Click ${reloadBtns}. If you pick the profile you're already using, it says “${q("slash", "This character already uses profile ", name, ".")}”</p>` : `<p>A new profile takes effect at your next reload. Until then the frames on screen still belong to the profile you were using, so anything you change goes into that one. ForeverUI asks: “${q("slash", "This character will use profile ", name, " after the reload.")}${reloadAsk}” Click ${reloadBtns}.</p>`}
 
 <h3 id="profile-list">The list on the Profiles page${nb(listNew)}</h3>
@@ -96,7 +106,7 @@ ${staged ? `<p>In v${esc(v)}, switching happens straight away and ForeverUI offe
 </ol>
 <h3 id="import-whole">What importing a whole profile does</h3>
 <p>The profile is saved as a new profile called “Imported”. If you already have one with that name, it's called “Imported 2”, then “Imported 3”, and so on. Nothing you already have is overwritten.</p>
-${relImport ? `<p>In v${esc(v)}, this character switches to it straight away (“Imported as profile Imported and switched to it.”), and ForeverUI offers a reload.</p>` : ""}
+${relImport ? `<p>In v${esc(v)}, this character switches to it straight away (“Imported as profile Imported and switched to it.”), and ForeverUI offers a reload (type <code>/reload</code> in chat if its button doesn't reload).</p>` : ""}
 <ol class="steps">
   <li>${displayNew ? `${NEXT} ` : ""}If the string has the UI scale it was made at, ForeverUI asks first, for example: “${uiQ}” Click <strong>${q("prof", "Use it")}</strong> to switch to that UI scale (it changes once you're out of combat), or <strong>${L("dlg", "No")}</strong> to keep yours. If the string doesn't say what screen it was made on, the question leaves out the screen part.</li>
   <li>${staged ? `${NEXT} ` : ""}Then it asks: “${q("prof", "Imported as profile ")}Imported${q("prof", "; this character will use it after a reload.")}${reloadAsk}” Click ${reloadBtns}.</li>
@@ -106,16 +116,16 @@ ${relImport ? `<p>In v${esc(v)}, this character switches to it straight away (�
 
 <h3 id="string">What's in the text</h3>
 <ul>
-  <li>It starts with <code>${q("ser", "FUI1")}:</code>. ForeverUI only reads settings from it and never runs anything in it. A built-in check notices when part of the text is missing.</li>
+  <li>It starts with <code>${esc(fuiPrefix)}</code>. ForeverUI only reads settings from it and never runs anything in it. A built-in check notices when part of the text is missing.</li>
   <li>The settings and frame positions saved in the profile.</li>
-  <li>The profile's own settings, never a temporary change from Situations that happens to be active.${nb(!qr("prof", "Situations"))}</li>
+  <li>The profile's own settings, never a temporary change from <strong>Situations</strong> that happens to be active.${nb(ownNew)}</li>
   <li>${displayNew ? `${NEXT} ` : ""}For a whole profile, the UI scale (to the nearest percent) and the screen size it was made on.</li>
-  <li>${editNew ? `${NEXT} ` : ""}The name of the game's Edit Mode layout that goes with the profile (see below).</li>
+  <li>${editNew ? `${NEXT} ` : ""}Where your client supports Edit Mode, the name of the game's Edit Mode layout that goes with the profile (see below).</li>
 </ul>
 <p>If the text can't be used, chat says “${q("slash", "Import failed: ")}” and the reason. The reasons are listed under <a href="/help/#import">Troubleshooting</a>.</p>
 
 <h2 id="edit-mode">The game's Edit Mode layout${nb(editNew)}</h2>
-<p>A profile remembers which of the game's Edit Mode layouts you use with it. When a character loads a different profile than last time (a switch, an import, or a specialization profile), ForeverUI switches Edit Mode to that layout once you're out of combat and says “${q("prof", "Edit Mode layout ", { v: "layout" }, ", from profile ", name, ".")}”</p>
+<p>Where your client supports Edit Mode, a profile remembers which of the game's Edit Mode layouts you use with it. When a character loads a different profile than last time (a switch, an import, or a specialization profile), ForeverUI switches Edit Mode to that layout once you're out of combat and says “${q("prof", "Edit Mode layout ", { v: "layout" }, ", from profile ", name, ".")}”</p>
 <p>If your account has no Edit Mode layout with that name, nothing changes, and chat says “Profile &lt;name&gt; ${q("prof", " uses Edit Mode layout ").trim()} &lt;layout&gt;${q("prof", ", which this account doesn't have.")}” Make a layout with that name in Edit Mode if you want it.</p>
 
 <h2 id="click-casting">Click-casting bindings${nb(shareNew)}</h2>
@@ -123,11 +133,11 @@ ${relImport ? `<p>In v${esc(v)}, this character switches to it straight away (�
 <ul>
   <li><strong>${L("cco", "Export")}</strong> opens a window titled “${q("cco", "Click-casting bindings")}” with the text to copy (<kbd>Ctrl</kbd>+<kbd>C</kbd>).</li>
   <li><strong>${L("cco", "Import")}</strong> opens “${q("cco", "Paste a click-casting string")}”. Paste and click <strong>${L("dlg", "Import")}</strong>. It <strong>replaces</strong> the bindings for this character (and this specialization) and says “${q("cco", "Imported ", { v: "number" }, " click-casting bindings.")}” If the text isn't right it says “${q("cco", "Can't import: ")}&lt;reason&gt;.”, for example “${q("cc", "not a click-casting string")}” when you paste a profile instead.</li>
-  <li>On game clients with specializations there's also <strong>${q("cco", "Copy to spec...")}</strong>, which copies your bindings over another spec's: “${q("cco", "Click-casting bindings copied to spec ")}&lt;number&gt;.” WoW Forever has no specializations, so it doesn't show there.</li>
+  <li>On game clients with specializations there's also <strong>${q("cco", "Copy to spec...")}</strong>, which copies your bindings over another spec's: “${q("cco", "Click-casting bindings copied to spec ")}&lt;number&gt;.” It only shows where the client has specializations and there's another spec to copy to.</li>
 </ul>
 
 <h2 id="spec">Profiles by specialization</h2>
-<p>This only works on game clients that have specializations. WoW Forever has none, so there <code>/fui spec</code> answers “${q("slash", "This client has no specializations, so profiles don't switch by spec.")}” and the Profiles page has no <strong>${L("opt", "Specialization")}</strong> section.${nb(specCardNew)}${specCardNew && qr("slash", "No specialization on this character yet.") ? ` In v${esc(v)}, <code>/fui spec</code> answers “${qr("slash", "No specialization on this character yet.")}” instead, and the <strong>Specialization</strong> section still shows.` : ""}</p>
+<p>ForeverUI only offers spec profiles on game clients that have specializations. On a client without them, <code>/fui spec</code> answers “${q("slash", "This client has no specializations, so profiles don't switch by spec.")}” and the Profiles page has no <strong>${L("opt", "Specialization")}</strong> section.${nb(specCardNew)}${specCardNew && qr("slash", "No specialization on this character yet.") ? ` In v${esc(v)}, <code>/fui spec</code> answers “${qr("slash", "No specialization on this character yet.")}” instead, and the <strong>Specialization</strong> section still shows.` : ""}</p>
 <p>On a client that has them:</p>
 <ul>
   <li><code>/fui spec &lt;profile&gt;</code>, or <strong>${L("opt", "Use this profile for this spec")}</strong> on the Profiles page, makes your current specialization use that profile. <code>/fui spec off</code> or <strong>${L("opt", "Stop spec switching")}</strong> stops it. <code>/fui spec</code> on its own says which profile your spec uses.</li>

@@ -356,9 +356,9 @@ ${nextNotice(model)}
 <ol class="steps">
   <li>Type <code>/fui</code> (or <code>/foreverui</code>) in chat. Type <code>/fui</code> again to close it.</li>
   <li>Left-click ForeverUI on the game's addons button by the minimap. Right-click it instead to turn move mode on or off.</li>
-  ${gameMenu ? `<li>Press <kbd>Escape</kbd> to open the game menu, then click its <strong>${label(GM, "Core/GameMenu.lua", "ForeverUI")}</strong> button. <span class="badge next">Next release</span></li>` : `<li>Press <kbd>Escape</kbd> to open the game menu, then click its <strong>ForeverUI</strong> button.</li>`}
+  ${gameMenu ? `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "ForeverUI")}</strong> button at the top of the menu. <span class="badge next">Next release</span></li>` : `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>ForeverUI</strong> button at the top of the menu.</li>`}
 </ol>
-<p>The options window has a page for each area. To find a setting, type in <strong>${label(OW, "Core/OptionsWindow.lua", "Search settings")}</strong> at the top: pages that don't match fade, and <kbd>Enter</kbd> opens the first match. Some changes need a reload; the window then says “${ow("Some changes need a reload")}” and shows a <strong>${label(OW, "Core/OptionsWindow.lua", "Reload now")}</strong> button. Every page and setting is listed on <a href="/settings/">Settings</a>.</p>
+<p>The options window has a page for each area. To find a setting, type in <strong>${label(OW, "Core/OptionsWindow.lua", "Search settings")}</strong> at the top: pages that don't match fade, and <kbd>Enter</kbd> opens the first match. Some changes need a reload; the window then says “${ow("Some changes need a reload")}” and shows a <strong>${label(OW, "Core/OptionsWindow.lua", "Reload now")}</strong> button.${saysIf(read.rel("Core/OptionsWindow.lua") || "", "Core/OptionsWindow.lua", "if ReloadUI then ReloadUI()") ? ` In v${esc(model.version)}, type <code>/reload</code> in chat instead: that release's button asks the game to reload directly, and WoW Forever blocks that for addons (see <a href="/help/#reload">Troubleshooting</a>).` : ""} Every page and setting is listed on <a href="/settings/">Settings</a>.</p>
 ${wizardSection(next.setup, !!rel.setup, read)}
 
 <h2 id="move">Move your frames</h2>
