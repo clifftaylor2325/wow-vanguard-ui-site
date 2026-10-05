@@ -16,6 +16,16 @@ import { layout } from "./lib/html.mjs";
 import { homePage, installPage, startPage, featuresPage, commandsPage, settingsPage } from "./lib/pages-main.mjs";
 import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage } from "./lib/pages-more.mjs";
 
+const SITE_AUTHOR = "Cliff Hearthvale";
+const OLD_AUTHOR = "clifftaylor2325";
+const publicText = (text) => String(text ?? "").replaceAll(OLD_AUTHOR, SITE_AUTHOR);
+const publicAddon = (addon) => ({
+  ...addon,
+  meta: { ...addon.meta, Author: SITE_AUTHOR },
+  readme: publicText(addon.readme),
+  license: publicText(addon.license),
+});
+
 const cfg = loadConfig();
 
 // Fails with a message that says what to run.
@@ -61,12 +71,13 @@ function main() {
   const { meta, release } = loadRelease();
   const relReader = gitReader(cfg.sourcePath, release.tag);
   const nextReader = gitReader(cfg.sourcePath, cfg.sourceRef);
-  const rel = extractAddon(relReader);
-  const next = extractAddon(nextReader);
+  const rel = publicAddon(extractAddon(relReader));
+  const next = publicAddon(extractAddon(nextReader));
   need(`v${rel.meta.Version}` === release.tag, `release ${release.tag} has TOC version ${rel.meta.Version}`);
-  const model = buildModel({ rel, next, release, releases: meta });
+  const releases = { ...meta, releases: meta.releases.map((r) => ({ ...r, body: publicText(r.body) })) };
+  const model = buildModel({ rel, next, release, releases });
   const theme = themeCss(next.theme);
-  const site = { theme: theme.vars, author: rel.meta.Author, version: rel.meta.Version, licenseName: rel.meta["X-License"] || "MIT" };
+  const site = { theme: theme.vars, author: SITE_AUTHOR, version: rel.meta.Version, licenseName: rel.meta["X-License"] || "MIT" };
   const read = { rel: relReader.read, next: nextReader.read };
 
   fs.rmSync(cfg.outDir, { recursive: true, force: true });
@@ -75,14 +86,14 @@ function main() {
   for (const f of ["FiraSansCondensed-Medium.ttf", "FiraSansCondensed-SemiBold.ttf", "OFL.txt"]) write(`fonts/${f}`, relReader.readBuffer(`Media/Fonts/${f}`));
 
   const pages = [
-    homePage(model), installPage(model), startPage(model), featuresPage(model), commandsPage(model), settingsPage(model),
-    profilesPage(model, read), helpPage(model, read), feedbackPage(model, read), changelogPage(model), creditsPage(model),
+    homePage(model), installPage(model), startPage(model), featuresPage(model), commandsPage(model), settingsPage(model, read),
+    profilesPage(model, read), helpPage(model, read), feedbackPage(model, read), changelogPage(model), creditsPage(model, site),
   ];
   for (const p of pages) write(path.join(p.path, "index.html"), layout({ ...p, site }));
   write("404.html", layout({ path: "/404", title: "Not found", description: "Page not found", site, body: `<h1>Page not found</h1><p>Try the <a href="/">home page</a>.</p>` }));
 
   const data = {
-    source: { repo: cfg.addonRepo, release: release.tag, releaseCommit: rel.commit, nextCommit: next.commit },
+    source: { release: release.tag, releaseCommit: rel.commit, nextCommit: next.commit },
     release: { tag: release.tag, publishedAt: release.publishedAt },
     commands: model.commands.entries.map((e) => ({ id: e.id, keys: e.keys, inRelease: e.inRel, inNext: e.inNext, release: e.relLines?.map((l) => l.line) || null, next: e.nextLines?.map((l) => l.line) || null })),
     modules: model.modules.map((m) => ({ key: m.key, name: m.name, description: m.desc, inRelease: m.inRel, inNext: m.inNext })),

@@ -294,7 +294,7 @@ function section(readme, name) {
   return m ? m[1].trim() : "";
 }
 
-export function creditsPage(model) {
+export function creditsPage(model, site) {
   const lic = model.rel.license.split("\n").slice(0, 3).filter(Boolean);
   const relLicense = section(model.rel.readme, "License");
   const nextCredits = section(model.next.readme, "Credits");
@@ -312,6 +312,7 @@ export function creditsPage(model) {
 ${nextLicense && nextLicense !== relLicense ? `<p>The next release ${NEXT} also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>` : ""}
 ${bullets.length ? `<h2 id="credits">Fonts, libraries and art</h2><p>As listed in the addon's README for the next release:</p><ul>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` : ""}
 <h2 id="site">This website</h2>
+<p>ForeverUI is made by ${esc(site.author)}.</p>
 <p>This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href="/fonts/OFL.txt">license text</a>. Its colors are ForeverUI's own theme colors.</p>
 <p>ForeverUI is a fan addon for WoW Forever.</p>
 ${src("LICENSE", "README.md (License, Credits)", "Media/Fonts/OFL.txt")}`,
