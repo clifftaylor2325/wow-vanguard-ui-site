@@ -1,5 +1,5 @@
 # Builds the site and runs every check (encoding, drift and page tests) on pull
-# requests, or by hand from the Actions tab. It never deploys and never pushes.
+# requests, on every push to main, or by hand from the Actions tab. It never deploys and never pushes.
 # The build reads the private addon repo (clifftaylor2325/wow-forever-ui)
 # through gh, so it needs a read-only token for that repo in the
 # ADDON_READ_TOKEN secret; see the pull request that added this file. Without
@@ -8,6 +8,8 @@ name: check
 
 on:
   pull_request:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:

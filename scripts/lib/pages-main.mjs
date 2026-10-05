@@ -381,7 +381,7 @@ ${wizardSection(next.setup, !!rel.setup, read)}
 
 // True when the addon says a module starts off: every switch in its defaults
 // is off and its own description says so ("off until", "switch it on").
-function startsOff(m, model) {
+export function startsOff(m, model) {
   const d = model.next.modules.find((x) => x.name === m.key)?.defaults || {};
   const flags = Object.values(d).filter((v) => typeof v === "boolean");
   return flags.length > 0 && flags.every((v) => !v) && /off until|switch it on/i.test(m.desc);
@@ -538,7 +538,7 @@ function cmdRow(e, model) {
 function cmdTable(model) {
   const head = `<thead><tr>${CMD_COLS.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead>`;
   const rows = model.commands.entries.map((e) => cmdRow(e, model)).join("\n");
-  return `<table class="opt-table cmd-table" id="cmd-list" aria-label="ForeverUI commands">${head}<tbody>\n${rows}\n</tbody></table>`;
+  return `<table class="opt-table cmd-table" id="cmd-list"><caption>Every command you can type in chat, what it does, and which part of ForeverUI it needs</caption>${head}<tbody>\n${rows}\n</tbody></table>`;
 }
 
 // The search box's switches (the old-version one only when a command was dropped since).
