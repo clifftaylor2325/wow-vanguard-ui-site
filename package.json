@@ -11,7 +11,7 @@
   "scripts": {
     "fetch": "node scripts/fetch.mjs",
     "build": "node scripts/fetch.mjs && node scripts/build.mjs",
-    "test": "node --test test/site.test.mjs test/feedback.test.mjs test/pages.test.mjs",
+    "test": "node --test test/site.test.mjs test/feedback.test.mjs test/pages.test.mjs test/features.test.mjs",
     "check": "npm run build && npm run check:encoding && npm test",
     "check:encoding": "node scripts/check-encoding.mjs",
     "shots": "node scripts/shots.mjs",

@@ -105,6 +105,11 @@ test("/start/: the Escape-menu button is at the top of the menu, or just under i
   if (gm && !show(REL, "Core/GameMenu.lua")) assert.ok(li.includes("Next release"), "marked Next release while only the source has it");
 });
 
+test("/changelog/: the Escape-menu line says top of the menu, or just under it", () => {
+  const t = text(html("changelog"));
+  assert.ok(t.includes("at the top of the Escape menu, or just under it where your client's menu can't take new buttons"), "the changelog's Game menu line lost its Escape-menu wording");
+});
+
 test("/profiles/: Edit Mode is framed as 'where your client supports Edit Mode'", () => {
   const prof = show(NEXT, "Core/Profiles.lua");
   const sec = section(html("profiles"), "edit-mode");
