@@ -1,16 +1,20 @@
 // The issue a report becomes: its title, labels and body, and the comment a
 // repeat bug report adds instead. Shared by the /feedback/ page (the preview)
 // and the Pages Function (what is posted). Every player string goes through
-// sanitize.js; pasted reports go in a fenced block. The player's contact
-// details are never part of any of this.
-import { clean, cleanLine, cell, fence } from "./sanitize.js";
+// sanitize.js: free text and pasted reports go in fenced blocks (so nothing a
+// player types can add headings, tables, quotes, lists, HTML or mentions to
+// the issue), and one-line values are escaped. The player's contact details
+// are never part of any of this.
+import { cleanLine, inline, cell, block, fence } from "./sanitize.js";
 import { parseReport, fingerprint } from "./report.js";
 
 export const LABELS = { bug: ["bug", "from-site"], feature: ["feature-request", "from-site"] };
 
-// The hidden line that carries a report's reference, so it can be found.
+// The lines that carry a report's own reference: shown, so a maintainer can
+// search for it, and hidden, for tools. Each report (a new issue, or a
+// comment on an existing one) has its own.
 export function refLine(reference) {
-  return `<!-- fui-ref ${reference} -->`;
+  return `Reference: ${reference}\n<!-- fui-ref ${reference} -->`;
 }
 
 // The reference in an issue body, or "" when it has none.
@@ -59,9 +63,9 @@ export async function bugIssue(f, reference) {
   const fp = await fingerprint(env);
   const body = [
     `<!-- fui-feedback v1 kind=bug fp=${fp || "none"} src=site -->`,
-    "**What I did**", clean(f.did), "",
-    "**What I expected**", f.expected ? clean(f.expected) : "_not given_", "",
-    "**What happened instead**", clean(f.happened), "",
+    "**What I did**", block(f.did), "",
+    "**What I expected**", f.expected ? block(f.expected) : "_not given_", "",
+    "**What happened instead**", block(f.happened), "",
     envTable(env), "",
     pasted(f), "",
     "---",
@@ -76,9 +80,9 @@ export async function bugIssue(f, reference) {
 export function featureIssue(f, areaLabel, reference) {
   const body = [
     `<!-- fui-feedback v1 kind=feature area=${areaSlug(areaLabel)} src=site -->`,
-    "**What I want**", clean(f.want), "",
-    "**Part of ForeverUI**", cleanLine(areaLabel), "",
-    "**Why it would help**", clean(f.why), "",
+    "**What I want**", block(f.want), "",
+    `**Part of ForeverUI:** ${inline(areaLabel)}`, "",
+    "**Why it would help**", block(f.why), "",
     "---",
     "_Sent from the ForeverUI site._",
     refLine(reference),
@@ -86,17 +90,19 @@ export function featureIssue(f, areaLabel, reference) {
   return { title: `[Idea] ${cleanLine(f.title)}`, body, labels: LABELS.feature };
 }
 
-// The comment a repeat bug report adds to the open issue it matches.
-export function duplicateComment(f, env, fp) {
+// The comment a repeat bug report adds to the open issue it matches, with
+// the repeat reporter's own reference.
+export function duplicateComment(f, env, fp, reference) {
   const first = env.errors[0];
   const build = env.release || env.build ? `${env.release || "?"} (${env.build || "?"})` : "build unknown";
-  const head = `Another player hit this. ForeverUI ${cleanLine(env.version || "unknown")}, ${cleanLine(env.client || "client unknown")} ${cleanLine(build)}. Occurrences in their session: ${first ? first.count : "unknown"}.`;
+  const head = `Another player hit this. ForeverUI ${inline(env.version || "unknown")}, ${inline(env.client || "client unknown")} ${inline(build)}. Occurrences in their session: ${first ? first.count : "unknown"}.`;
   return [
     head,
     "<details><summary>their notes</summary>", "",
-    "**What they did**", clean(f.did), "",
-    "**What happened instead**", clean(f.happened), "",
-    "</details>",
+    "**What they did**", block(f.did), "",
+    "**What happened instead**", block(f.happened), "",
+    "</details>", "",
+    refLine(reference),
     `<!-- fui-feedback v1 kind=duplicate fp=${fp} src=site -->`,
   ].join("\n");
 }

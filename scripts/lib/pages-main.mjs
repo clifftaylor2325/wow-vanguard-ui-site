@@ -1,7 +1,7 @@
 // Home, Install & Update, Getting started, Features, Commands and Settings.
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
-import { esc, md, slug, badge, avail, shot, ornament, curseforgeCta, CURSEFORGE_URL } from "./html.mjs";
+import { esc, md, slug, badge, avail, shot, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL } from "./html.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf } from "./features-content.mjs";
 
@@ -113,7 +113,6 @@ function heroArt() {
     return `<i style="--x:${x}%;--y:${y}%;--d:${d}s;--t:${delay}s;--s:${s}px"${i % 4 === 0 ? ' class="e2"' : ""}></i>`;
   }).join("");
   const ticks = Array.from({ length: 24 }, (_, i) => `<path d="M100 8 v${i % 3 === 0 ? 9 : 5}" transform="rotate(${i * 15} 100 100)"/>`).join("");
-  const corner = `<path d="M2 46 V12 L12 2 H46"/><path d="M8 40 V15 L15 8 H40" class="fr-thin"/><path d="M2 2 l7 0 l-7 7 Z" class="fr-gem"/><path d="M18 18 l5 -5 l5 5 l-5 5 Z" class="fr-gem"/><path d="M46 2 l6 0" class="fr-thin"/><path d="M2 46 l0 6" class="fr-thin"/>`;
   return `<div class="hero-art" aria-hidden="true">
   <div class="hero-sky"></div>
   <div class="hero-glow"></div>
@@ -124,7 +123,7 @@ function heroArt() {
     <path class="ridge-1" d="M0 230 L140 196 L260 214 L380 188 L520 220 L640 196 L780 222 L900 192 L1030 218 L1200 196 V260 H0 Z"/>
   </svg>
   <div class="embers">${embers}</div>
-  <div class="hero-frame">${["tl", "tr", "bl", "br"].map((c) => `<svg class="fr fr-${c}" viewBox="0 0 54 54" focusable="false">${corner}</svg>`).join("")}</div>
+  ${heroFrame()}
 </div>`;
 }
 
@@ -198,8 +197,7 @@ export function installPage(model) {
     path: "/install/",
     title: "Install & Update",
     description: "How to install, update and remove ForeverUI: through CurseForge once it's listed.",
-    body: `<h1>Install &amp; Update</h1>
-<p class="lede">ForeverUI is going to be on CurseForge. ${listed ? "Install and update it through CurseForge: the CurseForge app or the CurseForge website." : "Once it's listed, you'll install and update it through CurseForge: with the CurseForge app, or from ForeverUI's page on the CurseForge website. It isn't listed yet, and this site doesn't offer it as a download."}</p>
+    body: `${pageHero("Install &amp; Update", `ForeverUI is going to be on CurseForge. ${listed ? "Install and update it through CurseForge: the CurseForge app or the CurseForge website." : "Once it's listed, you'll install and update it through CurseForge: with the CurseForge app, or from ForeverUI's page on the CurseForge website. It isn't listed yet, and this site doesn't offer it as a download."}`)}
 ${curseforgeBox(model)}
 
 <h2 id="curseforge">Install through CurseForge</h2>
@@ -349,8 +347,7 @@ export function startPage(model, read) {
     path: "/start/",
     title: "Getting started",
     description: "Open the ForeverUI options, run the setup wizard, move your frames and pick an accent.",
-    body: `<h1>Getting started</h1>
-<p class="lede">After you <a href="/install/">install</a> ForeverUI and log in, its frames replace the game's. Here's how to find the options and put things where you want them.</p>
+    body: `${pageHero("Getting started", `After you <a href="/install/">install</a> ForeverUI and log in, its frames replace the game's. Here's how to find the options and put things where you want them.`)}
 ${nextNotice(model)}
 <h2 id="options">Open the options</h2>
 <p>There are three ways:</p>
@@ -443,11 +440,13 @@ function areaSection([area, list], model) {
 <div class="mods">${list.map((m) => featureCard(m, model)).join("\n")}</div></section>`;
 }
 
-// The intro: what modules are, the counts, and the jump links to each area.
+// The Features lede, shown in the page hero.
+const FEATURES_LEDE = `ForeverUI is built from parts called modules. Each one replaces or adds one piece of the game's interface, and each can be turned off on its own under <strong>/fui → Modules</strong>.`;
+
+// The intro under the page hero: the next-release notice, the counts, and the jump links to each area.
 function featuresIntro(model, groups) {
   const count = (f) => model.modules.filter(f).length;
-  return `<p class="lede">ForeverUI is built from parts called modules. Each one replaces or adds one piece of the game's interface, and each can be turned off on its own under <strong>/fui → Modules</strong>.</p>
-${nextNotice(model)}
+  return `${nextNotice(model)}
 <p>The name and first line of each module are the ones the addon shows on its Modules page. The longer text under it describes the module as it is in the newest version, so v${esc(model.version)} may not have every detail yet. Every module is on until you turn it off, except where it says <span class="badge plain">Off until you switch it on</span>. The <a href="/settings/">Settings</a> page shows exactly which options each release has.</p>
 <p><strong>${count((m) => m.inRel)}</strong> modules in v${esc(model.version)} · <strong>${count((m) => m.inNext)}</strong> in the next release.</p>
 <nav aria-label="Feature areas"><ul class="chips feature-areas">${groups.map(([a]) => `<li><a href="#area-${slug(a)}">${esc(a)}</a></li>`).join("")}</ul></nav>`;
@@ -456,7 +455,7 @@ ${nextNotice(model)}
 // The Features page: one card per module, grouped by area.
 export function featuresPage(model) {
   const groups = featureAreas(model);
-  const body = [`<h1>Features</h1>`, featuresIntro(model, groups), ...groups.map((g) => areaSection(g, model)), shot("raid frames and the options window")];
+  const body = [pageHero("Features", FEATURES_LEDE), featuresIntro(model, groups), ...groups.map((g) => areaSection(g, model)), shot("raid frames and the options window")];
   return { path: "/features/", title: "Features", description: "Every ForeverUI module: what it does, where its settings are, and its commands.", body: body.join("\n") };
 }
 
@@ -513,8 +512,7 @@ export function commandsPage(model) {
     path: "/commands/",
     title: "Commands",
     description: "Every /fui command with its help text, verbatim from the addon.",
-    body: `<h1>Commands</h1>
-<p class="lede">ForeverUI has one chat command, <code>/fui</code> (or <code>/foreverui</code>), followed by a word. The help text below is quoted exactly as the addon prints it with <code>/fui help</code>.</p>
+    body: `${pageHero("Commands", `ForeverUI has one chat command, <code>/fui</code> (or <code>/foreverui</code>), followed by a word. The help text below is quoted exactly as the addon prints it with <code>/fui help</code>.`)}
 ${nextNotice(model)}
 <p><strong>${c.relKeys.size}</strong> command words in v${esc(version)} · <strong>${c.nextKeys.size}</strong> in the next release. An unknown word prints “${esc(c.unknown || "Unknown command. /fui help")}”.</p>
 <div class="search" data-target="#cmd-list" data-items=".cmd" data-noun="commands" data-noun-one="command">
@@ -652,13 +650,12 @@ export function settingsPage(model, read) {
     path: "/settings/",
     title: "Settings",
     description: "Every page and setting in the ForeverUI options window, with defaults.",
-    body: `<h1>Settings</h1>
-<p class="lede">Every page of the options window (<code>/fui</code>) and every setting on it, with the caption exactly as the addon shows it.</p>
+    body: `${pageHero("Settings", `Every page of the options window (<code>/fui</code>) and every setting on it, with the caption exactly as the addon shows it.`)}
 ${nextNotice(model)}
 <p>Settings marked <span class="badge reload">Needs reload</span> apply after a reload: the window says “Some changes need a reload” and offers <strong>Reload now</strong>. Defaults are shown where the addon's code states one; where it doesn't, none is shown.</p>
 ${combatReloadNote(read)}
 <p><strong>${count((r) => r.inRel)}</strong> settings in v${esc(version)} · <strong>${count((r) => r.inNext)}</strong> in the next release · <strong>${pages.length}</strong> pages.</p>
-<nav aria-label="Options pages"><ul class="filters" style="list-style:none;padding:0">${pages.map((p) => `<li><a href="#${p.id}">${esc(p.title)}</a>${p.inRel ? "" : " <span class=\"badge next\">Next release</span>"}</li>`).join("")}</ul></nav>
+<nav aria-label="Options pages"><ul class="chips chips-page">${pages.map((p) => `<li><a href="#${p.id}">${esc(p.title)}</a>${p.inRel ? "" : " <span class=\"badge next\">Next release</span>"}</li>`).join("")}</ul></nav>
 <div class="search" data-target="#opt-list" data-items=".opt-row" data-groups=".opt-page" data-noun="settings" data-noun-one="setting">
   <label for="opt-q">Search settings</label>
   <input id="opt-q" type="search" placeholder="for example: raid, tooltip, chat" autocomplete="off">

@@ -12,7 +12,8 @@ import { loadConfig, root } from "./lib/config.mjs";
 import { gitReader } from "./lib/source.mjs";
 import { extractAddon } from "./lib/extract.mjs";
 import { buildModel } from "./lib/model.mjs";
-import { layout, NAV } from "./lib/html.mjs";
+import { layout, pageHero, NAV } from "./lib/html.mjs";
+import { FONTS, WOFF2_DIR } from "./lib/fonts.mjs";
 import { homePage, installPage, startPage, featuresPage, commandsPage, settingsPage } from "./lib/pages-main.mjs";
 import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage } from "./lib/pages-more.mjs";
 import { longerGaps } from "./lib/features-content.mjs";
@@ -113,14 +114,19 @@ function main() {
   for (const f of FEEDBACK_SHARED) write(`assets/feedback/${f}`, fs.readFileSync(path.join(root, "src/feedback", f)));
   // Only /api/* runs the Pages Function; every other path is a static file.
   write("_routes.json", JSON.stringify({ version: 1, include: ["/api/*"], exclude: [] }, null, 1) + "\n");
-  for (const f of ["FiraSansCondensed-Medium.ttf", "FiraSansCondensed-SemiBold.ttf", "OFL.txt"]) write(`fonts/${f}`, relReader.readBuffer(`Media/Fonts/${f}`));
+  for (const f of [...FONTS.map((n) => `${n}.ttf`), "OFL.txt"]) write(`fonts/${f}`, relReader.readBuffer(`Media/Fonts/${f}`));
+  for (const n of FONTS) {
+    const woff2 = path.join(root, WOFF2_DIR, `${n}.woff2`);
+    need(fs.existsSync(woff2), `${WOFF2_DIR}/${n}.woff2 missing; run \`npm run fonts\``);
+    write(`fonts/${n}.woff2`, fs.readFileSync(woff2));
+  }
 
   const pages = [
     homePage(model), installPage(model), startPage(model, read), featuresPage(model), commandsPage(model), settingsPage(model, read),
     profilesPage(model, read), helpPage(model, read), feedbackPage(model, read), changelogPage(model), creditsPage(model, site),
   ];
   for (const p of pages) write(path.join(p.path, "index.html"), layout({ ...p, site }));
-  write("404.html", layout({ path: "/404", title: "Not found", description: "Page not found", site, body: `<h1>Page not found</h1><p>Try the <a href="/">home page</a>.</p>` }));
+  write("404.html", layout({ path: "/404", title: "Not found", description: "Page not found", site, body: pageHero("Page not found", `Try the <a href="/">home page</a>.`) }));
 
   const data = {
     source: { release: release.tag, releaseCommit: rel.commit, nextCommit: next.commit },
