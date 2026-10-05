@@ -3,7 +3,7 @@
 // source file. Where the current release and the next release differ, the
 // page says which is which.
 import { esc, md, badge } from "./html.mjs";
-import { src, dateET, nextNotice, earlyQuote } from "./pages-main.mjs";
+import { src, dateET, nextNotice } from "./pages-main.mjs";
 import { FACTS, SECTIONS } from "./help-content.mjs";
 import { RELEASE_NOTES, NEXT_RELEASE } from "./changelog-content.mjs";
 
@@ -44,11 +44,11 @@ ${nextNotice(model)}
 <h2 id="same-account">Use one layout on several characters</h2>
 <ul>
   <li><code>/fui profile</code> shows which profile this character uses, and all of them.</li>
-  <li><code>/fui profile &lt;name&gt;</code> switches this character to that profile, making it if it's new. In v${esc(v)} it then offers a reload: “${esc(relSwitch || "This character now uses profile ")}&lt;name&gt;.”</li>
-  <li>Or in the options: <strong>/fui → Profiles</strong>, where v${esc(v)} shows a <strong>Use &lt;name&gt;</strong> button for other profiles.</li>
+  <li><code>/fui profile &lt;name&gt;</code> switches this character to that profile, making it if it's new. In v${esc(v)} it then offers a reload: ΓÇ£${esc(relSwitch || "This character now uses profile ")}&lt;name&gt;.ΓÇ¥</li>
+  <li>Or in the options: <strong>/fui ΓåÆ Profiles</strong>, where v${esc(v)} shows a <strong>Use &lt;name&gt;</strong> button for other profiles.</li>
   <li>${esc(nameRule || "")}</li>
 </ul>
-${nextSwitch ? `<p>${NEXT} Choosing a profile takes effect at your next reload; until then you're still editing the profile you were using. The message becomes “${esc(nextSwitch)}&lt;name&gt; after the reload.”</p>` : ""}
+${nextSwitch ? `<p>${NEXT} Choosing a profile takes effect at your next reload; until then you're still editing the profile you were using. The message becomes ΓÇ£${esc(nextSwitch)}&lt;name&gt; after the reload.ΓÇ¥</p>` : ""}
 <h3>Manage profiles</h3>
 <ul>
   <li><code>/fui profile new &lt;name&gt;</code> makes an empty profile.</li>
@@ -64,14 +64,14 @@ ${src("Core/DB.lua", "Core/Profiles.lua", "Core/Slash.lua (profileCommand)", "Co
   <li>On the other PC: <code>/fui import</code> (or <strong>Import</strong>), paste the string, then Import.</li>
 </ol>
 <ul>
-  <li>A whole profile is saved as a new profile called “Imported” (then “Imported 2”, and so on). In v${esc(v)} this character switches to it at once (“${esc(relImported || "Imported as profile ")}Imported and switched to it.”), and a reload is offered.</li>
+  <li>A whole profile is saved as a new profile called ΓÇ£ImportedΓÇ¥ (then ΓÇ£Imported 2ΓÇ¥, and so on). In v${esc(v)} this character switches to it at once (ΓÇ£${esc(relImported || "Imported as profile ")}Imported and switched to it.ΓÇ¥), and a reload is offered.</li>
   <li>One module's settings replace that module's settings in the profile you're using.</li>
   <li>Strings start with <code>FUI1:</code>. If one won't import, see <a href="/help/#import">Troubleshooting</a>.</li>
 </ul>
 ${nextImportedText || uiQ || editMissing ? `<h3>In the next release ${NEXT}</h3><ul>
-${nextImportedText ? `<li>A whole imported profile is used after a reload: “${esc(nextImportedText)}”</li>` : ""}
-${uiQ ? `<li>A whole-profile string also carries the UI scale and screen size it was made on. Importing one asks: “${esc(uiQ.replace("%d%%%s", "X% on a W x H screen").replace("%d%%", "Y%"))}”</li>` : ""}
-${editMissing ? `<li>A profile remembers which of the game's Edit Mode layouts you use with it. If your account doesn't have that layout, ForeverUI says: “Profile &lt;name&gt; ${esc(editMissing.replace(/" \.\. name \.\. "/, "<layout>"))}”</li>` : ""}
+${nextImportedText ? `<li>A whole imported profile is used after a reload: ΓÇ£${esc(nextImportedText)}ΓÇ¥</li>` : ""}
+${uiQ ? `<li>A whole-profile string also carries the UI scale and screen size it was made on. Importing one asks: ΓÇ£${esc(uiQ.replace("%d%%%s", "X% on a W x H screen").replace("%d%%", "Y%"))}ΓÇ¥</li>` : ""}
+${editMissing ? `<li>A profile remembers which of the game's Edit Mode layouts you use with it. If your account doesn't have that layout, ForeverUI says: ΓÇ£Profile &lt;name&gt; ${esc(editMissing.replace(/" \.\. name \.\. "/, "<layout>"))}ΓÇ¥</li>` : ""}
 <li>Exports always hold your profile's own values, never a Situations override that happens to be active.</li>
 <li>Vendor memory and auction prices are kept for the whole account, so every character shares them.</li>
 </ul>` : ""}
@@ -82,7 +82,7 @@ ${hasShareNext ? `<h2 id="click-casting">Click-casting bindings ${NEXT}</h2>
 ${src("Modules/ClickCastOptions.lua (shareBuilder)", "README.md (Click casting)")}` : ""}
 
 <h2 id="spec">Profiles by specialization</h2>
-<p><code>/fui spec [profile|off]</code> uses a profile whenever you're in this specialization. This is for clients that have specializations: the addon's code notes that WoW Forever has none. In v${esc(v)}, when the character has no specialization, <code>/fui spec</code> answers “${esc(relNoSpec || "")}”.${noSpecs ? ` ${NEXT} It says instead: “${esc(noSpecs)}”, and the Profiles page hides the Specialization card.` : ""}</p>
+<p><code>/fui spec [profile|off]</code> uses a profile whenever you're in this specialization. This is for clients that have specializations: the addon's code notes that WoW Forever has none. In v${esc(v)}, when the character has no specialization, <code>/fui spec</code> answers ΓÇ£${esc(relNoSpec || "")}ΓÇ¥.${noSpecs ? ` ${NEXT} It says instead: ΓÇ£${esc(noSpecs)}ΓÇ¥, and the Profiles page hides the Specialization card.` : ""}</p>
 ${src("Core/Profiles.lua (specGetter)", "Core/Slash.lua (specCommand)")}`,
   };
 }
@@ -93,7 +93,7 @@ ${src("Core/Profiles.lua (specGetter)", "Core/Slash.lua (specCommand)")}`,
 // becomes the next placeholder, <name> by default, and each %s an ellipsis.
 function luaText(text, names = []) {
   let i = 0;
-  return text.replace(/" \.\. [\w.():]+ \.\. "/g, () => `<${names[i++] || "name"}>`).replace(/%s/g, "…");
+  return text.replace(/" \.\. [\w.():]+ \.\. "/g, () => `<${names[i++] || "name"}>`).replace(/%s/g, "ΓÇª");
 }
 
 // One fact from FACTS: the captured text, or null when it isn't in the code
@@ -125,7 +125,7 @@ function fill(text, facts) {
   return text.replace(/\{(\w+)\}/g, (_, k) => {
     if (k === "NEXT") return NEXT;
     const v = facts[k];
-    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>“${esc(r)}”</li>`).join("")}</ul>` : esc(v);
+    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>ΓÇ£${esc(r)}ΓÇ¥</li>`).join("")}</ul>` : esc(v);
   });
 }
 
@@ -159,8 +159,7 @@ function helpSection(s, facts) {
 // The closing part: known issues and where to go next.
 function helpFooter() {
   return `<h2 id="known-issues">Known issues</h2>
-<p>None listed yet. ForeverUI is an early release: problems confirmed by players will be listed here.</p>
-<div class="notice info"><p><strong>Not covered here?</strong> Or the fix didn't help? Please <a href="/feedback/">report it on the Feedback page</a>, with the lines from <code>/fui status</code>.</p></div>`;
+<p>No known issues have been confirmed yet. ForeverUI is an early release: parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p>`;
 }
 
 // The Troubleshooting & FAQ page (help-content.mjs holds its words and sources).
@@ -180,7 +179,6 @@ export function feedbackPage(model, read) {
   const nextStatusLines = (grab(read.next("Core/Slash.lua"), /local function statusCommand\(\)([\s\S]*?)\nend/) || "").match(/chat\(/g)?.length || 0;
   const relErrors = model.commands.relKeys.has("errors");
   const failLine = grab(read.rel("Core/Modules.lua"), /string\.format\("(module %s failed to load: %s)"/);
-  const quote = earlyQuote(model.rel.readme) || earlyQuote(model.next.readme);
   const bugTemplate = `ForeverUI bug report
 What I did:
 What I expected:
@@ -202,7 +200,7 @@ Screenshot or mock-up (attach it, if you have one):`;
     title: "Feedback",
     description: "Report a ForeverUI bug or request a feature.",
     body: `<h1>Feedback</h1>
-<p class="lede">ForeverUI is an early release${quote ? `, and in its own words: “${esc(quote)}”` : "."} There are two ways to help.</p>
+<p class="lede">ForeverUI is an early release. Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>. There are two ways to help.</p>
 <div class="notice todo" role="note"><p><strong>Coming soon: where to send reports.</strong> The place to send bug reports and feature requests hasn't been set up yet. Until it is, get your report ready with the steps below, and keep it: this page will say where to send it.</p></div>
 <div class="grid two">
 <section class="card" aria-labelledby="bug">
@@ -210,7 +208,7 @@ Screenshot or mock-up (attach it, if you have one):`;
 <ol class="steps">
   <li><strong>Write down what you did</strong>, what you expected, and what happened instead.</li>
   <li><strong>Type <code>/fui status</code></strong> and copy all of its lines. In v${esc(v)} it prints ${relStatusLines} lines: the version, profile and module count, then skins, painted frames and changes waiting on combat.${nextStatusLines > relStatusLines ? ` ${NEXT} prints ${nextStatusLines}, adding the client, what it has, and your UI scale and text size.` : ""}</li>
-  <li><strong>${relErrors ? "Type <code>/fui errors</code>" : "Copy any error lines"}</strong>${relErrors ? " and copy all of it." : `. v${esc(v)} has no <code>/fui errors</code> yet; if chat showed ${failLine ? `“${esc(failLine.replace(/%s/g, "…"))}”` : "an error"}, copy that whole line. ${NEXT} <code>/fui errors</code> lists the errors ForeverUI caught this session, with stacks and counts, ready for a bug report.`}</li>
+  <li><strong>${relErrors ? "Type <code>/fui errors</code>" : "Copy any error lines"}</strong>${relErrors ? " and copy all of it." : `. v${esc(v)} has no <code>/fui errors</code> yet; if chat showed ${failLine ? `ΓÇ£${esc(failLine.replace(/%s/g, "ΓÇª"))}ΓÇ¥` : "an error"}, copy that whole line. ${NEXT} <code>/fui errors</code> lists the errors ForeverUI caught this session, with stacks and counts, ready for a bug report.`}</li>
   <li><strong>Take a screenshot</strong> with <kbd>Print Screen</kbd>. The files land in the game's Screenshots folder.</li>
 </ol>
 <p class="small">Can't copy text from chat? A screenshot of the chat lines works too. ${model.commands.nextKeys.has("copy") && !model.commands.relKeys.has("copy") ? `In the next release, <code>/fui copy</code> opens the recent chat as plain text, ready to copy.` : ""}</p>
@@ -273,7 +271,7 @@ function releaseNotes(r) {
 function releaseSection(r, model) {
   const current = r.tagName === model.release.tag ? ` <span class="badge rel">Current release</span>` : "";
   return `<section aria-labelledby="rel-${esc(r.tagName)}">
-<h2 id="rel-${esc(r.tagName)}">${esc(r.tagName)} <span class="small">· ${esc(dateET(r.publishedAt))}</span>${current}</h2>
+<h2 id="rel-${esc(r.tagName)}">${esc(r.tagName)} <span class="small">┬╖ ${esc(dateET(r.publishedAt))}</span>${current}</h2>
 ${releaseNotes(r)}
 </section>`;
 }
