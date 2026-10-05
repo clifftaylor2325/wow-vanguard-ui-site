@@ -27,6 +27,22 @@ const FAKE_TURNSTILE = `window.turnstile = {
   reset() { setTimeout(() => this._cb && this._cb("${DUMMY_TOKEN}"), 50); },
 };`;
 
+// The one /api/feedback handler for the screenshots, on a Playwright page or
+// context, answered by the real Function code (functions/_lib/handler.js).
+// With env null it plays the static site with no Function bindings: GET gets
+// handleGet's "not accepting" reply ({accepting:false, sitekey:null}), and any
+// other method goes through to the static server, so it 404s and fails the run.
+// With env (from mockFeedback) GET and POST both run the real handler.
+export async function routeFeedbackApi(target, env, fetchFn) {
+  await target.route((url) => url.pathname === "/api/feedback", async (route) => {
+    const r = route.request();
+    if (!env && r.method() !== "GET") return route.continue();
+    const req = new Request(r.url(), { method: r.method(), headers: r.headers(), body: r.method() === "POST" ? r.postData() : undefined });
+    const res = r.method() === "GET" ? handleGet(req, env || {}) : r.method() === "POST" ? await handlePost(req, env, { fetchFn }) : new Response("", { status: 405 });
+    await route.fulfill({ status: res.status, headers: Object.fromEntries(res.headers), body: await res.text() });
+  });
+}
+
 // Starts the stub and wires a Playwright browser context. Returns { close, issues }.
 export async function mockFeedback(context, distDir) {
   const { server, issues } = await startStub(0);
@@ -45,11 +61,6 @@ export async function mockFeedback(context, distDir) {
     return fetch(url, init);
   };
   await context.route("https://challenges.cloudflare.com/turnstile/v0/api.js*", (route) => route.fulfill({ contentType: "text/javascript", body: FAKE_TURNSTILE }));
-  await context.route("**/api/feedback", async (route) => {
-    const r = route.request();
-    const req = new Request(r.url(), { method: r.method(), headers: r.headers(), body: r.method() === "POST" ? r.postData() : undefined });
-    const res = r.method() === "GET" ? handleGet(req, env) : r.method() === "POST" ? await handlePost(req, env, { fetchFn }) : new Response("", { status: 405 });
-    await route.fulfill({ status: res.status, headers: Object.fromEntries(res.headers), body: await res.text() });
-  });
+  await routeFeedbackApi(context, env, fetchFn);
   return { issues, close: () => server.close() };
 }
