@@ -124,6 +124,33 @@ test("the Settings page quotes what a Reload button built in combat says", () =>
   assert.ok(html.includes(line), `/settings/ doesn't quote "${line}"`);
 });
 
+// The rows of the Commands table, keyed by entry id.
+function commandRows(html) {
+  const at = html.indexOf('<table class="opt-table cmd-table"');
+  const table = at < 0 ? "" : html.slice(at, html.indexOf("</table>", at));
+  return new Map([...table.matchAll(/<tr class="cmd[^"]*" id="entry-([^"]+)"[\s\S]*?<\/tr>/g)].map((m) => [m[1], m[0]]));
+}
+
+// What a site-data.json command is missing from its table row ([] when nothing).
+function rowGaps(c, row) {
+  if (!row) return [`${c.id}: no row`];
+  const text = decode(row.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ");
+  const keys = c.keys.filter((k) => !row.includes(`id="cmd-${k}"`)).map((k) => `${c.id}: word ${k}`);
+  const parts = [...(c.release || []), ...(c.next || [])].flatMap((l) => l.split(/\s{2,}(?=\S)/)).map((p) => p.replace(/\s+/g, " "));
+  return [...keys, ...parts.filter((p) => !text.includes(p)).map((p) => `${c.id}: "${p}"`)];
+}
+
+// Every command in site-data.json has its own row in the Commands table, with its words and help lines.
+test("the Commands table has a row for every command in site-data.json", () => {
+  const html = page("commands");
+  const data = JSON.parse(fs.readFileSync(path.join(dist, "site-data.json"), "utf8"));
+  const rows = commandRows(html);
+  assert.ok(/<th scope="col">Command<\/th>/.test(html), "the Commands table needs column headers");
+  assert.ok(data.commands.length >= 10, `only ${data.commands.length} commands in site-data.json`);
+  assert.deepEqual(data.commands.flatMap((c) => rowGaps(c, rows.get(String(c.id)))), []);
+  assert.equal(rows.size, data.commands.length, "the table has rows that aren't in site-data.json");
+});
+
 test("every page links the favicon, and it is shipped", () => {
   for (const d of ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"]) {
     assert.ok(page(d).includes('<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">'), `/${d} has no favicon link`);
