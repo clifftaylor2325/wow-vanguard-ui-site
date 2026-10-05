@@ -153,7 +153,7 @@ test("bug issue: marker, title, env table, fenced report, footer, labels", async
   assert.ok(issue.body.includes("```text\n"), "the report is fenced");
   assert.ok(issue.body.includes("in function <eval:2>"), "the paste is kept as typed inside the fence");
   assert.ok(issue.body.includes("**What I did**\n```text\nReloaded in a raid @boss #4\n```"), "free text is fenced");
-  assert.ok(!issue.body.includes("<i>"));
+  assert.ok(issue.body.includes("**What happened instead**\n```text\nFrames <i>vanished</i>\n```"), "HTML shows as typed inside its fence");
   assert.equal(refIn(issue.body), "FUI-ABCDEF");
 });
 
@@ -411,6 +411,21 @@ test("bad requests: not JSON, too big, or carrying a screenshot", async () => {
   assert.equal(s.issues.length, 0);
 });
 
+test("a bad Turnstile token writes nothing to KV: no rate slots, fingerprint or contact", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const writes = [];
+  const kv = env.FEEDBACK_KV;
+  const put = kv.put.bind(kv);
+  kv.put = async (key, ...rest) => { writes.push(key); return put(key, ...rest); };
+  const s = mockServices({ turnstile: false });
+  const r = await send(env, s, bugFields({ contact_ok: true, contact: "player@example.com" }), { clock });
+  assert.equal(r.status, 403);
+  assert.deepEqual(writes, [], "no KV writes at all");
+  assert.deepEqual([...kv.map.keys()], [], "KV is still empty");
+  assert.equal(s.issues.length, 0);
+});
+
 test("a failed Turnstile check is refused before GitHub is called", async () => {
   const clock = newClock();
   const s = mockServices({ turnstile: false });
@@ -550,14 +565,65 @@ function outsideFences(md) {
   return out;
 }
 
-test("block: player text is fenced, HTML-stripped, and can't close its fence", () => {
+test("block: player text is fenced as typed and can't close its fence", () => {
   const b = block(HOSTILE);
   const outside = outsideFences(b);
   assert.deepEqual(outside, [], "nothing outside the fence");
-  assert.ok(!/<details|<!--|<\/details>/.test(b));
   assert.ok(b.includes("# HOSTILE heading"), "the text is kept, inside the fence");
 });
 
+test("inside a fence nothing that only looks like HTML is stripped", () => {
+  assert.equal(block("a<b and c>d"), "```text\na<b and c>d\n```");
+  assert.equal(block("<details><summary>x</summary>"), "```text\n<details><summary>x</summary>\n```", "real tags show as typed in a fence too");
+});
+
+// The player text the builder fenced under a section label: the label line,
+// then the builder's opening fence (```…text), then its closing fence (the
+// same run of backticks on its own line). Fails if the label isn't followed
+// by a fence the builder opened.
+function builderBlock(md, label) {
+  const lines = md.split("\n");
+  const at = lines.indexOf(label);
+  assert.ok(at >= 0, `label ${label}`);
+  const open = (lines[at + 1] || "").match(/^(`{3,})text$/);
+  assert.ok(open, `${label}: the builder didn't open a fence (next line: ${JSON.stringify(lines[at + 1])})`);
+  const close = lines.indexOf(open[1], at + 2);
+  assert.ok(close > at, `${label}: the builder's fence is never closed`);
+  return { text: lines.slice(at + 2, close).join("\n"), start: at + 1, end: close };
+}
+
+test("hostile text appears only inside the fences the builder opened", async () => {
+  const bugF = readFields(bugFields({ did: HOSTILE, expected: HOSTILE, happened: HOSTILE }));
+  const bug = await bugIssue(bugF, "FUI-ABCDEF");
+  const feat = featureIssue(readFields(featureFields({ want: HOSTILE, why: HOSTILE })), "Raid frames", "FUI-ABCDEF");
+  const comment = duplicateComment(bugF, bug.env, bug.fp, "FUI-ZZZZZZ");
+  const cases = [
+    ["bug", bug.body, ["**What I did**", "**What I expected**", "**What happened instead**"]],
+    ["feature", feat.body, ["**What I want**", "**Why it would help**"]],
+    ["comment", comment, ["**What they did**", "**What happened instead**"]],
+  ];
+  for (const [name, md, labels] of cases) {
+    const lines = md.split("\n");
+    const inside = new Set();
+    for (const label of labels) {
+      const b = builderBlock(md, label);
+      assert.equal(b.text, HOSTILE, `${name} ${label}: the fenced text is the player's text, unchanged`);
+      for (let i = b.start; i <= b.end; i++) inside.add(i);
+    }
+    const leaked = lines.filter((l, i) => !inside.has(i) && l.includes("HOSTILE"));
+    assert.deepEqual(leaked, [], `${name}: player text outside the builder's fences`);
+  }
+});
+
+test("bare URLs in one-line body values don't autolink", async () => {
+  assert.equal(inline("see https://evil.example/x"), "see https:\u200b//evil.example/x");
+  assert.equal(inline("www.evil.example"), "www\u200b.evil.example");
+  const report = "Client WoW Forever  ·  build https://evil.example/pwn (65000)  ·  x\nForeverUI 0.3.0  ·  interface 16001";
+  const issue = await bugIssue(readFields(bugFields({ report })), "FUI-ABCDEF");
+  const row = issue.body.split("\n").find((l) => l.startsWith("| 0.3.0 |"));
+  assert.ok(row.includes("https:\u200b//evil.example/pwn (65000)"), row);
+  assert.ok(!/https:\/\//.test(row), "no unbroken URL in the table");
+});
 test("inline: one-line values can't add code, emphasis, links or table cells", () => {
   assert.equal(inline("a|b *c* _d_ `e` [f](g) ~~h~~ \\i"), "a\\|b \\*c\\* \\_d\\_ \\`e\\` \\[f\\](g) \\~\\~h\\~\\~ \\\\i");
   assert.equal(inline("<b>x</b> @y #3"), "x @\u200by #\u200b3");

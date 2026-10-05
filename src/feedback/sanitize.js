@@ -39,9 +39,14 @@ export function cleanLine(value) {
 
 // One clean line for inside an issue body, with the characters that make
 // inline markdown (code, emphasis, links, strikethrough, a table's `|`)
-// backslash-escaped so they show as typed.
+// backslash-escaped so they show as typed, and bare URLs broken with a
+// zero-width space ("http:\u200b//", "www\u200b.") so GitHub doesn't autolink
+// them. (Emails are already broken at the "@".)
 export function inline(value) {
-  return cleanLine(value).replace(/[\\`*_[\]~|]/g, "\\$&");
+  return cleanLine(value)
+    .replace(/[\\`*_[\]~|]/g, "\\$&")
+    .replace(/\b([a-z][a-z0-9+.-]*):\/\//gi, `$1:${ZWSP}//`)
+    .replace(/\bwww\./gi, `www${ZWSP}.`);
 }
 
 // A table cell: one inline-safe line.
@@ -49,15 +54,12 @@ export function cell(value) {
   return inline(value);
 }
 
-// A player's free text for an issue body: HTML stripped, then fenced, so no
-// heading, table, quote, list, rule, HTML, mention or #123 in it takes effect
-// and nothing in it can close the block early.
+// A player's free text for an issue body, fenced so no heading, table,
+// quote, list, rule, HTML, mention or #123 in it takes effect and nothing in
+// it can close the block early. Inside a fence HTML shows as typed, so
+// nothing is stripped (text like "a<b and c>d" stays as written).
 export function block(value) {
-  const text = plain(value)
-    .replace(/<!--[\s\S]*?(?:-->|$)/g, "")
-    .replace(/<\/?[A-Za-z][^>]*>/g, "")
-    .trim();
-  return fence(text);
+  return fence(plain(value).trim());
 }
 
 // Pasted text in a fenced block whose fence is longer than any run of
