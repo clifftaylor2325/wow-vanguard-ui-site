@@ -8,7 +8,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { loadConfig } from "../scripts/lib/config.mjs";
-import { CURSEFORGE_URL } from "../scripts/lib/html.mjs";
+import { CURSEFORGE_URL, esc } from "../scripts/lib/html.mjs";
+import { helpPage } from "../scripts/lib/pages-more.mjs";
+import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
+import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 
 const cfg = loadConfig();
 if (!fs.existsSync(path.join(cfg.sourcePath, ".git"))) {
@@ -225,4 +228,49 @@ test("no GitHub links in the output", () => {
   };
   walk(dist);
   assert.deepEqual(bad, []);
+});
+
+// The help page's body built from the addon, with one fact's text cut out of
+// its file (in both refs) when `cut` is given.
+function helpWithout(cut) {
+  const read = (ref) => (file) => {
+    const text = show(ref, file) || null;
+    return cut && text && file === cut[2] ? text.replace(cut[3], "") : text;
+  };
+  return helpPage({ version: meta.current.replace(/^v/, ""), same: true }, { rel: read(refs.release), next: read(refs.next) }).body;
+}
+
+// The FAQ entries that quote a fact.
+function entriesUsing(key) {
+  return SECTIONS.flatMap((s) => s.entries).filter((e) => [e.a, ...e.src].some((t) => t.includes(`{${key}}`)));
+}
+
+// Cutting any quoted fact out of the addon must take its FAQ entries off the page.
+test("an FAQ entry is dropped when the addon no longer has its quote", () => {
+  const full = helpWithout(null);
+  let checked = 0;
+  for (const fact of FACTS) {
+    const shown = entriesUsing(fact[0]).filter((e) => full.includes(`id="${e.id}"`));
+    if (!shown.length) continue;
+    const body = helpWithout(fact);
+    for (const e of shown) assert.ok(!body.includes(`id="${e.id}"`), `"${e.id}" still shown without ${fact[0]}`);
+    checked++;
+  }
+  assert.ok(checked >= 10, `only ${checked} facts were checked`);
+});
+
+// Each published release's section on the Changelog page.
+function releaseSections(html) {
+  return [...html.matchAll(/<section aria-labelledby="rel-[^"]+">[\s\S]*?<\/section>/g)].map((m) => m[0]);
+}
+
+// What's coming lists next-release items; no published release's section may.
+test("next-release items stay out of the current release's section", () => {
+  const html = page("changelog");
+  const items = NEXT_RELEASE.groups.flatMap((g) => g.items);
+  const current = releaseSections(html).find((s) => s.includes("Current release"));
+  assert.ok(current, "no Current release section on /changelog/");
+  for (const s of releaseSections(html)) for (const i of items) assert.ok(!s.includes(esc(i.text)), `"${i.label}" is inside a release section`);
+  const next = html.match(/<section class="card" aria-labelledby="next-h">[\s\S]*?<\/section>/);
+  if (meta.current === NEXT_RELEASE.after) for (const i of items) assert.ok(next && next[0].includes(esc(i.text)), `"${i.label}" missing from What's coming`);
 });
