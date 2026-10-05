@@ -6,6 +6,8 @@ import { esc, md, badge } from "./html.mjs";
 import { src, dateET, nextNotice, says, saysIf, label } from "./pages-main.mjs";
 import { FACTS, SECTIONS } from "./help-content.mjs";
 import { RELEASE_NOTES, NEXT_RELEASE } from "./changelog-content.mjs";
+import { AREAS } from "./model.mjs";
+import { LIMITS, FALLBACK_AREAS } from "../../src/feedback/fields.js";
 
 const NEXT = `<span class="badge next">Next release</span>`;
 
@@ -239,6 +241,147 @@ export function helpPage(model, read) {
 
 // ------------------------------------------------------------------ Feedback
 
+// The "Part of ForeverUI" options: the addon's modules, grouped as on the
+// Features page, then the four general choices. Values are module keys; the
+// Function reads the same list from site-data.json.
+function areaOptions(model) {
+  const byKey = new Map(model.modules.map((m) => [m.key, m]));
+  const used = new Set();
+  const groups = AREAS.map(([title, keys]) => {
+    const mods = keys.map((k) => byKey.get(k)).filter(Boolean);
+    mods.forEach((m) => used.add(m.key));
+    return [title, mods];
+  });
+  const rest = model.modules.filter((m) => !used.has(m.key));
+  if (rest.length) groups.push(["Other modules", rest]);
+  const opt = (value, label) => `<option value="${esc(value)}">${esc(label)}</option>`;
+  return [`<option value="">Choose one</option>`,
+    ...groups.filter(([, mods]) => mods.length).map(([title, mods]) => `<optgroup label="${esc(title)}">${mods.map((m) => opt(m.key, m.name)).join("")}</optgroup>`),
+    `<optgroup label="Something else">${FALLBACK_AREAS.map(([v, l]) => opt(v, l)).join("")}</optgroup>`].join("\n");
+}
+
+// One labelled text field: input (or textarea) with its hint and error line.
+function field(name, label, { area = false, required = false, hint = "", rows = 4, type = "text", autocomplete = "off" } = {}) {
+  const [min, max] = LIMITS[name];
+  const id = `fb-${name}`;
+  const req = required ? " required" : "";
+  const limits = `${min > 0 && min > 1 ? ` minlength="${min}"` : ""} maxlength="${max}"`;
+  const describe = `aria-describedby="${id}-hint ${id}-err"`;
+  const control = area
+    ? `<textarea id="${id}" name="${name}" rows="${rows}"${req}${limits} ${describe}></textarea>`
+    : `<input id="${id}" name="${name}" type="${type}" autocomplete="${autocomplete}"${req}${limits} ${describe}>`;
+  const limitText = min > 1 ? `${min} to ${max.toLocaleString("en-US")} characters.` : `Up to ${max.toLocaleString("en-US")} characters.`;
+  return `<div class="field" data-field="${name}">
+<label for="${id}">${label}${required ? "" : ` <span class="opt">(optional)</span>`}</label>
+${control}
+<p class="hint" id="${id}-hint">${hint ? `${hint} ` : ""}${limitText}</p>
+<p class="err" id="${id}-err" hidden></p>
+</div>`;
+}
+
+// One checkbox with its error line.
+function checkbox(name, label, { required = false } = {}) {
+  const id = `fb-${name}`;
+  return `<div class="field check" data-field="${name}">
+<label for="${id}"><input id="${id}" name="${name}" type="checkbox"${required ? " required" : ""} aria-describedby="${id}-err"> <span>${label}</span></label>
+<p class="err" id="${id}-err" hidden></p>
+</div>`;
+}
+
+// What to paste for the report field: /fui report when the addon has it, else status and errors.
+function reportHint(model) {
+  const rel = model.commands.relKeys.has("report");
+  const next = model.commands.nextKeys.has("report");
+  if (rel) return "Type <code>/fui report</code> in game and paste what it shows.";
+  if (next) return `${NEXT} has <code>/fui report</code>, one block to paste. In v${esc(model.version)}, paste the lines of <code>/fui status</code> (and any error lines): see the steps below.`;
+  return "No ForeverUI version has <code>/fui report</code> yet, so paste the lines of <code>/fui status</code> and <code>/fui errors</code>: see the steps below.";
+}
+
+// The form: kind, summary, the bug or feature fields, contact, the
+// acknowledgement and the spam checks. Shown only with JavaScript.
+function feedbackForm(model) {
+  const v = model.version;
+  return `<form id="fb-form" class="fb-form fb-needs-js" novalidate>
+<fieldset class="field fb-kind" data-field="kind">
+<legend>What would you like to send?</legend>
+<label><input type="radio" name="kind" value="bug" checked> Report a bug</label>
+<label><input type="radio" name="kind" value="feature"> Request a feature</label>
+<p class="err" id="fb-kind-err" hidden></p>
+</fieldset>
+${field("title", "Short summary", { required: true, hint: "For example: Raid frames go blank after a reload." })}
+<fieldset class="fb-group" data-kind="bug">
+<legend class="sr-only">Bug report</legend>
+${field("report", "Paste your /fui report (or /fui status + /fui errors)", { area: true, rows: 8, hint: reportHint(model) })}
+${checkbox("no_report", `I'm on v${esc(v)}, or I couldn't get the report`)}
+${field("did", "What did you do?", { area: true, required: true })}
+${field("expected", "What did you expect?", { area: true, rows: 3 })}
+${field("happened", "What happened instead?", { area: true, required: true })}
+</fieldset>
+<fieldset class="fb-group" data-kind="feature" disabled hidden>
+<legend class="sr-only">Feature request</legend>
+${field("want", "What do you want?", { area: true, required: true })}
+<div class="field" data-field="area">
+<label for="fb-area">Part of ForeverUI</label>
+<select id="fb-area" name="area" required aria-describedby="fb-area-err">
+${areaOptions(model)}
+</select>
+<p class="err" id="fb-area-err" hidden></p>
+</div>
+${field("why", "Why would it help you?", { area: true, required: true })}
+</fieldset>
+${checkbox("contact_ok", "I'm OK being contacted about this report")}
+<div class="fb-contact" hidden>
+${field("contact", "Discord tag or email", { autocomplete: "email", hint: "Kept privately for 90 days so a maintainer can ask you a question. It is never put in the report." })}
+</div>
+${checkbox("public_ack", "I understand this report is sent to the private repository the ForeverUI maintainers use. It is not a public issue, and the maintainers can read everything in the preview.", { required: true })}
+<div class="hp" aria-hidden="true"><label for="fb-hp">Leave this empty</label><input id="fb-hp" name="fui_hp" type="text" tabindex="-1" autocomplete="off"></div>
+<p class="small">Screenshots can't be sent with this form yet: describe what you see instead.</p>
+<div class="fb-actions"><button class="button" type="submit">Preview</button></div>
+</form>`;
+}
+
+// The preview and confirmation steps, filled in by assets/feedback.js.
+function feedbackSteps() {
+  return `<section id="fb-preview" class="fb-step" hidden aria-labelledby="fb-preview-h">
+<h3 id="fb-preview-h" tabindex="-1">Check your report</h3>
+<p>This is exactly what will be sent to the private repository the ForeverUI maintainers use. It is not a public issue.</p>
+<dl class="facts">
+<dt>Title</dt><dd id="fb-preview-title"></dd>
+<dt>Labels</dt><dd id="fb-preview-labels"></dd>
+</dl>
+<pre id="fb-preview-body" class="fb-preview-body"></pre>
+<p class="small" id="fb-preview-note"></p>
+<div id="fb-turnstile" class="fb-turnstile"></div>
+<div id="fb-send-error" class="notice fb-alert" role="alert" hidden></div>
+<div class="fb-actions">
+<button class="button" type="button" id="fb-send">Send report</button>
+<button class="button secondary" type="button" id="fb-edit">Edit</button>
+<button class="copy" type="button" data-copy-from="#fb-preview-body" aria-label="Copy the report text">Copy report text</button>
+</div>
+</section>
+<section id="fb-done" class="fb-step" hidden aria-labelledby="fb-done-h">
+<h3 id="fb-done-h" tabindex="-1">Thanks: your report is in</h3>
+<p>Your reference is <strong class="fb-ref" id="fb-ref"></strong>. <span id="fb-done-dup"></span></p>
+<p>Keep it: quote it if you want to add something, or to have the report removed.</p>
+<div class="fb-actions"><button class="button secondary" type="button" id="fb-again">Send another</button></div>
+</section>`;
+}
+
+// What happens to a report: who sees it, what it may hold, and how to have it removed.
+function privacyNote() {
+  return `<section class="card" aria-labelledby="privacy">
+<h2 id="privacy" style="margin-top:0">Where your report goes</h2>
+<ul>
+<li>No account or email is needed.</li>
+<li>Your report is sent to the private repository the ForeverUI maintainers use. Only the project's maintainers can read it. It is not posted anywhere public.</li>
+<li>A pasted report can hold character or profile names, chat, or guild details. Check the preview, and take out anything you'd rather not send.</li>
+<li>If you tick "OK being contacted", your Discord tag or email is kept privately for 90 days and is never put in the report.</li>
+<li>Your IP address is never stored or put in a report. To stop floods, the site keeps a scrambled key made from it for an hour or two, and that key changes every day.</li>
+<li>To have a report removed, send another report with the title “Remove FUI-…” and your reference. A maintainer deletes it.</li>
+</ul>
+</section>`;
+}
+
 export function feedbackPage(model, read) {
   const v = model.version;
   const relStatusLines = (grab(read.rel("Core/Slash.lua"), /local function statusCommand\(\)([\s\S]*?)\nend/) || "").match(/chat\(/g)?.length || 0;
@@ -254,45 +397,50 @@ What happened instead:
 
 /fui errors (paste every line; on ${v}, paste any "failed to load" line from chat instead):
 
-Screenshot attached: yes / no
 Screen resolution and UI scale (if you know them):`;
   const featureTemplate = `ForeverUI feature request
 What I want:
 Which part of ForeverUI it touches (a module from the Features page, a command, or a setting):
-Why it would help me:
-Screenshot or mock-up (attach it, if you have one):`;
+Why it would help me:`;
   return {
     path: "/feedback/",
     title: "Feedback",
     description: "Report a ForeverUI bug or request a feature.",
+    scripts: ["/assets/feedback.js"],
     body: `<h1>Feedback</h1>
-<p class="lede">ForeverUI is an early release. Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>. There are two ways to help.</p>
-<div class="notice todo" role="note"><p><strong>Coming soon: where to send reports.</strong> The place to send bug reports and feature requests hasn't been set up yet. Until it is, get your report ready with the steps below, and keep it: this page will say where to send it.</p></div>
+<p class="lede">ForeverUI is an early release. Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us. No account or email is needed.</p>
+<section class="card fb" aria-labelledby="send">
+<h2 id="send" style="margin-top:0">Send a report</h2>
+<div class="notice todo fb-nojs" role="note"><p><strong>The form needs JavaScript.</strong> Turn JavaScript on to send a report from this page. Until then, get your report ready with the steps and templates below, and keep it.</p></div>
+<div id="fb-status" class="notice fb-alert fb-needs-js" role="status" hidden></div>
+${feedbackForm(model)}
+${feedbackSteps()}
+</section>
+${privacyNote()}
+<h2 id="get-ready">Get your report ready</h2>
 <div class="grid two">
 <section class="card" aria-labelledby="bug">
-<h2 id="bug" style="margin-top:0">Report a bug</h2>
+<h3 id="bug" style="margin-top:0">Report a bug</h3>
 <ol class="steps">
   <li><strong>Write down what you did</strong>, what you expected, and what happened instead.</li>
   <li><strong>Type <code>/fui status</code></strong> and copy all of its lines. In v${esc(v)} it prints ${relStatusLines} lines: the version, profile and module count, then skins, painted frames and changes waiting on combat.${nextStatusLines > relStatusLines ? ` ${NEXT} prints ${nextStatusLines}, adding the client, what it has, and your UI scale and text size.` : ""}</li>
   <li><strong>${relErrors ? "Type <code>/fui errors</code>" : "Copy any error lines"}</strong>${relErrors ? " and copy all of it." : `. v${esc(v)} has no <code>/fui errors</code> yet; if chat showed ${failLine ? `“${esc(failLine.replace(/%s/g, "…"))}”` : "an error"}, copy that whole line. ${NEXT} <code>/fui errors</code> lists the errors ForeverUI caught this session, with stacks and counts, ready for a bug report.`}</li>
-  <li><strong>Take a screenshot</strong> with <kbd>Print Screen</kbd>. The files land in the game's Screenshots folder.</li>
 </ol>
-<p class="small">Can't copy text from chat? A screenshot of the chat lines works too. ${model.commands.nextKeys.has("copy") && !model.commands.relKeys.has("copy") ? `In the next release, <code>/fui copy</code> opens the recent chat as plain text, ready to copy.` : ""}</p>
-<h3>Bug report template</h3>
+<p class="small">Can't copy text from chat? Type out the lines that matter, or describe them. ${model.commands.nextKeys.has("copy") && !model.commands.relKeys.has("copy") ? `In the next release, <code>/fui copy</code> opens the recent chat as plain text, ready to copy.` : ""}</p>
+<h4>Bug report template</h4>
 <pre class="template" id="bug-template">${esc(bugTemplate)}</pre>
 <button class="copy" type="button" data-copy-from="#bug-template" aria-label="Copy the bug report template">Copy template</button>
 </section>
 <section class="card" aria-labelledby="feature">
-<h2 id="feature" style="margin-top:0">Request a feature</h2>
+<h3 id="feature" style="margin-top:0">Request a feature</h3>
 <p>Tell us what would make ForeverUI better for you. Please answer:</p>
 <ol class="steps">
   <li><strong>What you want.</strong></li>
   <li><strong>Which part of ForeverUI it touches</strong>: a module from <a href="/features/">Features</a>, a <a href="/commands/">command</a> or a <a href="/settings/">setting</a>.</li>
   <li><strong>Why it would help you.</strong></li>
-  <li><strong>A screenshot or mock-up</strong>, if you have one.</li>
 </ol>
 <div class="notice info"><p><strong>Reviewed, not promised.</strong> Every request is read and considered, but there's no promise that it will be built, or when.</p></div>
-<h3>Feature request template</h3>
+<h4>Feature request template</h4>
 <pre class="template" id="feature-template">${esc(featureTemplate)}</pre>
 <button class="copy" type="button" data-copy-from="#feature-template" aria-label="Copy the feature request template">Copy template</button>
 <p class="small" style="margin-top:12px">Before you ask, check <a href="/features/">Features</a>: some things are already written and marked <span class="badge next">Next release</span>.</p>

@@ -146,7 +146,9 @@ test("no zip is shipped and nothing offers a download", () => {
       if (/\sdownload(?=[\s>=])/.test(m[0]) || /href="[^"]*(\.zip|\/download\/)/i.test(m[0])) bad.push(`${rel}: ${m[0]}`);
     }
     if (/\/download\//.test(t)) bad.push(`${rel}: mentions /download/`);
-    if (/SHA-256|sha256|checksum/i.test(t)) bad.push(`${rel}: shows a checksum`);
+    // The feedback form's shared code hashes error lines (Web Crypto "SHA-256") for the
+    // bug fingerprint; that is not a download checksum, so assets/feedback/ is skipped.
+    if (!rel.split(path.sep).join("/").startsWith("assets/feedback/") && /SHA-256|sha256|checksum/i.test(t)) bad.push(`${rel}: shows a checksum`);
   }
   assert.deepEqual(bad, [], `download links or checksums found: ${bad.join(" | ")}`);
 });
