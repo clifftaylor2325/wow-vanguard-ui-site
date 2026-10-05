@@ -392,7 +392,8 @@ export function extractSetup(reader) {
 
 // All data for one ref.
 export function extractAddon(reader) {
-  const tocText = reader.read("ForeverUI.toc");
+  // Vanguard.toc from 0.4.0; ForeverUI.toc in releases made before the rename.
+  const tocText = reader.read("Vanguard.toc") || reader.read("ForeverUI.toc");
   const meta = tocMeta(tocText);
   const files = tocFiles(tocText);
   const modules = extractModules(reader, files);

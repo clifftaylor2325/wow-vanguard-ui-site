@@ -17,9 +17,9 @@ export function refLine(reference) {
   return `Reference: ${reference}\n<!-- fui-ref ${reference} -->`;
 }
 
-// The reference in an issue body, or "" when it has none.
+// The reference in an issue body, or "" when it has none (VG-, or FUI- from before the rename).
 export function refIn(body) {
-  const m = String(body ?? "").match(/<!-- fui-ref (FUI-[A-Z0-9]{6}) -->/);
+  const m = String(body ?? "").match(/<!-- fui-ref ((?:VG|FUI)-[A-Z0-9]{6}) -->/);
   return m ? m[1] : "";
 }
 
@@ -38,7 +38,7 @@ function envTable(env) {
   const build = env.release || env.build ? `${env.release || "?"} (${env.build || "?"})` : "";
   return [
     "**Environment** (parsed from the report)",
-    "| ForeverUI | Client | Build | Interface |",
+    "| Vanguard | Client | Build | Interface |",
     "|---|---|---|---|",
     `| ${envCell(env.version)} | ${envCell(env.client)} | ${envCell(build)} | ${envCell(env.iface)} |`,
   ].join("\n");
@@ -47,7 +47,7 @@ function envTable(env) {
 // The pasted report, folded away, or a note that there is none.
 function pasted(f) {
   if (!f.report) return "_No report pasted: the player said they're on an old version or couldn't get one._";
-  return `<details><summary>/fui report (as pasted)</summary>\n\n${fence(f.report)}\n</details>`;
+  return `<details><summary>/vg report (as pasted)</summary>\n\n${fence(f.report)}\n</details>`;
 }
 
 // The bug title: "[Bug] summary", with " (v1.2.3, WoW Forever)" when the report says.
@@ -69,22 +69,22 @@ export async function bugIssue(f, reference) {
     envTable(env), "",
     pasted(f), "",
     "---",
-    fp ? `_Sent from the ForeverUI site. Error fingerprint fp:${fp}._` : "_Sent from the ForeverUI site. No error fingerprint: the report has no caught error._",
+    fp ? `_Sent from the Vanguard site. Error fingerprint fp:${fp}._` : "_Sent from the Vanguard site. No error fingerprint: the report has no caught error._",
     refLine(reference),
   ].join("\n");
   return { title: bugTitle(f, env), body, labels: LABELS.bug, fp, env };
 }
 
 // A feature request's issue: { title, body, labels }. areaLabel is the chosen
-// part of ForeverUI as the form shows it.
+// part of Vanguard as the form shows it.
 export function featureIssue(f, areaLabel, reference) {
   const body = [
     `<!-- fui-feedback v1 kind=feature area=${areaSlug(areaLabel)} src=site -->`,
     "**What I want**", block(f.want), "",
-    `**Part of ForeverUI:** ${inline(areaLabel)}`, "",
+    `**Part of Vanguard:** ${inline(areaLabel)}`, "",
     "**Why it would help**", block(f.why), "",
     "---",
-    "_Sent from the ForeverUI site._",
+    "_Sent from the Vanguard site._",
     refLine(reference),
   ].join("\n");
   return { title: `[Idea] ${cleanLine(f.title)}`, body, labels: LABELS.feature };
@@ -95,7 +95,7 @@ export function featureIssue(f, areaLabel, reference) {
 export function duplicateComment(f, env, fp, reference) {
   const first = env.errors[0];
   const build = env.release || env.build ? `${env.release || "?"} (${env.build || "?"})` : "build unknown";
-  const head = `Another player hit this. ForeverUI ${inline(env.version || "unknown")}, ${inline(env.client || "client unknown")} ${inline(build)}. Occurrences in their session: ${first ? first.count : "unknown"}.`;
+  const head = `Another player hit this. Vanguard ${inline(env.version || "unknown")}, ${inline(env.client || "client unknown")} ${inline(build)}. Occurrences in their session: ${first ? first.count : "unknown"}.`;
   return [
     head,
     "<details><summary>their notes</summary>", "",

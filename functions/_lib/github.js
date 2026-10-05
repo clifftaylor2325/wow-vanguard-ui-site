@@ -49,7 +49,7 @@ export function gitHub({ base, token, repo, fetchFn = fetch, maxWait = 5 }) {
           accept: "application/vnd.github+json",
           authorization: `Bearer ${token}`,
           "x-github-api-version": "2022-11-28",
-          "user-agent": "foreverui-feedback",
+          "user-agent": "vanguard-feedback",
           ...(body ? { "content-type": "application/json" } : {}),
         },
         body: body ? JSON.stringify(body) : undefined,

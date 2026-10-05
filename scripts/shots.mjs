@@ -118,7 +118,7 @@ async function noSideScroll(page, label, failures) {
 
 // The feedback form's steps, against SHOTS_BASE or the in-process mock.
 async function feedbackFlow(browser, base, failures, distDir) {
-  const report = fs.readFileSync(path.join(root, "test/fixtures/fui-errors-next.txt"), "utf8");
+  const report = fs.readFileSync(path.join(root, "test/fixtures/vg-errors-next.txt"), "utf8");
   console.log(process.env.SHOTS_BASE ? `feedback walk-through: ${base}` : "feedback walk-through: in-process Function + GitHub stub");
   const fillBug = async (page) => {
     await page.check("input[name=kind][value=bug]");

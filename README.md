@@ -1,8 +1,8 @@
-# ForeverUI website
+# Vanguard website
 
 Author: Cliff Hearthvale.
 
-The player website for [ForeverUI](https://github.com/clifftaylor2325/wow-forever-ui), a fan UI addon for WoW Forever. ForeverUI is going to be on CurseForge, so the site doesn't host or offer the addon as a download: it points players to CurseForge instead (a "Coming soon on CurseForge" badge until the listing is live). It's a static site (plain HTML and CSS, plus a little vanilla JS for search, copy buttons and the mobile menu). It is **generated from the addon's own source**, so the commands, modules, settings, colors and release facts on the site always match the addon.
+The player website for [Vanguard](https://github.com/clifftaylor2325/wow-forever-ui), a fan UI addon for WoW Forever. Vanguard is going to be on CurseForge, so the site doesn't host or offer the addon as a download: it points players to CurseForge instead (a "Coming soon on CurseForge" badge until the listing is live). It's a static site (plain HTML and CSS, plus a little vanilla JS for search, copy buttons and the mobile menu). It is **generated from the addon's own source**, so the commands, modules, settings, colors and release facts on the site always match the addon.
 
 Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Brass colors), Install & Update, Getting started, Features, Commands (searchable), Settings (searchable), Profiles & sharing, Troubleshooting & FAQ, Feedback, Changelog, Credits & license.
 
@@ -23,7 +23,7 @@ npm run shots      # full-page screenshots, a no-horizontal-scroll check at 390 
 npm run fonts      # re-make src/fonts/*.woff2 from the addon's TTF fonts (after npm run fetch)
 npm run stub:github  # a stand-in GitHub API on 127.0.0.1:8789 for the feedback Function (see Feedback form)
 npm run dev        # wrangler pages dev: dist/ plus the feedback Function, at http://localhost:8788
-npm run deploy     # npx wrangler pages deploy dist --project-name foreverui
+npm run deploy     # npx wrangler pages deploy dist --project-name vanguard-ui
 ```
 
 To build from a local checkout of the addon, skip the clone (use the same `FUI_SRC` for `npm test`):
@@ -65,9 +65,9 @@ The site never links to the private GitHub repo from player-facing pages, and it
 
 ## Feedback form
 
-`/feedback/` has a form (with a preview step) that sends a bug report or feature request to a Cloudflare Pages Function, `POST /api/feedback` (`functions/api/feedback.js`, with the code in `functions/_lib/`). The Function checks the report, runs Cloudflare Turnstile, applies the rate caps, and files it as an issue in the maintainers' private repository (or comments on the open issue for the same error). The player gets a short reference like `FUI-AB12CD`, never a link or the repository's name. `dist/_routes.json` sends only `/api/*` to the Function.
+`/feedback/` has a form (with a preview step) that sends a bug report or feature request to a Cloudflare Pages Function, `POST /api/feedback` (`functions/api/feedback.js`, with the code in `functions/_lib/`). The Function checks the report, runs Cloudflare Turnstile, applies the rate caps, and files it as an issue in the maintainers' private repository (or comments on the open issue for the same error). The player gets a short reference like `VG-AB12CD`, never a link or the repository's name. `dist/_routes.json` sends only `/api/*` to the Function.
 
-The page and the Function share `src/feedback/` (checks, sanitizing, `/fui report` parsing, the error fingerprint and the issue text). The build copies it to `dist/assets/feedback/`, so the preview is exactly what's filed.
+The page and the Function share `src/feedback/` (checks, sanitizing, `/vg report` parsing, the error fingerprint and the issue text). The build copies it to `dist/assets/feedback/`, so the preview is exactly what's filed.
 
 ### Bindings
 
@@ -103,7 +103,7 @@ SHOTS_BASE=http://localhost:8788 npm run shots   # optional: the form walk-throu
 
 - Labels: `bug` + `from-site`, or `feature-request` + `from-site`.
 - Every free-text field and the pasted report go in fenced code blocks, each fence longer than any run of backticks inside, so nothing a player types can add headings, tables, quotes, lists, rules, HTML or mentions, or close its block early. Inside a fence HTML shows as typed, so nothing there is stripped (text like `a<b and c>d` stays as written). Titles have HTML stripped and `@mentions` and `#123` broken (GitHub shows titles as plain text). One-line values in the body, such as the environment table, also have HTML stripped, inline markdown escaped, and bare URLs broken with a zero-width space so they don't autolink.
-- Every report has its own reference (`Reference: FUI-…` and a hidden `<!-- fui-ref FUI-… -->`). A repeat of an open bug becomes a comment carrying the repeat reporter's own reference; the player gets that reference back, never the first reporter's.
+- Every report has its own reference (`Reference: VG-…` and a hidden `<!-- fui-ref VG-… -->`; reports sent before the rename have `FUI-…` references, which still work). A repeat of an open bug becomes a comment carrying the repeat reporter's own reference; the player gets that reference back, never the first reporter's.
 - Bugs with a caught error carry a fingerprint (`fp:` + 8 hex characters from the first error and its top stack line, with line numbers, addresses and counts removed). A second report of the same open bug becomes a comment on it.
 - Contact details (only when the player ticks the box) are kept in `FEEDBACK_KV` for 90 days, never in the issue. No IP address is stored: the rate cap keys are `sha256(IP + RL_SALT + date)`, kept for 2 hours.
 - Caps: 5 sends in any rolling hour per player, and 60 new issues per UTC day in all (see Rate caps).
@@ -111,9 +111,9 @@ SHOTS_BASE=http://localhost:8788 npm run shots   # optional: the form walk-throu
 
 ### Removal requests (maintainers)
 
-A player asks for removal by sending a report titled "Remove FUI-…" with their reference. References are shown only to the player who sent the report, and each report has its own, so:
+A player asks for removal by sending a report titled "Remove VG-…" with their reference. References are shown only to the player who sent the report, and each report has its own, so:
 
-1. Search the repository's issues and comments for the reference (for example `"FUI-AB12CD"`, which matches the visible `Reference:` line).
+1. Search the repository's issues and comments for the reference (for example `"VG-AB12CD"`, which matches the visible `Reference:` line).
 2. If it is in an **issue body**, that issue is the player's own report: delete the issue (if other players' comments are on it, delete or edit the body instead and keep their comments).
 3. If it is in a **comment**, delete only that comment; the issue and the other reports on it stay.
 4. Then delete the removal request issue too, and any `contact:<reference>:…` key in `FEEDBACK_KV`.
@@ -132,7 +132,7 @@ For an exact cap, a future change could keep the counters in a Durable Object (o
 
 ## CurseForge
 
-Installing is going to be through CurseForge (the CurseForge app or website). `CURSEFORGE_URL` in `scripts/lib/html.mjs` is `null` until ForeverUI is listed, so every call to action (Home, Install, the footer) renders as a styled, non-link "Coming soon on CurseForge" badge. When the listing is live, set `CURSEFORGE_URL` to its URL and run `npm run check`: the badges become links, and the tests switch to checking for the link.
+Installing is going to be through CurseForge (the CurseForge app or website). `CURSEFORGE_URL` in `scripts/lib/html.mjs` is `null` until Vanguard is listed, so every call to action (Home, Install, the footer) renders as a styled, non-link "Coming soon on CurseForge" badge. When the listing is live, set `CURSEFORGE_URL` to its URL and run `npm run check`: the badges become links, and the tests switch to checking for the link.
 
 To move the site to a newer addon commit, update `sourceRef` and run `npm run check`. When a new release is published, `latest` picks it up on the next build.
 
@@ -149,7 +149,7 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 - that every internal link and anchor resolves
 - that nothing in `dist/` links to github.com
 
-`test/feedback.test.mjs` covers the feedback form: sanitizing, the parser (with real `/fui status` and `/fui errors` output in `test/fixtures/`), fingerprints, the issue text and checks, hostile markdown in every free-text field, and the Function's paths (create, duplicate → comment with its own reference, spam, Turnstile, rate caps including 10 sends at once, the turn of the hour and midnight, missing settings) against a mock GitHub and an in-memory KV (`scripts/lib/memory-kv.mjs`). It never calls GitHub.
+`test/feedback.test.mjs` covers the feedback form: sanitizing, the parser (with real `/vg status` and `/vg errors` output in `test/fixtures/`), fingerprints, the issue text and checks, hostile markdown in every free-text field, and the Function's paths (create, duplicate → comment with its own reference, spam, Turnstile, rate caps including 10 sends at once, the turn of the hour and midnight, missing settings) against a mock GitHub and an in-memory KV (`scripts/lib/memory-kv.mjs`). It never calls GitHub.
 
 ## License
 
