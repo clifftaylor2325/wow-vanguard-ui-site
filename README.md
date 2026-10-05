@@ -76,24 +76,48 @@ Until they're all set, `GET /api/feedback` says it isn't accepting, and the page
 
 ### Running it locally
 
-Nothing is sent to GitHub: reports go to an in-memory stub on your machine. Turnstile uses Cloudflare's public test keys, which always pass. Wrangler 4 needs Node 22 or newer.
+`npm run shots` walks the form on its own (errors, feature fields, preview, confirmation, a repeat of the same bug): it answers the page's `/api/feedback` calls in-process with the real Function code, the GitHub stub, an in-memory KV and a Turnstile stand-in (`scripts/lib/feedback-mock.mjs`), so it needs no Wrangler and no network.
+
+To try the real thing with `wrangler pages dev`: nothing is sent to GitHub: reports go to an in-memory stub on your machine. Turnstile uses Cloudflare's public test keys, which always pass. Wrangler 4 needs Node 22 or newer.
 
 ```sh
 npm run build
 cp .dev.vars.example .dev.vars   # test keys and the stub address; .dev.vars is gitignored
 npm run stub:github              # terminal 1: the GitHub stand-in (lists what it got at http://127.0.0.1:8789/_stub/issues)
 npm run dev                      # terminal 2: http://localhost:8788/feedback/ (local KV for FEEDBACK_KV)
-SHOTS_BASE=http://localhost:8788 npm run shots   # optional: screenshots of the form's steps, sends 2 reports to the stub
+SHOTS_BASE=http://localhost:8788 npm run shots   # optional: the form walk-through against this server (3 reports to the stub)
 ```
 
 ### What gets filed
 
 - Labels: `bug` + `from-site`, or `feature-request` + `from-site`.
-- Player text is HTML-stripped, with `@mentions`, `#123` and image markdown broken. Pasted reports go in a fenced block.
-- Bugs with a caught error carry a fingerprint (`fp:` + 8 hex characters from the first error and its top stack line, with line numbers, addresses and counts removed). A second report of the same open bug becomes a comment on it, and the player gets the same reference.
+- Every free-text field and the pasted report go in fenced code blocks, each fence longer than any run of backticks inside, so nothing a player types can add headings, tables, quotes, lists, rules, HTML or mentions, or close its block early. HTML is stripped from free text. Titles have HTML stripped and `@mentions` and `#123` broken (GitHub shows titles as plain text); one-line values in the body, such as the environment table, also have inline markdown escaped.
+- Every report has its own reference (`Reference: FUI-…` and a hidden `<!-- fui-ref FUI-… -->`). A repeat of an open bug becomes a comment carrying the repeat reporter's own reference; the player gets that reference back, never the first reporter's.
+- Bugs with a caught error carry a fingerprint (`fp:` + 8 hex characters from the first error and its top stack line, with line numbers, addresses and counts removed). A second report of the same open bug becomes a comment on it.
 - Contact details (only when the player ticks the box) are kept in `FEEDBACK_KV` for 90 days, never in the issue. No IP address is stored: the rate cap keys are `sha256(IP + RL_SALT + date)`, kept for 2 hours.
-- Caps: 5 sends an hour per player, and 60 new issues a day in all.
+- Caps: 5 sends in any rolling hour per player, and 60 new issues per UTC day in all (see Rate caps).
 - No uploads in v1: a request with a screenshot or file field is refused.
+
+### Removal requests (maintainers)
+
+A player asks for removal by sending a report titled "Remove FUI-…" with their reference. References are shown only to the player who sent the report, and each report has its own, so:
+
+1. Search the repository's issues and comments for the reference (for example `"FUI-AB12CD"`, which matches the visible `Reference:` line).
+2. If it is in an **issue body**, that issue is the player's own report: delete the issue (if other players' comments are on it, delete or edit the body instead and keep their comments).
+3. If it is in a **comment**, delete only that comment; the issue and the other reports on it stay.
+4. Then delete the removal request issue too, and any `contact:<reference>:…` key in `FEEDBACK_KV`.
+
+### Rate caps
+
+Workers KV has no atomic increment, so the caps don't use counters. Each send that passes Turnstile **writes its own slot key first** (`rl:p:<sha256(IP + RL_SALT + UTC date)>:<time>:<random>`, kept 2 hours), then **lists** the player's slots from the last hour (today's and yesterday's key, so midnight doesn't reset it) and goes ahead only if fewer than 5 are as old as its own or older. Otherwise it deletes its slot and answers 429 with `retry-after` (when the oldest send in the way turns an hour old). The day cap works the same way with `rl:d:<date>:…` slots, one per new issue. A send that fails, and the day slot of a repeat that became a comment, are given back. Turnstile is checked before any of this, so a request without a valid token never writes to KV.
+
+This makes a fixed-hour reset and simple read-then-write races go away, but KV can't make it exact:
+
+- KV is eventually consistent. Writes are usually visible at once in the location that made them, but `list` results can lag (up to about a minute), and other locations can take longer. Requests that don't see each other's slots can all get through, so a burst spread across Cloudflare locations, or faster than KV shows writes, can still go over the cap.
+- Ties and clock differences between Cloudflare machines can make it refuse a send that could have gone through (it errs on the side of refusing).
+- Each send costs about 2 writes and 2 lists (plus deletes when refused), which counts against KV's daily limits.
+
+For an exact cap, a future change could keep the counters in a Durable Object (one per player key, and one for the day), which handles requests one at a time, or rely on Turnstile as the main gate (for example a stricter widget mode or pre-clearance) with KV only as a backstop. Neither is built.
 
 ## CurseForge
 
@@ -112,7 +136,7 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 - that every internal link and anchor resolves
 - that nothing in `dist/` links to github.com
 
-`test/feedback.test.mjs` covers the feedback form: sanitizing, the parser (with real `/fui status` and `/fui errors` output in `test/fixtures/`), fingerprints, the issue text and checks, and the Function's paths (create, duplicate → comment, spam, Turnstile, rate caps, missing settings) against a mock GitHub and an in-memory KV. It never calls GitHub.
+`test/feedback.test.mjs` covers the feedback form: sanitizing, the parser (with real `/fui status` and `/fui errors` output in `test/fixtures/`), fingerprints, the issue text and checks, hostile markdown in every free-text field, and the Function's paths (create, duplicate → comment with its own reference, spam, Turnstile, rate caps including 10 sends at once, the turn of the hour and midnight, missing settings) against a mock GitHub and an in-memory KV (`scripts/lib/memory-kv.mjs`). It never calls GitHub.
 
 ## License
 

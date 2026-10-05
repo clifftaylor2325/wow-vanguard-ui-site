@@ -31,14 +31,33 @@ export function clean(value) {
     .trim();
 }
 
-// A one-line version of clean() for titles and table cells.
+// A one-line version of clean() for issue titles (GitHub shows titles as
+// plain text, apart from `code`).
 export function cleanLine(value) {
   return clean(String(value ?? "").replace(/\s+/g, " "));
 }
 
-// A table cell: one clean line with `|` escaped.
+// One clean line for inside an issue body, with the characters that make
+// inline markdown (code, emphasis, links, strikethrough, a table's `|`)
+// backslash-escaped so they show as typed.
+export function inline(value) {
+  return cleanLine(value).replace(/[\\`*_[\]~|]/g, "\\$&");
+}
+
+// A table cell: one inline-safe line.
 export function cell(value) {
-  return cleanLine(value).replace(/\|/g, "\\|");
+  return inline(value);
+}
+
+// A player's free text for an issue body: HTML stripped, then fenced, so no
+// heading, table, quote, list, rule, HTML, mention or #123 in it takes effect
+// and nothing in it can close the block early.
+export function block(value) {
+  const text = plain(value)
+    .replace(/<!--[\s\S]*?(?:-->|$)/g, "")
+    .replace(/<\/?[A-Za-z][^>]*>/g, "")
+    .trim();
+  return fence(text);
 }
 
 // Pasted text in a fenced block whose fence is longer than any run of
