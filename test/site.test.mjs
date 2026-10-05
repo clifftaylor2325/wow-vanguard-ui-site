@@ -165,6 +165,17 @@ test("the home page decoration is hidden from screen readers and the mock is lab
   assert.ok(!/https?:\/\/(?!foreverui\.pages\.dev)[^"']+\.(png|jpe?g|webp|gif|svg|woff2?|ttf|otf)/i.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8") + html), "no external images or fonts");
 });
 
+test("player-facing copy describes the early release honestly", () => {
+  const banned = /checked in game yet|not checked in game|nothing has been checked/i;
+  const bad = distFiles()
+    .filter((f) => /\.html$/.test(f))
+    .filter((f) => banned.test(fs.readFileSync(f, "utf8")))
+    .map((f) => path.relative(dist, f));
+  assert.deepEqual(bad, [], `old unverified wording found in dist/: ${bad.join(", ")}`);
+  assert.match(page(""), /Parts have been tested in game, and some features are still being polished/);
+  assert.doesNotMatch(page(""), /None of this has been checked in game yet/);
+});
+
 test("pages are well formed: one h1, skip link, shared nav and footer", () => {
   const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"];
   for (const d of dirs) {
