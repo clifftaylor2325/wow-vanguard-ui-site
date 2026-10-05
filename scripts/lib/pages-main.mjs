@@ -3,7 +3,7 @@
 // release metadata); the prose around them only restates what those sources say.
 import { esc, md, slug, badge, avail, shot, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL } from "./html.mjs";
 import { AREAS } from "./model.mjs";
-import { MORE } from "./features-content.mjs";
+import { MORE, longerOf } from "./features-content.mjs";
 
 // "September 27, 2026" in New York time.
 export function dateET(iso) {
@@ -419,9 +419,10 @@ function featureSource(m, more) {
 function featureCard(m, model) {
   const off = startsOff(m, model) ? ` <span class="badge plain">Off until you switch it on</span>` : "";
   const more = moreOf(m, model);
+  const longer = longerOf(m.key);
   return `<article class="card mod" id="${m.id}" data-module="${esc(m.key)}">
   <h3>${esc(m.name)} ${badge(m.inRel, m.inNext, model.version)}${off}</h3>
-  ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}${more ? `\n  <p class="mod-more">${esc(more)}</p>` : ""}
+  ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}${more ? `\n  <p class="mod-more">${esc(more)}</p>` : ""}${longer.length ? `\n  <p class="mod-longer">${esc(longer.join(" "))}</p>` : ""}
   ${featureFacts(m, model)}
   ${featureSource(m, more)}
 </article>`;
