@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { clean, cleanLine, cell, fence } from "../src/feedback/sanitize.js";
+import { clean, cleanLine, cell, fence, block, inline } from "../src/feedback/sanitize.js";
 import { parseReport, normalize, fingerprint } from "../src/feedback/report.js";
 import { readFields, validate, FALLBACK_AREAS } from "../src/feedback/fields.js";
 import { bugIssue, featureIssue, duplicateComment, refIn } from "../src/feedback/body.js";
@@ -15,6 +15,7 @@ import { handlePost, handleGet, configProblem } from "../functions/_lib/handler.
 import { apiBase, gitHub } from "../functions/_lib/github.js";
 import { SITEVERIFY } from "../functions/_lib/turnstile.js";
 import { startStub } from "../scripts/github-stub.mjs";
+import { memoryKV } from "../scripts/lib/memory-kv.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const fixture = (name) => fs.readFileSync(path.join(root, "test/fixtures", name), "utf8");
@@ -151,8 +152,8 @@ test("bug issue: marker, title, env table, fenced report, footer, labels", async
   assert.ok(issue.body.includes("| 0.3.0 | WoW Forever | 1.16.0 (65000) | 16001 |"));
   assert.ok(issue.body.includes("```text\n"), "the report is fenced");
   assert.ok(issue.body.includes("in function <eval:2>"), "the paste is kept as typed inside the fence");
-  assert.ok(issue.body.includes("@\u200bboss #\u200b4"));
-  assert.ok(!issue.body.includes("<i>"));
+  assert.ok(issue.body.includes("**What I did**\n```text\nReloaded in a raid @boss #4\n```"), "free text is fenced");
+  assert.ok(issue.body.includes("**What happened instead**\n```text\nFrames <i>vanished</i>\n```"), "HTML shows as typed inside its fence");
   assert.equal(refIn(issue.body), "FUI-ABCDEF");
 });
 
@@ -176,7 +177,9 @@ test("feature issue: labels, area, footer without a vote prompt", () => {
 test("duplicate comment: the spike's sentence and the notes, nothing else", async () => {
   const f = readFields(bugFields({ contact_ok: true, contact: "me@example.com" }));
   const issue = await bugIssue(f, "FUI-ABCDEF");
-  const c = duplicateComment(f, issue.env, issue.fp);
+  const c = duplicateComment(f, issue.env, issue.fp, "FUI-ZZZZZZ");
+  assert.equal(refIn(c), "FUI-ZZZZZZ", "the comment carries the repeat reporter's own reference");
+  assert.ok(c.includes("Reference: FUI-ZZZZZZ"));
   assert.ok(c.startsWith("Another player hit this. ForeverUI 0.3.0, WoW Forever 1.16.0 (65000). Occurrences in their session: 2."));
   assert.ok(c.includes("<details><summary>their notes</summary>"));
   assert.ok(!c.includes("me@example.com"));
@@ -184,26 +187,6 @@ test("duplicate comment: the spike's sentence and the notes, nothing else", asyn
 });
 
 // ---------------------------------------------------------------- Function
-
-// An in-memory KV with expirationTtl (seconds) against a fake clock.
-function memoryKV(clock) {
-  const map = new Map();
-  return {
-    map,
-    async get(key) {
-      const e = map.get(key);
-      if (!e) return null;
-      if (e.until && e.until <= clock.now) {
-        map.delete(key);
-        return null;
-      }
-      return e.value;
-    },
-    async put(key, value, opts = {}) {
-      map.set(key, { value: String(value), until: opts.expirationTtl ? clock.now + opts.expirationTtl * 1000 : 0 });
-    },
-  };
-}
 
 // A mock GitHub (issues in memory) and Turnstile siteverify behind one fetch.
 // Every call is recorded; nothing leaves the process.
@@ -251,11 +234,12 @@ function testEnv(clock, extra = {}) {
 }
 
 // POSTs fields to the handler the way the page does.
-async function send(env, services, fields, { clock, host = "localhost", ip = "203.0.113.7", extra = {}, raw } = {}) {
-  const t0 = clock.now - 10_000;
-  const body = raw ?? JSON.stringify({ ...fields, turnstile: "XXXX.DUMMY.TOKEN.XXXX", fui_hp: "", t0, t1: clock.now, ...extra });
+async function send(env, services, fields, { clock, at, host = "localhost", ip = "203.0.113.7", extra = {}, raw } = {}) {
+  const now = at ?? clock.now;
+  const t0 = now - 10_000;
+  const body = raw ?? JSON.stringify({ ...fields, turnstile: "XXXX.DUMMY.TOKEN.XXXX", fui_hp: "", t0, t1: now, ...extra });
   const req = new Request(`http://${host}:8788/api/feedback`, { method: "POST", headers: { "content-type": "application/json", "cf-connecting-ip": ip }, body });
-  const res = await handlePost(req, env, { fetchFn: services.fetchFn, now: () => clock.now, areas: AREAS });
+  const res = await handlePost(req, env, { fetchFn: services.fetchFn, now: () => now, areas: AREAS });
   const text = await res.text();
   return { status: res.status, text, data: JSON.parse(text), headers: res.headers };
 }
@@ -293,7 +277,7 @@ test("a feature request creates an issue with the feature labels, no search", as
   assert.ok(!s.calls.some((c) => c.url.includes("/search/")));
 });
 
-test("two identical error reports: one issue, one comment, the same reference", async () => {
+test("two identical error reports: one issue, one comment, each with its own reference", async () => {
   const clock = newClock();
   const env = testEnv(clock);
   const s = mockServices();
@@ -306,7 +290,11 @@ test("two identical error reports: one issue, one comment, the same reference", 
   assert.equal(s.issues[0].comments.length, 1);
   assert.ok(s.issues[0].comments[0].startsWith("Another player hit this."));
   assert.ok(!s.issues[0].comments[0].includes("dup@example.com"));
-  assert.equal(second.data.reference, first.data.reference);
+  assert.match(second.data.reference, /^FUI-[A-HJ-NP-Z2-9]{6}$/);
+  assert.notEqual(second.data.reference, first.data.reference, "a repeat reporter never gets the first reporter's reference");
+  assert.equal(refIn(s.issues[0].body), first.data.reference);
+  assert.equal(refIn(s.issues[0].comments[0]), second.data.reference);
+  assert.ok(!s.issues[0].comments[0].includes(first.data.reference));
   assert.equal(second.data.duplicate, true);
   assertNoLeak(second.text);
 });
@@ -423,6 +411,21 @@ test("bad requests: not JSON, too big, or carrying a screenshot", async () => {
   assert.equal(s.issues.length, 0);
 });
 
+test("a bad Turnstile token writes nothing to KV: no rate slots, fingerprint or contact", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const writes = [];
+  const kv = env.FEEDBACK_KV;
+  const put = kv.put.bind(kv);
+  kv.put = async (key, ...rest) => { writes.push(key); return put(key, ...rest); };
+  const s = mockServices({ turnstile: false });
+  const r = await send(env, s, bugFields({ contact_ok: true, contact: "player@example.com" }), { clock });
+  assert.equal(r.status, 403);
+  assert.deepEqual(writes, [], "no KV writes at all");
+  assert.deepEqual([...kv.map.keys()], [], "KV is still empty");
+  assert.equal(s.issues.length, 0);
+});
+
 test("a failed Turnstile check is refused before GitHub is called", async () => {
   const clock = newClock();
   const s = mockServices({ turnstile: false });
@@ -432,25 +435,12 @@ test("a failed Turnstile check is refused before GitHub is called", async () => 
   assert.ok(!s.calls.some((c) => c.url.startsWith("https://api.github.com")));
 });
 
-test("5 sends an hour per player, then 429 with retry-after", async () => {
-  const clock = newClock();
-  const env = testEnv(clock);
-  const s = mockServices();
-  for (let i = 0; i < 5; i++) assert.equal((await send(env, s, featureFields(), { clock })).status, 200);
-  const sixth = await send(env, s, featureFields(), { clock });
-  assert.equal(sixth.status, 429);
-  assert.ok(Number(sixth.headers.get("retry-after")) > 0);
-  assert.equal((await send(env, s, featureFields(), { clock, ip: "198.51.100.20" })).status, 200, "another player can still send");
-  clock.now += 3600_000;
-  assert.equal((await send(env, s, featureFields(), { clock })).status, 200, "the next hour is fine");
-});
-
 test("60 new issues a day for everyone, then 429", async () => {
   const clock = newClock();
   const env = testEnv(clock);
   const s = mockServices();
-  for (let i = 0; i < 60; i++) assert.equal((await send(env, s, featureFields(), { clock, ip: `198.51.100.${i}` })).status, 200);
-  assert.equal((await send(env, s, featureFields(), { clock, ip: "192.0.2.1" })).status, 429);
+  for (let i = 0; i < 60; i++) assert.equal((await send(env, s, featureFields(), { clock, at: clock.now + i, ip: `198.51.100.${i}` })).status, 200);
+  assert.equal((await send(env, s, featureFields(), { clock, at: clock.now + 60, ip: "192.0.2.1" })).status, 429);
   assert.equal(s.issues.length, 60);
 });
 
@@ -522,4 +512,226 @@ test("no client file names the repository or a token", () => {
     const t = fs.readFileSync(path.join(dist, f), "utf8");
     assert.ok(!/wow-forever-ui|clifftaylor|GITHUB_TOKEN|github_pat|ghp_/i.test(t), f);
   }
+});
+
+// ------------------------------------------------------- hostile markdown
+
+// Starts as ordinary text, so the fence it opens later is inside the player's text.
+const HOSTILE = [
+  "Ordinary words first, then a HOSTILE fence opener:",
+  "```",
+  "# HOSTILE heading",
+  "| HOSTILE | table |",
+  "|---|---|",
+  "> HOSTILE quote",
+  "- HOSTILE item",
+  "* HOSTILE star",
+  "+ HOSTILE plus",
+  "1. HOSTILE numbered",
+  "---",
+  "HOSTILE setext",
+  "===",
+  "<details open><summary>HOSTILE</summary>",
+  "<!-- HOSTILE hidden -->",
+  "@HOSTILEuser fixes #1 and GH-2 ![HOSTILE](http://x.invalid/y.png) [HOSTILE](http://x.invalid)",
+  "~~~",
+  "HOSTILE after a tilde fence",
+  "   ```````` HOSTILE long run",
+  "    indented HOSTILE",
+  "</details>",
+  "````",
+].join("\n");
+
+// The lines of a markdown text that are outside fenced code blocks
+// (CommonMark: a fence closes with a run of the same character at least as
+// long, indented at most 3 spaces). Fails if a fence is left open.
+function outsideFences(md) {
+  const out = [];
+  let open = null;
+  for (const line of md.split("\n")) {
+    if (open) {
+      const close = line.match(/^ {0,3}(`{3,}|~{3,})\s*$/);
+      if (close && close[1][0] === open[0] && close[1].length >= open.length) open = null;
+      continue;
+    }
+    const start = line.match(/^ {0,3}(`{3,}|~{3,})/);
+    if (start) {
+      open = start[1];
+      continue;
+    }
+    out.push(line);
+  }
+  assert.equal(open, null, "a fence is left open");
+  return out;
+}
+
+test("block: player text is fenced as typed and can't close its fence", () => {
+  const b = block(HOSTILE);
+  const outside = outsideFences(b);
+  assert.deepEqual(outside, [], "nothing outside the fence");
+  assert.ok(b.includes("# HOSTILE heading"), "the text is kept, inside the fence");
+});
+
+test("inside a fence nothing that only looks like HTML is stripped", () => {
+  assert.equal(block("a<b and c>d"), "```text\na<b and c>d\n```");
+  assert.equal(block("<details><summary>x</summary>"), "```text\n<details><summary>x</summary>\n```", "real tags show as typed in a fence too");
+});
+
+// The player text the builder fenced under a section label: the label line,
+// then the builder's opening fence (```…text), then its closing fence (the
+// same run of backticks on its own line). Fails if the label isn't followed
+// by a fence the builder opened.
+function builderBlock(md, label) {
+  const lines = md.split("\n");
+  const at = lines.indexOf(label);
+  assert.ok(at >= 0, `label ${label}`);
+  const open = (lines[at + 1] || "").match(/^(`{3,})text$/);
+  assert.ok(open, `${label}: the builder didn't open a fence (next line: ${JSON.stringify(lines[at + 1])})`);
+  const close = lines.indexOf(open[1], at + 2);
+  assert.ok(close > at, `${label}: the builder's fence is never closed`);
+  return { text: lines.slice(at + 2, close).join("\n"), start: at + 1, end: close };
+}
+
+test("hostile text appears only inside the fences the builder opened", async () => {
+  const bugF = readFields(bugFields({ did: HOSTILE, expected: HOSTILE, happened: HOSTILE }));
+  const bug = await bugIssue(bugF, "FUI-ABCDEF");
+  const feat = featureIssue(readFields(featureFields({ want: HOSTILE, why: HOSTILE })), "Raid frames", "FUI-ABCDEF");
+  const comment = duplicateComment(bugF, bug.env, bug.fp, "FUI-ZZZZZZ");
+  const cases = [
+    ["bug", bug.body, ["**What I did**", "**What I expected**", "**What happened instead**"]],
+    ["feature", feat.body, ["**What I want**", "**Why it would help**"]],
+    ["comment", comment, ["**What they did**", "**What happened instead**"]],
+  ];
+  for (const [name, md, labels] of cases) {
+    const lines = md.split("\n");
+    const inside = new Set();
+    for (const label of labels) {
+      const b = builderBlock(md, label);
+      assert.equal(b.text, HOSTILE, `${name} ${label}: the fenced text is the player's text, unchanged`);
+      for (let i = b.start; i <= b.end; i++) inside.add(i);
+    }
+    const leaked = lines.filter((l, i) => !inside.has(i) && l.includes("HOSTILE"));
+    assert.deepEqual(leaked, [], `${name}: player text outside the builder's fences`);
+  }
+});
+
+test("bare URLs in one-line body values don't autolink", async () => {
+  assert.equal(inline("see https://evil.example/x"), "see https:\u200b//evil.example/x");
+  assert.equal(inline("www.evil.example"), "www\u200b.evil.example");
+  const report = "Client WoW Forever  ·  build https://evil.example/pwn (65000)  ·  x\nForeverUI 0.3.0  ·  interface 16001";
+  const issue = await bugIssue(readFields(bugFields({ report })), "FUI-ABCDEF");
+  const row = issue.body.split("\n").find((l) => l.startsWith("| 0.3.0 |"));
+  assert.ok(row.includes("https:\u200b//evil.example/pwn (65000)"), row);
+  assert.ok(!/https:\/\//.test(row), "no unbroken URL in the table");
+});
+test("inline: one-line values can't add code, emphasis, links or table cells", () => {
+  assert.equal(inline("a|b *c* _d_ `e` [f](g) ~~h~~ \\i"), "a\\|b \\*c\\* \\_d\\_ \\`e\\` \\[f\\](g) \\~\\~h\\~\\~ \\\\i");
+  assert.equal(inline("<b>x</b> @y #3"), "x @\u200by #\u200b3");
+});
+
+test("hostile text in every free-text field stays inside fences in every issue and comment", async () => {
+  const bugF = readFields(bugFields({ title: `# ${HOSTILE.slice(0, 60)}`, did: HOSTILE, expected: HOSTILE, happened: HOSTILE, report: `${HOSTILE}\n${ERRORS}` }));
+  const featF = readFields(featureFields({ want: HOSTILE, why: HOSTILE }));
+  const bug = await bugIssue(bugF, "FUI-ABCDEF");
+  const feat = featureIssue(featF, "Raid frames", "FUI-ABCDEF");
+  const comment = duplicateComment(bugF, bug.env, bug.fp, "FUI-ZZZZZZ");
+  for (const [name, md] of [["bug", bug.body], ["feature", feat.body], ["comment", comment]]) {
+    const outside = outsideFences(md);
+    const leaked = outside.filter((l) => l.includes("HOSTILE"));
+    assert.deepEqual(leaked, [], `${name}: player text outside a fence`);
+    assert.ok(outside.every((l) => !/^ {0,3}(#|>|\||[-*+] |\d+\. |===)/.test(l) || /^\| (ForeverUI|0\.3\.0|not found)|^\|---/.test(l)), `${name}: an unexpected block marker outside fences`);
+  }
+  assert.ok(!/@HOSTILEuser/.test(bug.title), "mentions in the title are broken");
+  assert.equal(refIn(bug.body), "FUI-ABCDEF");
+  assert.equal(refIn(comment), "FUI-ZZZZZZ");
+});
+
+test("the shared builder gives the page's preview and the Function the same text", async () => {
+  const clock = newClock();
+  const s = mockServices();
+  const fields = bugFields({ did: HOSTILE });
+  const r = await send(testEnv(clock), s, fields, { clock });
+  const preview = await bugIssue(readFields(fields), r.data.reference);
+  assert.equal(s.issues[0].body, preview.body);
+  assert.equal(s.issues[0].title, preview.title);
+});
+
+// ------------------------------------------------------------- rate caps
+
+const slots = (env, kind) => [...env.FEEDBACK_KV.map.keys()].filter((k) => k.startsWith(`rl:${kind}:`));
+
+test("10 sends at once from one player: no more than 5 get through", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const s = mockServices();
+  // Ten requests side by side, a millisecond apart; KV calls interleave.
+  const results = await Promise.all(Array.from({ length: 10 }, (_, i) => send(env, s, featureFields(), { clock, at: clock.now + i })));
+  const ok = results.filter((r) => r.status === 200).length;
+  assert.equal(ok, 5, results.map((r) => r.status).join(","));
+  assert.ok(results.filter((r) => r.status !== 200).every((r) => r.status === 429));
+  assert.equal(s.issues.length, 5);
+  assert.equal(slots(env, "p").length, 5, "refused sends leave no slot behind");
+});
+
+test("10 sends at once with the same timestamp never exceed 5", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const s = mockServices();
+  await send(env, s, featureFields(), { clock: { now: clock.now - 60_000 } });
+  const results = await Promise.all(Array.from({ length: 10 }, () => send(env, s, featureFields(), { clock })));
+  assert.ok(results.filter((r) => r.status === 200).length <= 4, results.map((r) => r.status).join(","));
+});
+
+test("5 sends in a rolling hour: the turn of the hour doesn't reset it", async () => {
+  const clock = { now: Date.UTC(2026, 9, 5, 12, 59, 50) };
+  const env = testEnv(clock);
+  const s = mockServices();
+  for (let i = 0; i < 5; i++) assert.equal((await send(env, s, featureFields(), { clock, at: clock.now + i })).status, 200);
+  clock.now = Date.UTC(2026, 9, 5, 13, 0, 10);
+  const sixth = await send(env, s, featureFields(), { clock });
+  assert.equal(sixth.status, 429, "a fixed hourly bucket would have let this through");
+  assert.equal(Number(sixth.headers.get("retry-after")), 3580, "free again when the oldest send is an hour old");
+  assert.equal((await send(env, s, featureFields(), { clock, ip: "198.51.100.20" })).status, 200, "another player can still send");
+  clock.now = Date.UTC(2026, 9, 5, 13, 59, 50);
+  assert.equal((await send(env, s, featureFields(), { clock })).status, 200, "an hour after the first send there's room again");
+  assert.equal((await send(env, s, featureFields(), { clock })).status, 429, "but only for the one that aged out");
+});
+
+test("the rolling hour holds across midnight, when the player key changes", async () => {
+  const clock = { now: Date.UTC(2026, 9, 5, 23, 50, 0) };
+  const env = testEnv(clock);
+  const s = mockServices();
+  for (let i = 0; i < 5; i++) assert.equal((await send(env, s, featureFields(), { clock, at: clock.now + i })).status, 200);
+  clock.now = Date.UTC(2026, 9, 6, 0, 10, 0);
+  assert.equal((await send(env, s, featureFields(), { clock })).status, 429);
+});
+
+test("a send that fails or is refused by GitHub doesn't use up the player's sends", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const down = mockServices({ fail: { create: 500 } });
+  for (let i = 0; i < 6; i++) assert.equal((await send(env, down, featureFields(), { clock, at: clock.now + i })).status, 503);
+  assert.deepEqual(slots(env, "p"), []);
+  assert.deepEqual(slots(env, "d"), []);
+  assert.equal((await send(env, mockServices(), featureFields(), { clock, at: clock.now + 10 })).status, 200);
+});
+
+test("a duplicate counts against the player but not against the day's new issues", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const s = mockServices();
+  await send(env, s, bugFields(), { clock });
+  await send(env, s, bugFields(), { clock, at: clock.now + 1, ip: "198.51.100.30" });
+  assert.equal(s.issues.length, 1);
+  assert.equal(slots(env, "d").length, 1);
+  assert.equal(slots(env, "p").length, 2);
+});
+
+test("60 new issues at once from 70 players: no more than 60 get through", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const s = mockServices();
+  const results = await Promise.all(Array.from({ length: 70 }, (_, i) => send(env, s, featureFields(), { clock, at: clock.now + i, ip: `198.51.100.${i}` })));
+  assert.equal(results.filter((r) => r.status === 200).length, 60);
+  assert.equal(s.issues.length, 60);
 });
