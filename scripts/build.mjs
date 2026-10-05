@@ -17,6 +17,8 @@ import { FONTS, WOFF2_DIR } from "./lib/fonts.mjs";
 import { homePage, installPage, startPage, featuresPage, commandsPage, settingsPage } from "./lib/pages-main.mjs";
 import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage } from "./lib/pages-more.mjs";
 
+const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js"];
+
 const SITE_AUTHOR = "Cliff Hearthvale";
 const OLD_AUTHOR = "clifftaylor2325";
 const publicText = (text) => String(text ?? "").replaceAll(OLD_AUTHOR, SITE_AUTHOR);
@@ -83,7 +85,11 @@ function main() {
 
   fs.rmSync(cfg.outDir, { recursive: true, force: true });
   write("assets/theme.css", theme.css);
-  for (const f of ["site.css", "site.js"]) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets", f)));
+  for (const f of ["site.css", "site.js", "feedback.js"]) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets", f)));
+  // The feedback form's shared code: the same files the Pages Function imports (functions/_lib/handler.js).
+  for (const f of FEEDBACK_SHARED) write(`assets/feedback/${f}`, fs.readFileSync(path.join(root, "src/feedback", f)));
+  // Only /api/* runs the Pages Function; every other path is a static file.
+  write("_routes.json", JSON.stringify({ version: 1, include: ["/api/*"], exclude: [] }, null, 1) + "\n");
   for (const f of [...FONTS.map((n) => `${n}.ttf`), "OFL.txt"]) write(`fonts/${f}`, relReader.readBuffer(`Media/Fonts/${f}`));
   for (const n of FONTS) {
     const woff2 = path.join(root, WOFF2_DIR, `${n}.woff2`);

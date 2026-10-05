@@ -21,6 +21,8 @@ npm run check      # build, then test
 npm run serve      # serve dist/ at http://localhost:8080
 npm run shots      # full-page screenshots, a no-horizontal-scroll check at 390 and 360px, and a keyboard check of the skip link (needs Chrome)
 npm run fonts      # re-make src/fonts/*.woff2 from the addon's TTF fonts (after npm run fetch)
+npm run stub:github  # a stand-in GitHub API on 127.0.0.1:8789 for the feedback Function (see Feedback form)
+npm run dev        # wrangler pages dev: dist/ plus the feedback Function, at http://localhost:8788
 npm run deploy     # npx wrangler pages deploy dist --project-name foreverui
 ```
 
@@ -61,6 +63,49 @@ Every page shares the Home page's Slate & Brass pieces, from `scripts/lib/html.m
 
 The site never links to the private GitHub repo from player-facing pages, and it offers no download.
 
+## Feedback form
+
+`/feedback/` has a form (with a preview step) that sends a bug report or feature request to a Cloudflare Pages Function, `POST /api/feedback` (`functions/api/feedback.js`, with the code in `functions/_lib/`). The Function checks the report, runs Cloudflare Turnstile, applies the rate caps, and files it as an issue in the maintainers' private repository (or comments on the open issue for the same error). The player gets a short reference like `FUI-AB12CD`, never a link or the repository's name. `dist/_routes.json` sends only `/api/*` to the Function.
+
+The page and the Function share `src/feedback/` (checks, sanitizing, `/fui report` parsing, the error fingerprint and the issue text). The build copies it to `dist/assets/feedback/`, so the preview is exactly what's filed.
+
+### Bindings
+
+Set these on the Pages project (Settings → Variables and Secrets, and Bindings), not in a file in the repo:
+
+| Name | Kind | What |
+|---|---|---|
+| `GITHUB_TOKEN` | secret | Fine-grained token: only the feedback repository, Issues read and write. Not a personal `gh` token. |
+| `TURNSTILE_SECRET` | secret | The Turnstile widget's secret key |
+| `RL_SALT` | secret | A long random string for the hashed rate-cap keys |
+| `TURNSTILE_SITEKEY` | variable | The Turnstile widget's sitekey (the page gets it from `GET /api/feedback`) |
+| `FEEDBACK_REPO` | variable | `owner/name` of the repository issues go to |
+| `FEEDBACK_KV` | KV namespace | Rate caps, fingerprint → issue, and contact details (90 days) |
+| `GITHUB_API_URL` | local only | Points the Function at the local stub. Leave it unset on Cloudflare. |
+
+Until they're all set, `GET /api/feedback` says it isn't accepting, and the page shows "Reports can't be sent from this page right now". The rest of the page (the steps and copyable templates) still works. The Function also refuses Turnstile's test keys and a `GITHUB_API_URL` stub anywhere but localhost.
+
+### Running it locally
+
+Nothing is sent to GitHub: reports go to an in-memory stub on your machine. Turnstile uses Cloudflare's public test keys, which always pass. Wrangler 4 needs Node 22 or newer.
+
+```sh
+npm run build
+cp .dev.vars.example .dev.vars   # test keys and the stub address; .dev.vars is gitignored
+npm run stub:github              # terminal 1: the GitHub stand-in (lists what it got at http://127.0.0.1:8789/_stub/issues)
+npm run dev                      # terminal 2: http://localhost:8788/feedback/ (local KV for FEEDBACK_KV)
+SHOTS_BASE=http://localhost:8788 npm run shots   # optional: screenshots of the form's steps, sends 2 reports to the stub
+```
+
+### What gets filed
+
+- Labels: `bug` + `from-site`, or `feature-request` + `from-site`.
+- Player text is HTML-stripped, with `@mentions`, `#123` and image markdown broken. Pasted reports go in a fenced block.
+- Bugs with a caught error carry a fingerprint (`fp:` + 8 hex characters from the first error and its top stack line, with line numbers, addresses and counts removed). A second report of the same open bug becomes a comment on it, and the player gets the same reference.
+- Contact details (only when the player ticks the box) are kept in `FEEDBACK_KV` for 90 days, never in the issue. No IP address is stored: the rate cap keys are `sha256(IP + RL_SALT + date)`, kept for 2 hours.
+- Caps: 5 sends an hour per player, and 60 new issues a day in all.
+- No uploads in v1: a request with a screenshot or file field is refused.
+
 ## CurseForge
 
 Installing is going to be through CurseForge (the CurseForge app or website). `CURSEFORGE_URL` in `scripts/lib/html.mjs` is `null` until ForeverUI is listed, so every call to action (Home, Install, the footer) renders as a styled, non-link "Coming soon on CurseForge" badge. When the listing is live, set `CURSEFORGE_URL` to its URL and run `npm run check`: the badges become links, and the tests switch to checking for the link.
@@ -79,6 +124,8 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 - that each `@font-face` lists WOFF2 first and the TTF second, keeps `font-display: swap`, and that `dist/fonts/` ships the committed WOFF2 files
 - that every internal link and anchor resolves
 - that nothing in `dist/` links to github.com
+
+`test/feedback.test.mjs` covers the feedback form: sanitizing, the parser (with real `/fui status` and `/fui errors` output in `test/fixtures/`), fingerprints, the issue text and checks, and the Function's paths (create, duplicate → comment, spam, Turnstile, rate caps, missing settings) against a mock GitHub and an in-memory KV. It never calls GitHub.
 
 ## License
 

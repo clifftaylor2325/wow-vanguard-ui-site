@@ -1,0 +1,13 @@
+### ForeverUI report v1 ###
+ForeverUI 0.3.0  ·  interface 16001  ·  profile Default  ·  46/46 modules on
+Client WoW Forever  ·  build 1.16.0 (65000)  ·  update the game: this build loses settings at every launch  ·  auras on the engine  ·  aura values readable  ·  secure snippets: yes
+Client has: auraContainer, eventValid, cooldownObject, cooldownMin, countdownText, keyPropagate, damageMeter, cooldownViewer, swingTimer  ·  lacks: pixelUtil, barEase, meterEnums
+UI scale 1.00  ·  text 100%  ·  chat 12 (about 17 px on this screen)
+Errors: 2 (3 in all)
+[1] RaidFrames: eval:2: attempt to index a nil value (local 't')  (x2)
+    	Core/Events.lua:136: in metamethod '__index'
+    	eval:2: in function <eval:2>
+[2] Nameplates: eval:2: attempt to perform arithmetic on a table value  (x1)
+    	Core/Events.lua:136: in metamethod '__add'
+    	eval:2: in function <eval:2>
+### end ###
