@@ -75,6 +75,7 @@ export function layout({ path, title, description, body, site, scripts = [] }) {
 <meta name="description" content="${esc(description)}">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="${esc(site.theme.bg)}">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/theme.css">
 <link rel="stylesheet" href="/assets/site.css">
 <script>document.documentElement.className += " js";</script>
