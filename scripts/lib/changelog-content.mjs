@@ -81,7 +81,7 @@ export const NEXT_RELEASE = {
       { label: "Options", text: "A dot marks each setting you changed (click it to put the default back), every part has a plain description, profiles are managed in the window, search jumps to the setting, and the keyboard and mouse wheel move around the window.", from: [48, 49, 81] },
       { label: "A calmer screen", text: "Frames in the middle of the screen drop their sheen and shadow (a switch brings the shadow back), with a new Soft bar texture.", from: [54] },
       { label: "Menu and bags", text: "The game's menu and bag buttons sit together in one bar in the corner, with ForeverUI icons.", from: [52, 55, 57, 58, 81] },
-      { label: "Game menu", text: "A ForeverUI button at the top of the game menu (Escape).", from: [59, 75] },
+      { label: "Game menu", text: "A ForeverUI button at the top of the Escape menu, or just under it where your client's menu can't take new buttons.", from: [59, 75] },
       { label: "Profiles", text: "Choosing a profile takes effect at your next reload, a whole profile string can bring its UI scale along, and a profile remembers its Edit Mode layout.", from: [79, 80] },
       { label: "Edit Mode", text: "The game's Edit Mode shows ForeverUI's frame handles too, so you can move everything in one place.", from: [69] },
       { label: "Nameplates", text: "Your target gets a small diamond and an accent border.", from: [55, 81] },
