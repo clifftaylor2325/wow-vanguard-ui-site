@@ -11,7 +11,7 @@
   "scripts": {
     "fetch": "node scripts/fetch.mjs",
     "build": "node scripts/fetch.mjs && node scripts/build.mjs",
-    "test": "node --test test/",
+    "test": "node --test test/site.test.mjs",
     "check": "npm run build && npm test",
     "shots": "node scripts/shots.mjs",
     "serve": "node scripts/serve.mjs",

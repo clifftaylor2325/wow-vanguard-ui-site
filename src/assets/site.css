@@ -162,18 +162,30 @@ a.cf-cta:hover { filter: brightness(1.08); }
   .cmd > :not(.cmd-head) { grid-column: 2; }
 }
 
-/* Settings list */
+/* Settings tables: a real table from 900px; below that each row is a card. */
 .opt-page { margin-top: 28px; }
-.opt-rows { list-style: none; margin: 0; padding: 0; border: 1px solid var(--divider); border-radius: 6px; overflow: hidden; }
-.opt-row { padding: 10px 14px; background: var(--panel); border-top: 1px solid var(--divider); display: grid; gap: 4px; }
-.opt-row:first-child { border-top: 0; }
-.opt-row.h { background: var(--raised); font-weight: 600; display: block; }
-.opt-row.t { color: var(--text2); font-style: italic; display: block; }
-.opt-cap { font-weight: 600; }
-.opt-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 0.9rem; color: var(--text2); }
-@media (min-width: 900px) {
-  .opt-row:not(.h):not(.t) { grid-template-columns: 1fr minmax(240px, 38%); column-gap: 16px; }
-  .opt-row:not(.h):not(.t) .opt-meta { justify-content: flex-end; }
+.opt-table { table-layout: fixed; border: 1px solid var(--divider); }
+.opt-table thead th:nth-child(1) { width: 32%; }
+.opt-table thead th:nth-child(2) { width: 10%; }
+.opt-table thead th:nth-child(3) { width: 24%; }
+.opt-table thead th:nth-child(4) { width: 16%; }
+.opt-table thead th:nth-child(5) { width: 18%; }
+.opt-table th, .opt-table td { overflow-wrap: anywhere; }
+.opt-table tbody th[scope="row"], .opt-table td { background: var(--panel); }
+.opt-table td { font-size: 0.9rem; color: var(--text2); }
+.opt-table td .badge { margin: 0 4px 4px 0; }
+.opt-row.h th { background: var(--raised); }
+.opt-row.t td { color: var(--text2); font-style: italic; }
+.opt-row[hidden] { display: none !important; }
+@media (max-width: 899px) {
+  .opt-table, .opt-table tbody, .opt-table tr, .opt-table th, .opt-table td { display: block; width: 100%; }
+  .opt-table { border: 0; }
+  .opt-table thead { position: absolute; left: -9999px; }
+  .opt-table tr { border: 1px solid var(--divider); border-radius: 6px; margin-bottom: 8px; padding: 6px 0; background: var(--panel); }
+  .opt-table tr.h { background: var(--raised); }
+  .opt-table th, .opt-table td { border: 0; padding: 4px 12px; background: none; }
+  .opt-table td:empty { display: none; }
+  .opt-table td[data-label]::before { content: attr(data-label); display: block; font-size: 0.85rem; color: var(--text2); }
 }
 
 /* Features */
