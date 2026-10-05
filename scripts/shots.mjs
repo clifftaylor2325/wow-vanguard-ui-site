@@ -6,11 +6,18 @@
 // Uses playwright-core with the browser in CHROME_PATH, else Edge on Windows
 // (msedge.exe under Program Files or Program Files (x86)), else an installed
 // Chrome/Chromium. Screenshots go to SHOTS_DIR (default: shots/).
+// It also checks the skip link with the keyboard on every page: the first Tab
+// must focus it, and Enter must move focus to <main id="main">.
+// The local server listens on SHOTS_PORT (default: any free port).
 //   npm run shots
-// With SHOTS_BASE set to a running `npm run dev` (wrangler pages dev with the
-// local GitHub stub, see README), it also walks the feedback form: field
-// errors, the feature fields, the preview and the confirmation, at 1280px and
-// 390px. Reports it sends go to the stub, never to GitHub.
+// It also walks the feedback form (field errors, the feature fields, the
+// preview, the confirmation, and at 390px a repeat of the same bug) at 1280px
+// and 390px. By default the page's /api/feedback calls are answered in this
+// process by the real Function code, filing into the local GitHub stub, with
+// a Turnstile stand-in (scripts/lib/feedback-mock.mjs). With SHOTS_BASE set to
+// a running `npm run dev` (wrangler pages dev with the stub, see README) it
+// uses that instead, with the real Turnstile test widget. Either way reports
+// go to the stub, never to GitHub.
 //   SHOTS_BASE=http://localhost:8788 npm run shots
 import fs from "node:fs";
 import path from "node:path";
@@ -18,6 +25,7 @@ import { chromium } from "playwright-core";
 import { loadConfig, root } from "./lib/config.mjs";
 import { serve } from "./serve.mjs";
 import { NAV } from "./lib/html.mjs";
+import { mockFeedback, routeFeedbackApi } from "./lib/feedback-mock.mjs";
 
 // msedge.exe in the usual Windows install folders (none on other systems).
 function edgePaths() {
@@ -49,15 +57,11 @@ function watchErrors(page, failures) {
   page.on("console", (m) => { if (m.type() === "error") report(failures, `console error on ${page.url()}: ${m.text()}`, false); });
 }
 
-// The static server has no Pages Functions, so GET /api/feedback gets the reply the
-// Function gives when reports aren't set up (handleGet in functions/_lib/handler.js).
-// Any other method goes through, so it still 404s and fails the run.
-async function stubFeedbackApi(page) {
-  await page.route((url) => url.pathname === "/api/feedback", (route) => {
-    if (route.request().method() !== "GET") return route.continue();
-    return route.fulfill({ status: 200, contentType: "application/json; charset=utf-8", body: JSON.stringify({ accepting: false, sitekey: null }) });
-  });
-}
+// The static server has no Pages Functions, so /api/feedback is answered by the
+// one handler in scripts/lib/feedback-mock.mjs: with no bindings, GET gets the
+// real Function's "not accepting" reply and any other method still 404s and
+// fails the run. The form walk-through uses the same handler with bindings.
+const stubFeedbackApi = (page) => routeFeedbackApi(page, null);
 
 // A page of the given width on the static server, with the feedback stub and the error watch.
 async function watchedPage(browser, width, failures) {
@@ -112,11 +116,30 @@ async function noSideScroll(page, label, failures) {
   if (!ok) failures.push(label);
 }
 
-// The feedback form's steps against a running wrangler pages dev (SHOTS_BASE).
-async function feedbackFlow(browser, base, failures) {
+// The feedback form's steps, against SHOTS_BASE or the in-process mock.
+async function feedbackFlow(browser, base, failures, distDir) {
   const report = fs.readFileSync(path.join(root, "test/fixtures/fui-errors-next.txt"), "utf8");
+  console.log(process.env.SHOTS_BASE ? `feedback walk-through: ${base}` : "feedback walk-through: in-process Function + GitHub stub");
+  const fillBug = async (page) => {
+    await page.check("input[name=kind][value=bug]");
+    await page.fill("#fb-title", "Raid frames go blank after a reload");
+    await page.fill("#fb-report", report);
+    await page.fill("#fb-did", "Typed /reload in a raid group.");
+    await page.fill("#fb-happened", "The raid frames stayed empty until I left the group.");
+    await page.check("#fb-public_ack");
+    await page.click("#fb-form button[type=submit]");
+    await page.waitForSelector("#fb-preview:not([hidden])");
+    await page.waitForFunction(() => (document.querySelector("#fb-turnstile input[name=cf-turnstile-response]") || {}).value, null, { timeout: 30000 });
+  };
   for (const width of [1280, 390]) {
-    const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
+    // A fresh context (and, without SHOTS_BASE, a fresh stub) for each width.
+    const context = await browser.newContext();
+    const mock = process.env.SHOTS_BASE ? null : await mockFeedback(context, distDir);
+    const page = await context.newPage();
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 800 });
+    // Failed requests (400 or more) and console errors fail the run here too,
+    // with the in-process mock and with SHOTS_BASE alike.
+    watchErrors(page, failures);
     const shot = async (name) => {
       const file = path.join(outDir, `feedback-${name}-${width}.png`);
       await page.screenshot({ path: file, fullPage: true });
@@ -129,27 +152,31 @@ async function feedbackFlow(browser, base, failures) {
     await shot("errors");
     await page.check("input[name=kind][value=feature]");
     await shot("feature");
-    await page.check("input[name=kind][value=bug]");
-    await page.fill("#fb-title", "Raid frames go blank after a reload");
-    await page.fill("#fb-report", report);
-    await page.fill("#fb-did", "Typed /reload in a raid group.");
-    await page.fill("#fb-happened", "The raid frames stayed empty until I left the group.");
-    await page.check("#fb-public_ack");
-    await page.click("#fb-form button[type=submit]");
-    await page.waitForSelector("#fb-preview:not([hidden])");
-    await page.waitForFunction(() => (document.querySelector("#fb-turnstile input[name=cf-turnstile-response]") || {}).value, null, { timeout: 30000 });
+    await fillBug(page);
     await page.waitForTimeout(3500);
     await shot("preview");
     await page.click("#fb-send");
     await page.waitForSelector("#fb-done:not([hidden])", { timeout: 30000 });
     await shot("done");
-    await page.close();
+    if (width === 390) {
+      // The same bug again: added to the first report, with its own reference.
+      await page.click("#fb-again");
+      await fillBug(page);
+      await page.click("#fb-send");
+      await page.waitForSelector("#fb-done:not([hidden])", { timeout: 30000 });
+      await shot("duplicate");
+    }
+    await context.close();
+    if (mock) {
+      console.log(`stub got ${mock.issues.length} issue(s), ${mock.issues.reduce((n, i) => n + i.comments.length, 0)} comment(s)`);
+      mock.close();
+    }
   }
 }
 
 // Entry point.
 async function main() {
-  const server = await serve(loadConfig().outDir);
+  const server = await serve(loadConfig().outDir, Number(process.env.SHOTS_PORT || 0));
   const base = `http://127.0.0.1:${server.address().port}`;
   const browser = await chromium.launch({ executablePath: browserPath() });
   const failures = [];
@@ -160,6 +187,22 @@ async function main() {
       for (const n of NAV) {
         await page.goto(base + n.path, { waitUntil: "load" });
         await noSideScroll(page, `${n.path} at ${width}px`, failures);
+      }
+      await page.close();
+    }
+    // Skip link, with real keyboard focus: first Tab, then Enter.
+    {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+      for (const n of NAV) {
+        await page.goto(base + n.path, { waitUntil: "load" });
+        await page.keyboard.press("Tab");
+        const first = await page.evaluate(() => document.activeElement?.matches("a.skip[href='#main']") || false);
+        await page.keyboard.press("Enter");
+        await page.waitForFunction(() => location.hash === "#main", null, { timeout: 2000 }).catch(() => {});
+        const toMain = await page.evaluate(() => document.activeElement === document.querySelector("main#main"));
+        const ok = first && toMain;
+        console.log(`${ok ? "ok  " : "FAIL"} skip link ${n.path} first Tab: ${first ? "skip link" : "something else"}, Enter: ${toMain ? "focus on main" : "focus not on main"}`);
+        if (!ok) failures.push(`skip link on ${n.path}`);
       }
       await page.close();
     }
@@ -176,7 +219,7 @@ async function main() {
       }
       await page.close();
     }
-    if (process.env.SHOTS_BASE) await feedbackFlow(browser, process.env.SHOTS_BASE.replace(/\/+$/, ""), failures);
+    await feedbackFlow(browser, (process.env.SHOTS_BASE || base).replace(/\/+$/, ""), failures, loadConfig().outDir);
   } finally {
     await browser.close();
     server.close();
