@@ -19,7 +19,7 @@ npm run build      # fetch the addon source and release metadata, then generate 
 npm test           # check the generated site against the addon's Lua
 npm run check      # build, then test
 npm run serve      # serve dist/ at http://localhost:8080
-npm run shots      # full-page screenshots and a no-horizontal-scroll check at 390 and 360px (needs Chrome)
+npm run shots      # full-page screenshots, a no-horizontal-scroll check at 390 and 360px, and a keyboard check of the skip link (needs Chrome)
 npm run fonts      # re-make src/fonts/*.woff2 from the addon's TTF fonts (after npm run fetch)
 npm run deploy     # npx wrangler pages deploy dist --project-name foreverui
 ```
@@ -30,7 +30,7 @@ To build from a local checkout of the addon, skip the clone (use the same `FUI_S
 FUI_SRC=/path/to/wow-forever-ui npm run check
 ```
 
-`npm run shots` looks for Chrome in the usual places; point `CHROME_PATH` at another Chromium browser (Edge works) if it isn't found. `SHOTS_PORT` picks the port of its local server (default: any free port) and `SHOTS_DIR` where the screenshots go (default: `shots/`, git-ignored).
+`npm run shots` looks for Chrome in the usual places; point `CHROME_PATH` at another Chromium browser (Edge works) if it isn't found. `SHOTS_PORT` picks the port of its local server (default: any free port) and `SHOTS_DIR` where the screenshots go (default: `shots/`, git-ignored). On every page it also presses Tab and Enter for real: the first Tab must focus the skip link, and Enter must move focus to `<main id="main">`.
 
 Other overrides: `FUI_REF` (the source commit to read for the next release) and `FUI_RELEASE` (a release tag instead of `latest`).
 

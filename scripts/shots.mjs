@@ -3,6 +3,8 @@
 // full-page screenshots of Home, Install, Commands, Settings and Feedback at 1280px and 390px.
 // Uses playwright-core with an installed Chrome/Chromium (set CHROME_PATH if
 // it isn't found). Screenshots go to SHOTS_DIR (default: shots/).
+// It also checks the skip link with the keyboard on every page: the first Tab
+// must focus it, and Enter must move focus to <main id="main">.
 // The local server listens on SHOTS_PORT (default: any free port).
 //   npm run shots
 import fs from "node:fs";
@@ -42,6 +44,22 @@ async function main() {
       }
       await page.close();
     }
+    // Skip link, with real keyboard focus: first Tab, then Enter.
+    {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+      for (const n of NAV) {
+        await page.goto(base + n.path, { waitUntil: "load" });
+        await page.keyboard.press("Tab");
+        const first = await page.evaluate(() => document.activeElement?.matches("a.skip[href='#main']") || false);
+        await page.keyboard.press("Enter");
+        await page.waitForFunction(() => location.hash === "#main", null, { timeout: 2000 }).catch(() => {});
+        const toMain = await page.evaluate(() => document.activeElement === document.querySelector("main#main"));
+        const ok = first && toMain;
+        console.log(`${ok ? "ok  " : "FAIL"} skip link ${n.path} first Tab: ${first ? "skip link" : "something else"}, Enter: ${toMain ? "focus on main" : "focus not on main"}`);
+        if (!ok) failures.push(`skip link on ${n.path}`);
+      }
+      await page.close();
+    }
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
       for (const [name, url] of SHOOT) {
@@ -58,7 +76,7 @@ async function main() {
     server.close();
   }
   if (failures.length) {
-    console.error(`horizontal scroll on: ${failures.join(", ")}`);
+    console.error(`failed: ${failures.join(", ")}`);
     process.exit(1);
   }
 }
