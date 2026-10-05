@@ -19,12 +19,6 @@ function scratchLine(readme) {
   return (readme.match(/^Written from scratch\.[^\n]*$/m) || [""])[0].replace(/\s*It bundles.*$/, "");
 }
 
-// The README's "not checked in game" sentence, whitespace normalized.
-export function earlyQuote(readme) {
-  const m = readme.match(/None of this has been checked in game yet:\s*please report what breaks\./);
-  return m ? m[0].replace(/\s+/g, " ") : null;
-}
-
 // The CurseForge card used on Home and Install: the call to action, plus the
 // facts about the current release (no file, size or checksum: the site hosts none).
 export function curseforgeBox(model, { heading = true } = {}) {
@@ -103,7 +97,7 @@ function uiMock() {
     <div class="mk-bars"><div>${n(12)}</div><div>${n(12)}</div><div>${n(12)}</div><span class="mk-xp"></span></div>
     <div class="mk-chat">${n(5)}</div>
   </div>
-  <figcaption><span class="mock-tag">Illustration</span> Not a screenshot: an abstract sketch of the centered layout the addon's README describes, with player and target either side of your character, bars underneath, raid tiles above, chat bottom left and a square minimap. Real screenshots will come once it has been checked in game.</figcaption>
+  <figcaption><span class="mock-tag">Illustration</span> Not a screenshot: an abstract sketch of the centered layout the addon's README describes, with player and target either side of your character, bars underneath, raid tiles above, chat bottom left and a square minimap. Screenshots may be added as this early release is polished.</figcaption>
 </figure>`;
 }
 
@@ -135,7 +129,6 @@ function heroArt() {
 
 export function homePage(model) {
   const { rel } = model;
-  const quote = earlyQuote(rel.readme) || earlyQuote(model.next.readme);
   const relMods = model.modules.filter((m) => m.inRel);
   const line = tagline(model.next.readme) || tagline(rel.readme);
   const notes = String(rel.meta.Notes || "");
@@ -159,7 +152,7 @@ ${heroArt()}
 </section>
 
 <div class="honesty">
-  <div class="note-card warn"><svg class="note-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1 L19 10 L10 19 L1 10 Z"/><path d="M10 6 V11 M10 13.5 V14.5"/></svg><p><strong>Early release, not checked in game yet.</strong> ${quote ? `In the addon's own words: “${esc(quote)}”` : ""} Every report helps: see <a href="/feedback/">Feedback</a>.</p></div>
+  <div class="note-card warn"><svg class="note-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1 L19 10 L10 19 L1 10 Z"/><path d="M10 6 V11 M10 13.5 V14.5"/></svg><p><strong>ForeverUI is an early release.</strong> Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p></div>
   ${model.same ? "" : `<div class="note-card info"><svg class="note-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1 L19 10 L10 19 L1 10 Z"/><path d="M10 9 V14.5 M10 5.5 V6.5"/></svg>${nextNotice(model).replace(/^<div class="notice info">|<\/div>$/g, "")}</div>`}
 </div>
 
