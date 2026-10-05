@@ -100,6 +100,20 @@ for (const [label, ref] of Object.entries(refs)) {
   });
 }
 
+test("the Settings page is a table with column and row headers", () => {
+  const html = page("settings");
+  assert.ok(/<table class="opt-table"/.test(html), "/settings/ has no settings table");
+  assert.ok(/<th scope="col">Setting<\/th>/.test(html), "/settings/ tables need <th scope=\"col\"> headers");
+  assert.ok(/<tr class="opt-row opt-item" id="[^"]+"[^>]*><th scope="row"/.test(html), "/settings/ rows need an id and a <th scope=\"row\"> caption");
+});
+
+test("the Settings page quotes what a Reload button built in combat says", () => {
+  const line = (show(refs.next, "Core/Dialog.lua").match(/ns\.Chat\("(Type \/reload in chat[^"]*)"\)/) || [])[1];
+  const html = decode(page("settings"));
+  if (!line) return assert.ok(!html.includes('id="reload-in-combat"'), "reload note shown but Core/Dialog.lua has no such line");
+  assert.ok(html.includes(line), `/settings/ doesn't quote "${line}"`);
+});
+
 // Every file in dist/, as paths relative to it.
 function distFiles(dir = dist) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? distFiles(path.join(dir, e.name)) : [path.join(dir, e.name)]));
