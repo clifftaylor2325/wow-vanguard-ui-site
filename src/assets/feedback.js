@@ -5,7 +5,7 @@
 import { readFields, validate } from "./feedback/fields.js";
 import { bugIssue, featureIssue } from "./feedback/body.js";
 
-const PLACEHOLDER_REF = "FUI-??????";
+const PLACEHOLDER_REF = "VG-??????";
 const TURNSTILE_JS = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
 const $ = (sel) => document.querySelector(sel);
@@ -26,7 +26,7 @@ const el = (name) => form.elements.namedItem(name);
 
 const kind = () => (form.querySelector("input[name=kind]:checked") || {}).value || "";
 
-// Every allowed "Part of ForeverUI" value, and the label of one.
+// Every allowed "Part of Vanguard" value, and the label of one.
 const areaValues = () => Array.from(el("area").options, (o) => o.value).filter(Boolean);
 const areaLabel = (value) => (Array.from(el("area").options).find((o) => o.value === value) || {}).textContent || "";
 

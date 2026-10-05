@@ -19,10 +19,12 @@ import { memoryKV } from "../scripts/lib/memory-kv.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const fixture = (name) => fs.readFileSync(path.join(root, "test/fixtures", name), "utf8");
-const STATUS = fixture("fui-status-next.txt");
-const ERRORS = fixture("fui-errors-next.txt");
-const STATUS_030 = fixture("fui-status-0.3.0.txt");
-const REPORT_V1 = fixture("fui-report-v1.txt");
+const STATUS = fixture("vg-status-next.txt");
+const ERRORS = fixture("vg-errors-next.txt");
+const STATUS_030 = fixture("vg-status-0.3.0.txt");
+const REPORT_V1 = fixture("vg-report-v1.txt");
+// The same pastes as the addon printed them before it was renamed from ForeverUI.
+const OLD = ["fui-status-next.txt", "fui-errors-next.txt", "fui-status-0.3.0.txt", "fui-report-v1.txt"].map(fixture);
 const REPO = "owner/private-feedback";
 const SECRET_TOKEN = "test-token-not-real-0123";
 
@@ -54,7 +56,7 @@ test("fence is longer than any backtick run in the paste", () => {
 
 // ------------------------------------------------------------------ parser
 
-test("parses real /fui status and /fui errors chat lines", () => {
+test("parses real /vg status and /vg errors chat lines", () => {
   const p = parseReport(`${STATUS}\n${ERRORS}`);
   assert.equal(p.format, "chat");
   assert.equal(p.version, "0.3.0");
@@ -71,10 +73,19 @@ test("parses real /fui status and /fui errors chat lines", () => {
 });
 
 test("parses chat lines copied without color codes, with timestamps", () => {
-  const plainCopy = ERRORS.replace(/\|cffd9a441ForeverUI:\|r /g, "21:04:11 ForeverUI: ");
+  const plainCopy = ERRORS.replace(/\|cffd9a441Vanguard:\|r /g, "21:04:11 Vanguard: ");
   const p = parseReport(plainCopy);
   assert.equal(p.version, "0.3.0");
   assert.equal(p.errors.length, 2);
+});
+
+test("pastes from before the rename (ForeverUI) read the same as Vanguard's", () => {
+  const [status, errors, status030, report] = OLD;
+  assert.deepEqual(parseReport(`${status}\n${errors}`), parseReport(`${STATUS}\n${ERRORS}`));
+  assert.deepEqual(parseReport(status030), parseReport(STATUS_030));
+  assert.deepEqual(parseReport(report), parseReport(REPORT_V1));
+  assert.equal(parseReport(report).format, "v1");
+  assert.equal(parseReport(errors.replace(/\|cffd9a441ForeverUI:\|r /g, "21:04:11 ForeverUI: ")).errors.length, 2);
 });
 
 test("parses the v1 report block between its markers", () => {
@@ -148,7 +159,7 @@ test("bug issue: marker, title, env table, fenced report, footer, labels", async
   assert.deepEqual(issue.labels, ["bug", "from-site"]);
   assert.equal(issue.title, "[Bug] Raid frames go blank (v0.3.0, WoW Forever)");
   assert.ok(issue.body.startsWith(`<!-- fui-feedback v1 kind=bug fp=${issue.fp} src=site -->\n`));
-  assert.ok(issue.body.includes(`_Sent from the ForeverUI site. Error fingerprint fp:${issue.fp}._`));
+  assert.ok(issue.body.includes(`_Sent from the Vanguard site. Error fingerprint fp:${issue.fp}._`));
   assert.ok(issue.body.includes("| 0.3.0 | WoW Forever | 1.16.0 (65000) | 16001 |"));
   assert.ok(issue.body.includes("```text\n"), "the report is fenced");
   assert.ok(issue.body.includes("in function <eval:2>"), "the paste is kept as typed inside the fence");
@@ -170,7 +181,7 @@ test("feature issue: labels, area, footer without a vote prompt", () => {
   assert.deepEqual(issue.labels, ["feature-request", "from-site"]);
   assert.equal(issue.title, "[Idea] Bigger raid frames");
   assert.ok(issue.body.startsWith("<!-- fui-feedback v1 kind=feature area=raid-frames src=site -->"));
-  assert.ok(issue.body.includes("_Sent from the ForeverUI site._"));
+  assert.ok(issue.body.includes("_Sent from the Vanguard site._"));
   assert.ok(!/vote|👍/i.test(issue.body));
 });
 
@@ -180,7 +191,7 @@ test("duplicate comment: the spike's sentence and the notes, nothing else", asyn
   const c = duplicateComment(f, issue.env, issue.fp, "FUI-ZZZZZZ");
   assert.equal(refIn(c), "FUI-ZZZZZZ", "the comment carries the repeat reporter's own reference");
   assert.ok(c.includes("Reference: FUI-ZZZZZZ"));
-  assert.ok(c.startsWith("Another player hit this. ForeverUI 0.3.0, WoW Forever 1.16.0 (65000). Occurrences in their session: 2."));
+  assert.ok(c.startsWith("Another player hit this. Vanguard 0.3.0, WoW Forever 1.16.0 (65000). Occurrences in their session: 2."));
   assert.ok(c.includes("<details><summary>their notes</summary>"));
   assert.ok(!c.includes("me@example.com"));
   assert.ok(!issue.body.includes("me@example.com"));
@@ -258,7 +269,7 @@ test("a bug report creates one issue with the bug labels and returns only a refe
   const s = mockServices();
   const r = await send(env, s, bugFields(), { clock });
   assert.equal(r.status, 200, r.text);
-  assert.match(r.data.reference, /^FUI-[A-HJ-NP-Z2-9]{6}$/);
+  assert.match(r.data.reference, /^VG-[A-HJ-NP-Z2-9]{6}$/);
   assert.deepEqual(Object.keys(r.data).sort(), ["duplicate", "reference"]);
   assert.equal(r.data.duplicate, false);
   assertNoLeak(r.text);
@@ -290,7 +301,7 @@ test("two identical error reports: one issue, one comment, each with its own ref
   assert.equal(s.issues[0].comments.length, 1);
   assert.ok(s.issues[0].comments[0].startsWith("Another player hit this."));
   assert.ok(!s.issues[0].comments[0].includes("dup@example.com"));
-  assert.match(second.data.reference, /^FUI-[A-HJ-NP-Z2-9]{6}$/);
+  assert.match(second.data.reference, /^VG-[A-HJ-NP-Z2-9]{6}$/);
   assert.notEqual(second.data.reference, first.data.reference, "a repeat reporter never gets the first reporter's reference");
   assert.equal(refIn(s.issues[0].body), first.data.reference);
   assert.equal(refIn(s.issues[0].comments[0]), second.data.reference);
@@ -451,10 +462,10 @@ test("not configured, or test keys and the stub off localhost: GET says not acce
   assert.equal((await send(missing, s, bugFields(), { clock })).status, 503);
   const get = await handleGet(new Request("http://localhost/api/feedback"), missing).json();
   assert.deepEqual(get, { accepting: false, sitekey: null });
-  assert.ok(configProblem(testEnv(clock), "foreverui.pages.dev"), "test keys refused on the live host");
+  assert.ok(configProblem(testEnv(clock), "vanguard-ui.pages.dev"), "test keys refused on the live host");
   assert.equal(configProblem(testEnv(clock), "localhost"), "");
-  assert.ok(configProblem(testEnv(clock, { TURNSTILE_SECRET: "real", TURNSTILE_SITEKEY: "real", GITHUB_API_URL: "http://127.0.0.1:8789" }), "foreverui.pages.dev"));
-  assert.equal(configProblem(testEnv(clock, { TURNSTILE_SECRET: "real", TURNSTILE_SITEKEY: "real" }), "foreverui.pages.dev"), "");
+  assert.ok(configProblem(testEnv(clock, { TURNSTILE_SECRET: "real", TURNSTILE_SITEKEY: "real", GITHUB_API_URL: "http://127.0.0.1:8789" }), "vanguard-ui.pages.dev"));
+  assert.equal(configProblem(testEnv(clock, { TURNSTILE_SECRET: "real", TURNSTILE_SITEKEY: "real" }), "vanguard-ui.pages.dev"), "");
   const ok = await handleGet(new Request("http://localhost/api/feedback"), testEnv(clock)).json();
   assert.deepEqual(ok, { accepting: true, sitekey: "1x00000000000000000000AA" });
 });
@@ -618,7 +629,7 @@ test("hostile text appears only inside the fences the builder opened", async () 
 test("bare URLs in one-line body values don't autolink", async () => {
   assert.equal(inline("see https://evil.example/x"), "see https:\u200b//evil.example/x");
   assert.equal(inline("www.evil.example"), "www\u200b.evil.example");
-  const report = "Client WoW Forever  ·  build https://evil.example/pwn (65000)  ·  x\nForeverUI 0.3.0  ·  interface 16001";
+  const report = "Client WoW Forever  ·  build https://evil.example/pwn (65000)  ·  x\nVanguard 0.3.0  ·  interface 16001";
   const issue = await bugIssue(readFields(bugFields({ report })), "FUI-ABCDEF");
   const row = issue.body.split("\n").find((l) => l.startsWith("| 0.3.0 |"));
   assert.ok(row.includes("https:\u200b//evil.example/pwn (65000)"), row);
@@ -639,7 +650,7 @@ test("hostile text in every free-text field stays inside fences in every issue a
     const outside = outsideFences(md);
     const leaked = outside.filter((l) => l.includes("HOSTILE"));
     assert.deepEqual(leaked, [], `${name}: player text outside a fence`);
-    assert.ok(outside.every((l) => !/^ {0,3}(#|>|\||[-*+] |\d+\. |===)/.test(l) || /^\| (ForeverUI|0\.3\.0|not found)|^\|---/.test(l)), `${name}: an unexpected block marker outside fences`);
+    assert.ok(outside.every((l) => !/^ {0,3}(#|>|\||[-*+] |\d+\. |===)/.test(l) || /^\| (Vanguard|0\.3\.0|not found)|^\|---/.test(l)), `${name}: an unexpected block marker outside fences`);
   }
   assert.ok(!/@HOSTILEuser/.test(bug.title), "mentions in the title are broken");
   assert.equal(refIn(bug.body), "FUI-ABCDEF");
