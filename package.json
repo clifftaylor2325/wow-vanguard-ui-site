@@ -1,5 +1,5 @@
 {
-  "name": "vanguard-site",
+  "name": "wow-vanguard-ui-site",
   "version": "1.0.0",
   "private": true,
   "description": "The Vanguard player website (vanguard-ui.pages.dev), generated from the addon's Lua.",
