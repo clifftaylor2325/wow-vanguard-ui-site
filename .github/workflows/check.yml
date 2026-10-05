@@ -1,6 +1,6 @@
 # Builds the site and runs every check (encoding, drift and page tests) on pull
 # requests, on every push to main, or by hand from the Actions tab. It never deploys and never pushes.
-# The build reads the private addon repo (clifftaylor2325/wow-forever-ui)
+# The build reads the private addon repo (clifftaylor2325/wow-vanguard-ui)
 # through gh, so it needs a read-only token for that repo in the
 # ADDON_READ_TOKEN secret; see the pull request that added this file. Without
 # it, the "Addon access" step fails with a message saying why.
@@ -45,7 +45,7 @@ jobs:
           if [ "$FROM_FORK" = "true" ] || [ "$ACTOR" = "dependabot[bot]" ]; then
             echo "::error::Repository secrets aren't available to pull requests from forks or Dependabot, so this run can't read the private addon repo. A maintainer must run this check by hand (Actions tab, check, Run workflow) or from a branch in this repo."
           else
-            echo "::error::The repository secret ADDON_READ_TOKEN isn't set. The build reads the private addon repo clifftaylor2325/wow-forever-ui; add a read-only token for it as that secret."
+            echo "::error::The repository secret ADDON_READ_TOKEN isn't set. The build reads the private addon repo clifftaylor2325/wow-vanguard-ui; add a read-only token for it as that secret."
           fi
           exit 1
 

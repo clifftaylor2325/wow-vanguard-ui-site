@@ -1,4 +1,4 @@
-// Features page v1.1 (clifftaylor2325/wow-forever-ui#107): the longer text
+// Features page v1.1 (clifftaylor2325/wow-vanguard-ui#107): the longer text
 // under each module. Run after a build (`npm run check` does both).
 import { test } from "node:test";
 import assert from "node:assert/strict";
