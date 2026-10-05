@@ -411,57 +411,112 @@ ${src("Core/Slash.lua (HELP, COMMANDS, SLASH_FOREVERUI1/2)")}`,
 
 // ------------------------------------------------------------------ Settings
 
+// The columns of a settings table; the first is each row's header.
+const COLS = ["Setting", "Type", "Values", "Default", "Reload and version"];
+
+// What the addon calls each kind of row on the site.
+const KIND_NAME = { check: "Switch", cycle: "Choice", slider: "Slider", button: "Button", visibility: "Visibility" };
+
 // Text for a row's default across versions.
 function defaultText(r, version) {
   const a = r.relDefault;
   const b = r.nextDefault;
-  if (r.inRel && r.inNext) {
-    if (a && b && a !== b) return `Default: ${esc(a)} in v${esc(version)}, ${esc(b)} in the next release`;
-    if (a || b) return `Default: ${esc(a || b)}`;
-    return "";
-  }
-  return a || b ? `Default: ${esc(a || b)}` : "";
+  if (r.inRel && r.inNext && a && b && a !== b) return `${esc(a)} in v${esc(version)}, ${esc(b)} in the next release`;
+  return a || b ? esc(a || b) : "";
 }
 
-// One settings row.
-function optRow(r, version, pageTitle) {
-  const kindName = { check: "Switch", cycle: "Choice", slider: "Slider", button: "Button", visibility: "Visibility", text: "", header: "" }[r.kind];
-  const search = `${pageTitle} ${r.caption} ${(r.choices || []).map((c) => c[1]).join(" ")}`;
-  const da = avail(r.inRel, r.inNext);
-  if (r.kind === "header") return `<li class="opt-row h" data-avail="${da}" data-search="${esc(search)}">${esc(r.caption)} ${r.inRel && r.inNext ? "" : badge(r.inRel, r.inNext, version)}</li>`;
-  if (r.kind === "text") return `<li class="opt-row t opt-item" data-avail="${da}" data-search="${esc(search)}">${esc(r.caption)} ${r.inRel && r.inNext ? "" : badge(r.inRel, r.inNext, version)}</li>`;
-  const meta = [];
-  if (kindName) meta.push(`<span>${kindName}</span>`);
-  if (r.choices && r.choices.length) meta.push(`<span>${r.choices.map((c) => esc(c[1])).join(" / ")}</span>`);
+// A row's choices and range, as one line ("" when it has neither).
+function valuesText(r) {
+  const out = [];
+  if (r.choices && r.choices.length) out.push(r.choices.map((c) => esc(c[1])).join(" / "));
   if (r.range) {
     const f = (x) => (r.range.percent && r.range.max <= 2 ? `${Math.round(x * 100)}%` : String(x));
-    meta.push(`<span>${esc(f(r.range.min))} to ${esc(f(r.range.max))}</span>`);
+    out.push(`${esc(f(r.range.min))} to ${esc(f(r.range.max))}`);
   }
-  const d = defaultText(r, version);
-  if (d) meta.push(`<span>${d}</span>`);
-  if (r.reload) meta.push(`<span class="badge reload">Needs reload</span>`);
-  meta.push(badge(r.inRel, r.inNext, version));
-  const loop = r.loop ? ` <span class="small">(${esc(r.loop.variable)} = ${r.loop.from} to ${r.loop.to})</span>` : "";
-  return `<li class="opt-row opt-item" data-avail="${da}" data-search="${esc(search)}"><span class="opt-cap">${esc(r.caption)}${loop}</span><span class="opt-meta">${meta.join("")}</span></li>`;
+  return out.join("; ");
 }
 
-// The rows of a page, with a note before rows repeated for every bar.
-function pageRows(p, version) {
+// A unique id for a row's anchor: the page id plus the caption's slug.
+function rowId(pageId, caption, used) {
+  const base = `${pageId}-${slug(caption) || "row"}`;
+  let id = base;
+  for (let n = 2; used.has(id); n++) id = `${base}-${n}`;
+  used.add(id);
+  return id;
+}
+
+// A heading row that spans the table and opens a new row group.
+function groupRow(html, attrs) {
+  return `</tbody><tbody><tr class="opt-row h" ${attrs}><th scope="rowgroup" colspan="${COLS.length}">${html}</th></tr>`;
+}
+
+// A heading or note row from the addon, spanning the table.
+function wideRow(r, attrs, version) {
+  const b = r.inRel && r.inNext ? "" : ` ${badge(r.inRel, r.inNext, version)}`;
+  if (r.kind === "header") return groupRow(`${esc(r.caption)}${b}`, attrs);
+  return `<tr class="opt-row t opt-item" ${attrs}><td colspan="${COLS.length}">${esc(r.caption)}${b}</td></tr>`;
+}
+
+// One setting as a table row: the caption is the row header; each cell carries its card label.
+function optRow(r, version, pageTitle, id) {
+  const search = `${pageTitle} ${r.caption} ${(r.choices || []).map((c) => c[1]).join(" ")}`;
+  const attrs = `data-avail="${avail(r.inRel, r.inNext)}" data-search="${esc(search)}"`;
+  if (r.kind === "header" || r.kind === "text") return wideRow(r, attrs, version);
+  const loop = r.loop ? ` <span class="small">(${esc(r.loop.variable)} = ${r.loop.from} to ${r.loop.to})</span>` : "";
+  const notes = `${r.reload ? `<span class="badge reload">Needs reload</span> ` : ""}${badge(r.inRel, r.inNext, version)}`;
+  const cells = [KIND_NAME[r.kind] || "", valuesText(r), defaultText(r, version), notes].map((h, i) => `<td data-label="${COLS[i + 1]}">${h}</td>`);
+  return `<tr class="opt-row opt-item" id="${id}" ${attrs}><th scope="row" class="opt-cap">${esc(r.caption)}${loop}</th>${cells.join("")}</tr>`;
+}
+
+// A page's table rows, with a heading before rows repeated for every bar.
+function pageRows(p, version, used) {
   const out = [];
   let inRepeat = null;
   for (const r of p.rows) {
     const rep = r.repeated ? JSON.stringify(r.repeated) : null;
-    if (rep && rep !== inRepeat) out.push(`<li class="opt-row h" data-search="${esc(p.title)} each">For each of ${r.repeated.from} to ${r.repeated.to} (one card each)</li>`);
+    if (rep && rep !== inRepeat) out.push(groupRow(`For each of ${r.repeated.from} to ${r.repeated.to} (one card each)`, `data-search="${esc(p.title)} each"`));
     inRepeat = rep;
-    out.push(optRow(r, version, p.title));
+    out.push(optRow(r, version, p.title, rowId(p.id, r.caption, used)));
   }
   return out.join("\n");
 }
 
-export function settingsPage(model) {
+// The Modules page's closing note: one switch per module.
+function modulesRow(p, model) {
+  if (p.key !== "modules") return "";
+  const mods = model.modules.map((m) => `<a href="/features/#${m.id}">${esc(m.name)}</a>${m.inRel ? "" : " (next release)"}`).join(", ");
+  return `<tr class="opt-row t"><td colspan="${COLS.length}">Then one switch per module (it applies after a reload): ${mods}.</td></tr>`;
+}
+
+// One options page: its heading and a table of its settings (one card per row on narrow screens).
+function pageSection(p, model, used) {
+  const head = `<thead><tr>${COLS.map((c) => `<th scope="col">${c}</th>`).join("")}</tr></thead>`;
+  return `<section class="opt-page" aria-labelledby="${p.id}" data-page="${esc(p.key)}">
+<h2 id="${p.id}">${esc(p.title)} ${badge(p.inRel, p.inNext, model.version)}</h2>
+<table class="opt-table" aria-labelledby="${p.id}">${head}<tbody>
+${pageRows(p, model.version, used)}
+${modulesRow(p, model)}
+</tbody></table>
+</section>`;
+}
+
+// What a Reload button built during a fight prints instead of reloading (Core/Dialog.lua), or null.
+function combatReloadLine(dialogLua) {
+  return (dialogLua || "").match(/ns\.Chat\("(Type \/reload in chat[^"]*)"\)/)?.[1] || null;
+}
+
+// The note on Reload buttons built during a fight, read from Core/Dialog.lua ("" when the addon has none).
+function combatReloadNote(read) {
+  const line = combatReloadLine(read.next("Core/Dialog.lua"));
+  if (!line) return "";
+  const b = combatReloadLine(read.rel("Core/Dialog.lua")) ? "" : `<span class="badge next">Next release</span> `;
+  return `<div class="notice info" id="reload-in-combat"><p>${b}WoW Forever lets an addon reload only from a click on a secure button, so that's what <strong>Reload now</strong> and the <strong>Reload</strong> button in ForeverUI's reload prompt are. That secure part can't be built during a fight: a Reload button made in combat gets it when the fight ends. Until then, clicking it only says “${esc(line)}” If that happens, type <code>/reload</code> in chat.</p></div>`;
+}
+
+export function settingsPage(model, read) {
   const { pages, version } = model;
   const count = (f) => pages.reduce((n, p) => n + p.rows.filter((r) => r.kind !== "header" && r.kind !== "text" && f(r)).length, 0);
-  const modulesPage = (p) => (p.key === "modules" ? `<li class="opt-row t">Then one switch per module (it applies after a reload): ${model.modules.map((m) => `<a href="/features/#${m.id}">${esc(m.name)}</a>${m.inRel ? "" : " (next release)"}`).join(", ")}.</li>` : "");
+  const used = new Set(pages.map((p) => p.id));
   return {
     path: "/settings/",
     title: "Settings",
@@ -470,6 +525,7 @@ export function settingsPage(model) {
 <p class="lede">Every page of the options window (<code>/fui</code>) and every setting on it, with the caption exactly as the addon shows it.</p>
 ${nextNotice(model)}
 <p>Settings marked <span class="badge reload">Needs reload</span> apply after a reload: the window says “Some changes need a reload” and offers <strong>Reload now</strong>. Defaults are shown where the addon's code states one; where it doesn't, none is shown.</p>
+${combatReloadNote(read)}
 <p><strong>${count((r) => r.inRel)}</strong> settings in v${esc(version)} · <strong>${count((r) => r.inNext)}</strong> in the next release · <strong>${pages.length}</strong> pages.</p>
 <nav aria-label="Options pages"><ul class="filters" style="list-style:none;padding:0">${pages.map((p) => `<li><a href="#${p.id}">${esc(p.title)}</a>${p.inRel ? "" : " <span class=\"badge next\">Next release</span>"}</li>`).join("")}</ul></nav>
 <div class="search" data-target="#opt-list" data-items=".opt-row" data-groups=".opt-page" data-noun="settings">
@@ -482,15 +538,9 @@ ${nextNotice(model)}
   <p class="count" aria-live="polite" role="status"></p>
 </div>
 <div id="opt-list">
-${pages.map((p) => `<section class="opt-page" aria-labelledby="${p.id}" data-page="${esc(p.key)}">
-<h2 id="${p.id}">${esc(p.title)} ${badge(p.inRel, p.inNext, version)}</h2>
-<ul class="opt-rows">
-${pageRows(p, version)}
-${modulesPage(p)}
-</ul>
-</section>`).join("\n")}
+${pages.map((p) => pageSection(p, model, used)).join("\n")}
 </div>
 <p class="small">Some rows only appear on some clients (for example the Specialization card on the Profiles page needs a client with specializations; the game's own click bindings need a client that has them). Lists that you fill in yourself (your profiles, your chat watch phrases, the bindings grid) aren't listed row by row.</p>
-${src("Core/Options.lua (PAGES and row builders)", "Modules/RaidHealing.lua", "Modules/ClickCastOptions.lua", "Modules/Nameplates.lua", "Modules/Situations.lua", "Core/Visibility.lua", "module defaults tables")}`,
+${src("Core/Options.lua (PAGES and row builders)", "Modules/RaidHealing.lua", "Modules/ClickCastOptions.lua", "Modules/Nameplates.lua", "Modules/Situations.lua", "Core/Visibility.lua", "Core/Dialog.lua (ns.ReloadButton)", "module defaults tables")}`,
   };
 }
