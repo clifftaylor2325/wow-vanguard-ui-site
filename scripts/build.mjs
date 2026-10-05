@@ -12,7 +12,7 @@ import { loadConfig, root } from "./lib/config.mjs";
 import { gitReader } from "./lib/source.mjs";
 import { extractAddon } from "./lib/extract.mjs";
 import { buildModel } from "./lib/model.mjs";
-import { layout } from "./lib/html.mjs";
+import { layout, NAV } from "./lib/html.mjs";
 import { homePage, installPage, startPage, featuresPage, commandsPage, settingsPage } from "./lib/pages-main.mjs";
 import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage } from "./lib/pages-more.mjs";
 
@@ -58,6 +58,23 @@ function themeCss(theme) {
   return { css: `/* Generated from Core/Theme.lua (TOKENS, PRESETS). Do not edit. */\n:root {\n${lines.join("\n")}\n}\n`, vars };
 }
 
+// The favicon: the two linked diamonds of the ForeverUI mark, in the theme colors.
+function faviconSvg(vars) {
+  const diamond = (d, color) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.5"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="${vars.bg}"/>${diamond("M11 4 L20 16 L11 28 L2 16 Z", vars.accent)}${diamond("M21 4 L30 16 L21 28 L12 16 Z", vars.text)}</svg>\n`;
+}
+
+// sitemap.xml: every page in NAV, under siteUrl from site.config.json.
+function sitemapXml(base) {
+  const urls = NAV.map((n) => `  <url><loc>${base}${n.path}</loc></url>`).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+}
+
+// robots.txt: everything may be crawled, and where the sitemap is.
+function robotsTxt(base) {
+  return `User-agent: *\nAllow: /\n\nSitemap: ${base}/sitemap.xml\n`;
+}
+
 // Release metadata (no zip: the site doesn't host one).
 function loadRelease() {
   need(fs.existsSync(cfg.releaseJson), "no release metadata; run `npm run fetch` first");
@@ -84,6 +101,10 @@ function main() {
 
   fs.rmSync(cfg.outDir, { recursive: true, force: true });
   write("assets/theme.css", theme.css);
+  write("assets/favicon.svg", faviconSvg(theme.vars));
+  const base = cfg.siteUrl.replace(/\/+$/, "");
+  write("sitemap.xml", sitemapXml(base));
+  write("robots.txt", robotsTxt(base));
   for (const f of ["site.css", "site.js", "feedback.js"]) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets", f)));
   // The feedback form's shared code: the same files the Pages Function imports (functions/_lib/handler.js).
   for (const f of FEEDBACK_SHARED) write(`assets/feedback/${f}`, fs.readFileSync(path.join(root, "src/feedback", f)));
