@@ -20,11 +20,21 @@ concurrency:
   group: deploy
   cancel-in-progress: false
 
+# The jobs run on the owner's self-hosted Windows runner (registered with
+# wow-vanguard-ui's scripts/ci/install-windows-runner.ps1 -Repository
+# clifftaylor2325/wow-vanguard-ui-site), and every script step is bash: Git Bash.
+defaults:
+  run:
+    shell: bash
+
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 20
     steps:
+      - name: Git Bash ahead of WSL's bash
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value "C:\Program Files\Git\bin"
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
