@@ -50,7 +50,7 @@ export function nextNotice(model) {
 
 // The README's opening tagline: "A from-scratch UI suite for WoW Forever".
 export function tagline(readme) {
-  const m = (readme || "").match(/^# Vanguard\s*\n+([^\n(]+?)\s*(?:\(|\.|\n)/);
+  const m = (readme || "").match(/^# Vanguard\s*\n+(?:>[^\n]*\n+)*([^\n(]+?)\s*(?:\(|\.|\n)/);
   return m ? m[1].trim() : "";
 }
 
