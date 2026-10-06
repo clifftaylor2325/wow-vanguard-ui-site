@@ -100,7 +100,7 @@ function main() {
   const gaps = longerGaps(model.next.readme);
   need(!gaps.length, `the README no longer says what the Features longer text is written from:\n  ${gaps.join("\n  ")}`);
   const theme = themeCss(next.theme);
-  const site = { theme: theme.vars, author: SITE_AUTHOR, version: rel.meta.Version, licenseName: rel.meta["X-License"] || "MIT" };
+  const site = { theme: theme.vars, author: SITE_AUTHOR, version: rel.meta.Version, licenseName: rel.meta["X-License"] || "MIT", hasNext: !model.same };
   const read = { rel: relReader.read, next: nextReader.read };
 
   fs.rmSync(cfg.outDir, { recursive: true, force: true });
