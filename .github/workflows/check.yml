@@ -19,21 +19,11 @@ concurrency:
   group: check-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-# The jobs run on the owner's self-hosted Windows runner (registered with
-# wow-vanguard-ui's scripts/ci/install-windows-runner.ps1 -Repository
-# clifftaylor2325/wow-vanguard-ui-site), and every script step is bash: Git Bash.
-defaults:
-  run:
-    shell: bash
-
 jobs:
   check:
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Git Bash ahead of WSL's bash
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value "C:\Program Files\Git\bin"
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
