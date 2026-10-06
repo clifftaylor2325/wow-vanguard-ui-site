@@ -12,14 +12,15 @@
 # 3. Add two repository secrets here (Settings → Secrets and variables → Actions):
 #      FEEDBACK_GITHUB_TOKEN  that token
 #      FEEDBACK_REPO          owner/name of the repository reports go to (keep it private)
-# Run it again with the site's other hostnames in the box (a custom domain) when it gets one.
+# Run it again with any new hostname for the site in the box (vanguardui.com and its subdomains,
+# and vanguard-ui.pages.dev, are always included).
 name: feedback setup
 
 on:
   workflow_dispatch:
     inputs:
       domains:
-        description: "More hostnames for the form besides vanguard-ui.pages.dev, comma-separated (a custom domain)"
+        description: "More hostnames for the form besides vanguardui.com and vanguard-ui.pages.dev, comma-separated"
         required: false
         default: ""
 
