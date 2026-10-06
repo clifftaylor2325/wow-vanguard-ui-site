@@ -520,7 +520,7 @@ ${disclosure({ id: "license", title: "License", open: true, body: `<p><strong>${
 ${nextLicense && nextLicense !== relLicense ? nextOnly(`<p>The next release also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>`, "div") : ""}` })}
 ${bullets.length ? disclosure({ id: "credits", title: "Fonts, libraries and art", body: `<p>As listed in the addon's README for the next release:</p><ul>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` }) : ""}
 ${disclosure({ id: "site", title: "This website", body: `<p>This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href="/fonts/OFL.txt">license text</a>. Its colors are Vanguard's own theme colors.</p>
-<p>Vanguard is a fan addon for WoW Forever.</p>
+<p>Vanguard is an addon for WoW Forever.</p>
 ${src("LICENSE", "README.md (License, Credits)", "Media/Fonts/OFL.txt")}` })}`,
   };
 }

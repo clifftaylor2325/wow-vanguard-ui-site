@@ -133,7 +133,7 @@ export function homePage(model) {
     body: `<section class="hero" aria-labelledby="hero-title">
 ${heroArt()}
 <div class="hero-inner">
-  <p class="hero-kicker">A fan addon for WoW&nbsp;Forever</p>
+  <p class="hero-kicker">An addon for WoW&nbsp;Forever</p>
   <h1 id="hero-title" class="hero-title">Vanguard</h1>
   ${ornament("hero-orn")}
   <p class="hero-tagline">${esc(line)}.</p>

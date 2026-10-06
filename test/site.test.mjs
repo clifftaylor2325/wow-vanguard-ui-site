@@ -289,7 +289,7 @@ test("pages are well formed: one h1, skip link, shared nav and footer", () => {
     assert.equal((html.match(/<h1[\s>]/g) || []).length, 1, `/${d} needs exactly one h1`);
     assert.ok(html.includes('class="skip"'), `/${d} has no skip link`);
     assert.ok(html.includes('aria-label="Main"'), `/${d} has no main nav`);
-    assert.ok(/fan addon for WoW Forever/.test(html), `/${d} footer missing`);
+    assert.ok(/an addon for WoW Forever/.test(html), `/${d} footer missing`);
     const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
     const dup = ids.filter((x, i) => ids.indexOf(x) !== i);
     assert.deepEqual(dup, [], `/${d} has duplicate ids`);

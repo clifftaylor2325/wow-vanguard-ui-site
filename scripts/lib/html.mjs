@@ -170,7 +170,7 @@ ${sidebar ? `<div class="shell">\n${nav}\n${main}\n</div>` : main}
   ${ornament("footer-orn")}
   <div class="footer-inner">
     <ul class="footer-links">${footerLinks}</ul>
-    <p>Vanguard is a fan addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
+    <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
     <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · Code under the ${esc(site.licenseName)} license.</p>
   </div>
 </footer>
