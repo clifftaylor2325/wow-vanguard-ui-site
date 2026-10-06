@@ -6,7 +6,7 @@
 //    form's labels exist there (so a token without Issues write fails here,
 //    not on the first player's report).
 // 2. The KV namespace FEEDBACK_KV, made if missing.
-// 3. The Turnstile widget, made if missing, for the site's hostnames.
+// 3. The Turnstile widget, made if missing, for the site's hostnames (DOMAINS).
 // 4. Sets the Pages project's production variables, secrets and KV binding.
 //    RL_SALT is made once and kept on later runs.
 //
@@ -24,7 +24,8 @@ import { LABELS } from "../src/feedback/body.js";
 export const PROJECT = "vanguard-ui";
 export const KV_TITLE = "vanguard-ui-feedback";
 export const WIDGET_NAME = "Vanguard UI feedback";
-export const DOMAINS = ["vanguard-ui.pages.dev"];
+// The site's hostnames (a Turnstile widget's hostname also covers its subdomains, such as www).
+export const DOMAINS = ["vanguardui.com", "vanguard-ui.pages.dev"];
 const CF = "https://api.cloudflare.com/client/v4";
 const GH = "https://api.github.com";
 // The colors the labels get when this makes them.
