@@ -173,13 +173,19 @@ ${sidebar ? `<div class="shell">\n${nav}\n${main}\n</div>` : main}
   <div class="footer-inner">
     <ul class="footer-links">${footerLinks}</ul>
     <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
-    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · Code under the ${esc(site.licenseName)} license.</p>
+    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · ${licenseNote(site.licenseName)}.</p>
   </div>
 </footer>
 <script src="${esc(asset("/assets/site.js"))}" defer></script>
 ${scripts.map((s) => `<script type="module" src="${esc(asset(s))}"></script>\n`).join("")}</body>
 </html>
 `;
+}
+
+// The footer's words for the addon's license (the .toc's X-License): "All rights reserved"
+// for that license, else "Code under the <name> license".
+export function licenseNote(name) {
+  return /all rights reserved/i.test(name || "") ? "All rights reserved" : `Code under the ${esc(name)} license`;
 }
 
 // The "Next release" tag.
