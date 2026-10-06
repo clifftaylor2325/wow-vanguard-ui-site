@@ -80,6 +80,8 @@ The site works without the feedback form's bindings; until they're set (see Feed
 
 The page and the Function share `src/feedback/` (checks, sanitizing, `/vg report` parsing, the error fingerprint and the issue text). The build copies it to `dist/assets/feedback/`, so the preview is exactly what's filed.
 
+The form can also be filled from the game. `/vg feedback` (addon `Core/Feedback.lua`) asks the form's questions in game, with the same limits and words as `src/feedback/fields.js`, and shows one block to copy: `### Vanguard feedback v1 ###`, `kind:`, `title:` (and a feature's `area:`, a module key or one of `FALLBACK_AREAS`), each text under a `--- name ---` line, for a bug the `/vg report` block under `--- report ---`, then `### end feedback ###`. Pasted into the form's **From the game** box (or a bug's block into the report box), `src/feedback/fill.js` reads it and `assets/feedback.js` fills the fields; nothing is sent until the player previews and sends as before. The paste box has no name, so it is never part of a request.
+
 ### Bindings
 
 The **feedback setup** workflow (Actions tab → feedback setup → Run workflow) sets all of them, then deploys and checks that the form takes reports. The comment at the top of `.github/workflows/feedback-setup.yml` lists what it needs first: two more permissions on the Cloudflare token (Workers KV Storage → Edit and Turnstile Sites → Edit, next to Cloudflare Pages → Edit; it needs nothing else), a fine-grained GitHub token, and the repository to file into. It covers `vanguardui.com` (and its subdomains) and `vanguard-ui.pages.dev`; run it again with any other hostname the site gets in its box, since the Turnstile widget only passes on the hostnames it lists.

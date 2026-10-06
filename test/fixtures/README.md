@@ -13,3 +13,7 @@ lines as the addon printed them before it was renamed from ForeverUI
 - `vg-report-v1.txt`: a real `/vg report` block (added in v0.4.0, addon
   PR #124), captured from the addon's headless test client with the same two
   errors raised on purpose.
+- `vg-feedback-bug.txt`, `vg-feedback-feature.txt`: the blocks `/vg feedback`
+  makes for a bug (the same two errors, `/vg report` inside it; a typed line
+  that reads as a marker set off by a space) and for a feature, captured from
+  the addon's headless test client (addon branch `work/feedback-form`).

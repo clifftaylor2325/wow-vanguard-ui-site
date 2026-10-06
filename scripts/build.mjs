@@ -19,7 +19,7 @@ import { homePage, installPage, startPage, featuresPage, commandsPage, settingsP
 import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage } from "./lib/pages-more.mjs";
 import { longerGaps } from "./lib/features-content.mjs";
 
-const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js"];
+const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js", "fill.js"];
 
 const SITE_AUTHOR = "Cliff Hearthvale";
 const OLD_AUTHOR = "clifftaylor2325";

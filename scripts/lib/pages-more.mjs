@@ -288,11 +288,33 @@ function reportHint(model) {
   return "No Vanguard version has <code>/vg report</code> yet, so paste the lines of <code>/vg status</code> and <code>/vg errors</code>: see the steps below.";
 }
 
-// The form: kind, summary, the bug or feature fields, contact, the
-// acknowledgement and the spam checks. Shown only with JavaScript.
+// What the paste box does: /vg feedback's block fills the form, where the addon has that command.
+function pasteHint(model) {
+  const rel = model.commands.relKeys.has("feedback");
+  const next = model.commands.nextKeys.has("feedback");
+  const how = "type <code>/vg feedback</code> in game, answer its questions and press <strong>Make report</strong>, then paste the block it shows here: the fields below fill themselves.";
+  if (rel) return `To skip the typing, ${how}`;
+  if (next) return `A pasted <code>/vg report</code> goes in the report box below.${nextOnly(` ${NEXT} To skip the typing, ${how}`)}`;
+  return "A pasted <code>/vg report</code> goes in the report box below.";
+}
+
+// The paste box above the form's fields: a /vg feedback block pasted here
+// fills them. It has no name, so it is never sent; assets/feedback.js reads it.
+function pasteBox(model) {
+  return `<div class="field fb-paste">
+<label for="fb-paste">From the game <span class="opt">(optional)</span></label>
+<textarea id="fb-paste" rows="3" aria-describedby="fb-paste-hint fb-filled"></textarea>
+<p class="hint" id="fb-paste-hint">${pasteHint(model)}</p>
+<p class="hint fb-filled" id="fb-filled" role="status" hidden></p>
+</div>`;
+}
+
+// The form: the paste box, kind, summary, the bug or feature fields, contact,
+// the acknowledgement and the spam checks. Shown only with JavaScript.
 function feedbackForm(model) {
   const v = model.version;
   return `<form id="fb-form" class="fb-form fb-needs-js" novalidate>
+${pasteBox(model)}
 <fieldset class="field fb-kind" data-field="kind">
 <legend>What would you like to send?</legend>
 <label><input type="radio" name="kind" value="bug" checked> Report a bug</label>
