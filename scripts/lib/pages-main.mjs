@@ -194,7 +194,7 @@ ${disclosure({ id: "update", title: "Update", body: `<p><strong>With the CurseFo
   <li>Unzip the new version and put its <code>Vanguard</code> folder in the same place.</li>
 </ol>
 <p>Your settings are kept. Vanguard saves them in the game's SavedVariables (<code>${esc(sv)}</code> for the account, <code>${esc(svc)}</code> for each character), not in the addon folder.</p>
-<div class="notice" id="renamed"><p><strong>Coming from ForeverUI?</strong> Vanguard was called ForeverUI up to v${esc(model.version)}. It was renamed because another, unrelated addon is published under that name. The settings file is named after the addon, so your settings don't move over by themselves: before you update, type <code>/fui export</code> in game and keep the text; after updating, type <code>/vg import</code> and paste it (text from ForeverUI imports fine). Then delete the old <code>ForeverUI</code> folder from your AddOns folder.</p></div>
+<div class="notice" id="renamed"><p><strong>Coming from ForeverUI?</strong> Vanguard was called ForeverUI up to v0.3.0. It was renamed because another, unrelated addon is published under that name. The settings file is named after the addon, so your settings don't move over by themselves: before you update, type <code>/fui export</code> in game and keep the text; after updating, type <code>/vg import</code> and paste it (text from ForeverUI imports fine). Then delete the old <code>ForeverUI</code> folder from your AddOns folder.</p></div>
 <p>The <a href="/changelog/">Changelog</a> says what changed in each release.</p>
 ${src("Vanguard.toc (SavedVariables)")}` })}
 ${disclosure({ id: "uninstall", title: "Uninstall", body: `<p>Remove Vanguard in the CurseForge app, or delete the <code>Vanguard</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.</p>
@@ -312,8 +312,7 @@ export function startPage(model, read) {
     description: "Open the Vanguard options, run the setup wizard, move your frames and pick an accent.",
     body: `${pageHero("Getting started", `After you <a href="/install/">install</a> Vanguard and log in, its frames replace the game's. Here's how to find the options and put things where you want them.`)}
 ${glance([`<code>/vg</code> opens the options`, `<code>/vg unlock</code> moves frames`, `<code>/vg accent</code> picks a color`, next.setup ? (rel.setup ? `<code>/vg setup</code> runs the wizard` : nextOnly(`<code>/vg setup</code> runs the wizard ${NEXT_BADGE}`)) : ""])}
-${disclosure({ id: "options", title: "Open the options", open: true, body: `<p>You can:</p>
-<ol class="steps">
+${disclosure({ id: "options", title: "Open the options", open: true, body: `<ol class="steps">
   <li>Type <code>/vg</code> (or <code>/vanguard</code>) in chat. Type <code>/vg</code> again to close it.</li>
   <li>Left-click Vanguard on the game's addons button by the minimap. Right-click it instead to turn move mode on or off.</li>
   ${gameMenu ? `<li data-avail="next">Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "Vanguard")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons. ${NEXT_BADGE}</li>` : `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "Vanguard")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons.</li>`}
@@ -495,23 +494,21 @@ function cmdRow(e, model) {
   return `<tr class="cmd opt-item" id="entry-${esc(e.id)}" data-count data-avail="${avail(e.inRel, e.inNext)}" data-search="${esc(cmdSearch(e))}">${cmdHead(e, model.version)}<td data-label="${CMD_COLS[1]}">${what}</td></tr>`;
 }
 
-// The commands grouped by the module they need (General first), in the order the addon lists them.
+// The commands grouped by the feature area of the module they need (the Features page's areas;
+// General for those that need none), General first, then the areas in the Features page's order.
 function cmdGroups(model) {
-  const groups = new Map();
+  const order = ["General", ...AREAS.map(([a]) => a), "Other"];
+  const groups = new Map(order.map((name) => [name, { name, id: slug(name), entries: [] }]));
   for (const e of model.commands.entries) {
-    const key = e.modules[0] || "";
-    const mm = key ? model.modules.find((x) => x.key === key) : null;
-    const name = key ? (mm ? mm.name : key) : "General";
-    if (!groups.has(name)) groups.set(name, { name, id: key ? (mm ? mm.id : slug(key)) : "general", entries: [] });
-    groups.get(name).entries.push(e);
+    const mm = e.modules[0] ? model.modules.find((x) => x.key === e.modules[0]) : null;
+    groups.get(e.modules[0] ? (mm ? mm.area : "Other") : "General").entries.push(e);
   }
-  const list = [...groups.values()];
-  return [list.find((g) => g.name === "General"), ...list.filter((g) => g.name !== "General")].filter(Boolean);
+  return [...groups.values()].filter((g) => g.entries.length);
 }
 
 // Every command in one table, in folded groups (a heading row with a button opens each).
 function cmdTable(model) {
-  const head = `<thead><tr>${CMD_COLS.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead>`;
+  const head = `<thead class="visually-hidden"><tr>${CMD_COLS.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead>`;
   const groups = cmdGroups(model).map((g) => {
     const rel = g.entries.filter((e) => e.inRel).length;
     const more = g.entries.length - rel;
@@ -519,13 +516,14 @@ function cmdTable(model) {
     const heading = `<tr class="opt-row h"><th scope="rowgroup" colspan="${CMD_COLS.length}"><button type="button" class="group-toggle" aria-expanded="false">${esc(g.name)}<span class="dis-meta">${meta}</span></button></th></tr>`;
     return `<tbody class="cmd-group collapsed" data-group="${esc(g.id)}"${rel ? "" : ' data-avail="next"'}>${heading}\n${g.entries.map((e) => cmdRow(e, model)).join("\n")}</tbody>`;
   });
-  return `<table class="opt-table cmd-table" id="cmd-list"><caption>Every command you can type in chat, grouped by the part of Vanguard it needs</caption>${head}\n${groups.join("\n")}\n</table>`;
+  return `<table class="opt-table cmd-table" id="cmd-list"><caption>Every command, grouped by the part of Vanguard it needs</caption>${head}\n${groups.join("\n")}\n</table>`;
 }
 
-// The search box's switches (the old-version one only when a command was dropped since).
+// The search box's switches: each only when some command needs it (one the next release adds, one it drops).
 function cmdFilters(c, version) {
+  const next = [...c.nextKeys].some((k) => !c.relKeys.has(k)) ? `<label class="switch"><input type="checkbox" data-filter="next" checked> <span>Show what's coming in the next release</span></label>` : "";
   const old = [...c.relKeys].some((k) => !c.nextKeys.has(k)) ? `<label><input type="checkbox" data-filter="old" checked> Show v${esc(version)}-only commands</label>` : "";
-  return `<div class="filters"><label class="switch"><input type="checkbox" data-filter="next" checked> <span>Show what's coming in the next release</span></label>${old}</div>`;
+  return next || old ? `<div class="filters">${next}${old}</div>` : "";
 }
 
 // The search box over the commands, with its switches and a live count.
@@ -676,14 +674,14 @@ export function settingsPage(model, read) {
     title: "Settings",
     description: "Every page and setting in the Vanguard options window, with defaults.",
     body: `${pageHero("Settings", `Every page of the options window (<code>/vg</code>) and every setting on it, with the caption exactly as the addon shows it. Open a page below to see its settings.`)}
-<p class="counts"><strong>${count((r) => r.inRel)}</strong> settings in v${esc(version)} · <strong>${count((r) => r.inNext)}</strong> in the next release · <strong>${pages.length}</strong> pages.</p>
+<p class="counts"><strong>${count((r) => r.inRel)}</strong> settings in v${esc(version)}${model.same ? "" : ` · <strong>${count((r) => r.inNext)}</strong> in the next release`} · <strong>${pages.length}</strong> pages.</p>
 <div class="search" data-target="#opt-list" data-items=".opt-row" data-groups=".opt-page" data-noun="settings" data-noun-one="setting">
   <label for="opt-q" class="search-label">Search settings</label>
   <input id="opt-q" type="search" placeholder="for example: raid, tooltip, chat" autocomplete="off">
-  <div class="filters">
+  ${model.same ? "" : `<div class="filters">
     <label class="switch"><input type="checkbox" data-filter="next" checked> <span>Show what's coming in the next release</span></label>
     <label><input type="checkbox" data-filter="old" checked> Show v${esc(version)}-only settings</label>
-  </div>
+  </div>`}
   <p class="count" aria-live="polite" role="status"></p>
 </div>
 <div id="opt-list" class="dis-grid">
