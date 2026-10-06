@@ -149,6 +149,10 @@ Installing is going to be through CurseForge (the CurseForge app or website). `C
 
 To move the site to a newer addon commit, update `sourceRef` and run `npm run check`. When a new release is published, `latest` picks it up on the next build.
 
+## Supporting Vanguard
+
+`SUPPORT` in `scripts/lib/html.mjs` lists the ways to support development: Patreon (a monthly pledge) and Ko-fi (a one-off tip). Each `url` is `null`, and a link stays off the site until its `url` is set to an `https://` address. Once one is, every page's footer gets a "Support Vanguard" line and the Credits page gets a Support section, both naming only the links that are set. Set the URLs, run `npm run check`, and the tests switch to checking for the links. Donation links stay on the website and never in the addon.
+
 ## Tests
 
 `npm test` (`test/site.test.mjs`) re-reads the Lua with its own, separate extraction. It fails if any slash command, help line, module or options page is missing from the generated site. It also checks:
@@ -162,6 +166,7 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 - that each `@font-face` lists WOFF2 first and the TTF second, keeps `font-display: swap`, and that `dist/fonts/` ships the committed WOFF2 files
 - that every internal link and anchor resolves
 - that nothing in `dist/` links to github.com
+- that the support links render only once a `SUPPORT` URL is set (https only), and only in the footer and on Credits
 
 `test/feedback.test.mjs` covers the feedback form: sanitizing, the parser (with real `/vg status` and `/vg errors` output in `test/fixtures/`), fingerprints, the issue text and checks, hostile markdown in every free-text field, and the Function's paths (create, duplicate → comment with its own reference, spam, Turnstile, rate caps including 10 sends at once, the turn of the hour and midnight, missing settings) against a mock GitHub and an in-memory KV (`scripts/lib/memory-kv.mjs`). It never calls GitHub.
 

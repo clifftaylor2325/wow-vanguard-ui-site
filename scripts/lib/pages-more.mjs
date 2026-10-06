@@ -2,7 +2,7 @@
 // Messages in quotes are copied from the addon's Lua; each section names its
 // source file. Where the current release and the next release differ, the
 // page says which is which.
-import { esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
+import { esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, supportOn } from "./html.mjs";
 import { src, dateET, says, saysIf, label } from "./pages-main.mjs";
 import { FACTS, SECTIONS } from "./help-content.mjs";
 import { RELEASE_NOTES, NEXT_RELEASE } from "./changelog-content.mjs";
@@ -535,6 +535,9 @@ ${disclosure({ id: "license", title: "License", open: true, body: `<p><strong>${
 <blockquote class="card prose"><p>${md(relLicense)}</p></blockquote>
 ${nextLicense && nextLicense !== relLicense ? nextOnly(`<p>The next release also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>`, "div") : ""}` })}
 ${bullets.length ? disclosure({ id: "credits", title: "Fonts, libraries and art", body: `<p>As listed in the addon's README${model.same ? "" : " for the next release"}:</p><ul>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` }) : ""}
+${supportOn().length ? disclosure({ id: "support", title: "Support Vanguard", body: `<p>Vanguard is free, and always will be. If you'd like to help its development, you can:</p>
+<ul>${supportOn().map((l) => `<li><a href="${esc(l.url)}" rel="noopener">${esc(l.name)}</a>: ${esc(l.what)}</li>`).join("")}</ul>
+<p class="small">Supporting is never needed to use any part of Vanguard.</p>` }) : ""}
 ${disclosure({ id: "site", title: "This website", body: `<p>This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href="/fonts/OFL.txt">license text</a>. Its colors are Vanguard's own theme colors.</p>
 <p>Vanguard is an addon for WoW Forever.</p>
 ${src("LICENSE", "README.md (License, Credits)", "Media/Fonts/OFL.txt")}` })}`,
