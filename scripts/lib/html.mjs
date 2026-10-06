@@ -141,6 +141,8 @@ export function layout({ path, title, description, body, site, scripts = [], sid
   const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">Menu</button>`;
   const nav = `<nav class="nav ${sidebar ? "sidebar" : "topnav"}" aria-label="Main" id="site-nav">${sidebar ? sidebarList(path) : topList(path)}${sidebar && site.hasNext ? nextSwitch() : ""}</nav>`;
   const main = `<main id="main" tabindex="-1">\n${body}\n</main>`;
+  // An asset's URL with the build's version query (the plain path if it has none).
+  const asset = (p) => site.assets?.[p] || p;
   const footerLinks = NAV.slice(1).map((n) => `<li><a href="${n.path}">${esc(n.label)}</a></li>`).join("");
   return `<!doctype html>
 <html lang="en">
@@ -151,9 +153,9 @@ export function layout({ path, title, description, body, site, scripts = [], sid
 <meta name="description" content="${esc(description)}">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="${esc(site.theme.bg)}">
-<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/assets/theme.css">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
+<link rel="stylesheet" href="${esc(asset("/assets/theme.css"))}">
+<link rel="stylesheet" href="${esc(asset("/assets/site.css"))}">
 <script>(function (d) { d.className += " js"; try { if (localStorage.getItem("vg-show-next") === "1") d.className += " show-next"; } catch (e) {} })(document.documentElement);</script>
 </head>
 <body class="${sidebar ? "has-sidebar" : "is-home"}">
@@ -174,8 +176,8 @@ ${sidebar ? `<div class="shell">\n${nav}\n${main}\n</div>` : main}
     <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · Code under the ${esc(site.licenseName)} license.</p>
   </div>
 </footer>
-<script src="/assets/site.js" defer></script>
-${scripts.map((s) => `<script type="module" src="${esc(s)}"></script>\n`).join("")}</body>
+<script src="${esc(asset("/assets/site.js"))}" defer></script>
+${scripts.map((s) => `<script type="module" src="${esc(asset(s))}"></script>\n`).join("")}</body>
 </html>
 `;
 }
