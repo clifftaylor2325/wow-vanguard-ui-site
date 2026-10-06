@@ -35,11 +35,10 @@ export const RELEASE_NOTES = {
   ],
 };
 
-// What's merged since the release named in `after`: shown only while that is
-// still the current release, so it can't go stale after the next one ships.
-export const NEXT_RELEASE = {
-  after: "v0.3.0",
-  groups: [
+// v0.4.0, the first release named Vanguard: grouped, since it holds everything
+// merged from #26 to #124 (the setup wizard, quests, the rename, the auction
+// helper, F1-F7 and this batch's fixes).
+RELEASE_NOTES["v0.4.0"] = { groups: [
     { id: "new", title: "New", items: [
       { label: "Setup wizard", text: "The first time you log in on an account, a short setup helps you pick a layout (Damage and tanking, Healing, or Like the game's), your screen size, your colors, and where things go. Open it again any time with /vg setup.", from: [40, 71, 80] },
       { label: "Quests", text: "Vanguard's own quest dialog, quest tracker and quest log. Pick lines and rewards with the number keys, and press Space to accept, continue or complete.", from: [64, 65, 66, 67] },
@@ -87,8 +86,10 @@ export const NEXT_RELEASE = {
       { label: "Auction helper", text: "Beside the profession window: what a recipe's reagents cost, what the item sells for and the profit. A sales ledger of what sold, ran out or was cancelled, and disenchant values in tooltips.", from: [109] },
       { label: "Auction helper", text: "Other addons can read Vanguard's auction prices through an API with Auctionator's function names. It never posts, buys or cancels.", from: [109] },
       { label: "Chat watch", text: "The toast shows the auction price beside a linked item.", from: [109] },
+      { label: "Bug reports", text: "/vg report puts everything a bug report needs in one box, ready to copy and paste into the Feedback form on this site.", from: [124] },
     ] },
     { id: "improved", title: "Improved", items: [
+      { label: "Auction helper", text: "A bare number typed in any price box means gold.", from: [123] },
       { label: "Raid and party frames", text: "Easier to read: softer class colors, outlined names, a shield for tanks and a cross for healers, and a set place for each mark so nothing overlaps.", from: [32, 39, 54] },
       { label: "Raid and party frames", text: "They start just above your player frame, big raids are drawn smaller so they fit, and groups can be laid out as rows.", from: [51, 60, 61, 104] },
       { label: "Action bars", text: "Empty slots stay hidden until you drag something, each bar has its own number of buttons, buttons per row and size, and bar 1 is the top row.", from: [34, 35] },
@@ -122,6 +123,16 @@ export const NEXT_RELEASE = {
       { label: "Groups", text: "A quick second ready check keeps its answers, and group changes during a fight no longer pile up work for the end of it.", from: [81] },
       { label: "Boss levels", text: "A “??” boss level shows in red instead of gray.", from: [81] },
       { label: "Russian", text: "Russian headings use a font with Cyrillic letters.", from: [81] },
+      { label: "Profiles", text: "A profile deleted on another character no longer comes back empty: a character that used it moves to Default. Copy here while a switch waits for a reload copies into the profile you'll use after it.", from: [124] },
+      { label: "Moving frames", text: "Trying to unlock frames during a fight now says “In combat. Try again once combat ends.”", from: [124] },
     ] },
   ],
+};
+
+// What's merged since the release named in `after`: shown only while that is
+// still the current release, so it can't go stale after the next one ships.
+// Nothing yet: v0.4.0 is the current release.
+export const NEXT_RELEASE = {
+  after: "v0.4.0",
+  groups: [],
 };

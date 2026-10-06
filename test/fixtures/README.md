@@ -10,7 +10,6 @@ lines as the addon printed them before it was renamed from ForeverUI
   purpose.
 - `vg-status-0.3.0.txt`: the two lines `/vg status` prints in v0.3.0 (the
   same format strings in `Core/Slash.lua`).
-- `vg-report-v1.txt`: a `/vg report` block in the layout the feedback spike
-  (section 4.9) sets out, filled with the lines captured above. No addon
-  version has `/vg report` yet (wow-forever-ui issue #103); replace it with
-  real output once the command ships.
+- `vg-report-v1.txt`: a real `/vg report` block (added in v0.4.0, addon
+  PR #124), captured from the addon's headless test client with the same two
+  errors raised on purpose.

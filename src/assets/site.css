@@ -264,8 +264,8 @@ details.src > p { margin: 4px 0 0; }
 .cmd-text:last-child { margin-bottom: 0; }
 .cmd-line { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 0.92em; color: var(--accent); }
 .cmd-meta { margin: 4px 0 0; font-size: var(--fs-sm); color: var(--text2); }
-.cmd-group .h th { padding: 0; background: var(--panel); }
-.group-toggle { display: flex; align-items: center; gap: var(--sp-3); width: 100%; min-height: 44px; padding: 8px 12px; font: inherit; font-weight: 600; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
+.opt-table.cmd-table .cmd-group .h th { padding: 0; background: var(--panel); }
+.group-toggle { display: flex; align-items: center; gap: var(--sp-3); width: 100%; min-height: 42px; padding: 6px 12px; font: inherit; font-weight: 600; text-align: left; color: var(--text); background: none; border: 0; cursor: pointer; }
 .group-toggle::before { content: ""; flex: none; width: 9px; height: 9px; border: 1.5px solid var(--accent); transform: rotate(45deg); }
 .group-toggle[aria-expanded="true"]::before { background: var(--accent); }
 .group-toggle:hover { background: var(--raised); }

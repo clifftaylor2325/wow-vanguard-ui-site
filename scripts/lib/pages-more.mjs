@@ -430,7 +430,7 @@ ${disclosure({ id: "get-ready", title: "Get your report ready", meta: "steps and
 <h4>Feature request template</h4>
 <pre class="template" id="feature-template">${esc(featureTemplate)}</pre>
 <button class="copy" type="button" data-copy-from="#feature-template" aria-label="Copy the feature request template">Copy template</button>
-<p class="small template-note">Before you ask, check <a href="/features/">Features</a>: some things are already written for the next release (turn on <strong>Show what's coming</strong> in the sidebar to see them).</p>
+<p class="small template-note">Before you ask, check <a href="/features/">Features</a>: it may already be there${model.same ? "" : ", or written for the next release (turn on <strong>Show what's coming</strong> in the sidebar to see those)"}.</p>
 </section>
 </div>
 ${src("Core/Slash.lua (status, errors)", "Core/Modules.lua", "docs/SMOKE-TEST.md (Report block)", "README.md")}` })}`,
@@ -453,7 +453,7 @@ function nextGroup(g) {
 // What's merged since the current release, while that release is the one the
 // notes were written after; nothing once a newer release is out.
 function nextSection(model) {
-  if (model.same || model.release.tag !== NEXT_RELEASE.after) return "";
+  if (model.same || model.release.tag !== NEXT_RELEASE.after || !NEXT_RELEASE.groups.length) return "";
   const n = NEXT_RELEASE.groups.reduce((t, g) => t + g.items.length, 0);
   const intro = `<p>Not released yet, so it has no version number or date. Everything here is written and waiting; v${esc(model.version)} doesn't have it. <a href="/features/">Features</a>, <a href="/commands/">Commands</a> and <a href="/settings/">Settings</a> show these parts when you turn on <strong>Show what's coming</strong> in the sidebar.</p>`;
   return `<section class="card" aria-labelledby="next-h">
@@ -467,9 +467,17 @@ ${NEXT_RELEASE.groups.map(nextGroup).join("\n")}
 </section>`;
 }
 
-// A release's bullets: the player-language notes, else its release note titles.
+// A release's grouped notes (New, Improved, Fixed), each group folded under its heading.
+function groupedNotes(r, groups) {
+  return groups.map((g) => disclosure({ id: `rel-${esc(r.tagName)}-${g.id}`, level: 3, title: esc(g.title), meta: `${g.items.length} change${g.items.length === 1 ? "" : "s"}`,
+    body: `<ul class="changes">${g.items.map((i) => `<li><strong>${esc(i.label)}:</strong> ${esc(i.text)}</li>`).join("")}</ul>` })).join("\n");
+}
+
+// A release's bullets: the player-language notes (grouped for a big release), else its release note titles.
 function releaseNotes(r) {
-  const notes = RELEASE_NOTES[r.tagName]?.map((n) => n.text) || notesOf(r.body);
+  const own = RELEASE_NOTES[r.tagName];
+  if (own?.groups) return groupedNotes(r, own.groups);
+  const notes = own?.map((n) => n.text) || notesOf(r.body);
   return notes.length ? `<ul class="changes">${notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : "<p>No notes.</p>";
 }
 
@@ -518,7 +526,7 @@ ${disclosure({ id: "license", title: "License", open: true, body: `<p><strong>${
 <p>From the v${esc(model.version)} README:</p>
 <blockquote class="card prose"><p>${md(relLicense)}</p></blockquote>
 ${nextLicense && nextLicense !== relLicense ? nextOnly(`<p>The next release also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>`, "div") : ""}` })}
-${bullets.length ? disclosure({ id: "credits", title: "Fonts, libraries and art", body: `<p>As listed in the addon's README for the next release:</p><ul>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` }) : ""}
+${bullets.length ? disclosure({ id: "credits", title: "Fonts, libraries and art", body: `<p>As listed in the addon's README${model.same ? "" : " for the next release"}:</p><ul>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` }) : ""}
 ${disclosure({ id: "site", title: "This website", body: `<p>This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href="/fonts/OFL.txt">license text</a>. Its colors are Vanguard's own theme colors.</p>
 <p>Vanguard is an addon for WoW Forever.</p>
 ${src("LICENSE", "README.md (License, Credits)", "Media/Fonts/OFL.txt")}` })}`,

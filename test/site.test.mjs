@@ -178,12 +178,14 @@ function countedRows(html) {
 
 test("the Settings counter counts only setting rows, so it matches the header", () => {
   const html = page("settings");
-  const head = html.match(/<strong>(\d+)<\/strong> settings in v[^<]*<strong>(\d+)<\/strong> in the next release/);
+  // "N settings in vX · M in the next release", or just "N settings in vX" when the pinned source is the release.
+  const head = html.match(/<strong>(\d+)<\/strong> settings in v[^<]*?(?:<strong>(\d+)<\/strong> in the next release)?/);
   const rows = countedRows(html);
   assert.ok(head, "the header count is missing");
   assert.ok(rows.tags.every((t) => /class="opt-row opt-item"/.test(t)), "only setting rows may carry data-count (no notes or headings)");
   assert.equal(rows.avail("rel", "old"), Number(head[1]), "rows counted with next-release hidden must match the header's release count");
-  assert.equal(rows.avail("rel", "next"), Number(head[2]), "rows counted with v-only hidden must match the header's next-release count");
+  assert.equal(rows.avail("rel", "next"), Number(head[2] ?? head[1]), "rows counted with v-only hidden must match the header's next-release count");
+  if (!head[2]) assert.equal(rows.avail("next", "old"), 0, "with no next-release count, no row is next-release or release-only");
   assert.ok(fs.readFileSync(path.join(dist, "assets/site.js"), "utf8").includes('hasAttribute("data-count")'), "site.js must count data-count rows only");
 });
 
@@ -213,7 +215,9 @@ test("the in-combat reload note says /reload exactly once (#3)", () => {
 test("the Changelog has no badge on a next-release heading and no repo-only notes (#10)", () => {
   const html = page("changelog");
   const heads = [...html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => m[1]).filter((h) => /next release/i.test(h.replace(/<[^>]+>/g, " ")));
-  assert.ok(heads.length > 0, "the Changelog has no next-release heading");
+  // Right after a release the pinned source is the release itself: there's no next release to show.
+  const hasNext = meta.current === NEXT_RELEASE.after && NEXT_RELEASE.groups.length > 0;
+  assert.ok(!hasNext || heads.length > 0, "the Changelog has no next-release heading");
   assert.ok(heads.every((h) => !/<span class="badge\b/.test(h)), `a next-release heading carries a badge: ${heads.join(" | ")}`);
   assert.ok(!/Release workflow/i.test(html), "a release note mentions the release workflow");
 });
