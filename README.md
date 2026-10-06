@@ -80,7 +80,9 @@ The page and the Function share `src/feedback/` (checks, sanitizing, `/vg report
 
 ### Bindings
 
-Set these on the Pages project (Settings → Variables and Secrets, and Bindings), not in a file in the repo:
+The **feedback setup** workflow (Actions tab → feedback setup → Run workflow) sets all of them, then deploys and checks that the form takes reports. The comment at the top of `.github/workflows/feedback-setup.yml` lists what it needs first: two more permissions on the Cloudflare token, a fine-grained GitHub token, and the repository to file into. Run it again, with the extra hostname, when the site gets a custom domain: the Turnstile widget only passes on the hostnames it lists.
+
+By hand instead, set these on the Pages project (Settings → Variables and Secrets, and Bindings), not in a file in the repo:
 
 | Name | Kind | What |
 |---|---|---|
