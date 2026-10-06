@@ -506,7 +506,7 @@ test("the /feedback/ page has the form, preview, confirmation and no file input"
   }
   for (const id of ["fb-form", "fb-preview", "fb-done", "fb-ref", "fb-turnstile", "fb-send"]) assert.ok(html.includes(`id="${id}"`), id);
   assert.ok(!/type="file"/.test(html), "no uploads in v1");
-  assert.ok(html.includes('<script type="module" src="/assets/feedback.js"></script>'));
+  assert.ok(/<script type="module" src="\/assets\/feedback\.js\?v=[0-9a-f]{8}"><\/script>/.test(html));
   assert.ok(html.includes('id="bug-template"'), "the copyable templates stay for no-JS players");
   assert.ok(!/turnstile\/v0\/siteverify|GITHUB_TOKEN|FEEDBACK_REPO/.test(html));
 });

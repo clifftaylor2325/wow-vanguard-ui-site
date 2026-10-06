@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { CURSEFORGE_URL, esc, NAV } from "../scripts/lib/html.mjs";
@@ -156,7 +157,7 @@ test("the Commands table has a row for every command in site-data.json", () => {
 
 test("every page links the favicon, and it is shipped", () => {
   for (const d of ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"]) {
-    assert.ok(page(d).includes('<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">'), `/${d} has no favicon link`);
+    assert.ok(/<link rel="icon" href="\/assets\/favicon\.svg\?v=[0-9a-f]{8}" type="image\/svg\+xml">/.test(page(d)), `/${d} has no favicon link`);
   }
   assert.ok(/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/.test(fs.readFileSync(path.join(dist, "assets/favicon.svg"), "utf8")), "dist/assets/favicon.svg missing or not an SVG");
 });
@@ -304,7 +305,7 @@ test("internal links point at pages and anchors that exist", () => {
     for (const m of page(d).matchAll(/href="([^"]+)"/g)) {
       const href = m[1];
       if (/^https?:/.test(href)) continue;
-      const [p, hash] = href.split("#");
+      const [p, hash] = href.split("?")[0].split("#");
       const target = p === "" ? `/${d ? d + "/" : ""}` : p;
       if (target.startsWith("/assets/") || target.startsWith("/fonts/")) {
         if (!fs.existsSync(path.join(dist, target))) bad.push(`${d}: ${href}`);
@@ -566,4 +567,15 @@ test("folded sections start closed unless the page marks them open by default; F
     }
     if (d === "features" || d === "settings") assert.ok(!/<details[^>]*\sopen\b/.test(main), `/${d} starts with every section folded`);
   }
+});
+
+test("pages load their CSS and JS by a versioned URL, and assets are revalidated", () => {
+  const html = page("install");
+  for (const f of ["theme.css", "site.css", "site.js"]) {
+    const m = html.match(new RegExp(`"/assets/${f.replace(".", "\\.")}\\?v=([0-9a-f]{8})"`));
+    assert.ok(m, `/install/ must load /assets/${f}?v=<hash>`);
+    const want = crypto.createHash("sha256").update(fs.readFileSync(path.join(dist, "assets", f))).digest("hex").slice(0, 8);
+    assert.equal(m[1], want, `${f}'s version must be the hash of the built file`);
+  }
+  assert.match(fs.readFileSync(path.join(dist, "_headers"), "utf8"), /^\/assets\/\*\n  Cache-Control: no-cache\n/);
 });
