@@ -65,7 +65,7 @@ The site never links to the private GitHub repo from player-facing pages, and it
 
 ## Deploying
 
-The site is published to the Cloudflare Pages project `vanguard-ui` (`https://vanguard-ui.pages.dev`). Two ways:
+The site is published to the Cloudflare Pages project `vanguard-ui`, at `https://vanguardui.com` (its custom domain) and `https://vanguard-ui.pages.dev`. Two ways:
 
 - **From GitHub (no local setup):** add three repository secrets (Settings → Secrets and variables → Actions): `ADDON_READ_TOKEN` (read-only token for the addon repo, also used by the check), `CLOUDFLARE_API_TOKEN` (a Cloudflare API token with the **Cloudflare Pages: Edit** permission) and `CLOUDFLARE_ACCOUNT_ID` (dashboard → Workers & Pages, right-hand column). Then Actions → **deploy** → **Run workflow**. It runs the full check first, creates the Pages project the first time, and uploads `dist/` with the feedback Function. It only runs when started by hand.
 - **From your machine:** `npm run check`, then `npm run deploy` (Wrangler asks you to sign in to Cloudflare the first time, and offers to create the project).
@@ -80,7 +80,9 @@ The page and the Function share `src/feedback/` (checks, sanitizing, `/vg report
 
 ### Bindings
 
-Set these on the Pages project (Settings → Variables and Secrets, and Bindings), not in a file in the repo:
+The **feedback setup** workflow (Actions tab → feedback setup → Run workflow) sets all of them, then deploys and checks that the form takes reports. The comment at the top of `.github/workflows/feedback-setup.yml` lists what it needs first: two more permissions on the Cloudflare token (Workers KV Storage → Edit and Turnstile Sites → Edit, next to Cloudflare Pages → Edit; it needs nothing else), a fine-grained GitHub token, and the repository to file into. It covers `vanguardui.com` (and its subdomains) and `vanguard-ui.pages.dev`; run it again with any other hostname the site gets in its box, since the Turnstile widget only passes on the hostnames it lists.
+
+By hand instead, set these on the Pages project (Settings → Variables and Secrets, and Bindings), not in a file in the repo:
 
 | Name | Kind | What |
 |---|---|---|
