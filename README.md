@@ -167,4 +167,4 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 
 ## License
 
-MIT, the same as the addon. See `LICENSE`. The bundled fonts are under the SIL Open Font License 1.1 (`dist/fonts/OFL.txt`).
+Copyright (c) 2026 Clifton Taylor. All rights reserved; see `LICENSE`. The bundled fonts are under the SIL Open Font License 1.1 (`dist/fonts/OFL.txt`). The site shows the addon's own license (from its `LICENSE`, `.toc` `X-License` and README) on the Credits page and in the footer, for the current release: "All rights reserved" for that license, else "Code under the <name> license".

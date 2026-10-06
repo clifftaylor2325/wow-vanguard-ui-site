@@ -10,8 +10,8 @@ import os from "node:os";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
-import { CURSEFORGE_URL, esc, NAV } from "../scripts/lib/html.mjs";
-import { helpPage } from "../scripts/lib/pages-more.mjs";
+import { CURSEFORGE_URL, esc, NAV, licenseNote } from "../scripts/lib/html.mjs";
+import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 import { featuresPage, startsOff } from "../scripts/lib/pages-main.mjs";
@@ -582,4 +582,14 @@ test("pages load their CSS and JS by a versioned URL, and assets are revalidated
     assert.equal(m[1], want, `${f}'s version must be the hash of the built file`);
   }
   assert.match(fs.readFileSync(path.join(dist, "_headers"), "utf8"), /^\/assets\/\*\n  Cache-Control: no-cache\n/);
+});
+
+// The addon's license as the footer and Credits page say it: MIT (v0.4.0 and before) or all rights reserved.
+test("the license words: MIT, or all rights reserved", () => {
+  assert.equal(licenseNote("MIT"), "Code under the MIT license");
+  assert.equal(licenseNote("All Rights Reserved"), "All rights reserved");
+  assert.deepEqual(licenseSummary("MIT License\n\nCopyright (c) 2026 Cliff Hearthvale\n\nPermission is hereby granted"), { head: "MIT License", line: "Copyright (c) 2026 Cliff Hearthvale", released: "released under the MIT License" });
+  assert.deepEqual(licenseSummary("Copyright (c) 2026 Clifton Taylor. All rights reserved.\n\nVanguard, an addon for World of Warcraft, and"), { head: "Copyright (c) 2026 Clifton Taylor. All rights reserved.", line: "", released: "" });
+  const credits = page("credits");
+  assert.ok(/<strong>(MIT License|Copyright \(c\) [^<]*All rights reserved\.)<\/strong>/.test(credits), "the Credits page names the current release's license");
 });
