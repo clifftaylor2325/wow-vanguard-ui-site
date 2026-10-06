@@ -1,7 +1,8 @@
-# Publishes the site to Cloudflare Pages (project vanguard-ui, vanguard-ui.pages.dev). It runs only
-# when started by hand: Actions tab → deploy → Run workflow. It builds and checks the site exactly as
-# check.yml does, so a deploy never goes out with a failing check, creates the Pages project the
-# first time, then uploads dist/ together with functions/ (the feedback form's Function).
+# Publishes the site to Cloudflare Pages (project vanguard-ui: vanguardui.com, vanguard-ui.pages.dev). It runs only
+# when started by hand: Actions tab → deploy → Run workflow (feedback-setup.yml runs it too). It
+# builds and checks the site exactly as check.yml does, so a deploy never goes out with a failing
+# check, creates the Pages project the first time, then uploads dist/ together with functions/ (the
+# feedback form's Function).
 #
 # Secrets it needs (Settings → Secrets and variables → Actions):
 #   ADDON_READ_TOKEN       read-only token for the private addon repo (the same one check.yml uses)
@@ -12,6 +13,7 @@ name: deploy
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read

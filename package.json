@@ -2,7 +2,7 @@
   "name": "wow-vanguard-ui-site",
   "version": "1.0.0",
   "private": true,
-  "description": "The Vanguard player website (vanguard-ui.pages.dev), generated from the addon's Lua.",
+  "description": "The Vanguard player website (vanguardui.com), generated from the addon's Lua.",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -11,7 +11,7 @@
   "scripts": {
     "fetch": "node scripts/fetch.mjs",
     "build": "node scripts/fetch.mjs && node scripts/build.mjs",
-    "test": "node --test test/site.test.mjs test/feedback.test.mjs test/pages.test.mjs test/features.test.mjs",
+    "test": "node --test test/site.test.mjs test/feedback.test.mjs test/pages.test.mjs test/features.test.mjs test/feedback-setup.test.mjs",
     "check": "npm run build && npm run check:encoding && npm test",
     "check:encoding": "node scripts/check-encoding.mjs",
     "shots": "node scripts/shots.mjs",

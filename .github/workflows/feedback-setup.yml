@@ -1,0 +1,73 @@
+# Sets up the feedback form on Cloudflare in one go, then deploys and checks the form is taking
+# reports. It runs only when started by hand: Actions tab → feedback setup → Run workflow. Safe to
+# run again (for a new token, or a new domain for the site): it reuses what it made before.
+# scripts/feedback-setup.mjs says what it does.
+#
+# Before the first run:
+# 1. Give the CLOUDFLARE_API_TOKEN secret's token two more permissions (Cloudflare dashboard → My
+#    Profile → API Tokens → edit it): Workers KV Storage → Edit and Turnstile Sites → Edit, next to
+#    the Cloudflare Pages → Edit it has for deploy.yml. Those three, on the account, are all it needs:
+#    no zone permissions.
+# 2. Make a fine-grained GitHub token (github.com → Settings → Developer settings → Fine-grained
+#    tokens): only the repository reports go to, Repository permissions → Issues → Read and write.
+# 3. Add two repository secrets here (Settings → Secrets and variables → Actions):
+#      FEEDBACK_GITHUB_TOKEN  that token
+#      FEEDBACK_REPO          owner/name of the repository reports go to (keep it private)
+# Run it again with any new hostname for the site in the box (vanguardui.com and its subdomains,
+# and vanguard-ui.pages.dev, are always included).
+name: feedback setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      domains:
+        description: "More hostnames for the form besides vanguardui.com and vanguard-ui.pages.dev, comma-separated"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Cloudflare and GitHub settings for the form
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          FEEDBACK_GITHUB_TOKEN: ${{ secrets.FEEDBACK_GITHUB_TOKEN }}
+          FEEDBACK_REPO: ${{ secrets.FEEDBACK_REPO }}
+          SITE_DOMAINS: ${{ inputs.domains }}
+        run: node scripts/feedback-setup.mjs
+
+  # The settings apply from the next deployment.
+  deploy:
+    needs: setup
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+
+  form:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: The form takes reports
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            answer=$(curl -s https://vanguard-ui.pages.dev/api/feedback || true)
+            echo "GET /api/feedback: $answer"
+            case "$answer" in *'"accepting":true'*) exit 0 ;; esac
+            sleep 10
+          done
+          echo "::error::The deployed form still says it isn't accepting reports. Check the setup job's lines, and the Pages project's Settings → Variables and Secrets and Bindings."
+          exit 1
