@@ -8,6 +8,7 @@
 // Run `npm run fetch` first (npm run build does) so .cache/ has both.
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { loadConfig, root } from "./lib/config.mjs";
 import { gitReader } from "./lib/source.mjs";
 import { extractAddon } from "./lib/extract.mjs";
@@ -66,6 +67,21 @@ function faviconSvg(vars) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="${vars.bg}"/>${diamond("M11 4 L20 16 L11 28 L2 16 Z", vars.accent)}${diamond("M21 4 L30 16 L21 28 L12 16 Z", vars.text)}</svg>\n`;
 }
 
+// The pages' asset URLs with a short hash of the built file in the query
+// (/assets/site.css?v=1a2b3c4d), so a browser that kept an old copy fetches
+// the new one after a deploy instead of pairing new HTML with old CSS/JS.
+function stampAssets(files) {
+  const hash = (rel) => crypto.createHash("sha256").update(fs.readFileSync(path.join(cfg.outDir, rel))).digest("hex").slice(0, 8);
+  return Object.fromEntries(files.map((rel) => [`/${rel}`, `/${rel}?v=${hash(rel)}`]));
+}
+
+// _headers (Cloudflare Pages): browsers check back before reusing a copy of
+// an asset, so files the pages load by a fixed name (the feedback form's
+// modules) never stay stale either. Unchanged files still come back as 304.
+function headersFile() {
+  return `/assets/*\n  Cache-Control: no-cache\n`;
+}
+
 // sitemap.xml: every page in NAV, under siteUrl from site.config.json.
 function sitemapXml(base) {
   const urls = NAV.map((n) => `  <url><loc>${base}${n.path}</loc></url>`).join("\n");
@@ -109,6 +125,7 @@ function main() {
   const base = cfg.siteUrl.replace(/\/+$/, "");
   write("sitemap.xml", sitemapXml(base));
   write("robots.txt", robotsTxt(base));
+  write("_headers", headersFile());
   for (const f of ["site.css", "site.js", "feedback.js"]) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets", f)));
   // The feedback form's shared code: the same files the Pages Function imports (functions/_lib/handler.js).
   for (const f of FEEDBACK_SHARED) write(`assets/feedback/${f}`, fs.readFileSync(path.join(root, "src/feedback", f)));
@@ -120,6 +137,8 @@ function main() {
     need(fs.existsSync(woff2), `${WOFF2_DIR}/${n}.woff2 missing; run \`npm run fonts\``);
     write(`fonts/${n}.woff2`, fs.readFileSync(woff2));
   }
+
+  site.assets = stampAssets(["assets/theme.css", "assets/site.css", "assets/site.js", "assets/feedback.js", "assets/favicon.svg"]);
 
   const pages = [
     homePage(model), installPage(model), startPage(model, read), featuresPage(model), commandsPage(model), settingsPage(model, read),
