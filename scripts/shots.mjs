@@ -96,7 +96,8 @@ async function checkNoMatch(page, base, url, noun, failures) {
 async function checkSettingsCount(page, base, failures) {
   await page.goto(base + "/settings/", { waitUntil: "load" });
   const want = await page.evaluate(() => [...document.querySelectorAll("main p")].find((p) => / settings in v/.test(p.textContent)).querySelector("strong").textContent);
-  await page.uncheck('.search input[data-filter="next"]');
+  // Right after a release there's no next-release box (nothing to hide): the count is the release's either way.
+  if (await page.$('.search input[data-filter="next"]')) await page.uncheck('.search input[data-filter="next"]');
   const r = await searchFor(page, "");
   report(failures, `/settings/ next release hidden: "${r.count}" (header ${want})`, r.count === `${want} settings shown`);
 }
