@@ -511,8 +511,16 @@ function section(readme, name) {
   return m ? m[1].trim() : "";
 }
 
+// What the top of a LICENSE file says: the MIT License's name and its copyright line, or, for an
+// all-rights-reserved notice, its copyright line ("Copyright (c) 2026 … All rights reserved.").
+export function licenseSummary(text) {
+  const lines = String(text || "").split("\n").map((l) => l.trim()).filter(Boolean);
+  if (/^MIT License$/i.test(lines[0] || "")) return { head: "MIT License", line: lines[1] || "", released: "released under the MIT License" };
+  return { head: lines[0] || "", line: "", released: "" };
+}
+
 export function creditsPage(model, site) {
-  const lic = model.rel.license.split("\n").slice(0, 3).filter(Boolean);
+  const lic = licenseSummary(model.rel.license);
   const relLicense = section(model.rel.readme, "License");
   const nextCredits = section(model.next.readme, "Credits");
   const nextLicense = section(model.next.readme, "License");
@@ -521,8 +529,8 @@ export function creditsPage(model, site) {
     path: "/credits/",
     title: "Credits & license",
     description: "Vanguard's license and the fonts, libraries and art it uses.",
-    body: `${pageHero("Credits &amp; license", `Vanguard is made by ${esc(site.author)} and released under the ${esc(lic[0] || "MIT License")}.`)}
-${disclosure({ id: "license", title: "License", open: true, body: `<p><strong>${esc(lic[0] || "")}</strong>. ${esc(lic[1] || "")}.</p>
+    body: `${pageHero("Credits &amp; license", lic.released ? `Vanguard is made by ${esc(site.author)} and ${lic.released}.` : `Vanguard is made by ${esc(site.author)}. ${esc(lic.head)}`)}
+${disclosure({ id: "license", title: "License", open: true, body: `<p><strong>${esc(lic.head)}</strong>${lic.line ? `. ${esc(lic.line)}.` : ""}</p>
 <p>From the v${esc(model.version)} README:</p>
 <blockquote class="card prose"><p>${md(relLicense)}</p></blockquote>
 ${nextLicense && nextLicense !== relLicense ? nextOnly(`<p>The next release also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>`, "div") : ""}` })}

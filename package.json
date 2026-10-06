@@ -4,7 +4,7 @@
   "private": true,
   "description": "The Vanguard player website (vanguardui.com), generated from the addon's Lua.",
   "type": "module",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "engines": {
     "node": ">=20"
   },
