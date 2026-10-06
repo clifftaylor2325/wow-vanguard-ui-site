@@ -49,6 +49,28 @@ export const NAV_GROUPS = ["Get started", "Learn", "Reference", "Help", "About"]
 // become links and the tests switch to checking for the link.
 export const CURSEFORGE_URL = null;
 
+// Ways to support Vanguard's development, in the order shown. Each stays off the site until its
+// url is set (an https:// address): then a "Support Vanguard" line appears in every page's footer
+// and a Support section on the Credits page. Donations stay on the website, never in the
+// addon itself.
+export const SUPPORT = [
+  { name: "Patreon", url: null, what: "a monthly pledge" },
+  { name: "Ko-fi", url: null, what: "a one-off tip" },
+];
+
+// The support links that are switched on (their url is set).
+export function supportOn(links = SUPPORT) {
+  return links.filter((l) => typeof l.url === "string" && /^https:\/\//.test(l.url));
+}
+
+// The "Support Vanguard" line: each switched-on link with what it is for; "" when none is.
+export function supportLine(links = SUPPORT) {
+  const on = supportOn(links);
+  if (!on.length) return "";
+  const items = on.map((l) => `<a href="${esc(l.url)}" rel="noopener">${esc(l.name)}</a> <span class="small">(${esc(l.what)})</span>`);
+  return `<p class="support">Support Vanguard: ${items.join(" · ")}</p>`;
+}
+
 // The CurseForge call to action: a link once CURSEFORGE_URL is set, until then
 // a styled, non-interactive "Coming soon on CurseForge" badge.
 export function curseforgeCta({ size = "" } = {}) {
@@ -172,6 +194,7 @@ ${sidebar ? `<div class="shell">\n${nav}\n${main}\n</div>` : main}
   ${ornament("footer-orn")}
   <div class="footer-inner">
     <ul class="footer-links">${footerLinks}</ul>
+    ${supportLine()}
     <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
     <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · ${COPYRIGHT}</p>
   </div>
