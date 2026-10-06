@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Checks every page for sideways scrolling, failed requests and console errors at
-// 390px and 360px wide, checks the Commands and Settings search, and takes
+// 390px and 360px wide, that every page but Feedback fits one screen as it
+// opens (1280x800 and 390x844, every section folded), that the Menu button
+// opens the nav drawer at 390px, checks the Commands and Settings search, and takes
 // full-page screenshots of Home, Install, Features, Commands, Settings,
 // Feedback, Troubleshooting and Changelog at 1280px and 390px.
 // Uses playwright-core with the browser in CHROME_PATH, else Edge on Windows
@@ -108,6 +110,37 @@ async function checkSearch(browser, base, failures) {
   await page.close();
 }
 
+// Fails when the page as it opens (every section folded) doesn't fit the screen:
+// everything above the footer must end inside the first screen, and nothing may
+// start open except what the page marks open by default (data-open), which on
+// a phone is folded too. Feedback is the exception: its form is the page.
+async function fitsOneScreen(page, label, failures) {
+  const r = await page.evaluate(() => {
+    // The content's own end, not main's box (beside the sidebar, main is stretched to its height).
+    const bottom = Math.round(Math.max(0, ...[...document.querySelector("main").children].map((el) => el.getBoundingClientRect().bottom + window.scrollY)));
+    const open = document.querySelectorAll("main details[open]:not([data-open])").length;
+    const small = window.matchMedia("(max-width: 559px)").matches;
+    const openDefault = small ? document.querySelectorAll("main details[data-open][open]").length : 0;
+    return { bottom, ih: window.innerHeight, open: open + openDefault };
+  });
+  const ok = r.bottom <= r.ih && r.open === 0;
+  console.log(`${ok ? "ok  " : "FAIL"} ${label} fits one screen: content ends at ${r.bottom} of ${r.ih}${r.open ? `, ${r.open} section(s) open` : ""}`);
+  if (!ok) failures.push(`${label} one screen`);
+}
+
+// The Menu button opens the nav as a drawer, and Escape closes it.
+async function checkDrawer(page, base, url, failures) {
+  await page.goto(base + url, { waitUntil: "load" });
+  await page.click(".nav-toggle");
+  const opened = await page.evaluate(() => {
+    const nav = document.getElementById("site-nav");
+    return nav.classList.contains("open") && getComputedStyle(nav).visibility === "visible" && document.querySelector(".nav-toggle").getAttribute("aria-expanded") === "true";
+  });
+  await page.keyboard.press("Escape");
+  const closed = await page.evaluate(() => !document.getElementById("site-nav").classList.contains("open"));
+  report(failures, `${url} Menu opens the drawer and Escape closes it`, opened && closed);
+}
+
 // Fails when the page scrolls sideways.
 async function noSideScroll(page, label, failures) {
   const [sw, iw] = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
@@ -204,6 +237,18 @@ async function main() {
         console.log(`${ok ? "ok  " : "FAIL"} skip link ${n.path} first Tab: ${first ? "skip link" : "something else"}, Enter: ${toMain ? "focus on main" : "focus not on main"}`);
         if (!ok) failures.push(`skip link on ${n.path}`);
       }
+      await page.close();
+    }
+    // One screen as it opens, at desktop and phone sizes; and the drawer on the phone.
+    for (const [width, height] of [[1280, 800], [390, 844]]) {
+      const page = await browser.newPage({ viewport: { width, height } });
+      await stubFeedbackApi(page);
+      for (const n of NAV.filter((x) => x.path !== "/feedback/")) {
+        await page.goto(base + n.path, { waitUntil: "load" });
+        await page.evaluate(() => document.fonts.ready);
+        await fitsOneScreen(page, `${n.path} at ${width}x${height}`, failures);
+      }
+      if (width === 390) await checkDrawer(page, base, "/features/", failures);
       await page.close();
     }
     await checkSearch(browser, base, failures);

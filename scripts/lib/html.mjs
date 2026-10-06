@@ -1,4 +1,4 @@
-// HTML helpers and the shared page layout (header, nav, footer).
+// HTML helpers and the shared page layout (header, sidebar nav, footer).
 
 // Escapes text for HTML.
 export function esc(s) {
@@ -23,20 +23,24 @@ export function md(s) {
   return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
 }
 
-// Every page in nav order: path, nav label, title.
+// Every page in nav order: path, nav label, title. `group` is its heading in
+// the sidebar; `primary` marks the pages the Home page's top bar shows.
 export const NAV = [
   { path: "/", label: "Home", title: "Vanguard" },
-  { path: "/install/", label: "Install", title: "Install & Update" },
-  { path: "/start/", label: "Getting started", title: "Getting started" },
-  { path: "/features/", label: "Features", title: "Features" },
-  { path: "/commands/", label: "Commands", title: "Commands" },
-  { path: "/settings/", label: "Settings", title: "Settings" },
-  { path: "/profiles/", label: "Profiles", title: "Profiles & sharing" },
-  { path: "/help/", label: "Troubleshooting", title: "Troubleshooting & FAQ" },
-  { path: "/feedback/", label: "Feedback", title: "Feedback" },
-  { path: "/changelog/", label: "Changelog", title: "Changelog" },
-  { path: "/credits/", label: "Credits", title: "Credits & license" },
+  { path: "/install/", label: "Install", title: "Install & Update", group: "Get started", primary: true },
+  { path: "/start/", label: "Getting started", title: "Getting started", group: "Get started", primary: true },
+  { path: "/features/", label: "Features", title: "Features", group: "Learn", primary: true },
+  { path: "/commands/", label: "Commands", title: "Commands", group: "Reference", primary: true },
+  { path: "/settings/", label: "Settings", title: "Settings", group: "Reference", primary: true },
+  { path: "/profiles/", label: "Profiles & sharing", title: "Profiles & sharing", group: "Learn" },
+  { path: "/help/", label: "Troubleshooting", title: "Troubleshooting & FAQ", group: "Help", primary: true },
+  { path: "/feedback/", label: "Feedback", title: "Feedback", group: "Help" },
+  { path: "/changelog/", label: "Changelog", title: "Changelog", group: "About" },
+  { path: "/credits/", label: "Credits & license", title: "Credits & license", group: "About" },
 ];
+
+// The sidebar's groups, in order.
+export const NAV_GROUPS = ["Get started", "Learn", "Reference", "Help", "About"];
 
 // Vanguard's CurseForge page. Vanguard isn't listed yet, so there's no URL:
 // every CurseForge call to action renders as a "Coming soon" badge, not a link.
@@ -67,9 +71,9 @@ export function heroFrame() {
   return `<div class="hero-frame">${["tl", "tr", "bl", "br"].map((c) => `<svg class="fr fr-${c}" viewBox="0 0 54 54" focusable="false">${corner}</svg>`).join("")}</div>`;
 }
 
-// The top of every inner page: the page's h1 and its lede in a framed panel
-// that carries the Home hero's sky, brass frame and ornament. title and lede
-// are HTML (already escaped by the caller); lede is optional.
+// The top of every inner page: the page's h1 and its one-line lede in a slim
+// band that carries the Home hero's sky, brass frame and ornament. title and
+// lede are HTML (already escaped by the caller); lede is optional.
 export function pageHero(title, lede = "") {
   return `<div class="page-hero">
 <div class="hero-art" aria-hidden="true"><div class="hero-sky"></div>${heroFrame()}</div>
@@ -81,13 +85,63 @@ ${lede ? `<p class="lede">${lede}</p>` : ""}
 </div>`;
 }
 
+// The compact facts strip under a page's hero: a few short items (HTML).
+export function glance(items) {
+  const list = items.filter(Boolean);
+  // An item that only the next release has (from nextOnly) marks its whole pill.
+  const li = (i) => { const m = i.match(/^<span data-avail="next">([\s\S]*)<\/span>$/); return m ? `<li data-avail="next">${m[1]}</li>` : `<li>${i}</li>`; };
+  return list.length ? `<ul class="glance">${list.map(li).join("")}</ul>` : "";
+}
+
+// A collapsed section: the heading (with its id) is the summary, the body
+// opens on click. `open` sections start open (and data-open lets the search
+// put them back). `next` marks a section only the next release has.
+export function disclosure({ id, title, body, level = 2, open = false, next = false, meta = "", cls = "", attrs = "" }) {
+  const h = `h${level}`;
+  return `<details class="disclosure${cls ? ` ${cls}` : ""}"${open ? " open data-open" : ""}${next ? ' data-avail="next"' : ""}${attrs}>
+<summary><${h} id="${id}">${title}</${h}>${meta ? `<span class="dis-meta">${meta}</span>` : ""}</summary>
+<div class="dis-body">
+${body}
+</div>
+</details>`;
+}
+
 // The two linked diamonds of the Vanguard logo, as a small inline SVG.
 const MARK = `<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M11 4 L20 16 L11 28 L2 16 Z" fill="none" stroke="var(--accent)" stroke-width="2.5"/><path d="M21 4 L30 16 L21 28 L12 16 Z" fill="none" stroke="var(--text)" stroke-width="2.5"/></svg>`;
 
-// A full HTML page with the shared header, nav and footer.
-export function layout({ path, title, description, body, site, scripts = [] }) {
-  const nav = NAV.map((n) => `<li><a href="${n.path}"${n.path === path ? ' aria-current="page"' : ""}>${esc(n.label)}</a></li>`).join("");
+// One nav link, marked when it's the page being shown.
+function navLink(n, path) {
+  return `<li${n.path === path ? ' class="is-here"' : ""}><a href="${n.path}"${n.path === path ? ' aria-current="page"' : ""}>${esc(n.label)}</a></li>`;
+}
+
+// The sidebar list: Home, then every page under its group heading.
+function sidebarList(path) {
+  const groups = NAV_GROUPS.map((g) => {
+    const id = `nav-g-${slug(g)}`;
+    return `<li class="nav-group"><span class="nav-group-h" id="${id}">${esc(g)}</span><ul aria-labelledby="${id}">${NAV.filter((n) => n.group === g).map((n) => navLink(n, path)).join("")}</ul></li>`;
+  });
+  return `<ul id="nav-list">${navLink(NAV[0], path)}${groups.join("")}</ul>`;
+}
+
+// The Home page's top bar: the primary pages only (every page is in the footer).
+function topList(path) {
+  return `<ul id="nav-list">${NAV.filter((n) => n.primary).map((n) => navLink(n, path)).join("")}</ul>`;
+}
+
+// The sidebar's switch that shows what the next release adds (only while a
+// next release is in the works).
+function nextSwitch() {
+  return `<div class="nav-foot"><label class="switch"><input type="checkbox" data-pref="next"> <span>Show what's coming in the next release</span></label></div>`;
+}
+
+// A full HTML page with the shared header, nav and footer. Inner pages get the
+// grouped sidebar; Home (sidebar: false) gets a top bar instead.
+export function layout({ path, title, description, body, site, scripts = [], sidebar = path !== "/" }) {
   const fullTitle = path === "/" ? `Vanguard: a UI suite for WoW Forever` : `${title} · Vanguard`;
+  const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">Menu</button>`;
+  const nav = `<nav class="nav ${sidebar ? "sidebar" : "topnav"}" aria-label="Main" id="site-nav">${sidebar ? sidebarList(path) : topList(path)}${sidebar && site.hasNext ? nextSwitch() : ""}</nav>`;
+  const main = `<main id="main" tabindex="-1">\n${body}\n</main>`;
+  const footerLinks = NAV.slice(1).map((n) => `<li><a href="${n.path}">${esc(n.label)}</a></li>`).join("");
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -100,27 +154,24 @@ export function layout({ path, title, description, body, site, scripts = [] }) {
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/theme.css">
 <link rel="stylesheet" href="/assets/site.css">
-<script>document.documentElement.className += " js";</script>
+<script>(function (d) { d.className += " js"; try { if (localStorage.getItem("vg-show-next") === "1") d.className += " show-next"; } catch (e) {} })(document.documentElement);</script>
 </head>
-<body>
+<body class="${sidebar ? "has-sidebar" : "is-home"}">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="header-inner">
     <a class="brand" href="/">${MARK}<span>Vanguard</span></a>
-    <nav class="nav" aria-label="Main">
-      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">Menu</button>
-      <ul id="nav-list">${nav}</ul>
-    </nav>
+    ${toggle}
+    ${sidebar ? "" : nav}
   </div>
 </header>
-<main id="main" tabindex="-1">
-${body}
-</main>
+${sidebar ? `<div class="shell">\n${nav}\n${main}\n</div>` : main}
 <footer class="site-footer">
   ${ornament("footer-orn")}
   <div class="footer-inner">
-    <p style="margin:0">Vanguard is a fan addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
-    <p style="margin:0">Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · Code under the ${esc(site.licenseName)} license · <a href="/credits/">Credits &amp; license</a> · <a href="/feedback/">Feedback</a></p>
+    <ul class="footer-links">${footerLinks}</ul>
+    <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
+    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · Code under the ${esc(site.licenseName)} license.</p>
   </div>
 </footer>
 <script src="/assets/site.js" defer></script>
@@ -129,12 +180,22 @@ ${scripts.map((s) => `<script type="module" src="${esc(s)}"></script>\n`).join("
 `;
 }
 
-// Availability badge for something by where it exists.
+// The "Next release" tag.
+export const NEXT_BADGE = `<span class="badge next">Next release</span>`;
+
+// Availability badge for something by where it exists. Being in the current
+// release is the default and gets no tag; only the exceptions are marked.
 export function badge(inRel, inNext, version) {
-  if (inRel && inNext) return `<span class="badge rel">In v${esc(version)}</span>`;
-  if (inNext) return `<span class="badge next">Next release</span>`;
+  if (inRel && inNext) return "";
+  if (inNext) return NEXT_BADGE;
   if (inRel) return `<span class="badge old">v${esc(version)} only</span>`;
   return "";
+}
+
+// Wraps HTML that only applies to the next release, so the page hides it until
+// the reader asks to see what's coming.
+export function nextOnly(html, tag = "span", attrs = "") {
+  return `<${tag} data-avail="next"${attrs}>${html}</${tag}>`;
 }
 
 // The availability key used by filters.

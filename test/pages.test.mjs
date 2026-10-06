@@ -91,7 +91,7 @@ test("/start/: the layout and screen-preset tables match the wizard's own lists"
 test("/start/: the Escape-menu button is at the top of the menu, or just under it", () => {
   const gm = show(NEXT, "Core/GameMenu.lua");
   const h = html("start");
-  const li = (h.match(/<li>[^\n]*?<kbd>Escape<\/kbd> to open the game menu[\s\S]*?<\/li>/) || [])[0];
+  const li = (h.match(/<li[^>]*>[^\n]*?<kbd>Escape<\/kbd> to open the game menu[\s\S]*?<\/li>/) || [])[0];
   assert.ok(li, "the Escape-menu way to open the options");
   const t = text(li);
   assert.ok(t.includes("at the top of the Escape menu, or just under it where your client's menu can't take new buttons"), t);
