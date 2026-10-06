@@ -180,7 +180,8 @@ function countedRows(html) {
 test("the Settings counter counts only setting rows, so it matches the header", () => {
   const html = page("settings");
   // "N settings in vX · M in the next release", or just "N settings in vX" when the pinned source is the release.
-  const head = html.match(/<strong>(\d+)<\/strong> settings in v[^<]*?(?:<strong>(\d+)<\/strong> in the next release)?/);
+  // Greedy up to the next tag: a lazy run here let the optional next-release group match nothing, so it was never read.
+  const head = html.match(/<strong>(\d+)<\/strong> settings in v[^<]*(?:<strong>(\d+)<\/strong> in the next release)?/);
   const rows = countedRows(html);
   assert.ok(head, "the header count is missing");
   assert.ok(rows.tags.every((t) => /class="opt-row opt-item"/.test(t)), "only setting rows may carry data-count (no notes or headings)");
