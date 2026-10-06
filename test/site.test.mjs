@@ -10,7 +10,7 @@ import os from "node:os";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
-import { CURSEFORGE_URL, esc, NAV, COPYRIGHT } from "../scripts/lib/html.mjs";
+import { CURSEFORGE_URL, esc, NAV, COPYRIGHT, SUPPORT, supportOn, supportLine } from "../scripts/lib/html.mjs";
 import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
@@ -595,4 +595,28 @@ test("the footer says all rights reserved; Credits names each release's own lice
   assert.deepEqual(licenseSummary("Copyright (c) 2026 Clifton Taylor. All rights reserved.\n\nVanguard, an addon for World of Warcraft, and"), { head: "Copyright (c) 2026 Clifton Taylor. All rights reserved.", line: "", released: "" });
   const credits = page("credits");
   assert.ok(/<strong>(MIT License|Copyright \(c\) [^<]*All rights reserved\.)<\/strong>/.test(credits), "the Credits page names the current release's license");
+});
+
+test("support links render only once a URL is set, and only https ones", () => {
+  const fake = [
+    { name: "Patreon", url: "https://www.patreon.com/example", what: "a monthly pledge" },
+    { name: "Ko-fi", url: "https://ko-fi.com/a\"b", what: "a one-off tip" },
+    { name: "Plain", url: "http://example.com", what: "no https" },
+    { name: "Empty", url: null, what: "not set" },
+  ];
+  assert.deepEqual(supportOn(fake).map((l) => l.name), ["Patreon", "Ko-fi"]);
+  const line = supportLine(fake);
+  assert.ok(line.includes('href="https://www.patreon.com/example"') && line.includes(">Patreon</a>"), "Patreon renders as a link");
+  assert.ok(line.includes('href="https://ko-fi.com/a&quot;b"'), "URLs are escaped");
+  assert.ok(!/Plain|Empty/.test(line), "links without an https URL stay out");
+  assert.equal(supportLine(fake.slice(2)), "", "no line at all when nothing is switched on");
+  const on = supportOn(SUPPORT).length > 0;
+  for (const d of PAGE_DIRS) {
+    const html = pageHtml(d);
+    const footer = (html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
+    assert.equal(/class="support"/.test(footer), on, `/${d}: the footer's support line shows exactly when a support URL is set`);
+    assert.ok(!/class="support"/.test(html.replace(footer, "")), `/${d}: the support line is only in the footer`);
+    if (!on) assert.ok(!/patreon\.com|ko-fi\.com/i.test(html), `/${d} links to a donation site before its URL is set`);
+  }
+  assert.equal(/id="support"/.test(page("credits")), on, "Credits has a Support section exactly when a support URL is set");
 });
