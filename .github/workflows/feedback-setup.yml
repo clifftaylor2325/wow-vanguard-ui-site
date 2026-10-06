@@ -5,8 +5,9 @@
 #
 # Before the first run:
 # 1. Give the CLOUDFLARE_API_TOKEN secret's token two more permissions (Cloudflare dashboard → My
-#    Profile → API Tokens → edit it): Account → Workers KV Storage → Edit, and Account → Turnstile →
-#    Edit (it has Cloudflare Pages → Edit already, for deploy.yml).
+#    Profile → API Tokens → edit it): Workers KV Storage → Edit and Turnstile Sites → Edit, next to
+#    the Cloudflare Pages → Edit it has for deploy.yml. Those three, on the account, are all it needs:
+#    no zone permissions.
 # 2. Make a fine-grained GitHub token (github.com → Settings → Developer settings → Fine-grained
 #    tokens): only the repository reports go to, Repository permissions → Issues → Read and write.
 # 3. Add two repository secrets here (Settings → Secrets and variables → Actions):

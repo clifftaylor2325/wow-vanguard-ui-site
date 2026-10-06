@@ -80,7 +80,7 @@ The page and the Function share `src/feedback/` (checks, sanitizing, `/vg report
 
 ### Bindings
 
-The **feedback setup** workflow (Actions tab → feedback setup → Run workflow) sets all of them, then deploys and checks that the form takes reports. The comment at the top of `.github/workflows/feedback-setup.yml` lists what it needs first: two more permissions on the Cloudflare token, a fine-grained GitHub token, and the repository to file into. It covers `vanguardui.com` (and its subdomains) and `vanguard-ui.pages.dev`; run it again with any other hostname the site gets in its box, since the Turnstile widget only passes on the hostnames it lists.
+The **feedback setup** workflow (Actions tab → feedback setup → Run workflow) sets all of them, then deploys and checks that the form takes reports. The comment at the top of `.github/workflows/feedback-setup.yml` lists what it needs first: two more permissions on the Cloudflare token (Workers KV Storage → Edit and Turnstile Sites → Edit, next to Cloudflare Pages → Edit; it needs nothing else), a fine-grained GitHub token, and the repository to file into. It covers `vanguardui.com` (and its subdomains) and `vanguard-ui.pages.dev`; run it again with any other hostname the site gets in its box, since the Turnstile widget only passes on the hostnames it lists.
 
 By hand instead, set these on the Pages project (Settings → Variables and Secrets, and Bindings), not in a file in the repo:
 

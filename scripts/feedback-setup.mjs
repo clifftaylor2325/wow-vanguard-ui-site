@@ -14,7 +14,7 @@
 // which the workflow runs straight after.
 //
 // Environment: CLOUDFLARE_API_TOKEN (Pages: Edit, Workers KV Storage: Edit,
-// Turnstile: Edit), CLOUDFLARE_ACCOUNT_ID, FEEDBACK_GITHUB_TOKEN,
+// Turnstile Sites: Edit; nothing else), CLOUDFLARE_ACCOUNT_ID, FEEDBACK_GITHUB_TOKEN,
 // FEEDBACK_REPO (owner/name), and optionally SITE_DOMAINS (more hostnames for
 // the widget, comma-separated, such as a custom domain).
 import crypto from "node:crypto";
@@ -97,7 +97,7 @@ export async function kvNamespace(fetchFn, cfg) {
 // The Turnstile widget's sitekey and secret: made if missing, else its
 // hostnames brought up to date.
 export async function turnstileWidget(fetchFn, cfg) {
-  const perm = "Turnstile: Edit";
+  const perm = "Turnstile Sites: Edit";
   const list = await cf(fetchFn, cfg, "GET", "/challenges/widgets?per_page=50", undefined, perm);
   const found = list.find((w) => w.name === WIDGET_NAME);
   if (!found) {
