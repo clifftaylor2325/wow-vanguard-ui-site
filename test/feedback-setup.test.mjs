@@ -92,6 +92,6 @@ test("failures name what to fix", async () => {
   await assert.rejects(setup(fakeApis({ ghStatus: 404 }).fetchFn, cfg), (e) => e instanceof SetupError && /can't see owner\/private-feedback/.test(e.message));
   await assert.rejects(setup(fakeApis({ labelStatus: 403 }).fetchFn, cfg), /Issues: Read and write/);
   await assert.rejects(setup(fakeApis({ cfDenied: ["/storage/kv"] }).fetchFn, cfg), /"Workers KV Storage: Edit" permission/);
-  await assert.rejects(setup(fakeApis({ cfDenied: ["/challenges"] }).fetchFn, cfg), /"Turnstile: Edit" permission/);
+  await assert.rejects(setup(fakeApis({ cfDenied: ["/challenges"] }).fetchFn, cfg), /"Turnstile Sites: Edit" permission/);
   await assert.rejects(setup(fakeApis({ cfDenied: ["/pages"] }).fetchFn, cfg), /"Cloudflare Pages: Edit" permission/);
 });
