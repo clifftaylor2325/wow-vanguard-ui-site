@@ -1,7 +1,7 @@
 // Home, Install & Update, Getting started, Features, Commands and Settings.
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
-import { esc, md, slug, badge, avail, shot, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL } from "./html.mjs";
+import { esc, md, slug, badge, avail, shot, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf } from "./features-content.mjs";
 
@@ -10,9 +10,9 @@ export function dateET(iso) {
   return new Date(iso).toLocaleDateString("en-US", { timeZone: "America/New_York", year: "numeric", month: "long", day: "numeric" });
 }
 
-// A short "Source: ..." line.
+// A short "Source: ..." footnote, folded until the reader asks.
 export function src(...files) {
-  return `<p class="small">Source: ${files.map((f) => `<code>${esc(f)}</code>`).join(", ")} in the Vanguard addon repository.</p>`;
+  return `<details class="src"><summary>Source</summary><p class="small">Source: ${files.map((f) => `<code>${esc(f)}</code>`).join(", ")} in the Vanguard addon repository.</p></details>`;
 }
 
 // The README's "Written from scratch..." sentence (release README).
@@ -36,14 +36,6 @@ export function curseforgeBox(model, { heading = true } = {}) {
     <dt>Game</dt><dd>WoW Forever (the addon declares Interface ${esc(model.rel.meta.Interface)})</dd>
   </dl>
 </section>`;
-}
-
-// The "current release vs next release" notice used on several pages.
-export function nextNotice(model) {
-  if (model.same) return "";
-  const newMods = model.modules.filter((m) => m.inNext && !m.inRel).length;
-  const newCmds = [...model.commands.nextKeys].filter((k) => !model.commands.relKeys.has(k)).length;
-  return `<div class="notice info"><p><strong>The current release is ${esc(model.version)}.</strong> The addon has moved on since that release: ${newMods} more modules and ${newCmds} more commands are written and waiting for the next release, which isn't out yet. This site marks those <span class="badge next">Next release</span>. They are not in v${esc(model.version)}.</p></div>`;
 }
 
 // ------------------------------------------------------------------ Home
@@ -98,7 +90,7 @@ function uiMock() {
     <div class="mk-bars"><div>${n(12)}</div><div>${n(12)}</div><div>${n(12)}</div><span class="mk-xp"></span></div>
     <div class="mk-chat">${n(5)}</div>
   </div>
-  <figcaption><span class="mock-tag">Illustration</span> Not a screenshot: an abstract sketch of the centered layout the addon's README describes, with player and target either side of your character, bars underneath, raid tiles above, chat bottom left and a square minimap. Screenshots may be added as this early release is polished.</figcaption>
+  <figcaption><span class="mock-tag">Illustration</span> Not a screenshot: the centered layout the addon's README describes, with player and target either side of your character, bars underneath, raid tiles above, chat bottom left and a square minimap.</figcaption>
 </figure>`;
 }
 
@@ -145,42 +137,23 @@ ${heroArt()}
   <h1 id="hero-title" class="hero-title">Vanguard</h1>
   ${ornament("hero-orn")}
   <p class="hero-tagline">${esc(line)}.</p>
-  ${parts ? `<p class="hero-parts">${parts.replace(/\.$/, "").split(/,\s*/).map((x) => esc(x)).join(`<span class="visually-hidden">,</span> <span class="hero-dot" aria-hidden="true">◆</span> `)}</p>` : ""}
-  <div class="hero-actions">${curseforgeCta({ size: "lg" })}<a class="button ghost" href="/features/">Explore the features</a></div>
+  <div class="hero-actions">${curseforgeCta({ size: "lg" })}<a class="button ghost" href="/features/">See the features</a></div>
   <p class="hero-meta">Current release v${esc(model.version)} · ${relMods.length} modules · the Slate &amp; Brass theme</p>
 </div>
 </section>
 
-<div class="honesty">
-  <div class="note-card warn"><svg class="note-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1 L19 10 L10 19 L1 10 Z"/><path d="M10 6 V11 M10 13.5 V14.5"/></svg><p><strong>Vanguard is an early release.</strong> Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p></div>
-  ${model.same ? "" : `<div class="note-card info"><svg class="note-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1 L19 10 L10 19 L1 10 Z"/><path d="M10 9 V14.5 M10 5.5 V6.5"/></svg>${nextNotice(model).replace(/^<div class="notice info">|<\/div>$/g, "")}</div>`}
+<div class="grid four tiles">
+  <a class="card tile" href="/install/"><strong>Install</strong><span>How installing through CurseForge will work.</span></a>
+  <a class="card tile" href="/start/"><strong>Set up</strong><span>Open the options, move your frames, pick an accent.</span></a>
+  <a class="card tile" href="/commands/"><strong>Commands</strong><span>Every <code>/vg</code> command, searchable.</span></a>
+  <a class="card tile" href="/help/"><strong>Fix a problem</strong><span>Self-fixes, then how to report a bug.</span></a>
 </div>
 
-<section class="home-sec" aria-labelledby="hl-h">
-  <div class="sec-head">${ornament()}<h2 id="hl-h">In the v${esc(model.version)} release</h2><p>A few of its ${relMods.length} modules, in the words the addon uses on its own Modules page.</p></div>
-  <ul class="feats">${highlights.map((m) => highlightCard(m, model.version)).join("\n")}</ul>
-</section>
+<div class="notice info early"><p><strong>Vanguard is an early release.</strong> Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p></div>
 
-<section class="home-sec" aria-labelledby="mock-h">
-  <div class="sec-head">${ornament()}<h2 id="mock-h">One layout, centered on you</h2></div>
-  ${uiMock()}
-</section>
-
-<section class="home-sec" aria-labelledby="todo-h">
-  <div class="sec-head">${ornament()}<h2 id="todo-h">What do you want to do?</h2></div>
-  <div class="grid four">
-    <a class="card tile" href="/install/"><strong>Install</strong>How installing through CurseForge will work.</a>
-    <a class="card tile" href="/start/"><strong>Set up</strong>Open the options, move your frames, pick an accent.</a>
-    <a class="card tile" href="/commands/"><strong>Commands</strong>Every <code>/vg</code> command, searchable.</a>
-    <a class="card tile" href="/help/"><strong>Fix a problem</strong>Self-fixes, then how to report a bug.</a>
-  </div>
-</section>
-
-<section class="home-sec" aria-labelledby="all-h">
-  <div class="sec-head">${ornament()}<h2 id="all-h">All ${relMods.length} modules in v${esc(model.version)}</h2><p>Each can be turned off under <strong>/vg → Modules</strong>.</p></div>
-  <ul class="chips">${relMods.map((m) => `<li><a href="/features/#${m.id}">${esc(m.name)}</a></li>`).join("")}</ul>
-</section>
-${src("Vanguard.toc", "README.md", "Core/Options.lua (O.MODULE_INFO)")}`,
+${disclosure({ id: "hl-h", title: `What's in v${esc(model.version)}`, meta: `${relMods.length} modules`, body: `<p>A few of its modules, in the words the addon uses on its own Modules page. <a href="/features/">All ${relMods.length} are on Features</a>, and each can be turned off under <strong>/vg → Modules</strong>.</p>
+<ul class="feats">${highlights.map((m) => highlightCard(m, model.version)).join("\n")}</ul>` })}
+${disclosure({ id: "mock-h", title: "The layout at a glance", body: uiMock() })}`,
   };
 }
 
@@ -197,31 +170,23 @@ export function installPage(model) {
     path: "/install/",
     title: "Install & Update",
     description: "How to install, update and remove Vanguard: through CurseForge once it's listed.",
-    body: `${pageHero("Install &amp; Update", `Vanguard is going to be on CurseForge. ${listed ? "Install and update it through CurseForge: the CurseForge app or the CurseForge website." : "Once it's listed, you'll install and update it through CurseForge: with the CurseForge app, or from Vanguard's page on the CurseForge website. It isn't listed yet, and this site doesn't offer it as a download."}`)}
+    body: `${pageHero("Install &amp; Update", `Vanguard is going to be on CurseForge. ${listed ? "Install and update it through CurseForge: the CurseForge app or the CurseForge website." : "Once it's listed, you'll install and update it through CurseForge. It isn't listed yet, and this site doesn't offer it as a download."}`)}
 ${curseforgeBox(model)}
-
-<h2 id="curseforge">Install through CurseForge</h2>
-<ul>
+${disclosure({ id: "curseforge", title: "Install through CurseForge", body: `<ul>
   <li><strong>With the CurseForge app:</strong> find Vanguard in the app and install it. The app puts it in your AddOns folder and can keep it up to date.</li>
   <li><strong>From the CurseForge website:</strong> Vanguard's page there offers its files. ${listed ? "The button above goes to that page." : "When it's listed, the button above turns into a link to that page."} Then follow the steps under <a href="#by-hand">If you install by hand</a>.</li>
 </ul>
-<div class="notice todo"><p><strong>To be confirmed:</strong> the exact steps for the WoW Forever client in the CurseForge app will be written here once Vanguard is listed.</p></div>
 <p>Then turn it on at character select (<strong>AddOns</strong>, tick <strong>Vanguard</strong>), log in, and type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.</p>
-
-<h2 id="by-hand">If you install by hand</h2>
-<p>For when you take the file from Vanguard's CurseForge page instead of using the app.</p>
+<p class="small">To be confirmed: the exact steps for the WoW Forever client in the CurseForge app will be written here once Vanguard is listed.</p>` })}
+${disclosure({ id: "by-hand", title: "If you install by hand", body: `<p>For when you take the file from Vanguard's CurseForge page instead of using the app.</p>
 <ol class="steps">
   <li><strong>Unzip the file.</strong> Inside is one folder called <code>Vanguard</code>.</li>
-  <li><strong>Put the <code>Vanguard</code> folder in your AddOns folder.</strong> The addon's README says: unzip the <code>Vanguard</code> folder into <code>${esc(where ? where[1] : "Interface/AddOns/")}</code> (${esc(where ? where[2] : "your Forever client's AddOns folder")}).
-    <div class="notice todo"><p><strong>To be confirmed:</strong> the exact AddOns folder for the WoW Forever client (on Windows and macOS) is still being checked. Until then, use the folder of your Forever client that has <code>Interface/AddOns</code> in it.</p></div>
-  </li>
+  <li><strong>Put the <code>Vanguard</code> folder in your AddOns folder.</strong> The addon's README says: unzip the <code>Vanguard</code> folder into <code>${esc(where ? where[1] : "Interface/AddOns/")}</code> (${esc(where ? where[2] : "your Forever client's AddOns folder")}). The exact AddOns folder for the WoW Forever client (on Windows and macOS) is still being confirmed; until then, use the folder of your Forever client that has <code>Interface/AddOns</code> in it.</li>
   <li><strong>Turn it on at character select:</strong> open <strong>AddOns</strong> and tick <strong>Vanguard</strong>, then log in.</li>
   <li>Type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.</li>
 </ol>
-${src("README.md (Install)", "scripts/package.mjs (zip layout)", "docs/SMOKE-TEST.md (step 1.2)")}
-
-<h2 id="update">Update</h2>
-<p><strong>With the CurseForge app:</strong> update Vanguard there when a new version is out.</p>
+${src("README.md (Install)", "scripts/package.mjs (zip layout)", "docs/SMOKE-TEST.md (step 1.2)")}` })}
+${disclosure({ id: "update", title: "Update", body: `<p><strong>With the CurseForge app:</strong> update Vanguard there when a new version is out.</p>
 <p><strong>By hand:</strong></p>
 <ol class="steps">
   <li>Log out of the game (or close it).</li>
@@ -229,13 +194,11 @@ ${src("README.md (Install)", "scripts/package.mjs (zip layout)", "docs/SMOKE-TES
   <li>Unzip the new version and put its <code>Vanguard</code> folder in the same place.</li>
 </ol>
 <p>Your settings are kept. Vanguard saves them in the game's SavedVariables (<code>${esc(sv)}</code> for the account, <code>${esc(svc)}</code> for each character), not in the addon folder.</p>
-<div class="notice" id="renamed"><p><strong>Coming from ForeverUI?</strong> Vanguard was called ForeverUI up to v0.3.0. It was renamed because another, unrelated addon is published under that name. The settings file is named after the addon, so your settings don't move over by themselves: before you update, type <code>/fui export</code> in game and keep the text; after updating, type <code>/vg import</code> and paste it (text from ForeverUI imports fine). Then delete the old <code>ForeverUI</code> folder from your AddOns folder.</p></div>
+<div class="notice" id="renamed"><p><strong>Coming from ForeverUI?</strong> Vanguard was called ForeverUI up to v${esc(model.version)}. It was renamed because another, unrelated addon is published under that name. The settings file is named after the addon, so your settings don't move over by themselves: before you update, type <code>/fui export</code> in game and keep the text; after updating, type <code>/vg import</code> and paste it (text from ForeverUI imports fine). Then delete the old <code>ForeverUI</code> folder from your AddOns folder.</p></div>
 <p>The <a href="/changelog/">Changelog</a> says what changed in each release.</p>
-${src("Vanguard.toc (SavedVariables)")}
-
-<h2 id="uninstall">Uninstall</h2>
-<p>Remove Vanguard in the CurseForge app, or delete the <code>Vanguard</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.</p>
-<p>To go back to the game's own version of just one part (say, its action bars), you don't need to uninstall: turn that module off under <strong>/vg → Modules</strong> and reload. See <a href="/help/#one-feature">Troubleshooting</a>.</p>`,
+${src("Vanguard.toc (SavedVariables)")}` })}
+${disclosure({ id: "uninstall", title: "Uninstall", body: `<p>Remove Vanguard in the CurseForge app, or delete the <code>Vanguard</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.</p>
+<p>To go back to the game's own version of just one part (say, its action bars), you don't need to uninstall: turn that module off under <strong>/vg → Modules</strong> and reload. See <a href="/help/#one-feature">Troubleshooting</a>.</p>` })}`,
   };
 }
 
@@ -277,7 +240,6 @@ function wizardSection(setup, inRel, read) {
   const D = read.next("Core/Dialog.lua");
   const O = read.next("Core/Options.lua");
   const s = (...p) => says(S, "Core/Setup.lua", ...p);
-  const b = inRel ? "" : ` <span class="badge next">Next release</span>`;
   const n = setup.steps.length;
   const caption = (i) => setup.caption.replace("%d", i + 1).replace("%d", n).replace("%s", setup.steps[i]);
   const wide = num(S, "Core/Setup.lua", /if w \/ h >= ([\d.]+) then return "ultrawide"/);
@@ -290,8 +252,7 @@ function wizardSection(setup, inRel, read) {
   const layoutName = (key) => esc(setup.layouts.find((l) => l.key === key)?.text || "");
   const scr = (key) => esc(setup.screens.find((p) => p.key === key)?.text || "");
   const screenRow = (p) => `${esc(p.text)} (${p.w} x ${p.h})`;
-  return `<h2 id="setup-wizard">The setup wizard${b}</h2>
-${inRel ? "" : `<p><strong>The setup wizard isn't in the current release.</strong> It's ready for the next release, and this is what it will do.</p>`}
+  const body = `${inRel ? "" : `<p><strong>The setup wizard isn't in the current release.</strong> It's ready for the next release, and this is what it will do.</p>`}
 <p>The first time you log in on an account, a window called “${esc(setup.title)}” opens. It has ${n} steps: ${setup.steps.map((x) => esc(x)).join(", ")}. The line under the title says where you are, for example “${esc(caption(0))}”. <strong>${label(S, "Core/Setup.lua", "Next")}</strong> goes on (on the last step it reads <strong>${label(S, "Core/Setup.lua", "Done")}</strong>) and <strong>${label(S, "Core/Setup.lua", "Back")}</strong> goes back a step.</p>
 <p>It never opens during a fight. If you're in combat it says “${esc(setup.combat)}” and waits. If a fight starts while it's open, it gets out of the way and comes back on the same step when the fight is over.</p>
 
@@ -332,6 +293,7 @@ ${setup.screens.map((p) => `<tr><td data-label="Choice"><strong>${screenRow(p)}<
   <li>“${esc(setup.reloadTile)}${reloadAsk}”</li>
 </ul>
 ${shot("the setup wizard, step 1")}`;
+  return disclosure({ id: "setup-wizard", title: "The setup wizard", next: !inRel, meta: inRel ? `${n} steps` : NEXT_BADGE, body });
 }
 
 export function startPage(model, read) {
@@ -349,32 +311,25 @@ export function startPage(model, read) {
     title: "Getting started",
     description: "Open the Vanguard options, run the setup wizard, move your frames and pick an accent.",
     body: `${pageHero("Getting started", `After you <a href="/install/">install</a> Vanguard and log in, its frames replace the game's. Here's how to find the options and put things where you want them.`)}
-${nextNotice(model)}
-<h2 id="options">Open the options</h2>
-<p>There are three ways:</p>
+${glance([`<code>/vg</code> opens the options`, `<code>/vg unlock</code> moves frames`, `<code>/vg accent</code> picks a color`, next.setup ? (rel.setup ? `<code>/vg setup</code> runs the wizard` : nextOnly(`<code>/vg setup</code> runs the wizard ${NEXT_BADGE}`)) : ""])}
+${disclosure({ id: "options", title: "Open the options", open: true, body: `<p>You can:</p>
 <ol class="steps">
   <li>Type <code>/vg</code> (or <code>/vanguard</code>) in chat. Type <code>/vg</code> again to close it.</li>
   <li>Left-click Vanguard on the game's addons button by the minimap. Right-click it instead to turn move mode on or off.</li>
-  ${gameMenu ? `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "Vanguard")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons. <span class="badge next">Next release</span></li>` : `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "Vanguard")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons.</li>`}
+  ${gameMenu ? `<li data-avail="next">Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "Vanguard")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons. ${NEXT_BADGE}</li>` : `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "Vanguard")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons.</li>`}
 </ol>
-<p>The options window has a page for each area. To find a setting, type in <strong>${label(OW, "Core/OptionsWindow.lua", "Search settings")}</strong> at the top: pages that don't match fade, and <kbd>Enter</kbd> opens the first match. Some changes need a reload; the window then says “${ow("Some changes need a reload")}” and shows a <strong>${label(OW, "Core/OptionsWindow.lua", "Reload now")}</strong> button.${saysIf(read.rel("Core/OptionsWindow.lua") || "", "Core/OptionsWindow.lua", "if ReloadUI then ReloadUI()") ? ` In v${esc(model.version)}, type <code>/reload</code> in chat instead: that release's button asks the game to reload directly, and WoW Forever blocks that for addons (see <a href="/help/#reload">Troubleshooting</a>).` : ""} Every page and setting is listed on <a href="/settings/">Settings</a>.</p>
+<p>The options window has a page for each area. To find a setting, type in <strong>${label(OW, "Core/OptionsWindow.lua", "Search settings")}</strong> at the top: pages that don't match fade, and <kbd>Enter</kbd> opens the first match. Some changes need a reload; the window then says “${ow("Some changes need a reload")}” and shows a <strong>${label(OW, "Core/OptionsWindow.lua", "Reload now")}</strong> button.${saysIf(read.rel("Core/OptionsWindow.lua") || "", "Core/OptionsWindow.lua", "if ReloadUI then ReloadUI()") ? ` In v${esc(model.version)}, type <code>/reload</code> in chat instead: that release's button asks the game to reload directly, and WoW Forever blocks that for addons (see <a href="/help/#reload">Troubleshooting</a>).` : ""} Every page and setting is listed on <a href="/settings/">Settings</a>.</p>` })}
 ${wizardSection(next.setup, !!rel.setup, read)}
-
-<h2 id="move">Move your frames</h2>
-<ol class="steps">
+${disclosure({ id: "move", title: "Move your frames", body: `<ol class="steps">
   <li>Type <code>/vg unlock</code> (or <code>/vg move</code>), or click <strong>${label(O, "Core/Options.lua", "Move frames")}</strong> under <strong>General → Layout</strong>. Every Vanguard frame gets a drag handle.</li>
   <li>Drag a handle to move that frame. Or click a handle, then use the arrow keys to nudge it (hold <kbd>Shift</kbd> to move 10 px).</li>
-  <li>Right-click a handle for its exact anchor and offsets${popoverNext ? `; the next release adds its scale (50% to 200%) and opacity (10% to 100%) there too <span class="badge next">Next release</span>` : ""}.</li>
+  <li>Right-click a handle for its exact anchor and offsets${popoverNext ? nextOnly(`; the next release adds its scale (50% to 200%) and opacity (10% to 100%) there too ${NEXT_BADGE}`) : ""}.</li>
   <li>Type <code>/vg lock</code> when you're done.</li>
 </ol>
-<p>While you're moving frames, <code>/vg grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/vg snap on|off</code> makes frames snap to each other. <code>/vg frames</code> lists the frames you can move, and <code>/vg reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.</p>
-
-<h2 id="accent">Pick an accent color</h2>
-<p>Click a swatch under <strong>/vg → General → Look</strong>, or type <code>/vg accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/vg accent reset</code> puts the default back.</p>
-<ul class="swatches">${presets.map(([k, hex], i) => `<li class="swatch"><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? " (default)" : ""} <span class="small">${esc(hex)}</span></span></li>`).join("")}</ul>
-
-<h2 id="modules">Keep the game's version of something</h2>
-<p>Every part of Vanguard is a module you can turn off under <strong>/vg → Modules</strong> (or type <code>/vg disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “${o("A module that's off builds nothing and costs nothing.")}” The list is on <a href="/features/">Features</a>.</p>`,
+<p>While you're moving frames, <code>/vg grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/vg snap on|off</code> makes frames snap to each other. <code>/vg frames</code> lists the frames you can move, and <code>/vg reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.</p>` })}
+${disclosure({ id: "accent", title: "Pick an accent color", body: `<p>Click a swatch under <strong>/vg → General → Look</strong>, or type <code>/vg accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/vg accent reset</code> puts the default back.</p>
+<ul class="swatches">${presets.map(([k, hex], i) => `<li class="swatch"><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? " (default)" : ""} <span class="small">${esc(hex)}</span></span></li>`).join("")}</ul>` })}
+${disclosure({ id: "modules", title: "Keep the game's version of something", body: `<p>Every part of Vanguard is a module you can turn off under <strong>/vg → Modules</strong> (or type <code>/vg disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “${o("A module that's off builds nothing and costs nothing.")}” The list is on <a href="/features/">Features</a>.</p>` })}`,
   };
 }
 
@@ -421,11 +376,14 @@ function featureCard(m, model) {
   const off = startsOff(m, model) ? ` <span class="badge plain">Off until you switch it on</span>` : "";
   const more = moreOf(m, model);
   const longer = longerOf(m.key);
-  return `<article class="card mod" id="${m.id}" data-module="${esc(m.key)}">
+  return `<article class="card mod" id="${m.id}" data-module="${esc(m.key)}"${m.inRel ? "" : ' data-avail="next"'}>
   <h3>${esc(m.name)} ${badge(m.inRel, m.inNext, model.version)}${off}</h3>
-  ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}${more ? `\n  <p class="mod-more">${esc(more)}</p>` : ""}${longer.length ? `\n  <p class="mod-longer">${esc(longer.join(" "))}</p>` : ""}
+  ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}
+  <details class="mod-details"><summary>More<span class="visually-hidden"> about ${esc(m.name)}</span></summary>
+  ${more ? `<p class="mod-more">${esc(more)}</p>` : ""}${longer.length ? `\n  <p class="mod-longer">${esc(longer.join(" "))}</p>` : ""}
   ${featureFacts(m, model)}
   ${featureSource(m, more)}
+  </details>
 </article>`;
 }
 
@@ -437,39 +395,40 @@ function featureAreas(model) {
 
 // One area: its heading and its module cards.
 function areaSection([area, list], model) {
-  return `<section aria-labelledby="area-${slug(area)}"><h2 id="area-${slug(area)}">${esc(area)}</h2>
-<div class="mods">${list.map((m) => featureCard(m, model)).join("\n")}</div></section>`;
+  const rel = list.filter((m) => m.inRel).length;
+  const mods = (n) => `${n} module${n === 1 ? "" : "s"}`;
+  const meta = rel === list.length ? mods(rel) : `${mods(rel)}${nextOnly(` + ${list.length - rel} next release`)}`;
+  return disclosure({ id: `area-${slug(area)}`, title: esc(area), meta, next: rel === 0, cls: "area", body: `<div class="mods">${list.map((m) => featureCard(m, model)).join("\n")}</div>` });
 }
 
 // The Features lede, shown in the page hero.
-const FEATURES_LEDE = `Vanguard is built from parts called modules. Each one replaces or adds one piece of the game's interface, and each can be turned off on its own under <strong>/vg → Modules</strong>.`;
+const FEATURES_LEDE = `Vanguard is built from modules. Each one replaces or adds one piece of the game's interface, and each can be turned off on its own under <strong>/vg → Modules</strong>.`;
 
-// The intro under the page hero: the next-release notice, the counts, and the jump links to each area.
-function featuresIntro(model, groups) {
+// The facts strip under the page hero: the counts, and what the tags mean.
+function featuresIntro(model) {
   const count = (f) => model.modules.filter(f).length;
-  return `${nextNotice(model)}
-<p>The name and first line of each module are the ones the addon shows on its Modules page. The longer text under it describes the module as it is in the newest version, so v${esc(model.version)} may not have every detail yet. Every module is on until you turn it off, except where it says <span class="badge plain">Off until you switch it on</span>. The <a href="/settings/">Settings</a> page shows exactly which options each release has.</p>
-<p><strong>${count((m) => m.inRel)}</strong> modules in v${esc(model.version)} · <strong>${count((m) => m.inNext)}</strong> in the next release.</p>
-<nav aria-label="Feature areas"><ul class="chips feature-areas">${groups.map(([a]) => `<li><a href="#area-${slug(a)}">${esc(a)}</a></li>`).join("")}</ul></nav>`;
+  const more = count((m) => m.inNext && !m.inRel);
+  return glance([`<strong>${count((m) => m.inRel)}</strong> modules in v${esc(model.version)}`, more ? nextOnly(`<strong>${more}</strong> more in the next release`) : "", `Every module is on unless marked <span class="badge plain">Off until you switch it on</span>`]);
 }
 
 // The Features page: one card per module, grouped by area.
 export function featuresPage(model) {
   const groups = featureAreas(model);
-  const body = [pageHero("Features", FEATURES_LEDE), featuresIntro(model, groups), ...groups.map((g) => areaSection(g, model)), shot("raid frames and the options window")];
+  const body = [pageHero("Features", FEATURES_LEDE), featuresIntro(model), `<div class="dis-grid">${groups.map((g) => areaSection(g, model)).join("\n")}</div>`,
+    `<p class="small">The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version, so v${esc(model.version)} may not have every detail yet; <a href="/settings/">Settings</a> shows exactly which options each release has.</p>`];
   return { path: "/features/", title: "Features", description: "Every Vanguard module: what it does, where its settings are, and its commands.", body: body.join("\n") };
 }
 
 // ------------------------------------------------------------------ Commands
 
 // The Commands table's columns; the first is each row's header.
-const CMD_COLS = ["Command", "What it does", "Needs the module", "Version"];
+const CMD_COLS = ["Command", "What it does"];
 
 // The visible lines of one command entry.
 function cmdLines(e, version) {
   const show = (lines) => lines.map((l) => `<p class="cmd-text"><span class="cmd-line">/vg ${esc(l.syntax)}</span><br>${esc(l.text)}</p>`).join("");
   if (e.relLines && !e.changed) return show(e.relLines);
-  if (e.relLines && e.changed) return `${show(e.relLines)}<p class="cmd-meta">In the next release the help line reads:</p>${show(e.nextLines)}`;
+  if (e.relLines && e.changed) return `${show(e.relLines)}${nextOnly(`<p class="cmd-meta">In the next release the help line reads:</p>${show(e.nextLines)}`, "div")}`;
   if (e.nextLines) return show(e.nextLines);
   return "";
 }
@@ -521,51 +480,71 @@ function cmdSearch(e) {
   return [e.keys.join(" "), ...lines, e.special || ""].join(" ");
 }
 
-// The row header: an anchor for each word, the command and its Copy button.
-function cmdHead(e) {
+// The row header: an anchor for each word, the command, its Copy button and its version tag.
+function cmdHead(e, version) {
   const anchors = e.keys.map((k) => `<span id="cmd-${esc(k)}" data-command="${esc(k)}"></span>`).join("");
   const copy = esc(cmdCopy(e));
-  return `<th scope="row" class="cmd-cap">${anchors}<div class="cmd-head"><code class="cmd-syntax">${esc(cmdTyped(e))}</code> <button class="copy" type="button" data-copy="${copy}" aria-label="Copy ${copy}">Copy</button></div></th>`;
+  const b = badge(e.inRel, e.inNext, version);
+  return `<th scope="row" class="cmd-cap">${anchors}<div class="cmd-head"><code class="cmd-syntax">${esc(cmdTyped(e))}</code> <button class="copy" type="button" data-copy="${copy}" aria-label="Copy ${copy}">Copy</button>${b ? ` ${b}` : ""}</div></th>`;
 }
 
-// One command as a table row (a card on narrow screens); each cell carries its card label.
+// One command as a table row (a card on narrow screens): the command, then what it does and which module it needs.
 function cmdRow(e, model) {
-  const cells = [cmdWhat(e, model.commands, model.version), cmdModules(e, model), badge(e.inRel, e.inNext, model.version)];
-  const tds = cells.map((h, i) => `<td data-label="${CMD_COLS[i + 1]}">${h}</td>`).join("");
-  return `<tr class="cmd opt-item" id="entry-${esc(e.id)}" data-count data-avail="${avail(e.inRel, e.inNext)}" data-search="${esc(cmdSearch(e))}">${cmdHead(e)}${tds}</tr>`;
+  const mods = cmdModules(e, model);
+  const what = `${cmdWhat(e, model.commands, model.version)}${mods ? `<p class="cmd-meta">Needs ${mods}</p>` : ""}`;
+  return `<tr class="cmd opt-item" id="entry-${esc(e.id)}" data-count data-avail="${avail(e.inRel, e.inNext)}" data-search="${esc(cmdSearch(e))}">${cmdHead(e, model.version)}<td data-label="${CMD_COLS[1]}">${what}</td></tr>`;
 }
 
-// Every command in one table: a real table from 900px wide, one card per command below that.
+// The commands grouped by the module they need (General first), in the order the addon lists them.
+function cmdGroups(model) {
+  const groups = new Map();
+  for (const e of model.commands.entries) {
+    const key = e.modules[0] || "";
+    const mm = key ? model.modules.find((x) => x.key === key) : null;
+    const name = key ? (mm ? mm.name : key) : "General";
+    if (!groups.has(name)) groups.set(name, { name, id: key ? (mm ? mm.id : slug(key)) : "general", entries: [] });
+    groups.get(name).entries.push(e);
+  }
+  const list = [...groups.values()];
+  return [list.find((g) => g.name === "General"), ...list.filter((g) => g.name !== "General")].filter(Boolean);
+}
+
+// Every command in one table, in folded groups (a heading row with a button opens each).
 function cmdTable(model) {
   const head = `<thead><tr>${CMD_COLS.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead>`;
-  const rows = model.commands.entries.map((e) => cmdRow(e, model)).join("\n");
-  return `<table class="opt-table cmd-table" id="cmd-list"><caption>Every command you can type in chat, what it does, and which part of Vanguard it needs</caption>${head}<tbody>\n${rows}\n</tbody></table>`;
+  const groups = cmdGroups(model).map((g) => {
+    const rel = g.entries.filter((e) => e.inRel).length;
+    const more = g.entries.length - rel;
+    const meta = `${rel ? `${rel} command${rel === 1 ? "" : "s"}` : ""}${more ? nextOnly(`${rel ? " + " : ""}${more} next release`) : ""}`;
+    const heading = `<tr class="opt-row h"><th scope="rowgroup" colspan="${CMD_COLS.length}"><button type="button" class="group-toggle" aria-expanded="false">${esc(g.name)}<span class="dis-meta">${meta}</span></button></th></tr>`;
+    return `<tbody class="cmd-group collapsed" data-group="${esc(g.id)}"${rel ? "" : ' data-avail="next"'}>${heading}\n${g.entries.map((e) => cmdRow(e, model)).join("\n")}</tbody>`;
+  });
+  return `<table class="opt-table cmd-table" id="cmd-list"><caption>Every command you can type in chat, grouped by the part of Vanguard it needs</caption>${head}\n${groups.join("\n")}\n</table>`;
 }
 
 // The search box's switches (the old-version one only when a command was dropped since).
 function cmdFilters(c, version) {
   const old = [...c.relKeys].some((k) => !c.nextKeys.has(k)) ? `<label><input type="checkbox" data-filter="old" checked> Show v${esc(version)}-only commands</label>` : "";
-  return `<div class="filters"><label><input type="checkbox" data-filter="next" checked> Show next-release commands</label>${old}</div>`;
+  return `<div class="filters"><label class="switch"><input type="checkbox" data-filter="next" checked> <span>Show what's coming in the next release</span></label>${old}</div>`;
 }
 
 // The search box over the commands, with its switches and a live count.
 function cmdSearchBox(c, version) {
   return `<div class="search" data-target="#cmd-list" data-items=".cmd" data-noun="commands" data-noun-one="command">
-  <label for="cmd-q">Search commands</label>
+  <label for="cmd-q" class="search-label">Search commands</label>
   <input id="cmd-q" type="search" placeholder="for example: reset, profile, errors" autocomplete="off">
   ${cmdFilters(c, version)}
   <p class="count" aria-live="polite" role="status"></p>
 </div>`;
 }
 
-// The Commands page body: intro, counts, search, the table and every command word.
+// The Commands page body: the counts, the search and the grouped table.
 function commandsBody(model) {
   const { commands: c, version } = model;
-  const all = [...new Set([...c.nextKeys, ...c.relKeys])];
-  const hero = pageHero("Commands", `Vanguard has one chat command, <code>/vg</code> (or <code>/vanguard</code>), followed by a word. The help text below is quoted exactly as the addon prints it with <code>/vg help</code>.`);
-  const counts = `<p><strong>${c.relKeys.size}</strong> command words in v${esc(version)} · <strong>${c.nextKeys.size}</strong> in the next release. An unknown word prints “${esc(c.unknown || "Unknown command. /vg help")}”.</p>`;
-  const words = `<p class="small">All ${all.length} command words: ${all.map((k) => `<a href="#cmd-${esc(k)}"><code>${esc(k)}</code></a>`).join(" ")}</p>`;
-  return [hero, nextNotice(model), counts, cmdSearchBox(c, version), cmdTable(model), words, src("Core/Slash.lua (HELP, COMMANDS, SLASH_VANGUARD1/2)")].join("\n");
+  const more = [...c.nextKeys].filter((k) => !c.relKeys.has(k)).length;
+  const hero = pageHero("Commands", `One chat command, <code>/vg</code> (or <code>/vanguard</code>), followed by a word. The help text is quoted exactly as the addon prints it with <code>/vg help</code>.`);
+  const counts = glance([`<strong>${c.relKeys.size}</strong> command words in v${esc(version)}`, more ? nextOnly(`<strong>${more}</strong> more in the next release`) : "", `An unknown word prints “${esc(c.unknown || "Unknown command. /vg help")}”`]);
+  return [hero, counts, cmdSearchBox(c, version), cmdTable(model), src("Core/Slash.lua (HELP, COMMANDS, SLASH_VANGUARD1/2)")].join("\n");
 }
 
 // The Commands page.
@@ -576,7 +555,7 @@ export function commandsPage(model) {
 // ------------------------------------------------------------------ Settings
 
 // The columns of a settings table; the first is each row's header.
-const COLS = ["Setting", "Type", "Values", "Default", "Reload and version"];
+const COLS = ["Setting", "Values", "Default", "Notes"];
 
 // What the addon calls each kind of row on the site.
 const KIND_NAME = { check: "Switch", cycle: "Choice", slider: "Slider", button: "Button", visibility: "Visibility" };
@@ -585,7 +564,7 @@ const KIND_NAME = { check: "Switch", cycle: "Choice", slider: "Slider", button: 
 function defaultText(r, version) {
   const a = r.relDefault;
   const b = r.nextDefault;
-  if (r.inRel && r.inNext && a && b && a !== b) return `${esc(a)} in v${esc(version)}, ${esc(b)} in the next release`;
+  if (r.inRel && r.inNext && a && b && a !== b) return `${esc(a)}${nextOnly(` (${esc(b)} in the next release)`)}`;
   return a || b ? esc(a || b) : "";
 }
 
@@ -628,8 +607,9 @@ function optRow(r, version, pageTitle, id) {
   if (r.kind === "header" || r.kind === "text") return wideRow(r, attrs, version);
   const loop = r.loop ? ` <span class="small">(${esc(r.loop.variable)} = ${r.loop.from} to ${r.loop.to})</span>` : "";
   const notes = `${r.reload ? `<span class="badge reload">Needs reload</span> ` : ""}${badge(r.inRel, r.inNext, version)}`;
-  const cells = [KIND_NAME[r.kind] || "", valuesText(r), defaultText(r, version), notes].map((h, i) => `<td data-label="${COLS[i + 1]}">${h}</td>`);
-  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(r.caption)}${loop}</th>${cells.join("")}</tr>`;
+  const kind = KIND_NAME[r.kind] ? ` <span class="opt-kind">${KIND_NAME[r.kind]}</span>` : "";
+  const cells = [valuesText(r), defaultText(r, version), notes].map((h, i) => `<td data-label="${COLS[i + 1]}">${h}</td>`);
+  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(r.caption)}${loop}${kind}</th>${cells.join("")}</tr>`;
 }
 
 // The heading over rows the options window repeats, e.g. "The rows below repeat for each n from 1 to 8".
@@ -658,16 +638,20 @@ function modulesRow(p, model) {
   return `<tr class="opt-row t"><td colspan="${COLS.length}">Then one switch per module (it applies after a reload): ${mods}.</td></tr>`;
 }
 
-// One options page: its heading and a table of its settings (one card per row on narrow screens).
+// One options page, folded: its heading opens a table of its settings (one card per row on narrow screens).
 function pageSection(p, model, used) {
   const head = `<thead><tr>${COLS.map((c) => `<th scope="col">${c}</th>`).join("")}</tr></thead>`;
-  return `<section class="opt-page" aria-labelledby="${p.id}" data-page="${esc(p.key)}">
-<h2 id="${p.id}">${esc(p.title)} ${badge(p.inRel, p.inNext, model.version)}</h2>
+  const n = p.rows.filter((r) => r.kind !== "header" && r.kind !== "text").length;
+  const b = badge(p.inRel, p.inNext, model.version);
+  return `<details class="opt-page disclosure" data-page="${esc(p.key)}"${p.inRel ? "" : ' data-avail="next"'}>
+<summary><h2 id="${p.id}">${esc(p.title)}</h2><span class="dis-meta">${n} setting${n === 1 ? "" : "s"}${b ? ` ${b}` : ""}</span></summary>
+<div class="dis-body">
 <table class="opt-table" aria-labelledby="${p.id}">${head}<tbody>
 ${pageRows(p, model.version, used)}
 ${modulesRow(p, model)}
 </tbody></table>
-</section>`;
+</div>
+</details>`;
 }
 
 // What a Reload button built during a fight prints instead of reloading (Core/Dialog.lua), or null.
@@ -691,25 +675,23 @@ export function settingsPage(model, read) {
     path: "/settings/",
     title: "Settings",
     description: "Every page and setting in the Vanguard options window, with defaults.",
-    body: `${pageHero("Settings", `Every page of the options window (<code>/vg</code>) and every setting on it, with the caption exactly as the addon shows it.`)}
-${nextNotice(model)}
-<p>Settings marked <span class="badge reload">Needs reload</span> apply after a reload: the window says “Some changes need a reload” and offers <strong>Reload now</strong>. Defaults are shown where the addon's code states one; where it doesn't, none is shown.</p>
-${combatReloadNote(read)}
-<p><strong>${count((r) => r.inRel)}</strong> settings in v${esc(version)} · <strong>${count((r) => r.inNext)}</strong> in the next release · <strong>${pages.length}</strong> pages.</p>
-<nav aria-label="Options pages"><ul class="chips chips-page">${pages.map((p) => `<li><a href="#${p.id}">${esc(p.title)}</a>${p.inRel ? "" : " <span class=\"badge next\">Next release</span>"}</li>`).join("")}</ul></nav>
+    body: `${pageHero("Settings", `Every page of the options window (<code>/vg</code>) and every setting on it, with the caption exactly as the addon shows it. Open a page below to see its settings.`)}
+<p class="counts"><strong>${count((r) => r.inRel)}</strong> settings in v${esc(version)} · <strong>${count((r) => r.inNext)}</strong> in the next release · <strong>${pages.length}</strong> pages.</p>
 <div class="search" data-target="#opt-list" data-items=".opt-row" data-groups=".opt-page" data-noun="settings" data-noun-one="setting">
-  <label for="opt-q">Search settings</label>
+  <label for="opt-q" class="search-label">Search settings</label>
   <input id="opt-q" type="search" placeholder="for example: raid, tooltip, chat" autocomplete="off">
   <div class="filters">
-    <label><input type="checkbox" data-filter="next" checked> Show next-release settings</label>
+    <label class="switch"><input type="checkbox" data-filter="next" checked> <span>Show what's coming in the next release</span></label>
     <label><input type="checkbox" data-filter="old" checked> Show v${esc(version)}-only settings</label>
   </div>
   <p class="count" aria-live="polite" role="status"></p>
 </div>
-<div id="opt-list">
+<div id="opt-list" class="dis-grid">
 ${pages.map((p) => pageSection(p, model, used)).join("\n")}
 </div>
-<p class="small">Some rows only appear on some clients (for example the Specialization card on the Profiles page needs a client with specializations; the game's own click bindings need a client that has them). Lists that you fill in yourself (your profiles, your chat watch phrases, the bindings grid) aren't listed row by row.</p>
+${disclosure({ id: "reloads", level: 3, title: "About reloads, defaults and what's not listed", cls: "aside", body: `<p>Settings marked <span class="badge reload">Needs reload</span> apply after a reload: the window says “Some changes need a reload” and offers <strong>Reload now</strong>. Defaults are shown where the addon's code states one; where it doesn't, none is shown.</p>
+${combatReloadNote(read)}
+<p class="small">Some rows only appear on some clients (for example the Specialization card on the Profiles page needs a client with specializations; the game's own click bindings need a client that has them). Lists that you fill in yourself (your profiles, your chat watch phrases, the bindings grid) aren't listed row by row.</p>` })}
 ${src("Core/Options.lua (PAGES and row builders)", "Modules/RaidHealing.lua", "Modules/ClickCastOptions.lua", "Modules/Nameplates.lua", "Modules/Situations.lua", "Core/Visibility.lua", "Core/Dialog.lua (ns.ReloadButton)", "module defaults tables")}`,
   };
 }

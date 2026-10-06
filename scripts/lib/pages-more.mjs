@@ -2,14 +2,14 @@
 // Messages in quotes are copied from the addon's Lua; each section names its
 // source file. Where the current release and the next release differ, the
 // page says which is which.
-import { esc, md, badge, pageHero } from "./html.mjs";
-import { src, dateET, nextNotice, says, saysIf, label } from "./pages-main.mjs";
+import { esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
+import { src, dateET, says, saysIf, label } from "./pages-main.mjs";
 import { FACTS, SECTIONS } from "./help-content.mjs";
 import { RELEASE_NOTES, NEXT_RELEASE } from "./changelog-content.mjs";
 import { AREAS } from "./model.mjs";
 import { LIMITS, FALLBACK_AREAS } from "../../src/feedback/fields.js";
 
-const NEXT = `<span class="badge next">Next release</span>`;
+const NEXT = NEXT_BADGE;
 
 // A string literal from a file, by a regex with one capture group (null when absent).
 function grab(text, re) {
@@ -63,23 +63,22 @@ export function profilesPage(model, read) {
     title: "Profiles & sharing",
     description: "Share one Vanguard layout across characters, or move it to another PC.",
     body: `${pageHero("Profiles &amp; sharing", `A profile holds all of Vanguard's settings and frame positions. Profiles are saved for your whole account, and each character uses one of them. The first one is called <strong>${esc(defaultName)}</strong>.`)}
-${nextNotice(model)}
-<h2 id="which">See which profile you're using</h2>
-<ul>
-  <li>Type <code>/vg profile</code>. Chat answers “${q("slash", "Profile: ")}${esc(defaultName)}${q("slash", "   (all: ")}…)”, with every profile on your account.${staged ? ` ${NEXT} When you've picked another profile that's waiting for a reload, it adds that one: “Profile: ${esc(defaultName)}; &lt;name&gt;${q("slash", " after a reload")}   (all: …)”.` : ""}</li>
-  <li>Or open <strong>/vg → Profiles</strong>. At the top it says “${q("opt", "This character uses ")}${esc(defaultName)}.”${staged ? ` ${NEXT} While a switch is waiting for a reload it says “This character uses ${esc(defaultName)}${q("opt", " until you reload, then ")}&lt;name&gt;.”` : ""}</li>
-</ul>
-
-<h2 id="same-account">Use one layout on several characters</h2>
-<p>Log in on each character and pick the same profile, in chat or on the Profiles page.</p>
+${glance([`<code>/vg profile</code> says which profile you're using`, `<code>/vg export</code> and <code>/vg import</code> move one between PCs`, `The first profile is <strong>${esc(defaultName)}</strong>`])}
+<div class="dis-grid">
+${disclosure({ id: "which", title: `See which profile you're using`, open: true, body: `<ul>
+  <li>Type <code>/vg profile</code>. Chat answers “${q("slash", "Profile: ")}${esc(defaultName)}${q("slash", "   (all: ")}…)”, with every profile on your account.${staged ? nextOnly(` ${NEXT} When you've picked another profile that's waiting for a reload, it adds that one: “Profile: ${esc(defaultName)}; &lt;name&gt;${q("slash", " after a reload")}   (all: …)”.`) : ""}</li>
+  <li>Or open <strong>/vg → Profiles</strong>. At the top it says “${q("opt", "This character uses ")}${esc(defaultName)}.”${staged ? nextOnly(` ${NEXT} While a switch is waiting for a reload it says “This character uses ${esc(defaultName)}${q("opt", " until you reload, then ")}&lt;name&gt;.”`) : ""}</li>
+</ul>` })}
+${disclosure({ id: "same-account", title: `Use one layout on several characters`, body: `<p>Log in on each character and pick the same profile, in chat or on the Profiles page.</p>
 <ul>
   <li>Type <code>/vg profile &lt;name&gt;</code>. If there's no profile with that name yet, Vanguard makes it. ${q("slash", "Profile names are 1-32 letters, digits, spaces, - or _.")}</li>
-  ${relUse ? `<li>In v${esc(v)}, the Profiles page has a <strong>Use &lt;name&gt;</strong> button for each of your other profiles (up to five), under <strong>Switch profile</strong>.${listNew ? ` The next release replaces them with a list (below).` : ""}</li>` : ""}
+  ${relUse ? `<li>In v${esc(v)}, the Profiles page has a <strong>Use &lt;name&gt;</strong> button for each of your other profiles (up to five), under <strong>Switch profile</strong>.${listNew ? nextOnly(` The next release replaces them with a list (below).`) : ""}</li>` : ""}
 </ul>
 ${staged ? `<p>In v${esc(v)}, switching happens straight away and Vanguard offers a reload: “${qr("slash", "This character now uses profile ") || ""}&lt;name&gt;.${reloadAsk}”</p>
 ${relReloadUI ? `<p>In v${esc(v)}, if the <strong>Reload</strong> button doesn't reload, type <code>/reload</code> in chat: that release's button asks the game to reload directly, and WoW Forever blocks that for addons. See <a href="/help/#reload">Troubleshooting</a>.</p>` : ""}
-<p>${NEXT} A new profile takes effect at your next reload. Until then the frames on screen still belong to the profile you were using, so anything you change goes into that one. Vanguard asks: “${q("slash", "This character will use profile ", name, " after the reload.")}${reloadAsk}” Click ${reloadBtns}. If you pick the profile you're already using, it says “${q("slash", "This character already uses profile ", name, ".")}”</p>` : `<p>A new profile takes effect at your next reload. Until then the frames on screen still belong to the profile you were using, so anything you change goes into that one. Vanguard asks: “${q("slash", "This character will use profile ", name, " after the reload.")}${reloadAsk}” Click ${reloadBtns}.</p>`}
+<p data-avail="next">${NEXT} A new profile takes effect at your next reload. Until then the frames on screen still belong to the profile you were using, so anything you change goes into that one. Vanguard asks: “${q("slash", "This character will use profile ", name, " after the reload.")}${reloadAsk}” Click ${reloadBtns}. If you pick the profile you're already using, it says “${q("slash", "This character already uses profile ", name, ".")}”</p>` : `<p>A new profile takes effect at your next reload. Until then the frames on screen still belong to the profile you were using, so anything you change goes into that one. Vanguard asks: “${q("slash", "This character will use profile ", name, " after the reload.")}${reloadAsk}” Click ${reloadBtns}.</p>`}
 
+<div${listNew ? ' data-avail="next"' : ""}>
 <h3 id="profile-list">The list on the Profiles page${nb(listNew)}</h3>
 <p>Under <strong>${L("opt", "Your profiles")}</strong>, each profile has a row with its name and buttons:</p>
 <ul>
@@ -90,18 +89,17 @@ ${relReloadUI ? `<p>In v${esc(v)}, if the <strong>Reload</strong> button doesn't
 <p><strong>${L("list", "Copy here")}</strong> and <strong>${L("list", "Delete")}</strong> can't be undone, so the first click only changes the button to “${q("list", "Sure?")}”. Click again to do it.</p>
 <p>Next to the names you'll see “${q("list", "(in use)")}”, or, while a switch waits for a reload, “${q("list", "(in use until reload)")}” on the profile you're using now and “${q("list", "(after reload)")}” on the one that takes over. The profile that takes over has no buttons. The one you're using now only has <strong>${L("list", "Use")}</strong>, which cancels the switch.</p>
 <p>At the bottom, type a name in the <strong>${L("list", "New profile")}</strong> box and click <strong>${L("list", "Create")}</strong> (or press <kbd>Enter</kbd>). The new profile is empty, and this character switches to it at your next reload. If the name is already used or has characters that aren't allowed, the box says “${q("list", "Name taken or not allowed")}”.</p>
+</div>
 
 <h3 id="manage">Manage profiles in chat</h3>
 <div class="table-wrap"><table class="stack"><thead><tr><th scope="col">Type</th><th scope="col">What it does</th><th scope="col">Chat says</th></tr></thead><tbody>
 <tr><td data-label="Type"><code>/vg profile new &lt;name&gt;</code></td><td data-label="What it does">Makes an empty profile. You stay on the one you're using.</td><td data-label="Chat says">“${q("slash", "Created profile ", name, ".")}” or “${q("slash", "That name is taken or not allowed.")}”</td></tr>
 <tr><td data-label="Type"><code>/vg profile copy &lt;name&gt;</code></td><td data-label="What it does">Copies that profile's settings over the one you're using, then offers a reload.</td><td data-label="Chat says">“${q("slash", "Copied ", name, " into ")}&lt;your profile&gt;.${reloadAsk}” or “${q("slash", "No other profile called ", name, ".")}”</td></tr>
-<tr><td data-label="Type"><code>/vg profile delete &lt;name&gt;</code></td><td data-label="What it does">Deletes a profile. You can't delete the one you're using${staged ? `. ${NEXT} You also can't delete the one waiting for a reload` : ", or the one waiting for a reload"}.</td><td data-label="Chat says">“${q("slash", "Deleted profile ", name, ".")}” or “${q("slash", "Can't delete that one (missing, or in use).")}”</td></tr>
+<tr><td data-label="Type"><code>/vg profile delete &lt;name&gt;</code></td><td data-label="What it does">Deletes a profile. You can't delete the one you're using${staged ? `.${nextOnly(` ${NEXT} You also can't delete the one waiting for a reload.`)}` : ", or the one waiting for a reload."}</td><td data-label="Chat says">“${q("slash", "Deleted profile ", name, ".")}” or “${q("slash", "Can't delete that one (missing, or in use).")}”</td></tr>
 <tr><td data-label="Type"><code>/vg profile reset</code></td><td data-label="What it does">Puts every setting in the profile you're using back to its default, then offers a reload.</td><td data-label="Chat says">“Profile &lt;your profile&gt;${q("slash", " is back to defaults.")}${reloadAsk}”</td></tr>
 </tbody></table></div>
-<p>On the Profiles page, <strong>${L("opt", "Reset profile")}</strong> does the same as <code>/vg profile reset</code>, straight away and without asking first. The options window then shows its <strong>Reload now</strong> button.</p>
-
-<h2 id="share">Move a profile to another account or PC</h2>
-<p>You copy your profile out as a line of text, and paste that text into Vanguard on the other PC.</p>
+<p>On the Profiles page, <strong>${L("opt", "Reset profile")}</strong> does the same as <code>/vg profile reset</code>, straight away and without asking first. The options window then shows its <strong>Reload now</strong> button.</p>` })}
+${disclosure({ id: "share", title: `Move a profile to another account or PC`, body: `<p>You copy your profile out as a line of text, and paste that text into Vanguard on the other PC.</p>
 <ol class="steps">
   <li><strong>Export.</strong> Click <strong>${L("opt", "Export profile")}</strong> on the Profiles page, or type <code>/vg export</code>. A window opens with the text already selected. Its title says “${q("opt", "Vanguard export  Ctrl+C to copy")}” (with <code>/vg export</code>: “${q("slash", "Vanguard export (")}profile &lt;name&gt;)${q("slash", "  Ctrl+C to copy")}”). Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy it, then click <strong>${L("dlg", "Close")}</strong>.</li>
   <li><strong>Send it to yourself</strong> in any way you like, as long as the whole text arrives.</li>
@@ -111,8 +109,8 @@ ${relReloadUI ? `<p>In v${esc(v)}, if the <strong>Reload</strong> button doesn't
 <p>The profile is saved as a new profile called “Imported”. If you already have one with that name, it's called “Imported 2”, then “Imported 3”, and so on. Nothing you already have is overwritten.</p>
 ${relImport ? `<p>In v${esc(v)}, this character switches to it straight away (“Imported as profile Imported and switched to it.”), and Vanguard offers a reload (type <code>/reload</code> in chat if its button doesn't reload).</p>` : ""}
 <ol class="steps">
-  <li>${displayNew ? `${NEXT} ` : ""}If the string has the UI scale it was made at, Vanguard asks first, for example: “${uiQ}” Click <strong>${q("prof", "Use it")}</strong> to switch to that UI scale (it changes once you're out of combat), or <strong>${L("dlg", "No")}</strong> to keep yours. If the string doesn't say what screen it was made on, the question leaves out the screen part.</li>
-  <li>${staged ? `${NEXT} ` : ""}Then it asks: “${q("prof", "Imported as profile ")}Imported${q("prof", "; this character will use it after a reload.")}${reloadAsk}” Click ${reloadBtns}.</li>
+  <li${displayNew ? ' data-avail="next"' : ""}>${displayNew ? `${NEXT} ` : ""}If the string has the UI scale it was made at, Vanguard asks first, for example: “${uiQ}” Click <strong>${q("prof", "Use it")}</strong> to switch to that UI scale (it changes once you're out of combat), or <strong>${L("dlg", "No")}</strong> to keep yours. If the string doesn't say what screen it was made on, the question leaves out the screen part.</li>
+  <li${staged ? ' data-avail="next"' : ""}>${staged ? `${NEXT} ` : ""}Then it asks: “${q("prof", "Imported as profile ")}Imported${q("prof", "; this character will use it after a reload.")}${reloadAsk}” Click ${reloadBtns}.</li>
 </ol>
 <h3 id="import-module">Just one module</h3>
 <p><code>/vg export &lt;module&gt;</code> copies just one module's settings (the module names are on <a href="/features/">Features</a> and in <code>/vg modules</code>). Importing that text replaces that module's settings in the profile you're using: “${q("prof", "Imported ")}&lt;module&gt;${q("prof", " settings into profile ")}&lt;your profile&gt;.${reloadAsk}” If that module has nothing saved yet, export says “${q("slash", "Nothing to export: ")}${q("prof", "nothing saved for ")}&lt;module&gt;${q("prof", " yet")}.”</p>
@@ -122,35 +120,28 @@ ${relImport ? `<p>In v${esc(v)}, this character switches to it straight away (�
   <li>It starts with <code>${esc(fuiPrefix)}</code>. Vanguard only reads settings from it and never runs anything in it. A built-in check notices when part of the text is missing.</li>
   <li>Text exported before the addon was renamed from ForeverUI starts with <code>FUI1:</code>; it still imports.</li>
   <li>The settings and frame positions saved in the profile.</li>
-  <li>The profile's own settings, never a temporary change from <strong>Situations</strong> that happens to be active.${nb(ownNew)}</li>
-  <li>${displayNew ? `${NEXT} ` : ""}For a whole profile, the UI scale (to the nearest percent) and the screen size it was made on.</li>
-  <li>${editNew ? `${NEXT} ` : ""}Where your client supports Edit Mode, the name of the game's Edit Mode layout that goes with the profile (see below).</li>
+  <li${ownNew ? ' data-avail="next"' : ""}>The profile's own settings, never a temporary change from <strong>Situations</strong> that happens to be active.${nb(ownNew)}</li>
+  <li${displayNew ? ' data-avail="next"' : ""}>${displayNew ? `${NEXT} ` : ""}For a whole profile, the UI scale (to the nearest percent) and the screen size it was made on.</li>
+  <li${editNew ? ' data-avail="next"' : ""}>${editNew ? `${NEXT} ` : ""}Where your client supports Edit Mode, the name of the game's Edit Mode layout that goes with the profile (see below).</li>
 </ul>
-<p>If the text can't be used, chat says “${q("slash", "Import failed: ")}” and the reason. The reasons are listed under <a href="/help/#import">Troubleshooting</a>.</p>
-
-<h2 id="edit-mode">The game's Edit Mode layout${nb(editNew)}</h2>
-<p>Where your client supports Edit Mode, a profile remembers which of the game's Edit Mode layouts you use with it. When a character loads a different profile than last time (a switch, an import, or a specialization profile), Vanguard switches Edit Mode to that layout once you're out of combat and says “${q("prof", "Edit Mode layout ", { v: "layout" }, ", from profile ", name, ".")}”</p>
-<p>If your account has no Edit Mode layout with that name, nothing changes, and chat says “Profile &lt;name&gt; ${q("prof", " uses Edit Mode layout ").trim()} &lt;layout&gt;${q("prof", ", which this account doesn't have.")}” Make a layout with that name in Edit Mode if you want it.</p>
-
-<h2 id="click-casting">Click-casting bindings${nb(shareNew)}</h2>
-<p>Click-casting bindings aren't part of a profile. They're saved per character and per specialization, so importing a profile doesn't change them. They have their own sharing, under <strong>/vg → Click casting → ${L("cco", "Share")}</strong>:</p>
+<p>If the text can't be used, chat says “${q("slash", "Import failed: ")}” and the reason. The reasons are listed under <a href="/help/#import">Troubleshooting</a>.</p>` })}
+${disclosure({ id: "edit-mode", title: `The game's Edit Mode layout`, meta: `${nb(editNew)}`, next: editNew, body: `<p>Where your client supports Edit Mode, a profile remembers which of the game's Edit Mode layouts you use with it. When a character loads a different profile than last time (a switch, an import, or a specialization profile), Vanguard switches Edit Mode to that layout once you're out of combat and says “${q("prof", "Edit Mode layout ", { v: "layout" }, ", from profile ", name, ".")}”</p>
+<p>If your account has no Edit Mode layout with that name, nothing changes, and chat says “Profile &lt;name&gt; ${q("prof", " uses Edit Mode layout ").trim()} &lt;layout&gt;${q("prof", ", which this account doesn't have.")}” Make a layout with that name in Edit Mode if you want it.</p>` })}
+${disclosure({ id: "click-casting", title: `Click-casting bindings`, meta: `${nb(shareNew)}`, body: `<p>Click-casting bindings aren't part of a profile. They're saved per character and per specialization, so importing a profile doesn't change them. They have their own sharing, under <strong>/vg → Click casting → ${L("cco", "Share")}</strong>:</p>
 <ul>
   <li><strong>${L("cco", "Export")}</strong> opens a window titled “${q("cco", "Click-casting bindings")}” with the text to copy (<kbd>Ctrl</kbd>+<kbd>C</kbd>).</li>
   <li><strong>${L("cco", "Import")}</strong> opens “${q("cco", "Paste a click-casting string")}”. Paste and click <strong>${L("dlg", "Import")}</strong>. It <strong>replaces</strong> the bindings for this character (and this specialization) and says “${q("cco", "Imported ", { v: "number" }, " click-casting bindings.")}” If the text isn't right it says “${q("cco", "Can't import: ")}&lt;reason&gt;.”, for example “${q("cc", "not a click-casting string")}” when you paste a profile instead.</li>
   <li>On game clients with specializations there's also <strong>${q("cco", "Copy to spec...")}</strong>, which copies your bindings over another spec's: “${q("cco", "Click-casting bindings copied to spec ")}&lt;number&gt;.” It only shows where the client has specializations and there's another spec to copy to.</li>
-</ul>
-
-<h2 id="spec">Profiles by specialization</h2>
-<p>Vanguard only offers spec profiles on game clients that have specializations. On a client without them, <code>/vg spec</code> answers “${q("slash", "This client has no specializations, so profiles don't switch by spec.")}” and the Profiles page has no <strong>${L("opt", "Specialization")}</strong> section.${nb(specCardNew)}${specCardNew && qr("slash", "No specialization on this character yet.") ? ` In v${esc(v)}, <code>/vg spec</code> answers “${qr("slash", "No specialization on this character yet.")}” instead, and the <strong>Specialization</strong> section still shows.` : ""}</p>
+</ul>` })}
+${disclosure({ id: "spec", title: `Profiles by specialization`, body: `<p>Vanguard only offers spec profiles on game clients that have specializations. On a client without them, <code>/vg spec</code> answers “${q("slash", "This client has no specializations, so profiles don't switch by spec.")}” and the Profiles page has no <strong>${L("opt", "Specialization")}</strong> section.${nb(specCardNew)}${specCardNew && qr("slash", "No specialization on this character yet.") ? ` Today, <code>/vg spec</code> answers “${qr("slash", "No specialization on this character yet.")}” instead, and the <strong>Specialization</strong> section still shows.` : ""}</p>
 <p>On a client that has them:</p>
 <ul>
   <li><code>/vg spec &lt;profile&gt;</code>, or <strong>${L("opt", "Use this profile for this spec")}</strong> on the Profiles page, makes your current specialization use that profile. <code>/vg spec off</code> or <strong>${L("opt", "Stop spec switching")}</strong> stops it. <code>/vg spec</code> on its own says which profile your spec uses.</li>
   <li>When you change specialization, Vanguard asks: “${q("prof", "Your specialization uses profile ", name, ".")}${reloadAsk}” When you log in, it uses your spec's profile without asking.</li>
   <li>A character with no specialization yet gets “${q("slash", "No specialization on this character yet.")}”</li>
-</ul>
-
-<h2 id="account-wide">Shared by every character on your account${nb(!read.rel("Modules/VendorMemory.lua") && !read.rel("Modules/AuctionPrices.lua"))}</h2>
-<p>These aren't part of any profile, and every character on your account shares them: vendor memory (which merchants sell what) and auction house prices.</p>`,
+</ul>` })}
+${disclosure({ id: "account-wide", title: `Shared by every character on your account`, meta: `${nb(!read.rel("Modules/VendorMemory.lua") && !read.rel("Modules/AuctionPrices.lua"))}`, next: !read.rel("Modules/VendorMemory.lua") && !read.rel("Modules/AuctionPrices.lua"), body: `<p>These aren't part of any profile, and every character on your account shares them: vendor memory (which merchants sell what) and auction house prices.</p>` })}
+</div>`,
   };
 }
 
@@ -204,39 +195,38 @@ function sourcedEntries(section, facts) {
 
 // One question and answer as a card, with where it comes from.
 function helpEntry(e, facts) {
-  const badge = e.badge === "next" ? ` ${NEXT}` : "";
-  return `<section class="card help-entry" id="${e.id}" aria-labelledby="${e.id}-q">
-<h3 id="${e.id}-q">${esc(e.q)}${badge}</h3>
+  const next = e.badge === "next";
+  return `<section class="card help-entry" id="${e.id}" aria-labelledby="${e.id}-q"${next ? ' data-avail="next"' : ""}>
+<details class="disclosure">
+<summary><h3 id="${e.id}-q">${esc(e.q)}</h3>${next ? `<span class="dis-meta">${NEXT}</span>` : ""}</summary>
+<div class="dis-body">
 ${fill(e.a, facts)}
 ${src(...e.src.map((s) => s.replace(/\{(\w+)\}/g, (_, k) => String(facts[k]))))}
+</div>
+</details>
 </section>`;
 }
 
-// The "on this page" links, one per question shown.
-function helpJumps(sections) {
-  const links = sections.flatMap((s) => s.shown).map((e) => `<li><a href="#${e.id}">${esc(e.q)}</a></li>`);
-  return `<nav aria-label="Questions on this page"><ul class="chips help-jumps">${links.join("")}</ul></nav>`;
-}
-
-// One section: its heading and its sourced entries (nothing when none are left).
-function helpSection(s, facts) {
+// One section, folded: its heading opens its sourced entries (nothing when none are left).
+function helpSection(s, facts, open) {
   if (!s.shown.length) return "";
-  return `<h2 id="${s.id}">${esc(s.title)}</h2>\n${s.shown.map((e) => helpEntry(e, facts)).join("\n")}`;
+  const n = s.shown.length;
+  return disclosure({ id: s.id, title: esc(s.title), open, meta: `${n} question${n === 1 ? "" : "s"}`, body: `<div class="dis-grid">${s.shown.map((e) => helpEntry(e, facts)).join("\n")}</div>` });
 }
 
 // The closing part: known issues, then what to do when the page doesn't help.
 function helpFooter() {
-  return `<h2 id="known-issues">Known issues</h2>
-<p>No known issues have been confirmed yet. Vanguard is an early release: parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p>
-<div class="notice info"><p><strong>Not covered here?</strong> Or the fix didn't help? Report it there as well, and include every line of <code>/vg status</code>.</p></div>`;
+  return disclosure({ id: "known-issues", title: "Known issues", body: `<p>No known issues have been confirmed yet. Vanguard is an early release: parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p>
+<div class="notice info"><p><strong>Not covered here?</strong> Or the fix didn't help? Report it there as well, and include every line of <code>/vg status</code>.</p></div>` });
 }
 
 // The Troubleshooting & FAQ page (help-content.mjs holds its words and sources).
 export function helpPage(model, read) {
   const facts = helpFacts(model, read);
   const sections = SECTIONS.map((s) => ({ ...s, shown: sourcedEntries(s, facts) }));
-  const body = [pageHero("Troubleshooting &amp; FAQ", "Each answer uses Vanguard's own commands and quotes its real messages."),
-    nextNotice(model), helpJumps(sections), ...sections.map((s) => helpSection(s, facts)), helpFooter()];
+  const body = [pageHero("Troubleshooting &amp; FAQ", "Each answer uses Vanguard's own commands and quotes its real messages. Open a question to see the fix."),
+    glance([`Start with <code>/vg status</code>: its lines say what's loaded`, `Nothing here helps? <a href="/feedback/">Send a report</a>`]),
+    ...sections.map((s, i) => helpSection(s, facts, i === 0)), helpFooter()];
   return { path: "/help/", title: "Troubleshooting & FAQ", description: "Fixes for common Vanguard problems, using the addon's own commands and messages.", body: body.join("\n") };
 }
 
@@ -294,7 +284,7 @@ function reportHint(model) {
   const rel = model.commands.relKeys.has("report");
   const next = model.commands.nextKeys.has("report");
   if (rel) return "Type <code>/vg report</code> in game and paste what it shows.";
-  if (next) return `${NEXT} has <code>/vg report</code>, one block to paste. In v${esc(model.version)}, paste the lines of <code>/vg status</code> (and any error lines): see the steps below.`;
+  if (next) return `Paste the lines of <code>/vg status</code> (and any error lines): see the steps below.${nextOnly(` ${NEXT} has <code>/vg report</code>, one block to paste.`)}`;
   return "No Vanguard version has <code>/vg report</code> yet, so paste the lines of <code>/vg status</code> and <code>/vg errors</code>: see the steps below.";
 }
 
@@ -370,9 +360,7 @@ function feedbackSteps() {
 
 // What happens to a report: who sees it, what it may hold, and how to have it removed.
 function privacyNote() {
-  return `<section class="card" aria-labelledby="privacy">
-<h2 id="privacy" style="margin-top:0">Where your report goes</h2>
-<ul>
+  return disclosure({ id: "privacy", title: "Where your report goes", body: `<ul>
 <li>No account or email is needed.</li>
 <li>Your report is sent to the private repository the Vanguard maintainers use. Only the project's maintainers can read it. It is not posted anywhere public.</li>
 <li>A pasted report can hold character or profile names, chat, or guild details. Check the preview, and take out anything you'd rather not send.</li>
@@ -380,8 +368,7 @@ function privacyNote() {
 <li>Your IP address is never stored or put in a report. To stop floods, the site keeps a scrambled key made from it for an hour or two, and that key changes every day.</li>
 <li>To have a report removed, send another report with the title “Remove VG-…” and your reference. A maintainer deletes it.</li>
 <li>Every report gets its own reference, shown only to the person who sent it. If yours was added to an earlier report of the same error, your reference is on your part alone, so a removal request covers only what you sent.</li>
-</ul>
-</section>`;
+</ul>` });
 }
 
 export function feedbackPage(model, read) {
@@ -409,31 +396,30 @@ Why it would help me:`;
     title: "Feedback",
     description: "Report a Vanguard bug or request a feature.",
     scripts: ["/assets/feedback.js"],
-    body: `${pageHero("Feedback", `Vanguard is an early release. Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us. No account or email is needed.`)}
+    body: `${pageHero("Feedback", `Report a bug or ask for a feature. No account or email is needed, and you see exactly what's sent before it goes.`)}
 <section class="card fb" aria-labelledby="send">
-<h2 id="send" style="margin-top:0">Send a report</h2>
+<h2 id="send">Send a report</h2>
 <div class="notice todo fb-nojs" role="note"><p><strong>The form needs JavaScript.</strong> Turn JavaScript on to send a report from this page. Until then, get your report ready with the steps and templates below, and keep it.</p></div>
 <div id="fb-status" class="notice fb-alert fb-needs-js" role="status" hidden></div>
 ${feedbackForm(model)}
 ${feedbackSteps()}
 </section>
 ${privacyNote()}
-<h2 id="get-ready">Get your report ready</h2>
-<div class="grid two">
+${disclosure({ id: "get-ready", title: "Get your report ready", meta: "steps and templates", body: `<div class="grid two">
 <section class="card" aria-labelledby="bug">
-<h3 id="bug" style="margin-top:0">Report a bug</h3>
+<h3 id="bug">Report a bug</h3>
 <ol class="steps">
   <li><strong>Write down what you did</strong>, what you expected, and what happened instead.</li>
-  <li><strong>Type <code>/vg status</code></strong> and copy all of its lines. In v${esc(v)} it prints ${relStatusLines} lines: the version, profile and module count, then skins, painted frames and changes waiting on combat.${nextStatusLines > relStatusLines ? ` ${NEXT} prints ${nextStatusLines}, adding the client, what it has, and your UI scale and text size.` : ""}</li>
-  <li><strong>${relErrors ? "Type <code>/vg errors</code>" : "Copy any error lines"}</strong>${relErrors ? " and copy all of it." : `. v${esc(v)} has no <code>/vg errors</code> yet; if chat showed ${failLine ? `“${esc(failLine.replace(/%s/g, "…"))}”` : "an error"}, copy that whole line. ${NEXT} <code>/vg errors</code> lists the errors Vanguard caught this session, with stacks and counts, ready for a bug report.`}</li>
+  <li><strong>Type <code>/vg status</code></strong> and copy all of its lines. In v${esc(v)} it prints ${relStatusLines} lines: the version, profile and module count, then skins, painted frames and changes waiting on combat.${nextStatusLines > relStatusLines ? nextOnly(` ${NEXT} prints ${nextStatusLines}, adding the client, what it has, and your UI scale and text size.`) : ""}</li>
+  <li><strong>${relErrors ? "Type <code>/vg errors</code>" : "Copy any error lines"}</strong>${relErrors ? " and copy all of it." : `. v${esc(v)} has no <code>/vg errors</code> yet; if chat showed ${failLine ? `“${esc(failLine.replace(/%s/g, "…"))}”` : "an error"}, copy that whole line.${nextOnly(` ${NEXT} <code>/vg errors</code> lists the errors Vanguard caught this session, with stacks and counts, ready for a bug report.`)}`}</li>
 </ol>
-<p class="small">Can't copy text from chat? Type out the lines that matter, or describe them. ${model.commands.nextKeys.has("copy") && !model.commands.relKeys.has("copy") ? `In the next release, <code>/vg copy</code> opens the recent chat as plain text, ready to copy.` : ""}</p>
+<p class="small">Can't copy text from chat? Type out the lines that matter, or describe them.${model.commands.nextKeys.has("copy") && !model.commands.relKeys.has("copy") ? nextOnly(` In the next release, <code>/vg copy</code> opens the recent chat as plain text, ready to copy.`) : ""}</p>
 <h4>Bug report template</h4>
 <pre class="template" id="bug-template">${esc(bugTemplate)}</pre>
 <button class="copy" type="button" data-copy-from="#bug-template" aria-label="Copy the bug report template">Copy template</button>
 </section>
 <section class="card" aria-labelledby="feature">
-<h3 id="feature" style="margin-top:0">Request a feature</h3>
+<h3 id="feature">Request a feature</h3>
 <p>Tell us what would make Vanguard better for you. Please answer:</p>
 <ol class="steps">
   <li><strong>What you want.</strong></li>
@@ -444,10 +430,10 @@ ${privacyNote()}
 <h4>Feature request template</h4>
 <pre class="template" id="feature-template">${esc(featureTemplate)}</pre>
 <button class="copy" type="button" data-copy-from="#feature-template" aria-label="Copy the feature request template">Copy template</button>
-<p class="small template-note">Before you ask, check <a href="/features/">Features</a>: some things are already written and marked <span class="badge next">Next release</span>.</p>
+<p class="small template-note">Before you ask, check <a href="/features/">Features</a>: some things are already written for the next release (turn on <strong>Show what's coming</strong> in the sidebar to see them).</p>
 </section>
 </div>
-${src("Core/Slash.lua (status, errors)", "Core/Modules.lua", "docs/SMOKE-TEST.md (Report block)", "README.md")}`,
+${src("Core/Slash.lua (status, errors)", "Core/Modules.lua", "docs/SMOKE-TEST.md (Report block)", "README.md")}` })}`,
   };
 }
 
@@ -468,11 +454,16 @@ function nextGroup(g) {
 // notes were written after; nothing once a newer release is out.
 function nextSection(model) {
   if (model.same || model.release.tag !== NEXT_RELEASE.after) return "";
-  const intro = `<p>Not released yet, so it has no version number or date. Everything here is written and waiting; v${esc(model.version)} doesn't have it. On <a href="/features/">Features</a>, <a href="/commands/">Commands</a> and <a href="/settings/">Settings</a> these parts are marked ${NEXT}.</p>`;
+  const n = NEXT_RELEASE.groups.reduce((t, g) => t + g.items.length, 0);
+  const intro = `<p>Not released yet, so it has no version number or date. Everything here is written and waiting; v${esc(model.version)} doesn't have it. <a href="/features/">Features</a>, <a href="/commands/">Commands</a> and <a href="/settings/">Settings</a> show these parts when you turn on <strong>Show what's coming</strong> in the sidebar.</p>`;
   return `<section class="card" aria-labelledby="next-h">
-<h2 id="next-h" style="margin-top:0">What's coming in the next release</h2>
+<details class="disclosure">
+<summary><h2 id="next-h">What's coming in the next release</h2><span class="dis-meta">${n} changes</span></summary>
+<div class="dis-body">
 ${intro}
 ${NEXT_RELEASE.groups.map(nextGroup).join("\n")}
+</div>
+</details>
 </section>`;
 }
 
@@ -484,10 +475,15 @@ function releaseNotes(r) {
 
 // One published release: its tag, date, a Current release badge, and its notes.
 function releaseSection(r, model) {
-  const current = r.tagName === model.release.tag ? ` <span class="badge rel">Current release</span>` : "";
+  const isCurrent = r.tagName === model.release.tag;
+  const current = isCurrent ? ` <span class="badge rel">Current release</span>` : "";
   return `<section aria-labelledby="rel-${esc(r.tagName)}">
-<h2 id="rel-${esc(r.tagName)}">${esc(r.tagName)} <span class="small">· ${esc(dateET(r.publishedAt))}</span>${current}</h2>
+<details class="disclosure"${isCurrent ? " open data-open" : ""}>
+<summary><h2 id="rel-${esc(r.tagName)}">${esc(r.tagName)}</h2><span class="dis-meta">${esc(dateET(r.publishedAt))}${current}</span></summary>
+<div class="dis-body">
 ${releaseNotes(r)}
+</div>
+</details>
 </section>`;
 }
 
@@ -495,7 +491,7 @@ ${releaseNotes(r)}
 export function changelogPage(model) {
   const rels = model.releases.releases.slice().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   const body = [pageHero("Changelog", "Newest first: what each Vanguard release changed, in plain words."),
-    nextSection(model), ...rels.map((r) => releaseSection(r, model)), `<p class="small">Every line comes from the changes merged into the addon for that release.</p>`];
+    ...rels.map((r) => releaseSection(r, model)), nextSection(model), `<p class="small">Every line comes from the changes merged into the addon for that release.</p>`];
   return { path: "/changelog/", title: "Changelog", description: "What changed in each Vanguard release, newest first, and what's coming next.", body: body.join("\n") };
 }
 
@@ -517,17 +513,14 @@ export function creditsPage(model, site) {
     path: "/credits/",
     title: "Credits & license",
     description: "Vanguard's license and the fonts, libraries and art it uses.",
-    body: `${pageHero("Credits &amp; license")}
-<h2 id="license">Vanguard</h2>
-<p><strong>${esc(lic[0] || "")}</strong>. ${esc(lic[1] || "")}.</p>
+    body: `${pageHero("Credits &amp; license", `Vanguard is made by ${esc(site.author)} and released under the ${esc(lic[0] || "MIT License")}.`)}
+${disclosure({ id: "license", title: "License", open: true, body: `<p><strong>${esc(lic[0] || "")}</strong>. ${esc(lic[1] || "")}.</p>
 <p>From the v${esc(model.version)} README:</p>
 <blockquote class="card prose"><p>${md(relLicense)}</p></blockquote>
-${nextLicense && nextLicense !== relLicense ? `<p>The next release also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>` : ""}
-${bullets.length ? `<h2 id="credits">Fonts, libraries and art</h2><p>As listed in the addon's README for the next release:</p><ul>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` : ""}
-<h2 id="site">This website</h2>
-<p>Vanguard is made by ${esc(site.author)}.</p>
-<p>This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href="/fonts/OFL.txt">license text</a>. Its colors are Vanguard's own theme colors.</p>
+${nextLicense && nextLicense !== relLicense ? nextOnly(`<p>The next release also bundles shared libraries; its README says:</p><blockquote class="card prose"><p>${md(nextLicense)}</p></blockquote>`, "div") : ""}` })}
+${bullets.length ? disclosure({ id: "credits", title: "Fonts, libraries and art", body: `<p>As listed in the addon's README for the next release:</p><ul>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` }) : ""}
+${disclosure({ id: "site", title: "This website", body: `<p>This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href="/fonts/OFL.txt">license text</a>. Its colors are Vanguard's own theme colors.</p>
 <p>Vanguard is a fan addon for WoW Forever.</p>
-${src("LICENSE", "README.md (License, Credits)", "Media/Fonts/OFL.txt")}`,
+${src("LICENSE", "README.md (License, Credits)", "Media/Fonts/OFL.txt")}` })}`,
   };
 }

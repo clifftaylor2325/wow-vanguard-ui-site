@@ -9,7 +9,7 @@ import path from "node:path";
 import os from "node:os";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
-import { CURSEFORGE_URL, esc } from "../scripts/lib/html.mjs";
+import { CURSEFORGE_URL, esc, NAV } from "../scripts/lib/html.mjs";
 import { helpPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
@@ -445,7 +445,7 @@ function siteModel() {
 
 // One module's card in a Features page body ("" when it isn't there).
 function featureCardOf(body, key) {
-  return (body.match(new RegExp(`<article class="card mod" id="[^"]+" data-module="${key}">[\\s\\S]*?</article>`)) || [""])[0];
+  return (body.match(new RegExp(`<article class="card mod" id="[^"]+" data-module="${key}"[^>]*>[\\s\\S]*?</article>`)) || [""])[0];
 }
 
 // Taking any one checked phrase out of the README must drop that module's longer text.
@@ -522,4 +522,48 @@ test("'Off until you switch it on' needs every switch off, not any", () => {
   assert.equal(offCase({ a: true, b: false }), false, "first switch on: no label");
   assert.equal(offCase({ a: false, b: false }, "Shows a frame."), false, "the addon doesn't say it starts off: no label");
   assert.equal(offCase({ size: 3 }), false, "no switches at all: no label");
+});
+
+// ---------------------------------------------------------------- The shell, the folded sections and the "show what's coming" switch
+
+const PAGE_DIRS = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"];
+const pageHtml = (d) => fs.readFileSync(path.join(dist, d, "index.html"), "utf8");
+
+test("the current release is the default: nothing is tagged 'In vX', and next-release parts hide behind one switch", () => {
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  assert.ok(js.includes('"vg-show-next"'), "site.js keeps the switch's choice as vg-show-next");
+  assert.ok(js.includes('data-pref="next"') && js.includes('data-filter="next"'), "site.js must drive the sidebar switch and the search boxes' version box together");
+  for (const d of PAGE_DIRS) {
+    const html = pageHtml(d);
+    assert.ok(!/<span class="badge rel">In v/.test(html), `/${d}: being in the current release gets no tag`);
+    if (html.includes('data-avail="next"')) {
+      assert.ok(html.includes('data-pref="next"') || html.includes('data-filter="next"'), `/${d} hides next-release parts, so it needs the switch that shows them`);
+    }
+  }
+});
+
+test("every inner page has the grouped sidebar with all 11 pages; Home has the top bar", () => {
+  for (const d of PAGE_DIRS) {
+    const html = pageHtml(d);
+    const nav = (html.match(/<nav class="nav (sidebar|topnav)" aria-label="Main" id="site-nav">[\s\S]*?<\/nav>/) || [])[0];
+    assert.ok(nav, `/${d} needs the shared nav`);
+    if (d === "") {
+      assert.ok(nav.startsWith('<nav class="nav topnav"'), "Home uses the top bar");
+    } else {
+      assert.ok(nav.startsWith('<nav class="nav sidebar"'), `/${d} uses the sidebar`);
+      for (const n of NAV) assert.ok(nav.includes(`href="${n.path}"`), `/${d} sidebar links ${n.path}`);
+      assert.equal((nav.match(/class="nav-group-h"/g) || []).length, 5, `/${d} sidebar has five groups`);
+    }
+  }
+});
+
+test("folded sections start closed unless the page marks them open by default; Features and Settings start fully folded", () => {
+  for (const d of PAGE_DIRS) {
+    const html = pageHtml(d);
+    const main = html.slice(html.indexOf('<main id="main"'), html.indexOf("</main>"));
+    for (const tag of main.match(/<details class="disclosure[^>]*>/g) || []) {
+      if (/\sopen\b/.test(tag)) assert.ok(/\sdata-open\b/.test(tag), `/${d}: a section open by default must say so with data-open: ${tag}`);
+    }
+    if (d === "features" || d === "settings") assert.ok(!/<details[^>]*\sopen\b/.test(main), `/${d} starts with every section folded`);
+  }
 });

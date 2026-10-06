@@ -1,7 +1,24 @@
-// Vanguard site: list filtering (Commands, Settings) and copy buttons.
-// Everything is in the HTML already; without JS the full lists still show.
+// Vanguard site: the sidebar drawer, the "show what's coming" switch, list
+// filtering (Commands, Settings), collapsed sections and copy buttons.
+// Everything is in the HTML already; without JS every section and the full
+// lists still show.
 (function () {
   "use strict";
+
+  var PREF = "vg-show-next";
+  var searches = [];
+  var small = window.matchMedia ? window.matchMedia("(max-width: 559px)") : { matches: false };
+
+  // Whether a section marked open by default should be open now: on a phone
+  // every section starts folded, so the page fits the screen.
+  function openByDefault(el) {
+    return el.hasAttribute("data-open") && !small.matches;
+  }
+  function foldForSmall() {
+    if (!small.matches) return;
+    var open = document.querySelectorAll("main details[data-open]");
+    for (var i = 0; i < open.length; i++) open[i].open = false;
+  }
 
   // Lowercase text of an element's search data.
   function hay(el) {
@@ -42,12 +59,24 @@
     return shown;
   }
 
-  // Hides each group (a settings page) with no visible entry left.
-  function hideEmptyGroups(s) {
+  // Hides each group (a settings page, a command group) with no visible entry
+  // left. While words are typed, groups with a match open so it can be seen;
+  // when the box is emptied they go back to how they started.
+  function hideEmptyGroups(s, searching) {
     var groups = s.list.querySelectorAll(s.groupSel);
     for (var g = 0; g < groups.length; g++) {
-      groups[g].hidden = !groups[g].querySelector(s.itemSel + ":not([hidden]):not(.h)");
+      var has = !!groups[g].querySelector(s.itemSel + ":not([hidden]):not(.h)");
+      groups[g].hidden = !has;
+      setOpen(groups[g], searching ? has : openByDefault(groups[g]));
     }
+  }
+
+  // Opens or closes a collapsed group: a <details>, or a table row group with a button.
+  function setOpen(group, open) {
+    if (group.tagName === "DETAILS") { group.open = open; return; }
+    var btn = group.querySelector("button[aria-expanded]");
+    group.classList.toggle("collapsed", !open);
+    if (btn) btn.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
   // True when any version box is unticked.
@@ -88,7 +117,7 @@
   function apply(s) {
     var query = s.input.value.trim();
     var shown = filterItems(s, query.toLowerCase().split(/\s+/).filter(Boolean));
-    if (s.groupSel) hideEmptyGroups(s);
+    if (s.groupSel) hideEmptyGroups(s, query !== "");
     if (s.count) s.count.textContent = countText(s.box, shown);
     showEmpty(s, shown, query);
   }
@@ -102,7 +131,98 @@
     s.input.addEventListener("input", run);
     for (var i = 0; i < s.filters.length; i++) s.filters[i].addEventListener("change", run);
     s.empty.querySelector("button").addEventListener("click", function () { s.input.value = ""; run(); s.input.focus(); });
+    searches.push(s);
     run();
+  }
+
+  // The "show what's coming in the next release" switch: one choice for the
+  // whole site, kept in the browser. It drives the sidebar switch, the version
+  // box in each search form, and everything marked data-avail="next".
+  function prefOn() {
+    try { return localStorage.getItem(PREF) === "1"; } catch (e) { return false; }
+  }
+  function prefBoxes() {
+    return document.querySelectorAll('input[data-pref="next"], input[data-filter="next"]');
+  }
+  function setPref(on) {
+    try { localStorage.setItem(PREF, on ? "1" : "0"); } catch (e) { /* kept for this page only */ }
+    document.documentElement.classList.toggle("show-next", on);
+    var boxes = prefBoxes();
+    for (var i = 0; i < boxes.length; i++) boxes[i].checked = on;
+    for (var j = 0; j < searches.length; j++) apply(searches[j]);
+  }
+  function wirePref() {
+    var on = prefOn();
+    document.documentElement.classList.toggle("show-next", on);
+    var boxes = prefBoxes();
+    for (var i = 0; i < boxes.length; i++) {
+      boxes[i].checked = on;
+      boxes[i].addEventListener("change", function (e) { setPref(e.target.checked); });
+    }
+  }
+
+  // Opens every collapsed section around the element a link points to, so a
+  // deep link (/settings/#general, /features/#raid-frames) lands on it.
+  function openForHash() {
+    var id = location.hash.slice(1);
+    if (!id) return;
+    var el;
+    try { el = document.getElementById(decodeURIComponent(id)); } catch (e) { el = null; }
+    if (!el) return;
+    for (var d = el.closest("details"); d; d = d.parentElement && d.parentElement.closest("details")) d.open = true;
+    var group = el.closest("tbody");
+    if (group && group.classList.contains("collapsed")) setOpen(group, true);
+    var inner = el.querySelector && el.querySelector("details");
+    if (inner && el.matches(".mod, .help-entry")) inner.open = true;
+    el.scrollIntoView({ block: "start" });
+  }
+
+  // The buttons that open and close a group of table rows (Commands).
+  function wireGroups() {
+    var btns = document.querySelectorAll("tbody button[aria-expanded]");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener("click", function (e) {
+        var group = e.currentTarget.closest("tbody");
+        setOpen(group, group.classList.contains("collapsed"));
+      });
+    }
+  }
+
+  // "Expand all" / "Collapse all" over the page's collapsed sections.
+  function wireExpandAll() {
+    var all = document.querySelectorAll("main details.disclosure");
+    if (all.length < 2) return;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "expand-all";
+    var label = function () {
+      var open = 0;
+      for (var i = 0; i < all.length; i++) if (all[i].open) open++;
+      btn.textContent = open === all.length ? "Collapse all" : "Expand all";
+    };
+    btn.addEventListener("click", function () {
+      var open = btn.textContent === "Expand all";
+      for (var i = 0; i < all.length; i++) all[i].open = open;
+      var groups = document.querySelectorAll("main tbody.cmd-group");
+      for (var g = 0; g < groups.length; g++) setOpen(groups[g], open);
+      label();
+    });
+    for (var i = 0; i < all.length; i++) all[i].addEventListener("toggle", label);
+    label();
+    // In the facts strip or the counts line when the page has one; else before the first section.
+    var strip = document.querySelector("main .glance");
+    var counts = document.querySelector("main .counts");
+    if (strip) {
+      var li = document.createElement("li");
+      li.className = "glance-tools";
+      li.appendChild(btn);
+      strip.appendChild(li);
+    } else if (counts) {
+      counts.appendChild(btn);
+    } else {
+      var anchor = all[0].parentElement.classList.contains("dis-grid") ? all[0].parentElement : all[0];
+      anchor.parentNode.insertBefore(btn, anchor);
+    }
   }
 
   // Copies text and briefly says so on the button.
@@ -139,26 +259,44 @@
     document.body.removeChild(ta);
   }
 
-  // The mobile menu button: shows and hides the nav list.
-  function wireNav(nav) {
-    var btn = nav.querySelector(".nav-toggle");
-    if (!btn) return;
-    btn.addEventListener("click", function () {
-      var open = nav.classList.toggle("open");
-      btn.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && nav.classList.contains("open")) {
-        nav.classList.remove("open");
-        btn.setAttribute("aria-expanded", "false");
-        btn.focus();
+  // The Menu button: opens the nav as a drawer on narrow screens, with a
+  // backdrop; Escape, the backdrop or the button close it.
+  function wireNav() {
+    var btn = document.querySelector(".nav-toggle");
+    var nav = document.getElementById("site-nav");
+    if (!btn || !nav) return;
+    var backdrop = null;
+    var open = function (on) {
+      nav.classList.toggle("open", on);
+      document.documentElement.classList.toggle("nav-open", on);
+      btn.setAttribute("aria-expanded", on ? "true" : "false");
+      if (on && !backdrop) {
+        backdrop = document.createElement("div");
+        backdrop.className = "nav-backdrop";
+        backdrop.addEventListener("click", function () { open(false); btn.focus(); });
+        nav.parentNode.insertBefore(backdrop, nav);
       }
+      if (backdrop) backdrop.hidden = !on;
+      if (on) { var first = nav.querySelector("a"); if (first) first.focus(); }
+    };
+    btn.addEventListener("click", function () { open(!nav.classList.contains("open")); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && nav.classList.contains("open")) { open(false); btn.focus(); }
     });
+    if (window.matchMedia) {
+      window.matchMedia("(min-width: 900px)").addEventListener("change", function (e) { if (e.matches) open(false); });
+    }
   }
 
   document.documentElement.classList.add("js");
-  document.querySelectorAll(".nav").forEach(wireNav);
+  foldForSmall();
+  wireNav();
+  wirePref();
   document.querySelectorAll(".search[data-target]").forEach(wireSearch);
+  wireGroups();
+  wireExpandAll();
+  openForHash();
+  window.addEventListener("hashchange", openForHash);
   document.addEventListener("click", function (e) {
     var btn = e.target.closest && e.target.closest("button.copy");
     if (btn) copyText(btn);

@@ -4,7 +4,7 @@ Author: Cliff Hearthvale.
 
 The player website for [Vanguard](https://github.com/clifftaylor2325/wow-vanguard-ui), a fan UI addon for WoW Forever. Vanguard is going to be on CurseForge, so the site doesn't host or offer the addon as a download: it points players to CurseForge instead (a "Coming soon on CurseForge" badge until the listing is live). It's a static site (plain HTML and CSS, plus a little vanilla JS for search, copy buttons and the mobile menu). It is **generated from the addon's own source**, so the commands, modules, settings, colors and release facts on the site always match the addon.
 
-Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Brass colors), Install & Update, Getting started, Features, Commands (searchable), Settings (searchable), Profiles & sharing, Troubleshooting & FAQ, Feedback, Changelog, Credits & license.
+Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Brass colors), Install & Update, Getting started, Features, Commands (searchable), Settings (searchable), Profiles & sharing, Troubleshooting & FAQ, Feedback, Changelog, Credits & license. Every inner page shares a grouped sidebar (Get started, Learn, Reference, Help, About); Home has a top bar. Each page opens on one screen: a slim title band, a strip of facts, and folded sections the reader opens (see Page look).
 
 ## Requirements
 
@@ -19,7 +19,7 @@ npm run build      # fetch the addon source and release metadata, then generate 
 npm test           # check the generated site against the addon's Lua
 npm run check      # build, then test
 npm run serve      # serve dist/ at http://localhost:8080
-npm run shots      # full-page screenshots, a no-horizontal-scroll check at 390 and 360px, and a keyboard check of the skip link (needs Chrome)
+npm run shots      # full-page screenshots; checks: no horizontal scroll at 390 and 360px, every page but Feedback fits one screen as it opens (1280x800 and 390x844), the Menu drawer, the search boxes, the skip link by keyboard, and the feedback form (needs Chrome)
 npm run fonts      # re-make src/fonts/*.woff2 from the addon's TTF fonts (after npm run fetch)
 npm run stub:github  # a stand-in GitHub API on 127.0.0.1:8789 for the feedback Function (see Feedback form)
 npm run dev        # wrangler pages dev: dist/ plus the feedback Function, at http://localhost:8788
@@ -47,7 +47,7 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
    - `Core/Theme.lua`: the theme colors and accent presets (they become `assets/theme.css`)
    - `Core/Setup.lua`: the setup wizard
    - `README.md`, the `.toc` file and the release: feature text, tagline, version, interface and release notes
-3. `scripts/lib/model.mjs` merges the two refs. Everything is labeled **In v0.3.0** (in the current release), **Next release** (only in the pinned source) or **v0.3.0 only**. The site never presents next-release features as part of the current release.
+3. `scripts/lib/model.mjs` merges the two refs. The current release is the default and gets no label. Anything only the pinned source has is tagged **Next release** and carries `data-avail="next"`, which hides it until the reader turns on **Show what's coming in the next release** (the switch at the foot of the sidebar, and the same box in the Commands and Settings search forms; the choice is kept in the browser as `vg-show-next`). Something only the release has is tagged **v0.3.0 only**. Without JavaScript everything shows. The site never presents next-release features as part of the current release.
 4. Two pages have hand-written words, kept traceable:
    - Troubleshooting & FAQ (`scripts/lib/help-content.mjs`): every message an answer quotes is read from the addon at build time, each with its file. An answer whose message can't be found in the code is left off the page instead of guessed.
    - Changelog (`scripts/lib/changelog-content.mjs`): each release in player language, and "What's coming in the next release" from the changes merged since the current release. Every line lists the merged pull requests it came from (never shown on the site). The next-release part only shows while the release it was written after is still the current one.
@@ -59,7 +59,9 @@ The site serves the addon's own Fira Sans Condensed fonts. Each `@font-face` in 
 
 ## Page look
 
-Every page shares the Home page's Slate & Brass pieces, from `scripts/lib/html.mjs` and `src/assets/site.css`: `ornament()` (the brass divider), `heroFrame()` (the brass frame with corner pieces) and `pageHero()`, which opens every page but Home with its h1 and lede in a framed panel with the hero's sky. Cards (`.card`) share the Home feature cards' brass edge, glow and corner diamonds; section headings (`h2`) carry a brass diamond and rule.
+Every page shares the Home page's Slate & Brass pieces, from `scripts/lib/html.mjs` and `src/assets/site.css`: `ornament()` (the brass divider), `heroFrame()` (the brass frame with corner pieces) and `pageHero()`, which opens every page but Home with its h1 and a one-line lede in a slim framed band with the hero's sky. Showcase cards (the Home highlights and tiles, the CurseForge box) carry the brass edge, glow and corner diamonds; plain cards keep the brass-tinted edge only. Section headings (`h2`) carry a brass diamond and rule.
+
+The structure is built for one screen. `layout()` puts the grouped sidebar (`NAV[].group`, drawer behind the Menu button under 900px) beside `<main>` on every inner page, and the Home page's top bar lists the `primary` pages. Under the band, `glance()` is the strip of facts, and `disclosure()` makes each section a native `<details>` whose summary is the heading (its id stays on the `h2`/`h3`, so every deep link still works: `site.js` opens the folded sections around the link's target). A section that should start open says so with `open data-open` (on phones it starts folded too). Lists of sections sit two across in a `.dis-grid`; an open one takes the full width. Features folds by area, then by module; Settings folds by options page; Commands keeps one table and folds its row groups by module; the FAQ folds by section, then by question. `npm run shots` checks that every page but Feedback (its form is the page) fits one screen as it opens, at 1280x800 and 390x844.
 
 The site never links to the private GitHub repo from player-facing pages, and it offers no download.
 
@@ -156,6 +158,7 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 - that the home page's decoration is `aria-hidden` and its UI mock is labeled as an illustration
 - one `h1` per page and no duplicate ids
 - that the skip link is the first focusable element and targets `<main id="main">`, and that every inner page opens with the shared page hero
+- that every inner page has the grouped sidebar with all 11 pages (Home the top bar), that nothing is tagged "In vX", that every page hiding next-release parts has the switch that shows them, and that folded sections start closed unless marked open by default (Features and Settings start fully folded)
 - that each `@font-face` lists WOFF2 first and the TTF second, keeps `font-display: swap`, and that `dist/fonts/` ships the committed WOFF2 files
 - that every internal link and anchor resolves
 - that nothing in `dist/` links to github.com
