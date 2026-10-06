@@ -173,7 +173,7 @@ ${sidebar ? `<div class="shell">\n${nav}\n${main}\n</div>` : main}
   <div class="footer-inner">
     <ul class="footer-links">${footerLinks}</ul>
     <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
-    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · ${licenseNote(site.licenseName)}.</p>
+    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · ${COPYRIGHT}</p>
   </div>
 </footer>
 <script src="${esc(asset("/assets/site.js"))}" defer></script>
@@ -182,11 +182,9 @@ ${scripts.map((s) => `<script type="module" src="${esc(asset(s))}"></script>\n`)
 `;
 }
 
-// The footer's words for the addon's license (the .toc's X-License): "All rights reserved"
-// for that license, else "Code under the <name> license".
-export function licenseNote(name) {
-  return /all rights reserved/i.test(name || "") ? "All rights reserved" : `Code under the ${esc(name)} license`;
-}
+// The footer's copyright line, for the site and Vanguard alike. The license of each release
+// (v0.4.0 and before were MIT) is on the Credits page, read from that release's LICENSE.
+export const COPYRIGHT = "© 2026 Clifton Taylor. All rights reserved.";
 
 // The "Next release" tag.
 export const NEXT_BADGE = `<span class="badge next">Next release</span>`;
