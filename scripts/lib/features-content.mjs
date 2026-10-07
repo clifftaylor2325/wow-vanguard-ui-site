@@ -43,8 +43,8 @@ export const MORE = {
     check: ["Each bar has its own number of buttons, buttons per row, button size, and visibility: Always, On mouseover", "In combat, Hidden", "Hidden bars keep their keys", "Empty slots stay hidden until you drag a spell or item"], from: "Action bars; Bars" },
   SpecialBars: { more: "Restyled pet, stance and extra action buttons that keep the game's active-stance, attack-flash and auto-cast marks, plus a vehicle exit button. The pet and stance bars get spots of their own at the bottom left, above the chat.",
     check: ["restyled pet, stance and extra action buttons and a vehicle exit button", "the active stance, the pet's attack flash and the auto-cast mark", "The pet and stance bars sit in spots of their own at the bottom left, above the chat"], from: "Action bars" },
-  Minimap: { more: "A square minimap with brass diamonds on its corners. Tracking, mail, dungeon difficulty and the group finder eye move onto its corners.",
-    check: ["square minimap (brass diamonds on its corners", "Tracking, mail, dungeon difficulty, the addon compartment and the group finder eye move onto the square minimap's corners"], from: "Everything else; The game's extras, tidied" },
+  Minimap: { more: "A square minimap with brass diamonds on its corners. The zone name sits on a see-through band along its top edge and the coordinates on one along its bottom, so both read over bright ground. Tracking, mail, dungeon difficulty and the group finder eye move onto its corners.",
+    check: ["square minimap (the zone name in the heading font on a see-through band along its top edge and the coordinates on one along its bottom", "so both read over bright ground", "brass diamonds on its corners", "Tracking, mail, dungeon difficulty, the addon compartment and the group finder eye move onto the square minimap's corners"], from: "Everything else; The game's extras, tidied" },
   InfoStrip: { more: "Durability, free bag slots, frame rate and latency, gold, ammo or soul shards, and the time. While you level, a row adds your XP and gold per hour and the time to your next level. A fourth row can show your DPS in the last fight (off until you turn it on). Each part can be turned off.",
     check: ["durability (orange at 25% or less, red at 10% or less), free bag slots, fps and latency, gold, ammo for hunters, warriors and rogues (soul shards for warlocks", "and the time. While you level, a third row adds your XP per hour this session, the time to your next level at that pace, and your gold per hour", "A fourth row can show your DPS in the last fight", "(off until you turn it on;", "Each part can be turned off"], from: "Strip under the minimap" },
   AfkScreen: { more: "While you're away, the screen dims to a card with your name in your class color, your level and class, the zone, how long you've been away, the time and your XP bar. Moving or a fight brings everything back.",
@@ -94,7 +94,7 @@ export const MORE = {
   FightHistory: { more: "A row of bars under the damage meter, one per fight, as tall as its share of your best. Hover it for each fight's length, your DPS and your place in a group; /vg fights prints the same. Fights are forgotten when you log out.",
     check: ["a sparkline of your DPS over the last 20 fights", "under the damage meter", "Each fight is one bar, as tall as its share of your best", "with its length, your DPS and, in a group, your place", "`/vg fights` prints the same", "forgotten when you log out"], from: "Fight history" },
   Windows: { more: "Character, merchant, mail, trade, loot and roll windows, the game menu, the ready check, popups, the spellbook, the breath bar and more get a flat Vanguard panel, title and buttons, and so do the windows that load later, like the auction house and professions.",
-    check: [", merchant, mail", "trade, loot and roll windows, the game menu, the ready check, popups, the spellbook and the breath and fatigue bars get a flat Vanguard panel, close button, title and buttons", "the windows that load later (auction house, professions"], from: "Game windows" },
+    check: [", merchant, mail", "trade, loot and roll windows, the game menu, the ready check, popups, the spellbook and the breath and fatigue bars get a flat Vanguard panel reaching a little past the window", "the windows that load later (auction house, professions"], from: "Game windows" },
   DataBars: { more: "Thin experience and reputation bars under the action bars. The game's own XP bar is hidden while Vanguard's shows.",
     check: ["three bars of 38 px buttons under them over thin XP and reputation bars", "the game's own XP bar is hidden while Vanguard's shows (no more double XP bar)"], from: "Centered layout; The game's extras, tidied" },
   Tooltips: { more: "Themed tooltips with class colors and a target line. Item tooltips show what the stack sells for and how many you have in your bags and bank, with an optional item ID line.",
@@ -202,7 +202,7 @@ export const LONGER = {
   ],
   ActionBars: [
     R("The bottom bars stack with bar 1 on top, and a bar with bigger buttons or more rows pushes the ones above it up.", "The bottom bars stack with bar 1 on top", "pushes the ones above it up"),
-    R("In keybind mode (/vg keybind), hover a button and press a key to bind it; it works out of combat only.", "Keybind mode (`/vg keybind`", "hover a button and press a key", "It works out of combat only"),
+    R("In keybind mode (/vg keybind), hover a button and press a key, the middle or a side mouse button, or roll the wheel to bind it. Backspace or Delete clears a button's keys, and chat says when a key is taken from something else. It works out of combat only.", "Keybind mode (`/vg keybind`", "hover a button and press a key, the middle or a side mouse button, or roll the wheel", "Backspace or Delete clears them", "chat says from what", "It works out of combat only"),
     R("The right-edge bars (4 and 5) start off, and show on mouseover once you turn them on.", "The right-edge bars (4 and 5) start off; turned on, they show on mouseover"),
     R("With the Masque addon installed, Masque skins the buttons instead.", "With the Masque addon installed, Masque skins the buttons instead of Vanguard"),
   ],
@@ -305,6 +305,7 @@ export const LONGER = {
   ],
   AfkScreen: [
     R("It shows when you type /afk or the game marks you idle.", "(`/afk`, or the game marks you idle)"),
+    R("Under the card, with the faction look on, your faction's passage sits in its heading font: Varian's last letter to Anduin for the Alliance, the Blood Oath of the Horde for the Horde.", "your faction's passage sits in its heading font and crest color", "Varian's last letter to Anduin for the Alliance, the Blood Oath of the Horde for the Horde"),
     R("A click or a key puts it away until you're next away.", "a click or a key puts it away until you're next away"),
     R("It only shows out of combat and never hides the game's own frames.", "It only shows out of combat and never hides the game's own frames"),
   ],
@@ -361,9 +362,9 @@ export const LONGER = {
   ],
   Windows: [
     R("Friends, the dressing room, the flight map, books and letters get the same look, with pages in light text on the dark panel.", "Friends, the dressing room, the flight map, books and letters (their pages in light text on the dark panel)"),
-    R("The quest and gossip windows get it only when Vanguard's quest dialog is switched off.", "quest and gossip (only when Vanguard's quest dialog is switched off)"),
+    R("Tabs become flat tiles with an accent line on the selected one, scroll bars get a flat track and a raised thumb, and right-click menus, dropdowns and more of the game's tooltips match the main tooltip's flat panel.", "becomes a flat dark tile that keeps its text and icon, with a thin accent line on the selected one", "get a flat track, a raised thumb that takes the accent under the mouse", "every right-click menu and dropdown", "opens on a flat Vanguard panel with a soft shadow", "The other tooltips (item comparison from chat links, the game's buff and party buff tooltips"),
     R("The character pane shows each worn item's durability on its slot, colored like the info strip's.", "The character pane shows each worn item's durability on its slot, colored like the info strip's"),
-    R("Their own layout and buttons stay as the game has them.", "Their own layout and buttons stay as the game has them"),
+    R("Their own layout and buttons stay as the game has them, and the quest and gossip windows get the look only when Vanguard's quest dialog is switched off.", "quest and gossip (only when Vanguard's quest dialog is switched off)", "Their own layout and buttons stay as the game has them"),
   ],
   Tooltips: [
     R("Vanguard's text size slider (under General, 70% to 130%) sizes tooltip text too.", "one slider (/vg > General, 70% to 130%) sizes all of Vanguard's text, chat and tooltips included"),
