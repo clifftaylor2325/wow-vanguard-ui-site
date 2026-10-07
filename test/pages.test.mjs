@@ -60,7 +60,9 @@ const setup = show(NEXT, "Core/Setup.lua");
 
 test("/start/: the setup wizard's title, steps in order, caption, questions and move lines", { skip: !setup && "no setup wizard in the source" }, () => {
   const t = text(html("start"));
-  const steps = literals(inline(setup, "local STEPS"));
+  // STEPS holds page keys once NAMES names them (the new-character profile step); before that, the names.
+  const names = /local NAMES\s*=/.test(setup) ? Object.fromEntries([...inline(setup, "local NAMES").matchAll(/(\w+)\s*=\s*"([^"]*)"/g)].map((m) => [m[1], m[2]])) : {};
+  const steps = literals(inline(setup, "local STEPS")).map((k) => names[k] || k);
   assert.ok(steps.length >= 4, "STEPS read from Core/Setup.lua");
   let last = -1;
   steps.forEach((s, i) => {

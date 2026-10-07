@@ -63,7 +63,8 @@ function pageTitles(ref) {
   const titles = new Set();
   for (const f of files) {
     const lua = show(ref, f);
-    for (const m of lua.matchAll(/\{\s*key\s*=\s*[^,]+,\s*title\s*=\s*"([^"]+)"/g)) titles.add(m[1]);
+    // A table column ({ key, title, width, ... }, the auction tables) isn't a page.
+    for (const m of lua.matchAll(/\{\s*key\s*=\s*[^,]+,\s*title\s*=\s*"([^"]+)"(?!\s*,\s*width\s*=)/g)) titles.add(m[1]);
     for (const m of lua.matchAll(/AddPage\(\{[\s\S]*?title\s*=\s*"([^"]+)"/g)) titles.add(m[1]);
   }
   return [...titles];
@@ -548,18 +549,19 @@ test("the current release is the default: nothing is tagged 'In vX', and next-re
   }
 });
 
-test("every inner page has the grouped sidebar with all 11 pages; Home has the top bar", () => {
+test("every page, Home included, has the grouped sidebar with all 11 pages, and it's the only nav", () => {
   for (const d of PAGE_DIRS) {
     const html = pageHtml(d);
-    const nav = (html.match(/<nav class="nav (sidebar|topnav)" aria-label="Main" id="site-nav">[\s\S]*?<\/nav>/) || [])[0];
-    assert.ok(nav, `/${d} needs the shared nav`);
-    if (d === "") {
-      assert.ok(nav.startsWith('<nav class="nav topnav"'), "Home uses the top bar");
-    } else {
-      assert.ok(nav.startsWith('<nav class="nav sidebar"'), `/${d} uses the sidebar`);
-      for (const n of NAV) assert.ok(nav.includes(`href="${n.path}"`), `/${d} sidebar links ${n.path}`);
-      assert.equal((nav.match(/class="nav-group-h"/g) || []).length, 5, `/${d} sidebar has five groups`);
-    }
+    const nav = (html.match(/<nav class="nav sidebar" aria-label="Main" id="site-nav">[\s\S]*?<\/nav>/) || [])[0];
+    assert.ok(nav, `/${d} needs the shared sidebar`);
+    for (const n of NAV) assert.ok(nav.includes(`href="${n.path}"`), `/${d} sidebar links ${n.path}`);
+    assert.equal((nav.match(/class="nav-group-h"/g) || []).length, 5, `/${d} sidebar has five groups`);
+    assert.equal((html.match(/<nav\b/g) || []).length, 1, `/${d} has one nav`);
+    // The header links only Home (the brand); the footer links no pages.
+    const header = (html.match(/<header class="site-header">[\s\S]*?<\/header>/) || [""])[0];
+    assert.deepEqual([...header.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((m) => m[1]), ["/"], `/${d}: the header links only the brand`);
+    const footer = (html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
+    assert.ok(!/class="footer-links"/.test(footer), `/${d}: the footer has no page links`);
   }
 });
 

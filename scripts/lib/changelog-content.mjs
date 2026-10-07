@@ -131,17 +131,22 @@ RELEASE_NOTES["v0.4.0"] = { groups: [
 
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Merged since v0.4.0 (#122 to #161). Not listed: changes only the addon's
-// developers see (#122, #125, #126, #127, #128, #160: tests, builds, the license
-// and the CurseForge setup).
+// Merged since v0.4.0 (#122 to #182). Not listed: changes only the addon's
+// developers see (#122, #125, #126, #127, #128, #160, #163, #168, #172, #173:
+// tests, builds, CI, the license and the CurseForge setup), and fixes to things
+// that never shipped in a release (#166, #175, #180: the reworked menu bar
+// drawing empty or blurred, the new auction tabs failing to build).
 export const NEXT_RELEASE = {
   after: "v0.4.0",
   groups: [
     { id: "new", title: "New", items: [
+      { label: "Talent planner", text: "Plan where your talent points will go before you have them, on the game's own talents window. With Plan on, a click sets the rank you want instead of buying it; the planned ranks show as badges and the next pick is ringed. Spend planned (or /vg talents spend) buys them in a legal order, chat names the next pick at each level-up, and plans are kept per character and spec and can be shared as a string.", from: [162] },
+      { label: "Auction house", text: "Vanguard's auction helper is now two tabs on the game's window, Shopping and Selling, each card in its own bordered box. Shopping lists your shopping lists, Recent, Deals and a new Upgrades list (armor and weapons on the auction house that beat what you wear, by Gear upgrades' stat weights) beside one wide table with sortable columns. Selling has the sell card, what's up now and your auctions.", from: [174, 177] },
+      { label: "Setup for each character", text: "A new character on an account that has finished setup gets the wizard too, with a Profile step first: share your other characters' profile, or give this one a copy of its own. Closing the wizard early asks again at the next login, Skip setup ends it for good, and Keep my current layout moves nothing, so running it again with /vg setup or Run setup (under General) changes only what you pick.", from: [179] },
       { label: "Game windows", text: "Many more of the game's windows get Vanguard's flat panel, close button, title and buttons: mail, guild, channels, friends and guild creation; the hunter's pet stable, the class trainer, separate bag windows, loot and item dialogs, the macro window and the stopwatch; the game's options, the addon list, Edit Mode, keybinding and help windows; and the world map, group finder, calendar and Legacy window. Each group has its own switch under Bars, map, chat.", from: [129, 130, 131, 132, 133] },
       { label: "Menus and tooltips", text: "Right-click menus and dropdowns open on a flat Vanguard panel, and more of the game's tooltips (item comparisons, buff tooltips, keybinding tooltips, whisper name suggestions) match the main tooltip.", from: [134] },
       { label: "Tabs and scroll bars", text: "Tabs on the game's windows become flat tiles with an accent line on the selected one, side tabs on the character pane get the same, and the game's scroll bars get a flat track and a raised thumb. The inside of the character pane (reputation and skill bars, headers, stat boxes, the equipment flyout) is dressed too.", from: [136, 157] },
-      { label: "Window controls", text: "Close, maximize and minimize buttons in Vanguard's own look: the close button is a studded diamond that turns red under the mouse.", from: [157, 161] },
+      { label: "Window controls", text: "Close, maximize and minimize buttons in Vanguard's own look, in the same place on every window: a plain cross and two diagonal arrows on a square tile that turns red behind the close button under the mouse.", from: [157, 161, 181] },
       { label: "Your buffs and the swing timer", text: "The game's own swing timer, its external defensives and deadly debuff frames, the crafting cast bar and the possess bar take Vanguard's look. The game's swing timer is hidden while Vanguard's is on.", from: [135] },
       { label: "Feedback in game", text: "/vg feedback asks the same questions as the Feedback form on this site (bug or feature) and makes one block to copy. Paste it into the form here and it fills the fields. There's a Feedback page of its own at the end of the options window, too.", from: [152] },
       { label: "Healing", text: "The buffs to watch for are listed for every class, each with its icon and an on/off switch, with yours first, plus your spellbook's other buffs and any names you type.", from: [153] },
@@ -150,9 +155,13 @@ export const NEXT_RELEASE = {
     { id: "improved", title: "Improved", items: [
       { label: "Minimap", text: "The zone name sits on a see-through band along the top edge and the coordinates on one along the bottom, so both read over bright ground. Hover the zone name to see the zone, its subzone and whose territory it is; click it to open or close the world map.", from: [154] },
       { label: "Minimap buttons", text: "Tracking and the addon compartment are slot buttons like the menu bar's, on a taller bottom band, and the addon compartment's count is faded instead of hanging off its slot.", from: [157, 161] },
+      { label: "Nameplates", text: "A click lands on the plate as Vanguard draws it (the name and bar, plus a little around them), friendly players' plates stay clickable with the game's name-only option on, and the plate under the mouse gets a faint wash. Players' plates show their big defensives and important buffs, and the buffs you cast on friendly players, right of the bar.", from: [176] },
+      { label: "Menu bar", text: "Vanguard's line icons are on by default for new profiles, and the game's own icons, when you pick them, fill their slots in dark wells. The menu slots are a little taller so each button fits whole, and a slot's accent edge shows only under the mouse.", from: [167, 171, 178] },
+      { label: "Icons", text: "New icons for the options window's pages and the minimap's tracking and addon buttons, from game-icons.net.", from: [171] },
       { label: "Keybind mode", text: "Bind the middle and side mouse buttons and the mouse wheel as well as keys. A tooltip over the button shows its keys, Backspace or Delete clears them, and chat says when a key is taken from something else.", from: [149] },
       { label: "Click casting", text: "The spell picker stays on screen and closes with Escape or a click outside it.", from: [149] },
-      { label: "Game windows", text: "The panel reaches a little past the window so its contents have room, the bag window gets the same look, and the text boxes (copy, report, export, feedback) open above the options window.", from: [157, 161] },
+      { label: "Game windows", text: "The friends list (the game's social window on WoW Forever) gets Vanguard's look, the panel reaches past the window so its contents have room, the bag window gets the same look, and the text boxes (copy, report, export, feedback) open above the options window.", from: [157, 161, 164, 182] },
+      { label: "Bug reports", text: "/vg frame <name> prints what the game says about one of its frames (add deep for its parts), to paste into a bug report about something that only goes wrong in game.", from: [165] },
       { label: "Options", text: "Notes wrap inside their card, a dropdown's long choice ends in an ellipsis instead of running past its box, and the window's scroll bar can be dragged.", from: [152, 161] },
     ] },
     { id: "fixed", title: "Fixed", items: [
