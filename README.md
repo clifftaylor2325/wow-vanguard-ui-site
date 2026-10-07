@@ -69,7 +69,8 @@ The site never links to the GitHub repo from player-facing pages, and it offers 
 
 The site is published to the Cloudflare Pages project `vanguard-ui`, at `https://vanguardui.com` (its custom domain) and `https://vanguard-ui.pages.dev`. Two ways:
 
-- **From GitHub (no local setup):** add two repository secrets (Settings → Secrets and variables → Actions): `CLOUDFLARE_API_TOKEN` (a Cloudflare API token with the **Cloudflare Pages: Edit** permission) and `CLOUDFLARE_ACCOUNT_ID` (dashboard → Workers & Pages, right-hand column). Then Actions → **deploy** → **Run workflow**. It runs the full check first, creates the Pages project the first time, and uploads `dist/` with the feedback Function. It only runs when started by hand.
+- **From GitHub (the usual way):** every merge to `main` that passes the check deploys (the `check` workflow calls `deploy`). It needs two repository secrets (Settings → Secrets and variables → Actions): `CLOUDFLARE_API_TOKEN` (a Cloudflare API token with the **Cloudflare Pages: Edit** permission) and `CLOUDFLARE_ACCOUNT_ID` (dashboard → Workers & Pages, right-hand column). To redeploy the same commit, Actions → **deploy** → **Run workflow**: that runs the full check first. Either way it creates the Pages project the first time and uploads `dist/` with the feedback Function.
+- **Once the addon repo is private:** the build clones it through `gh`, which the run's own token can't do then. Add a third secret, `ADDON_READ_TOKEN`: a fine-grained personal access token with read-only *Contents* on `wow-vanguard-ui`. The `check` and `deploy` workflows use it when it is set and the run's token otherwise.
 - **From your machine:** `npm run check`, then `npm run deploy` (Wrangler asks you to sign in to Cloudflare the first time, and offers to create the project).
 
 The site works without the feedback form's bindings; until they're set (see Feedback form → Bindings), the form says reports can't be sent from the page right now.
@@ -169,6 +170,8 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 - that every internal link and anchor resolves
 - that nothing in `dist/` links to github.com
 - that the support links render only once a `SUPPORT` URL is set (https only), and only in the footer and on Credits
+
+CI (`.github/workflows/check.yml`) runs `npm run check` on every pull request (the check `main` requires to merge) and on every push to `main` (which then deploys), and weekly, when it also runs `npm run shots` in the runner's Chrome and uploads the screenshots. A red weekly run opens an issue labelled `ci-failure`; the next green one closes it. New test files under `test/` are picked up by name (`test/*.test.mjs`).
 
 `test/feedback.test.mjs` covers the feedback form: sanitizing, the parser (with real `/vg status` and `/vg errors` output in `test/fixtures/`), fingerprints, the issue text and checks, hostile markdown in every free-text field, and the Function's paths (create, duplicate → comment with its own reference, spam, Turnstile, rate caps including 10 sends at once, the turn of the hour and midnight, missing settings) against a mock GitHub and an in-memory KV (`scripts/lib/memory-kv.mjs`). It never calls GitHub.
 
