@@ -4,6 +4,7 @@
 // Nothing the player typed is cleared until a report is sent.
 import { readFields, validate } from "./feedback/fields.js";
 import { bugIssue, featureIssue } from "./feedback/body.js";
+import { parseFeedback } from "./feedback/fill.js";
 
 const PLACEHOLDER_REF = "VG-??????";
 const TURNSTILE_JS = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
@@ -15,6 +16,7 @@ const done = $("#fb-done");
 const status = $("#fb-status");
 const sendError = $("#fb-send-error");
 const sendBtn = $("#fb-send");
+const filled = $("#fb-filled");
 const t0 = Date.now();
 let config = null;
 let widget = null;
@@ -71,6 +73,27 @@ function showErrors(errors) {
   }
   if (first) first.focus();
   return !first;
+}
+
+// The fields a /vg feedback block fills, in the form's order.
+const FILLED = ["title", "did", "expected", "happened", "want", "why", "report"];
+
+// Fills the form from a /vg feedback block pasted into `box` (the paste box,
+// or the report box): the kind, every text the block has, and the area when
+// it is one the form offers. The paste box is emptied; the report box keeps
+// only the /vg report. Text pasted that holds no block is left alone.
+function fillFrom(box) {
+  const parsed = parseFeedback(box.value);
+  if (!parsed) return;
+  if (parsed.kind) {
+    form.querySelector(`input[name=kind][value=${parsed.kind}]`).checked = true;
+    showKind();
+  }
+  for (const name of FILLED) if (parsed[name]) el(name).value = parsed[name];
+  if (parsed.area && areaValues().includes(parsed.area)) el("area").value = parsed.area;
+  box.value = box === el("report") ? parsed.report : "";
+  showErrors({});
+  say(filled, "Filled in from what you pasted. Check the fields, then Preview.");
 }
 
 // A notice line in an alert box (empty text hides it).
@@ -207,6 +230,9 @@ if (form) {
   form.addEventListener("change", (e) => {
     if (e.target.name === "kind") showKind();
     if (e.target.name === "contact_ok") showContact();
+  });
+  form.addEventListener("input", (e) => {
+    if (e.target.id === "fb-paste" || e.target.name === "report") fillFrom(e.target);
   });
   form.addEventListener("submit", onPreview);
   sendBtn.addEventListener("click", onSend);

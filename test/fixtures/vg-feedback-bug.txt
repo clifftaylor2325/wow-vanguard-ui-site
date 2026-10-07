@@ -1,0 +1,28 @@
+### Vanguard feedback v1 ###
+kind: bug
+title: Raid frames go blank after a reload
+--- did ---
+Typed /reload in a raid group.
+ --- happened ---
+ ### not a marker
+--- expected ---
+The raid frames to come back as they were.
+--- happened ---
+The raid frames stayed empty until I left the group.
+--- report ---
+### Vanguard report v1 ###
+Vanguard 0.3.0  ·  interface 16001  ·  profile Default  ·  51/51 modules on
+Client WoW Forever  ·  build 1.16.0 (65000)  ·  update the game: this build loses settings at every launch  ·  auras on the engine  ·  aura values readable  ·  secure snippets: yes
+Client has: auraContainer, eventValid, cooldownObject, cooldownMin, countdownText, keyPropagate, damageMeter, cooldownViewer, swingTimer  ·  lacks: pixelUtil, barEase, meterEnums
+UI scale 1.00  ·  text 100%  ·  chat 12 (about 17 px on this screen)
+Screen 1920x1080
+Modules off: none
+Skins: none
+Errors: 2 (3 in all)
+[1] RaidFrames: attempt to index a nil value  (x2)
+    	Core/Events.lua:136: in metamethod '__add'
+    	[string "Vanguard"]:12: in function <eval:1>
+[2] Nameplates: bad arithmetic  (x1)
+    	Modules/Nameplates.lua:40: in function 'paint'
+### end ###
+### end feedback ###
