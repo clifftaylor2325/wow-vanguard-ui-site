@@ -21,7 +21,7 @@ import { longerGaps } from "./lib/features-content.mjs";
 
 const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js", "fill.js"];
 
-const SITE_AUTHOR = "Cliff Hearthvale";
+const SITE_AUTHOR = "Clifton Taylor";
 const OLD_AUTHOR = "clifftaylor2325";
 const publicText = (text) => String(text ?? "").replaceAll(OLD_AUTHOR, SITE_AUTHOR);
 const publicAddon = (addon) => ({

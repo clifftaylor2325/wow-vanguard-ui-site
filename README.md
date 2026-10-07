@@ -1,6 +1,6 @@
 # Vanguard website
 
-Author: Cliff Hearthvale.
+Author: Clifton Taylor.
 
 The player website for [Vanguard](https://github.com/clifftaylor2325/wow-vanguard-ui), a UI addon for WoW Forever. Vanguard is going to be on CurseForge, so the site doesn't host or offer the addon as a download: it points players to CurseForge instead (a "Coming soon on CurseForge" badge until the listing is live). It's a static site (plain HTML and CSS, plus a little vanilla JS for search, copy buttons and the mobile menu). It is **generated from the addon's own source**, so the commands, modules, settings, colors and release facts on the site always match the addon.
 
