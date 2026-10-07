@@ -1,25 +1,40 @@
-# Builds the site and runs every check (encoding, drift and page tests) on pull
-# requests, on every push to main, or by hand from the Actions tab. It never deploys and never pushes.
-# The build reads the addon repo (clifftaylor2325/wow-vanguard-ui) through gh.
-# That repo is public, so the run's own GITHUB_TOKEN is enough, for pull
-# requests from forks too.
+# Builds the site and runs every check (encoding, drift and page tests): on
+# pull requests (not drafts; ready_for_review starts it), on every push to
+# main (which then deploys, deploy.yml), weekly (the build reads the addon's
+# latest release and a pinned commit, so a new addon release can change it
+# with no change here), or by hand from the Actions tab. The weekly and
+# hand-started runs also take the browser checks (npm run shots) and keep an
+# issue labelled ci-failure: opened or commented on when red, closed when
+# green again. Kept short: a private repository's Actions minutes are counted.
+#
+# The build reads the addon repo (clifftaylor2325/wow-vanguard-ui) through
+# gh: with the run's own token while that repo is public, and once it is
+# private with a read-only fine-grained token for it in the ADDON_READ_TOKEN
+# secret (see README.md, Deploying).
 name: check
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches: [main]
+  schedule:
+    # Sundays at 11:23 UTC (cron is UTC only; off the hour, since GitHub
+    # delays runs scheduled on busy minutes).
+    - cron: "23 11 * * 0"
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# The newest run of a kind wins; a scheduled run never cancels a push's.
 concurrency:
-  group: check-${{ github.event.pull_request.number || github.ref }}
+  group: check-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   check:
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -36,4 +51,83 @@ jobs:
 
       - run: npm run check
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.ADDON_READ_TOKEN || github.token }}
+
+  shots:
+    # Every page in a real browser: no sideways scroll on phones, one screen
+    # per page, the menu drawer, the search boxes, the skip link by keyboard,
+    # and the feedback form against a mocked API. Weekly and by hand only.
+    name: Browser checks
+    needs: check
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+        env:
+          GH_TOKEN: ${{ secrets.ADDON_READ_TOKEN || github.token }}
+
+      - run: npm run shots
+        env:
+          # The runner image's Chrome.
+          CHROME_PATH: /usr/bin/google-chrome
+
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: shots
+          path: shots/
+          if-no-files-found: ignore
+
+  deploy:
+    # A merge to main that passes the check goes live.
+    needs: check
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      skip_check: true
+    secrets: inherit
+
+  report:
+    # The ci-failure issue, for the weekly and hand-started runs: opened or
+    # commented on when either job is red, closed when both are green.
+    name: Report
+    needs: [check, shots]
+    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && needs.check.result != 'cancelled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/github-script@v8
+        env:
+          CHECK: ${{ needs.check.result }}
+          SHOTS: ${{ needs.shots.result }}
+        with:
+          script: |
+            const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const where = `the ${context.eventName} run on ${context.sha.slice(0, 7)}`;
+            const results = `check ${process.env.CHECK}, browser checks ${process.env.SHOTS}`;
+            const { data: open } = await github.rest.issues.listForRepo({ ...context.repo, state: "open", labels: "ci-failure" });
+            if (process.env.CHECK !== "success" || process.env.SHOTS !== "success") {
+              const body = `${where} failed (${results}): ${run}`;
+              if (open.length) await github.rest.issues.createComment({ ...context.repo, issue_number: open[0].number, body });
+              else await github.rest.issues.create({ ...context.repo, title: "Site check failing on main", body, labels: ["ci-failure"] });
+              return;
+            }
+            for (const issue of open) {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number, body: `Green again: ${where} passed: ${run}` });
+              await github.rest.issues.update({ ...context.repo, issue_number: issue.number, state: "closed" });
+            }
