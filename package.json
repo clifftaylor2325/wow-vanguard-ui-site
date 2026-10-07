@@ -22,7 +22,7 @@
     "fonts": "node scripts/fonts.mjs"
   },
   "devDependencies": {
-    "playwright-core": "1.56",
+    "playwright-core": "1.63",
     "wawoff2": "2.0.1"
   }
 }
