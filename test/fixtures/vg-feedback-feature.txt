@@ -1,0 +1,9 @@
+### Vanguard feedback v1 ###
+kind: feature
+title: A bigger minimap
+area: Minimap
+--- want ---
+A minimap twice the size, or a size slider.
+--- why ---
+I keep missing herb nodes on the edge of it.
+### end feedback ###

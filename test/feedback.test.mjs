@@ -9,6 +9,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { clean, cleanLine, cell, fence, block, inline } from "../src/feedback/sanitize.js";
 import { parseReport, normalize, fingerprint } from "../src/feedback/report.js";
+import { parseFeedback, hasFeedback, FEEDBACK_START, FEEDBACK_END } from "../src/feedback/fill.js";
 import { readFields, validate, FALLBACK_AREAS } from "../src/feedback/fields.js";
 import { bugIssue, featureIssue, duplicateComment, refIn } from "../src/feedback/body.js";
 import { handlePost, handleGet, configProblem } from "../functions/_lib/handler.js";
@@ -23,6 +24,9 @@ const STATUS = fixture("vg-status-next.txt");
 const ERRORS = fixture("vg-errors-next.txt");
 const STATUS_030 = fixture("vg-status-0.3.0.txt");
 const REPORT_V1 = fixture("vg-report-v1.txt");
+// The blocks /vg feedback makes in game, for a bug and for a feature.
+const FEEDBACK_BUG = fixture("vg-feedback-bug.txt");
+const FEEDBACK_FEATURE = fixture("vg-feedback-feature.txt");
 // The same pastes as the addon printed them before it was renamed from ForeverUI.
 const OLD = ["fui-status-next.txt", "fui-errors-next.txt", "fui-status-0.3.0.txt", "fui-report-v1.txt"].map(fixture);
 const REPO = "owner/private-feedback";
@@ -106,6 +110,54 @@ test("old clients: v0.3.0 status lines parse with no errors and no fingerprint",
   assert.deepEqual(p.errors, []);
   assert.equal(await fingerprint(p), "");
   assert.equal(parseReport("").format, "empty");
+});
+
+// --------------------------------------------------------- /vg feedback block
+
+test("parseFeedback reads a bug's block: kind, title, the texts, and the /vg report whole", async () => {
+  assert.ok(hasFeedback(FEEDBACK_BUG) && !hasFeedback(REPORT_V1) && !hasFeedback(""));
+  const f = parseFeedback(FEEDBACK_BUG);
+  assert.equal(f.kind, "bug");
+  assert.equal(f.title, "Raid frames go blank after a reload");
+  assert.equal(f.area, "");
+  // A typed line that reads as a marker was set off by a space in game; it comes back as typed.
+  assert.equal(f.did, "Typed /reload in a raid group.\n--- happened ---\n### not a marker");
+  assert.equal(f.expected, "The raid frames to come back as they were.");
+  assert.equal(f.happened, "The raid frames stayed empty until I left the group.");
+  assert.equal(f.want, "");
+  assert.equal(f.why, "");
+  assert.ok(f.report.startsWith("### Vanguard report v1 ###\n") && f.report.endsWith("\n### end ###"), f.report);
+  const env = parseReport(f.report);
+  assert.equal(env.format, "v1");
+  assert.equal(env.errors.length, 2);
+  assert.equal(env.errors[0].count, 2);
+  assert.match(await fingerprint(env), /^[0-9a-f]{8}$/);
+  // The filled fields pass the form's checks as they are (with the acknowledgement ticked).
+  assert.deepEqual(validate(readFields({ ...f, public_ack: true }), []), {});
+});
+
+test("parseFeedback reads a feature's block, with its area", () => {
+  const f = parseFeedback(FEEDBACK_FEATURE);
+  assert.equal(f.kind, "feature");
+  assert.equal(f.title, "A bigger minimap");
+  assert.equal(f.area, "Minimap");
+  assert.equal(f.want, "A minimap twice the size, or a size slider.");
+  assert.equal(f.why, "I keep missing herb nodes on the edge of it.");
+  assert.equal(f.did + f.expected + f.happened + f.report, "");
+  assert.deepEqual(validate(readFields({ ...f, public_ack: true }), ["Minimap"]), {});
+});
+
+test("parseFeedback: no block is null; a bad kind is blank; CRLF, chat around it and a missing end are fine", () => {
+  assert.equal(parseFeedback(""), null);
+  assert.equal(parseFeedback(REPORT_V1), null);
+  const crlf = parseFeedback(`hello\r\n${FEEDBACK_START}\r\nkind: idea\r\ntitle:  Spaced  \r\n--- want ---\r\nline one\r\n\r\nline two\r\n--- oops ---\r\nstill want\r\n${FEEDBACK_END}\r\ntrailing`);
+  assert.equal(crlf.kind, "");
+  assert.equal(crlf.title, "Spaced");
+  assert.equal(crlf.want, "line one\n\nline two\n--- oops ---\nstill want");
+  const open = parseFeedback(`${FEEDBACK_START}\nkind: bug\ntitle: No end marker\n--- happened ---\nit broke`);
+  assert.equal(open.kind, "bug");
+  assert.equal(open.happened, "it broke");
+  assert.equal(open.report, "");
 });
 
 // ------------------------------------------------------------- fingerprint
@@ -506,6 +558,8 @@ test("the /feedback/ page has the form, preview, confirmation and no file input"
   }
   for (const id of ["fb-form", "fb-preview", "fb-done", "fb-ref", "fb-turnstile", "fb-send"]) assert.ok(html.includes(`id="${id}"`), id);
   assert.ok(!/type="file"/.test(html), "no uploads in v1");
+  assert.match(html, /<textarea id="fb-paste" rows="3" aria-describedby="fb-paste-hint fb-filled"><\/textarea>/, "the paste box, with no name so it is never sent");
+  assert.ok(html.includes('id="fb-filled"'), "and its notice line");
   assert.ok(/<script type="module" src="\/assets\/feedback\.js\?v=[0-9a-f]{8}"><\/script>/.test(html));
   assert.ok(html.includes('id="bug-template"'), "the copyable templates stay for no-JS players");
   assert.ok(!/turnstile\/v0\/siteverify|GITHUB_TOKEN|FEEDBACK_REPO/.test(html));
