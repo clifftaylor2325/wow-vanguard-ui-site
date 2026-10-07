@@ -252,14 +252,16 @@ function wizardSection(setup, inRel, read) {
   const layoutName = (key) => esc(setup.layouts.find((l) => l.key === key)?.text || "");
   const scr = (key) => esc(setup.screens.find((p) => p.key === key)?.text || "");
   const screenRow = (p) => `${esc(p.text)} (${p.w} x ${p.h})`;
+  // Keep my current layout (moves nothing), picked when setup runs again; null before it came in.
+  const keepLayout = setup.layouts.some((l) => l.key === "keep") ? layoutName("keep") : null;
   const body = `${inRel ? "" : `<p><strong>The setup wizard isn't in the current release.</strong> It's ready for the next release, and this is what it will do.</p>`}
-<p>The first time you log in on an account, a window called “${esc(setup.title)}” opens. It has ${n} steps: ${setup.steps.map((x) => esc(x)).join(", ")}. The line under the title says where you are, for example “${esc(caption(0))}”. <strong>${label(S, "Core/Setup.lua", "Next")}</strong> goes on (on the last step it reads <strong>${label(S, "Core/Setup.lua", "Done")}</strong>) and <strong>${label(S, "Core/Setup.lua", "Back")}</strong> goes back a step.</p>
+<p>The first time you log in on an account, a window called “${esc(setup.title)}” opens. It has ${n} steps: ${setup.steps.map((x) => esc(x)).join(", ")}. The line under the title says where you are, for example “${esc(caption(0))}”. <strong>${label(S, "Core/Setup.lua", "Next")}</strong> goes on (on the last step it reads <strong>${label(S, "Core/Setup.lua", "Done")}</strong>) and <strong>${label(S, "Core/Setup.lua", "Back")}</strong> goes back a step.${setup.later ? ` On the first step, <strong>${label(S, "Core/Setup.lua", "Skip setup")}</strong> ends it without changing anything.` : ""}</p>
 <p>It never opens during a fight. If you're in combat it says “${esc(setup.combat)}” and waits. If a fight starts while it's open, it gets out of the way and comes back on the same step when the fight is over.</p>
 
 <h3 id="setup-layout">Step 1 · ${esc(setup.steps[0])}</h3>
-<p>It asks: “${esc(setup.questions[0] || "")}” <strong>${layoutName(setup.layouts[0].key)}</strong> is picked when the window opens. Click a layout to see what it does under the list. Your choice takes effect when you click <strong>${label(S, "Core/Setup.lua", "Next")}</strong>.</p>
+<p>It asks: “${esc(setup.questions[0] || "")}” ${keepLayout ? `The first time, <strong>${layoutName("healing")}</strong> is picked if you're a healer (by your specialization, or else your group role) and <strong>${layoutName("damage")}</strong> otherwise; when you run it again, <strong>${keepLayout}</strong> is picked, so clicking through moves nothing.` : `<strong>${layoutName(setup.layouts[0].key)}</strong> is picked when the window opens.`} Click a layout to see what it does under the list. Your choice takes effect when you click <strong>${label(S, "Core/Setup.lua", "Next")}</strong>.</p>
 <div class="table-wrap"><table class="stack"><thead><tr><th scope="col">Layout</th><th scope="col">What it does</th></tr></thead><tbody>
-${setup.layouts.map((l, i) => `<tr><td data-label="Layout"><strong>${esc(l.text)}</strong>${i === 0 ? ` <span class="badge plain">Default</span>` : ""}</td><td data-label="What it does">${esc(l.hint)}</td></tr>`).join("\n")}
+${setup.layouts.map((l, i) => `<tr><td data-label="Layout"><strong>${esc(l.text)}</strong>${i === 0 && !keepLayout ? ` <span class="badge plain">Default</span>` : ""}</td><td data-label="What it does">${esc(l.hint)}</td></tr>`).join("\n")}
 </tbody></table></div>
 <ul>
   <li><strong>${layoutName("healing")}</strong> also turns on the raid frames and click casting if they were off.</li>
@@ -267,7 +269,7 @@ ${setup.layouts.map((l, i) => `<tr><td data-label="Layout"><strong>${esc(l.text)
 </ul>
 
 <h3 id="setup-screen">Step 2 · ${esc(setup.steps[1])}</h3>
-<p>It asks: “${esc(setup.questions[1] || "")}” The wizard picks the preset for your screen when it opens and marks it “${s("your screen")}”: <strong>${scr("ultrawide")}</strong> for a screen at least ${esc(wide)} times as wide as it is tall; otherwise by height: <strong>${scr("4k")}</strong> from ${esc(tall4k)} pixels tall, <strong>${scr("1440")}</strong> from ${esc(tall1440)}, and <strong>${scr("1080")}</strong> from ${esc(setup.keepBelow)}. On a screen under ${esc(setup.keepBelow)} pixels tall, <strong>${esc(setup.keepText)}</strong> is picked. Your choice takes effect when you click <strong>${label(S, "Core/Setup.lua", "Next")}</strong>.</p>
+<p>It asks: “${esc(setup.questions[1] || "")}” The wizard picks the preset for your screen when it opens and marks it “${s("your screen")}”: <strong>${scr("ultrawide")}</strong> for a screen at least ${esc(wide)} times as wide as it is tall; otherwise by height: <strong>${scr("4k")}</strong> from ${esc(tall4k)} pixels tall, <strong>${scr("1440")}</strong> from ${esc(tall1440)}, and <strong>${scr("1080")}</strong> from ${esc(setup.keepBelow)}. On a screen under ${esc(setup.keepBelow)} pixels tall, <strong>${esc(setup.keepText)}</strong> is picked${keepLayout ? `, and so it is whenever you run setup again` : ""}. Your choice takes effect when you click <strong>${label(S, "Core/Setup.lua", "Next")}</strong>.</p>
 <div class="table-wrap"><table class="stack"><thead><tr><th scope="col">Choice</th><th scope="col">What it sets</th></tr></thead><tbody>
 ${setup.screens.map((p) => `<tr><td data-label="Choice"><strong>${screenRow(p)}</strong></td><td data-label="What it sets">${esc(p.hint)}</td></tr>`).join("\n")}
 <tr><td data-label="Choice"><strong>${esc(setup.keepText)}</strong></td><td data-label="What it sets">${esc(setup.keepHint)}</td></tr>
@@ -285,8 +287,18 @@ ${setup.screens.map((p) => `<tr><td data-label="Choice"><strong>${screenRow(p)}<
 <ul>${setup.moveLines.map((l) => `<li>“${esc(l)}”</li>`).join("")}</ul>
 <p>Arrow keys are <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd>; hold <kbd>Shift</kbd> to move 10 px at a time.</p>
 
-<h3 id="setup-finish">Finishing</h3>
-<p>With the defaults it takes four clicks: <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Done")}</strong>. <strong>${label(S, "Core/Setup.lua", "Done")}</strong>, the window's close button and <kbd>Escape</kbd> all end the wizard and lock your frames again. It doesn't come back by itself; type <code>/vg setup</code> to run it again.</p>
+${setup.profileQuestion ? `<h3 id="setup-profile">A new character: the ${esc(setup.profileName)} step</h3>
+<p>Once setup is finished on your account, each new character gets it too, with one more step first. It asks: “${esc(setup.profileQuestion)}” and offers two choices:</p>
+<ul>
+  <li><strong>“${s("Share profile ")}<em>name</em>${s(" with your other characters")}”</strong>: ${s("Changes here change them too.")}</li>
+  <li><strong>“${s("A profile of its own: ")}<em>character</em>”</strong>: a profile named after the character. It ${s("Starts as a copy of ").toLowerCase()}the shared one${s("; changes here stay on this character.")} It then starts on your role's layout, and <strong>${label(S, "Core/Setup.lua", "Back")}</strong> doesn't return to this step.</li>
+</ul>
+<p>Characters that played before this step came in aren't asked.</p>
+
+` : ""}<h3 id="setup-finish">Finishing</h3>
+${setup.later ? `<p>With the defaults it takes four clicks: <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Done")}</strong>. <strong>${label(S, "Core/Setup.lua", "Done")}</strong> finishes it, and so does <strong>${label(S, "Core/Setup.lua", "Skip setup")}</strong>; both lock your frames again, and chat says “${esc(setup.again)}”</p>
+<p>The window's close button and <kbd>Escape</kbd> only close it. Until it's finished, it opens again at your next login, and chat says “${esc(setup.later)}”</p>
+<p>To run it again, type <code>/vg setup</code> or click <strong>${label(O, "Core/Options.lua", "Run setup")}</strong> under <strong>General → Layout</strong> in <code>/vg</code>.</p>` : `<p>With the defaults it takes four clicks: <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Done")}</strong>. <strong>${label(S, "Core/Setup.lua", "Done")}</strong>, the window's close button and <kbd>Escape</kbd> all end the wizard and lock your frames again. It doesn't come back by itself; type <code>/vg setup</code> to run it again.</p>`}
 <p>If setup changed something that needs a reload, it then asks, with <strong>${reloadBtn}</strong> and <strong>${laterBtn}</strong> buttons:</p>
 <ul>
   <li>“${esc(setup.reloadModule)}${reloadAsk}” (for example after <strong>${layoutName("healing")}</strong> turned the raid frames on)</li>

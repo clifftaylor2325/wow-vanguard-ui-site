@@ -68,8 +68,7 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 .skip:focus-visible { outline-color: var(--text); }
 
 /* ------------------------------------------------------------------ Header
-   A slim sticky bar: the brand, the Menu button (narrow screens) and, on
-   Home, the top nav. */
+   A slim sticky bar: the brand and the Menu button (narrow screens). */
 .site-header { position: sticky; top: 0; z-index: 20; background: var(--raised); border-bottom: 1px solid var(--divider); }
 .site-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 70%, transparent) 30%, var(--accent) 50%, color-mix(in oklab, var(--accent) 70%, transparent) 70%, transparent); opacity: 0.7; pointer-events: none; }
 .header-inner { max-width: var(--shell-max); margin: 0 auto; min-height: var(--header-h); padding: 0 var(--sp-4); display: flex; align-items: center; gap: var(--sp-4); }
@@ -80,8 +79,8 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 .nav-toggle[aria-expanded="true"]::after { content: " ▴"; }
 
 /* ------------------------------------------------------------------ Nav
-   One list for both shapes: the Home top bar and the inner pages' sidebar.
-   Under 900px it's a drawer that slides in from the left. */
+   The sidebar on every page. Under 900px it's a drawer that slides in from
+   the left. */
 .nav ul { list-style: none; margin: 0; padding: 0; }
 .nav a { display: block; padding: 7px 10px; color: var(--text); text-decoration: none; border-radius: var(--r-2); border-left: 2px solid transparent; }
 .nav a:hover { background: var(--panel); }
@@ -96,17 +95,12 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 }
 @media (min-width: 900px) {
   .nav-toggle, .nav-backdrop { display: none; }
-  .topnav { margin-left: auto; }
-  .topnav ul { display: flex; flex-wrap: wrap; gap: 2px; justify-content: flex-end; }
-  .topnav a { padding: 6px 8px; border-left: 0; border-bottom: 2px solid transparent; border-radius: 0; font-size: 0.95rem; }
-  .topnav a[aria-current="page"] { background: none; border-bottom-color: var(--accent); }
 }
 
 /* ------------------------------------------------------------------ Shell
-   Inner pages: the sidebar on the left, the content beside it. */
+   Every page: the sidebar on the left, the content beside it. */
 .shell { max-width: var(--shell-max); margin: 0 auto; padding: 0 var(--sp-4); }
 main { min-width: 0; padding: var(--sp-3) 0 var(--sp-6); }
-.is-home main { max-width: 1100px; margin: 0 auto; padding: var(--sp-3) var(--sp-4) var(--sp-6); }
 @media (min-width: 900px) {
   .shell { display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); column-gap: var(--sp-6); }
   .sidebar { position: sticky; top: var(--header-h); align-self: start; max-height: calc(100vh - var(--header-h)); overflow-y: auto; padding: var(--sp-5) var(--sp-3) var(--sp-5) 0; border-right: 1px solid var(--divider); }
@@ -119,7 +113,7 @@ main { min-width: 0; padding: var(--sp-3) 0 var(--sp-6); }
   .grid.two { grid-template-columns: 1fr 1fr; }
   .grid.four { grid-template-columns: repeat(2, 1fr); }
 }
-@media (min-width: 1000px) { .grid.four { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1200px) { .grid.four { grid-template-columns: repeat(4, 1fr); } }
 
 /* ------------------------------------------------------------------ Cards
    Showcase cards (Home highlights, tiles, the CurseForge box) carry the full
@@ -181,11 +175,7 @@ details.disclosure.aside > summary > h3 { font-size: var(--fs-sm); color: var(--
 .dis-grid > details[open], .dis-grid > :has(> details[open]) { grid-column: 1 / -1; }
 .dis-grid > .help-entry { margin: 0; }
 @media (max-width: 559px) { .dis-grid { gap: 6px; } .dis-grid > details.disclosure > summary { min-height: 42px; padding: 6px 10px; gap: 8px; } .dis-grid > details.disclosure > summary > h2 { font-size: 1rem; } }
-.glance .expand-all, .counts .expand-all { margin-left: auto; }
 .counts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
-@media (max-width: 559px) { .expand-all { display: none; } }
-.expand-all { float: right; margin: 0 0 var(--sp-2) var(--sp-3); font: inherit; font-size: var(--fs-sm); cursor: pointer; padding: 4px 10px; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); }
-.expand-all:hover { border-color: var(--accent); }
 details.src { margin-top: var(--sp-3); font-size: var(--fs-sm); color: var(--text2); }
 details.src > summary { cursor: pointer; display: inline; }
 details.src > p { margin: 4px 0 0; }
@@ -193,8 +183,7 @@ details.src > p { margin: 4px 0 0; }
 
 /* The facts strip under a page's hero. */
 .glance { list-style: none; margin: 0 0 var(--sp-3); padding: 0; display: flex; flex-wrap: wrap; gap: 6px 8px; }
-.glance li.glance-tools { padding: 0; border: 0; background: none; margin-left: auto; }
-.glance li { margin: 0; padding: 3px 10px; border: 1px solid var(--divider); border-radius: 999px; background: var(--panel); font-size: var(--fs-sm); color: var(--text2); }
+.glance li { display: flex; align-items: center; justify-content: center; text-align: center; margin: 0; padding: 3px 10px; border: 1px solid var(--divider); border-radius: 999px; background: var(--panel); font-size: var(--fs-sm); color: var(--text2); }
 .glance li strong { color: var(--text); }
 .glance li [data-avail] { display: inline; }
 .counts { color: var(--text2); font-size: var(--fs-sm); margin: 0 0 var(--sp-2); }
@@ -321,8 +310,6 @@ table.stack { margin: 0 0 1em; }
 .footer-orn { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: var(--bg); padding: 0 10px; width: 200px; }
 .footer-inner { max-width: var(--shell-max); margin: 0 auto; }
 .footer-inner p { margin: 0 0 6px; }
-.footer-links { list-style: none; margin: 0 0 var(--sp-2); padding: 0; display: flex; flex-wrap: wrap; gap: 2px 14px; }
-.footer-links li { margin: 0; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Ornamental divider (inline SVG from html.mjs) */

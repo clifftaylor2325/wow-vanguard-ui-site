@@ -188,43 +188,6 @@
     }
   }
 
-  // "Expand all" / "Collapse all" over the page's collapsed sections.
-  function wireExpandAll() {
-    var all = document.querySelectorAll("main details.disclosure");
-    if (all.length < 2) return;
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "expand-all";
-    var label = function () {
-      var open = 0;
-      for (var i = 0; i < all.length; i++) if (all[i].open) open++;
-      btn.textContent = open === all.length ? "Collapse all" : "Expand all";
-    };
-    btn.addEventListener("click", function () {
-      var open = btn.textContent === "Expand all";
-      for (var i = 0; i < all.length; i++) all[i].open = open;
-      var groups = document.querySelectorAll("main tbody.cmd-group");
-      for (var g = 0; g < groups.length; g++) setOpen(groups[g], open);
-      label();
-    });
-    for (var i = 0; i < all.length; i++) all[i].addEventListener("toggle", label);
-    label();
-    // In the facts strip or the counts line when the page has one; else before the first section.
-    var strip = document.querySelector("main .glance");
-    var counts = document.querySelector("main .counts");
-    if (strip) {
-      var li = document.createElement("li");
-      li.className = "glance-tools";
-      li.appendChild(btn);
-      strip.appendChild(li);
-    } else if (counts) {
-      counts.appendChild(btn);
-    } else {
-      var anchor = all[0].parentElement.classList.contains("dis-grid") ? all[0].parentElement : all[0];
-      anchor.parentNode.insertBefore(btn, anchor);
-    }
-  }
-
   // Copies text and briefly says so on the button.
   function copyText(btn) {
     var text = btn.getAttribute("data-copy");
@@ -294,7 +257,6 @@
   wirePref();
   document.querySelectorAll(".search[data-target]").forEach(wireSearch);
   wireGroups();
-  wireExpandAll();
   openForHash();
   window.addEventListener("hashchange", openForHash);
   document.addEventListener("click", function (e) {
