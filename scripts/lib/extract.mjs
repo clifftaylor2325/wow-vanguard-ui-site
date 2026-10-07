@@ -367,7 +367,9 @@ function luaFormat(fmt, args) {
 export function extractSetup(reader) {
   const m = luaFile(reader, "Core/Setup.lua");
   if (!m) return null;
-  const steps = plain(findTable(m, "local STEPS"));
+  // STEPS holds page keys named by NAMES once a new character's profile step came in; before that, the names.
+  const names = /local NAMES\s*=/.test(m.code) ? plain(findTable(m, "local NAMES")) : null;
+  const steps = plain(findTable(m, "local STEPS")).map((k) => (names && names[k]) || k);
   const layouts = plain(findTable(m, "S.LAYOUTS"));
   const screens = plain(findTable(m, "S.SCREENS"));
   const styles = plain(findTable(m, "S.STYLES"));
@@ -376,7 +378,14 @@ export function extractSetup(reader) {
   for (const s of screens) s.hint = luaFormat(fmt, [pct(s.ui), s.button, s.tile[0], s.tile[1], pct(s.textScale)]);
   const keepText = (m.code.match(/key\s*=\s*"keep"\s*,\s*text\s*=\s*"([^"]+)"/) || [])[1];
   const keepHint = (m.code.match(/if not p then return "([^"]+)"/) || [])[1];
-  const questions = [...m.code.matchAll(/choicePage\(page,\s*"([^"]+)"/g)].map((x) => x[1]);
+  // Each step's question, found by the list it offers: [layout, screen]; the profile step's apart.
+  const question = (list) => (m.code.match(new RegExp(`choicePage\\(page,\\s*"([^"]+)",\\s*${list}`)) || [])[1];
+  const questions = [question("S\\.LAYOUTS"), question("screenChoices\\(\\)")];
+  const profileQuestion = question("profileChoices\\(\\)") || null;
+  const profileName = (names && names.profile) || null;
+  // In chat when setup ends: finished (AGAIN), or closed while still owed (LATER).
+  const again = (m.code.match(/local AGAIN\s*=\s*"([^"]+)"/) || [])[1] || null;
+  const later = (m.code.match(/local LATER\s*=\s*"([^"]+)"/) || [])[1] || null;
   const moveLines = plain(findTable(m, "local lines")) || [];
   const combat = (m.code.match(/ns\.Chat\("(Setup opens[^"]*)"\)/) || [])[1];
   const reloadModule = (m.code.match(/if state\.reload then return "([^"]+)"/) || [])[1];
@@ -385,7 +394,7 @@ export function extractSetup(reader) {
   const yourScreen = (m.code.match(/"\s*·\s*(your screen)"/) || [])[1];
   const caption = (m.code.match(/string\.format\("(Step %d of %d · %s)"/) || [])[1];
   const title = (m.code.match(/"title",\s*"text",\s*"([^"]+)"/) || [])[1];
-  return { steps, layouts, screens, styles, keepText, keepHint, questions, moveLines, combat, reloadModule, reloadTile, keepBelow, yourScreen, caption, title };
+  return { steps, layouts, screens, styles, keepText, keepHint, questions, profileQuestion, profileName, again, later, moveLines, combat, reloadModule, reloadTile, keepBelow, yourScreen, caption, title };
 }
 
 // ---------------------------------------------------------------- everything

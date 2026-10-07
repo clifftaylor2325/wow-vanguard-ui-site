@@ -24,16 +24,16 @@ export function md(s) {
 }
 
 // Every page in nav order: path, nav label, title. `group` is its heading in
-// the sidebar; `primary` marks the pages the Home page's top bar shows.
+// the sidebar.
 export const NAV = [
   { path: "/", label: "Home", title: "Vanguard" },
-  { path: "/install/", label: "Install", title: "Install & Update", group: "Get started", primary: true },
-  { path: "/start/", label: "Getting started", title: "Getting started", group: "Get started", primary: true },
-  { path: "/features/", label: "Features", title: "Features", group: "Learn", primary: true },
-  { path: "/commands/", label: "Commands", title: "Commands", group: "Reference", primary: true },
-  { path: "/settings/", label: "Settings", title: "Settings", group: "Reference", primary: true },
+  { path: "/install/", label: "Install", title: "Install & Update", group: "Get started" },
+  { path: "/start/", label: "Getting started", title: "Getting started", group: "Get started" },
+  { path: "/features/", label: "Features", title: "Features", group: "Learn" },
+  { path: "/commands/", label: "Commands", title: "Commands", group: "Reference" },
+  { path: "/settings/", label: "Settings", title: "Settings", group: "Reference" },
   { path: "/profiles/", label: "Profiles & sharing", title: "Profiles & sharing", group: "Learn" },
-  { path: "/help/", label: "Troubleshooting", title: "Troubleshooting & FAQ", group: "Help", primary: true },
+  { path: "/help/", label: "Troubleshooting", title: "Troubleshooting & FAQ", group: "Help" },
   { path: "/feedback/", label: "Feedback", title: "Feedback", group: "Help" },
   { path: "/changelog/", label: "Changelog", title: "Changelog", group: "About" },
   { path: "/credits/", label: "Credits & license", title: "Credits & license", group: "About" },
@@ -111,7 +111,8 @@ ${lede ? `<p class="lede">${lede}</p>` : ""}
 export function glance(items) {
   const list = items.filter(Boolean);
   // An item that only the next release has (from nextOnly) marks its whole pill.
-  const li = (i) => { const m = i.match(/^<span data-avail="next">([\s\S]*)<\/span>$/); return m ? `<li data-avail="next">${m[1]}</li>` : `<li>${i}</li>`; };
+  // Its text sits in one span so the pill can center it.
+  const li = (i) => { const m = i.match(/^<span data-avail="next">([\s\S]*)<\/span>$/); return m ? `<li data-avail="next"><span>${m[1]}</span></li>` : `<li><span>${i}</span></li>`; };
   return list.length ? `<ul class="glance">${list.map(li).join("")}</ul>` : "";
 }
 
@@ -145,27 +146,22 @@ function sidebarList(path) {
   return `<ul id="nav-list">${navLink(NAV[0], path)}${groups.join("")}</ul>`;
 }
 
-// The Home page's top bar: the primary pages only (every page is in the footer).
-function topList(path) {
-  return `<ul id="nav-list">${NAV.filter((n) => n.primary).map((n) => navLink(n, path)).join("")}</ul>`;
-}
-
 // The sidebar's switch that shows what the next release adds (only while a
 // next release is in the works).
 function nextSwitch() {
   return `<div class="nav-foot"><label class="switch"><input type="checkbox" data-pref="next"> <span>Show what's coming in the next release</span></label></div>`;
 }
 
-// A full HTML page with the shared header, nav and footer. Inner pages get the
-// grouped sidebar; Home (sidebar: false) gets a top bar instead.
-export function layout({ path, title, description, body, site, scripts = [], sidebar = path !== "/" }) {
+// A full HTML page with the shared header, sidebar and footer. Every page, Home
+// included, has the same grouped sidebar; it's the only nav (the header holds
+// the brand and the Menu button, the footer no links).
+export function layout({ path, title, description, body, site, scripts = [] }) {
   const fullTitle = path === "/" ? `Vanguard: a UI suite for WoW Forever` : `${title} · Vanguard`;
   const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">Menu</button>`;
-  const nav = `<nav class="nav ${sidebar ? "sidebar" : "topnav"}" aria-label="Main" id="site-nav">${sidebar ? sidebarList(path) : topList(path)}${sidebar && site.hasNext ? nextSwitch() : ""}</nav>`;
+  const nav = `<nav class="nav sidebar" aria-label="Main" id="site-nav">${sidebarList(path)}${site.hasNext ? nextSwitch() : ""}</nav>`;
   const main = `<main id="main" tabindex="-1">\n${body}\n</main>`;
   // An asset's URL with the build's version query (the plain path if it has none).
   const asset = (p) => site.assets?.[p] || p;
-  const footerLinks = NAV.slice(1).map((n) => `<li><a href="${n.path}">${esc(n.label)}</a></li>`).join("");
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -180,20 +176,21 @@ export function layout({ path, title, description, body, site, scripts = [], sid
 <link rel="stylesheet" href="${esc(asset("/assets/site.css"))}">
 <script>(function (d) { d.className += " js"; try { if (localStorage.getItem("vg-show-next") === "1") d.className += " show-next"; } catch (e) {} })(document.documentElement);</script>
 </head>
-<body class="${sidebar ? "has-sidebar" : "is-home"}">
+<body class="has-sidebar">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="header-inner">
     <a class="brand" href="/">${MARK}<span>Vanguard</span></a>
     ${toggle}
-    ${sidebar ? "" : nav}
   </div>
 </header>
-${sidebar ? `<div class="shell">\n${nav}\n${main}\n</div>` : main}
+<div class="shell">
+${nav}
+${main}
+</div>
 <footer class="site-footer">
   ${ornament("footer-orn")}
   <div class="footer-inner">
-    <ul class="footer-links">${footerLinks}</ul>
     ${supportLine()}
     <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
     <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · ${COPYRIGHT}</p>
