@@ -592,7 +592,7 @@ test("the footer says all rights reserved; Credits names each release's own lice
     assert.ok(footer.includes(COPYRIGHT), `/${d}: the footer carries the copyright line`);
     assert.ok(!/Code under the|MIT/.test(footer), `/${d}: the footer names no code license`);
   }
-  assert.deepEqual(licenseSummary("MIT License\n\nCopyright (c) 2026 Cliff Hearthvale\n\nPermission is hereby granted"), { head: "MIT License", line: "Copyright (c) 2026 Cliff Hearthvale", released: "released under the MIT License" });
+  assert.deepEqual(licenseSummary("MIT License\n\nCopyright (c) 2026 Clifton Taylor\n\nPermission is hereby granted"), { head: "MIT License", line: "Copyright (c) 2026 Clifton Taylor", released: "released under the MIT License" });
   assert.deepEqual(licenseSummary("Copyright (c) 2026 Clifton Taylor. All rights reserved.\n\nVanguard, an addon for World of Warcraft, and"), { head: "Copyright (c) 2026 Clifton Taylor. All rights reserved.", line: "", released: "" });
   const credits = page("credits");
   assert.ok(/<strong>(MIT License|Copyright \(c\) [^<]*All rights reserved\.)<\/strong>/.test(credits), "the Credits page names the current release's license");
