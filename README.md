@@ -9,7 +9,7 @@ Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Bras
 ## Requirements
 
 - Node 20 or newer
-- [`gh`](https://cli.github.com/), signed in (or `GH_TOKEN` set) with read access to `clifftaylor2325/wow-vanguard-ui`. The addon repo is private, and the build uses `gh` to clone it and read its release metadata (tags, dates, notes).
+- [`gh`](https://cli.github.com/), signed in (or `GH_TOKEN` set). The build uses `gh` to clone the addon repo, `clifftaylor2325/wow-vanguard-ui` (public), and read its release metadata (tags, dates, notes).
 
 ## Commands
 
@@ -63,13 +63,13 @@ Every page shares the Home page's Slate & Brass pieces, from `scripts/lib/html.m
 
 The structure is built for one screen. `layout()` puts the grouped sidebar (`NAV[].group`, drawer behind the Menu button under 900px) beside `<main>` on every inner page, and the Home page's top bar lists the `primary` pages. Under the band, `glance()` is the strip of facts, and `disclosure()` makes each section a native `<details>` whose summary is the heading (its id stays on the `h2`/`h3`, so every deep link still works: `site.js` opens the folded sections around the link's target). A section that should start open says so with `open data-open` (on phones it starts folded too). Lists of sections sit two across in a `.dis-grid`; an open one takes the full width. Features folds by area, then by module; Settings folds by options page; Commands keeps one table and folds its row groups by module; the FAQ folds by section, then by question. `npm run shots` checks that every page but Feedback (its form is the page) fits one screen as it opens, at 1280x800 and 390x844.
 
-The site never links to the private GitHub repo from player-facing pages, and it offers no download.
+The site never links to the GitHub repo from player-facing pages, and it offers no download.
 
 ## Deploying
 
 The site is published to the Cloudflare Pages project `vanguard-ui`, at `https://vanguardui.com` (its custom domain) and `https://vanguard-ui.pages.dev`. Two ways:
 
-- **From GitHub (no local setup):** add three repository secrets (Settings → Secrets and variables → Actions): `ADDON_READ_TOKEN` (read-only token for the addon repo, also used by the check), `CLOUDFLARE_API_TOKEN` (a Cloudflare API token with the **Cloudflare Pages: Edit** permission) and `CLOUDFLARE_ACCOUNT_ID` (dashboard → Workers & Pages, right-hand column). Then Actions → **deploy** → **Run workflow**. It runs the full check first, creates the Pages project the first time, and uploads `dist/` with the feedback Function. It only runs when started by hand.
+- **From GitHub (no local setup):** add two repository secrets (Settings → Secrets and variables → Actions): `CLOUDFLARE_API_TOKEN` (a Cloudflare API token with the **Cloudflare Pages: Edit** permission) and `CLOUDFLARE_ACCOUNT_ID` (dashboard → Workers & Pages, right-hand column). Then Actions → **deploy** → **Run workflow**. It runs the full check first, creates the Pages project the first time, and uploads `dist/` with the feedback Function. It only runs when started by hand.
 - **From your machine:** `npm run check`, then `npm run deploy` (Wrangler asks you to sign in to Cloudflare the first time, and offers to create the project).
 
 The site works without the feedback form's bindings; until they're set (see Feedback form → Bindings), the form says reports can't be sent from the page right now.

@@ -1,9 +1,8 @@
 # Builds the site and runs every check (encoding, drift and page tests) on pull
 # requests, on every push to main, or by hand from the Actions tab. It never deploys and never pushes.
-# The build reads the private addon repo (clifftaylor2325/wow-vanguard-ui)
-# through gh, so it needs a read-only token for that repo in the
-# ADDON_READ_TOKEN secret; see the pull request that added this file. Without
-# it, the "Addon access" step fails with a message saying why.
+# The build reads the addon repo (clifftaylor2325/wow-vanguard-ui) through gh.
+# That repo is public, so the run's own GITHUB_TOKEN is enough, for pull
+# requests from forks too.
 name: check
 
 on:
@@ -35,20 +34,6 @@ jobs:
 
       - run: npm ci
 
-      - name: Addon access
-        env:
-          GH_TOKEN: ${{ secrets.ADDON_READ_TOKEN }}
-          FROM_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
-          ACTOR: ${{ github.actor }}
-        run: |
-          if [ -n "$GH_TOKEN" ]; then exit 0; fi
-          if [ "$FROM_FORK" = "true" ] || [ "$ACTOR" = "dependabot[bot]" ]; then
-            echo "::error::Repository secrets aren't available to pull requests from forks or Dependabot, so this run can't read the private addon repo. A maintainer must run this check by hand (Actions tab, check, Run workflow) or from a branch in this repo."
-          else
-            echo "::error::The repository secret ADDON_READ_TOKEN isn't set. The build reads the private addon repo clifftaylor2325/wow-vanguard-ui; add a read-only token for it as that secret."
-          fi
-          exit 1
-
       - run: npm run check
         env:
-          GH_TOKEN: ${{ secrets.ADDON_READ_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
