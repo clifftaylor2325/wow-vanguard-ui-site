@@ -129,16 +129,12 @@ RELEASE_NOTES["v0.4.0"] = { groups: [
   ],
 };
 
-// What's merged since the release named in `after`: shown only while that is
-// still the current release, so it can't go stale after the next one ships.
-// Merged since v0.4.0 (#122 to #182). Not listed: changes only the addon's
+// v0.5.0: everything merged from #122 to #182. Not listed: changes only the addon's
 // developers see (#122, #125, #126, #127, #128, #160, #163, #168, #172, #173:
 // tests, builds, CI, the license and the CurseForge setup), and fixes to things
 // that never shipped in a release (#166, #175, #180: the reworked menu bar
 // drawing empty or blurred, the new auction tabs failing to build).
-export const NEXT_RELEASE = {
-  after: "v0.4.0",
-  groups: [
+RELEASE_NOTES["v0.5.0"] = { groups: [
     { id: "new", title: "New", items: [
       { label: "Talent planner", text: "Plan where your talent points will go before you have them, on the game's own talents window. With Plan on, a click sets the rank you want instead of buying it; the planned ranks show as badges and the next pick is ringed. Spend planned (or /vg talents spend) buys them in a legal order, chat names the next pick at each level-up, and plans are kept per character and spec and can be shared as a string.", from: [162] },
       { label: "Auction house", text: "Vanguard's auction helper is now two tabs on the game's window, Shopping and Selling, each card in its own bordered box. Shopping lists your shopping lists, Recent, Deals and a new Upgrades list (armor and weapons on the auction house that beat what you wear, by Gear upgrades' stat weights) beside one wide table with sortable columns. Selling has the sell card, what's up now and your auctions.", from: [174, 177] },
@@ -170,5 +166,12 @@ export const NEXT_RELEASE = {
       { label: "Game windows", text: "One window's skin failing no longer stops the others from being dressed, the flight map keeps its map art, and the quest log's close button shows.", from: [155, 157, 161] },
       { label: "Chat", text: "Copy (and every copy and export box) works again.", from: [157] },
     ] },
-  ],
+] };
+
+// What's merged since the release named in `after`: shown only while that is
+// still the current release, so it can't go stale after the next one ships.
+// Nothing yet: v0.5.0 is the current release.
+export const NEXT_RELEASE = {
+  after: "v0.5.0",
+  groups: [],
 };

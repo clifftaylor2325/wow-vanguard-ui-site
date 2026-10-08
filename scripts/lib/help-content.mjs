@@ -43,7 +43,7 @@ export const FACTS = [
 // The page's entries, in order, by section. {key} is replaced by that fact
 // (escaped); a list fact becomes a bulleted list, and {NEXT} the Next release
 // badge. badge: "next" marks an entry that only applies to the next release
-// (none today: the page describes v0.4.0, the current release).
+// (none today: the page describes v0.5.0, the current release).
 export const SECTIONS = [
   { id: "fixes", title: "Quick fixes", entries: [
     { id: "frame-moved", q: "A frame is off-screen or in the wrong place",
