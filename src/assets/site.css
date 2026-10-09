@@ -308,7 +308,7 @@ table.stack { margin: 0 0 1em; }
 /* ------------------------------------------------------------------ Footer */
 .site-footer { position: relative; margin-top: var(--sp-4); padding: var(--sp-4) var(--sp-4) var(--sp-5); border-top: 1px solid var(--divider); color: var(--text2); font-size: var(--fs-sm); }
 .footer-orn { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: var(--bg); padding: 0 10px; width: 200px; }
-.footer-inner { max-width: var(--shell-max); margin: 0 auto; }
+.footer-inner { max-width: var(--shell-max); margin: 0 auto; text-align: center; }
 .footer-inner p { margin: 0 0 6px; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
