@@ -54,7 +54,6 @@ export const CURSEFORGE_URL = null;
 // and a Support section on the Credits page. Donations stay on the website, never in the
 // addon itself.
 export const SUPPORT = [
-  { name: "Patreon", url: null, what: "a monthly pledge" },
   { name: "Ko-fi", url: "https://ko-fi.com/cliftontaylor", what: "a one-off tip" },
 ];
 
