@@ -154,7 +154,7 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 
 ## Supporting Vanguard
 
-`SUPPORT` in `scripts/lib/html.mjs` lists the ways to support development: Patreon (a monthly pledge) and Ko-fi (a one-off tip). Each `url` is `null`, and a link stays off the site until its `url` is set to an `https://` address. Once one is, every page's footer gets a "Support Vanguard" line and the Credits page gets a Support section, both naming only the links that are set. Set the URLs, run `npm run check`, and the tests switch to checking for the links. Donation links stay on the website and never in the addon.
+`SUPPORT` in `scripts/lib/html.mjs` lists the ways to support development: currently only Ko-fi (a one-off tip). A link stays off the site until its `url` is set to an `https://` address; to add another, give it an entry with a `url` of `null` until it's ready. Once one is, every page's footer gets a "Support Vanguard" line and the Credits page gets a Support section, both naming only the links that are set. Set the URLs, run `npm run check`, and the tests switch to checking for the links. Donation links stay on the website and never in the addon.
 
 ## Tests
 
