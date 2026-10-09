@@ -55,7 +55,7 @@ export const CURSEFORGE_URL = null;
 // addon itself.
 export const SUPPORT = [
   { name: "Patreon", url: null, what: "a monthly pledge" },
-  { name: "Ko-fi", url: null, what: "a one-off tip" },
+  { name: "Ko-fi", url: "https://ko-fi.com/cliftontaylor", what: "a one-off tip" },
 ];
 
 // The support links that are switched on (their url is set).
