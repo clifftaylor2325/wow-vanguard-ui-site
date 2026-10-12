@@ -113,7 +113,7 @@ ${relImport ? `<p>In v${esc(v)}, this character switches to it straight away (�
   <li${staged ? ' data-avail="next"' : ""}>${staged ? `${NEXT} ` : ""}Then it asks: “${q("prof", "Imported as profile ")}Imported${q("prof", "; this character will use it after a reload.")}${reloadAsk}” Click ${reloadBtns}.</li>
 </ol>
 <h3 id="import-module">Just one module</h3>
-<p><code>/vg export &lt;module&gt;</code> copies just one module's settings (the module names are on <a href="/features/">Features</a> and in <code>/vg modules</code>). Importing that text replaces that module's settings in the profile you're using: “${q("prof", "Imported ")}&lt;module&gt;${q("prof", " settings into profile ")}&lt;your profile&gt;.${reloadAsk}” If that module has nothing saved yet, export says “${q("slash", "Nothing to export: ")}${q("prof", "nothing saved for ")}&lt;module&gt;${q("prof", " yet")}.”</p>
+<p><code>/vg export &lt;module&gt;</code> copies just one module's settings (the module names are on <a href="/features/">Features</a> and in <code>/vg modules</code>). Importing that text merges those settings into the profile you're using, key by key: the text's values win, and anything it doesn't name stays as it is. Vanguard backs your profile up before any import. Chat then says: “${q("prof", "Imported ")}&lt;module&gt;${q("prof", " settings into profile ")}&lt;your profile&gt;.${reloadAsk}” If that module has nothing saved yet, export says “${q("slash", "Nothing to export: ")}${q("prof", "nothing saved for ")}&lt;module&gt;${q("prof", " yet")}.”</p>
 
 <h3 id="string">What's in the text</h3>
 <ul>
