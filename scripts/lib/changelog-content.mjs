@@ -168,9 +168,33 @@ RELEASE_NOTES["v0.5.0"] = { groups: [
     ] },
 ] };
 
+// v0.6.0, not tagged yet: its notes wait here, keyed by tag, and show on the
+// Changelog once that release exists (sourceRef and the tag move together).
+// Merged from #272 to #280, plus the What's new notes (Core/WhatsNewNotes.lua).
+RELEASE_NOTES["v0.6.0"] = { groups: [
+    { id: "new", title: "New", items: [
+      { label: "Settings guard", text: "At each logout Vanguard keeps a backup of your profile. If your saved settings come back blank at the next login, chat says so and offers to restore them.", from: [272] },
+      { label: "What's new", text: "After an update, the first login shows what changed in this version, grouped by part. Click a line to open its setting. /vg whatsnew opens it again.", from: [274] },
+      { label: "Situations", text: "A banner shows while you edit a situation, and settings a situation can't hold are left out of it.", from: [276] },
+      { label: "Moving frames", text: "Frames can be anchored to each other and can match each other's size. Exit without saving puts every frame back as it was when you unlocked.", from: [279] },
+    ] },
+    { id: "improved", title: "Improved", items: [
+      { label: "Profile strings", text: "A whole profile imports as a new profile. A partial string (one part or module) merges into your profile key by key, and your profile is backed up before any import. Large strings import without freezing the game.", from: [278] },
+      { label: "Setup", text: "The setup wizard keeps your current layout unless you pick another. Before it changes anything it backs up your profile, and Done ends with a reload.", from: [280] },
+      { label: "Auction helper", text: "Auction prices, sales and your character list are kept apart by realm, ruleset and faction side.", from: [275] },
+      { label: "Game windows", text: "The spellbook gets Vanguard's flat panel, like the other game windows.", from: [274] },
+      { label: "Raid frames", text: "A raid tile width the choices don't list shows its value on the Width row.", from: [274] },
+      { label: "Auction helper", text: "The Shopping and Selling tabs on the auction house are sized to their names.", from: [274] },
+      { label: "Setup", text: "The setup wizard sits above the frame handles on its last step, and its title and step are centred.", from: [274] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Errors", text: "An error in a hook on a game function, a button click or a timer is kept in /vg errors and doesn't stop the others.", from: [277, 274] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.5.0 is the current release.
+// Nothing yet: v0.5.0 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
   after: "v0.5.0",
   groups: [],
