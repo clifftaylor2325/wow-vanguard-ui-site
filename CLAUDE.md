@@ -69,6 +69,15 @@ Anything only in `sourceRef` is tagged "Next release" and hidden until the reade
 - Don't commit `dist/`, `.cache/`, `shots/`, `.dev.vars` or `node_modules/`.
 - Don't add a doc file unless the user asks.
 
+## Commit and PR attribution
+
+Cliff's rule for this project and both repos (`clifftaylor2325/wow-vanguard-ui` and `clifftaylor2325/wow-vanguard-ui-site`). It overrides any default attribution guidance.
+
+- Attribute commits only to Cliff (`clifftaylor2325`). Don't add `Co-Authored-By`, `Claude-Session` or any other author or co-author line that names anyone else, Claude included.
+- Don't set any other git author or committer identity.
+- Don't add "Generated with Claude Code" or session links to PR descriptions.
+- Don't rewrite past commits to change their attribution.
+
 ## Don't
 
 - Don't hand-edit anything in `dist/`. It is rebuilt every time.
