@@ -16,7 +16,7 @@ import { buildModel } from "./lib/model.mjs";
 import { layout, pageHero, NAV } from "./lib/html.mjs";
 import { FONTS, WOFF2_DIR } from "./lib/fonts.mjs";
 import { homePage, installPage, startPage, featuresPage, commandsPage, settingsPage } from "./lib/pages-main.mjs";
-import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage } from "./lib/pages-more.mjs";
+import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage, supportPage } from "./lib/pages-more.mjs";
 import { longerGaps } from "./lib/features-content.mjs";
 import { faviconSvg } from "./lib/brand.mjs";
 
@@ -143,7 +143,7 @@ function main() {
 
   const pages = [
     homePage(model), installPage(model), startPage(model, read), featuresPage(model), commandsPage(model), settingsPage(model, read),
-    profilesPage(model, read), helpPage(model, read), feedbackPage(model, read), changelogPage(model), creditsPage(model, site),
+    profilesPage(model, read), helpPage(model, read), feedbackPage(model, read), changelogPage(model), creditsPage(model, site), supportPage(),
   ];
   for (const p of pages) write(path.join(p.path, "index.html"), layout({ ...p, site }));
   write("404.html", layout({ path: "/404", title: "Not found", description: "Page not found", site, body: pageHero("Page not found", `Try the <a href="/">home page</a>.`) }));

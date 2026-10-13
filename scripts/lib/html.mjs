@@ -39,6 +39,7 @@ export const NAV = [
   { path: "/feedback/", label: "Feedback", title: "Feedback", group: "Help" },
   { path: "/changelog/", label: "Changelog", title: "Changelog", group: "About" },
   { path: "/credits/", label: "Credits & license", title: "Credits & license", group: "About" },
+  { path: "/support/", label: "Support", title: "Support Vanguard", group: "About" },
 ];
 
 // The sidebar's groups, in order.
@@ -70,6 +71,21 @@ export function supportLine(links = SUPPORT) {
   if (!on.length) return "";
   const items = on.map((l) => `<a href="${esc(l.url)}" rel="noopener">${esc(l.name)}</a> <span class="small">(${esc(l.what)})</span>`);
   return `<p class="support">Support Vanguard: ${items.join(" · ")}</p>`;
+}
+
+// A short, one-sentence ask on a page where a player has just been helped, linking Ko-fi with a
+// `utm_campaign` naming the page so Ko-fi's analytics say which placement brings people. "" while
+// Ko-fi is off. Never in the addon itself, and never a popup.
+export function supportAsk(campaign, lead, links = SUPPORT) {
+  const kofi = supportOn(links).find((l) => l.name === "Ko-fi");
+  if (!kofi) return "";
+  const url = `${kofi.url}?utm_source=vanguardui&utm_medium=site&utm_campaign=${encodeURIComponent(campaign)}`;
+  return `<p class="ask small">${lead} <a href="${esc(url)}" rel="noopener">Say thanks on Ko-fi</a>.</p>`;
+}
+
+// The header's Support button: a link to the Support page, not straight to Ko-fi.
+export function supportButton(links = SUPPORT) {
+  return supportOn(links).length ? `<a class="support-btn" href="/support/">♥ Support</a>` : "";
 }
 
 // The CurseForge call to action: a link once CURSEFORGE_URL is set, until then
@@ -189,6 +205,7 @@ const SEO = {
   "/help/": { title: "Vanguard Troubleshooting and FAQ for WoW Forever", description: "Fixes for common Vanguard problems in WoW Forever, such as a missing addon or lost settings, using the addon's own commands and messages." },
   "/changelog/": { title: "Vanguard Changelog: What Changed in Each Release", description: "What changed in each Vanguard release for WoW Forever, newest first, written for players, and what is coming next." },
   "/feedback/": { title: "Send Vanguard Feedback or Report a Bug", description: "Report a Vanguard bug or request a feature for the WoW Forever UI addon." },
+  "/support/": { title: "Support Vanguard, the Free WoW Forever UI Addon", description: "Vanguard is free and built by one person. Here is what support pays for, how to give it, and other ways to help." },
   "/credits/": { title: "Vanguard Credits and License", description: "Vanguard's license, who made it, and the fonts, libraries and art the WoW Forever UI addon uses." },
 };
 
@@ -235,6 +252,7 @@ ${path === "/" && site.url ? homeJsonLd(site, description) : ""}<link rel="style
 <header class="site-header">
   <div class="header-inner">
     <a class="brand" href="/">${MARK}<span>Vanguard</span></a>
+    ${supportButton()}
     ${toggle}
   </div>
 </header>
@@ -247,7 +265,7 @@ ${main}
   <div class="footer-inner">
     ${supportLine()}
     <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
-    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} · ${COPYRIGHT}</p>
+    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} and Wago · ${COPYRIGHT}</p>
   </div>
 </footer>
 <script src="${esc(asset("/assets/site.js"))}" defer></script>

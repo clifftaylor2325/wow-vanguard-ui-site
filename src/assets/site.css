@@ -76,6 +76,10 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 .header-inner { max-width: var(--shell-max); margin: 0 auto; min-height: var(--header-h); padding: 0 var(--sp-4); display: flex; align-items: center; gap: var(--sp-4); }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 600; font-size: 1.25rem; }
 .brand-mark { width: 22px; height: 32px; flex: none; }
+.support-btn { margin-left: auto; padding: 5px 12px; border: 1px solid var(--accent); border-radius: var(--r-2); color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+.support-btn:hover, .support-btn:focus-visible { background: color-mix(in oklab, var(--accent) 16%, transparent); }
+.support-btn + .nav-toggle { margin-left: 0; }
+.ask { margin-top: var(--sp-4); }
 .nav-toggle { margin-left: auto; font: inherit; cursor: pointer; padding: 6px 12px; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); font-weight: 600; }
 .nav-toggle::after { content: " ▾"; color: var(--text2); }
 .nav-toggle[aria-expanded="true"]::after { content: " ▴"; }
