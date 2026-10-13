@@ -2,7 +2,7 @@
 // Messages in quotes are copied from the addon's Lua; each section names its
 // source file. Where the current release and the next release differ, the
 // page says which is which.
-import { esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, supportOn } from "./html.mjs";
+import { esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, supportOn, supportAsk } from "./html.mjs";
 import { src, dateET, says, saysIf, label } from "./pages-main.mjs";
 import { FACTS, SECTIONS } from "./help-content.mjs";
 import { RELEASE_NOTES, NEXT_RELEASE } from "./changelog-content.mjs";
@@ -226,7 +226,7 @@ export function helpPage(model, read) {
   const sections = SECTIONS.map((s) => ({ ...s, shown: sourcedEntries(s, facts) }));
   const body = [pageHero("Troubleshooting &amp; FAQ", "Each answer uses Vanguard's own commands and quotes its real messages. Open a question to see the fix."),
     glance([`Start with <code>/vg status</code>: its lines say what's loaded`, `Nothing here helps? <a href="/feedback/">Send a report</a>`]),
-    ...sections.map((s, i) => helpSection(s, facts, i === 0)), helpFooter()];
+    ...sections.map((s, i) => helpSection(s, facts, i === 0)), helpFooter(), supportAsk("help", "Problem solved?")];
   return { path: "/help/", title: "Troubleshooting & FAQ", description: "Fixes for common Vanguard problems, using the addon's own commands and messages.", body: body.join("\n") };
 }
 
@@ -521,6 +521,7 @@ ${releaseNotes(r)}
 export function changelogPage(model) {
   const rels = model.releases.releases.slice().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   const body = [pageHero("Changelog", "Newest first: what each Vanguard release changed, in plain words."),
+    supportAsk("changelog", "Vanguard is free. If these releases are useful to you,"),
     ...rels.map((r) => releaseSection(r, model)), nextSection(model), `<p class="small">Every line comes from the changes merged into the addon for that release.</p>`];
   return { path: "/changelog/", title: "Changelog", description: "What changed in each Vanguard release, newest first, and what's coming next.", body: body.join("\n") };
 }
@@ -563,5 +564,29 @@ ${supportOn().length ? disclosure({ id: "support", title: "Support Vanguard", bo
 ${disclosure({ id: "site", title: "This website", body: `<p>This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href="/fonts/OFL.txt">license text</a>. Its colors are Vanguard's own theme colors.</p>
 <p>Vanguard is an addon for WoW Forever.</p>
 ${src("LICENSE", "README.md (License, Credits)", "Media/Fonts/OFL.txt")}` })}`,
+  };
+}
+
+// ------------------------------------------------------------------ Support
+
+// The Support page: what support pays for, the Ko-fi link, and other ways to help. The only page
+// that asks at length; Ko-fi's own script is not loaded here (no third-party code on the site).
+export function supportPage() {
+  const kofi = supportOn().find((l) => l.name === "Ko-fi");
+  const url = kofi ? `${kofi.url}?utm_source=vanguardui&utm_medium=site&utm_campaign=support-page` : "";
+  return {
+    path: "/support/",
+    title: "Support Vanguard",
+    description: "Vanguard is free and built by one person. Here is what support pays for, how to give it, and other ways to help.",
+    body: `${pageHero("Support Vanguard", "Vanguard is free to use, and always will be. Support is a thank-you, never a requirement.")}
+${disclosure({ id: "pays-for", title: "What support pays for", open: true, body: `<p>Vanguard is built by one person. Support pays for the time to keep it working as WoW Forever patches change, and to fix what players report.</p>
+<p>It never unlocks anything: every part of Vanguard works the same for everyone.</p>` })}
+${kofi ? disclosure({ id: "give", title: "Give on Ko-fi", open: true, body: `<p><a class="button" href="${esc(url)}" rel="noopener">Support Vanguard on Ko-fi</a></p>
+<p class="small">Ko-fi takes the payment and shows its own options. Nothing is sent to Vanguard or this site.</p>` }) : ""}
+${disclosure({ id: "other-ways", title: "Can't chip in? These help too", body: `<ul>
+  <li>Tell other players about Vanguard.</li>
+  <li>Send a bug report or an idea on the <a href="/feedback/">Feedback page</a>.</li>
+  <li>Include the lines of <code>/vg status</code> when something goes wrong, so it can be fixed faster.</li>
+</ul>` })}`,
   };
 }
