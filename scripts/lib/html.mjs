@@ -174,11 +174,41 @@ export function socialTags({ path, title, description, site }) {
   ].join("\n") + "\n";
 }
 
+// What a search result and a link preview say about each page: a title that names the task and
+// the game, and a description of about 150 characters. The brand always has a qualifier ("for WoW
+// Forever"), never the bare word. The page's own h1 and `description` are unchanged. Home's
+// description is the addon's own TOC Notes line, so it is not overridden here.
+const SEO = {
+  "/": { title: "Vanguard: All-in-One UI Addon for WoW Forever" },
+  "/install/": { title: "Install Vanguard in WoW Forever", description: "How to install, update and remove the Vanguard UI addon in WoW Forever, through CurseForge or by hand, and where the AddOns folder is." },
+  "/start/": { title: "Getting Started with Vanguard in WoW Forever", description: "Open the Vanguard options, run the setup wizard, move your frames and pick an accent color in the all-in-one UI addon for WoW Forever." },
+  "/features/": { title: "Vanguard Features: Unit Frames, Bags, Action Bars", description: "Every Vanguard module for WoW Forever: unit and raid frames, action bars, bags, nameplates, click casting and more, with settings and commands." },
+  "/commands/": { title: "Vanguard Slash Commands for WoW Forever", description: "Every /vg slash command in the Vanguard UI addon for WoW Forever, with its help text verbatim from the addon." },
+  "/settings/": { title: "Vanguard Settings for WoW Forever", description: "Every page and setting in the Vanguard options window for WoW Forever, with defaults and which changes need a reload." },
+  "/profiles/": { title: "Vanguard Profiles: Share a UI Layout in WoW Forever", description: "Share one Vanguard layout across characters, or export it as text and import it on another PC, in WoW Forever." },
+  "/help/": { title: "Vanguard Troubleshooting and FAQ for WoW Forever", description: "Fixes for common Vanguard problems in WoW Forever, such as a missing addon or lost settings, using the addon's own commands and messages." },
+  "/changelog/": { title: "Vanguard Changelog: What Changed in Each Release", description: "What changed in each Vanguard release for WoW Forever, newest first, written for players, and what is coming next." },
+  "/feedback/": { title: "Send Vanguard Feedback or Report a Bug", description: "Report a Vanguard bug or request a feature for the WoW Forever UI addon." },
+  "/credits/": { title: "Vanguard Credits and License", description: "Vanguard's license, who made it, and the fonts, libraries and art the WoW Forever UI addon uses." },
+};
+
+// The Home page's schema.org data for search engines: the app and the site. No rating or review
+// is claimed, because there are none; there is no download URL until the CurseForge listing is live.
+export function homeJsonLd(site, description) {
+  const app = { "@type": "SoftwareApplication", name: "Vanguard", description, url: `${site.url}/`, image: `${site.url}/assets/og-image.png`,
+    applicationCategory: "GameApplication", operatingSystem: "Windows, macOS", softwareVersion: site.version,
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, author: { "@type": "Person", name: site.author } };
+  const web = { "@type": "WebSite", name: "Vanguard", url: `${site.url}/` };
+  return `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@graph": [app, web] }).replace(/</g, "\\u003c")}</script>\n`;
+}
+
 // A full HTML page with the shared header, sidebar and footer. Every page, Home
 // included, has the same grouped sidebar; it's the only nav (the header holds
 // the brand and the Menu button, the footer no links).
 export function layout({ path, title, description, body, site, scripts = [] }) {
-  const fullTitle = path === "/" ? `Vanguard: a UI suite for WoW Forever` : `${title} · Vanguard`;
+  const seo = SEO[path] || {};
+  const fullTitle = seo.title || `${title} · Vanguard`;
+  description = seo.description || description;
   const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">Menu</button>`;
   const nav = `<nav class="nav sidebar" aria-label="Main" id="site-nav">${sidebarList(path)}${site.hasNext ? nextSwitch() : ""}</nav>`;
   const main = `<main id="main" tabindex="-1">\n${body}\n</main>`;
@@ -196,7 +226,7 @@ export function layout({ path, title, description, body, site, scripts = [] }) {
 ${socialTags({ path, title: fullTitle, description, site })}<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-<link rel="stylesheet" href="${esc(asset("/assets/theme.css"))}">
+${path === "/" && site.url ? homeJsonLd(site, description) : ""}<link rel="stylesheet" href="${esc(asset("/assets/theme.css"))}">
 <link rel="stylesheet" href="${esc(asset("/assets/site.css"))}">
 <script>(function (d) { d.className += " js"; try { if (localStorage.getItem("vg-show-next") === "1") d.className += " show-next"; } catch (e) {} })(document.documentElement);</script>
 </head>
