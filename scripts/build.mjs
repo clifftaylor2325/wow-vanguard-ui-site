@@ -18,8 +18,12 @@ import { FONTS, WOFF2_DIR } from "./lib/fonts.mjs";
 import { homePage, installPage, startPage, featuresPage, commandsPage, settingsPage } from "./lib/pages-main.mjs";
 import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage } from "./lib/pages-more.mjs";
 import { longerGaps } from "./lib/features-content.mjs";
+import { faviconSvg } from "./lib/brand.mjs";
 
 const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js", "fill.js"];
+
+// The brand rasters shipped under /assets/ (the social preview stays in src/, for GitHub's settings).
+const BRAND_RASTER = ["og-image.png", "apple-touch-icon.png", "favicon-32.png"];
 
 const SITE_AUTHOR = "Clifton Taylor";
 const OLD_AUTHOR = "clifftaylor2325";
@@ -59,12 +63,6 @@ function themeCss(theme) {
   const lines = Object.entries(vars).map(([k, v]) => `  --${k}: ${v};`);
   for (const k of theme.presetOrder) lines.push(`  --accent-${k}: ${theme.presets[k]};`);
   return { css: `/* Generated from Core/Theme.lua (TOKENS, PRESETS). Do not edit. */\n:root {\n${lines.join("\n")}\n}\n`, vars };
-}
-
-// The favicon: the two linked diamonds of the Vanguard mark, in the theme colors.
-function faviconSvg(vars) {
-  const diamond = (d, color) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.5"/>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="${vars.bg}"/>${diamond("M11 4 L20 16 L11 28 L2 16 Z", vars.accent)}${diamond("M21 4 L30 16 L21 28 L12 16 Z", vars.text)}</svg>\n`;
 }
 
 // The pages' asset URLs with a short hash of the built file in the query
@@ -116,13 +114,16 @@ function main() {
   const gaps = longerGaps(model.next.readme);
   need(!gaps.length, `the README no longer says what the Features longer text is written from:\n  ${gaps.join("\n  ")}`);
   const theme = themeCss(next.theme);
-  const site = { theme: theme.vars, author: SITE_AUTHOR, version: rel.meta.Version, hasNext: !model.same };
+  const base = cfg.siteUrl.replace(/\/+$/, "");
+  const site = { theme: theme.vars, author: SITE_AUTHOR, version: rel.meta.Version, hasNext: !model.same, url: base };
   const read = { rel: relReader.read, next: nextReader.read };
 
   fs.rmSync(cfg.outDir, { recursive: true, force: true });
   write("assets/theme.css", theme.css);
   write("assets/favicon.svg", faviconSvg(theme.vars));
-  const base = cfg.siteUrl.replace(/\/+$/, "");
+  // The crest as raster, for the places that can't take SVG or CSS: the Open Graph image, the
+  // iOS home-screen icon and the PNG favicon fallback (src/assets/brand/, made from the crest).
+  for (const f of BRAND_RASTER) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets/brand", f)));
   write("sitemap.xml", sitemapXml(base));
   write("robots.txt", robotsTxt(base));
   write("_headers", headersFile());
