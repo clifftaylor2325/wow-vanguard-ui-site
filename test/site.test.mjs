@@ -275,7 +275,41 @@ test("the home page decoration is hidden from screen readers and the mock is lab
   assert.ok(/<div class="hero-art" aria-hidden="true">/.test(html), "hero decoration must be aria-hidden");
   assert.ok(/class="mock" role="img" aria-label="Illustration, not a screenshot/.test(html), "UI mock must be labeled as an illustration");
   assert.ok(!/<img\b/.test(html), "the home page uses no images");
-  assert.ok(!/https?:\/\/(?!vanguard-ui\.pages\.dev)[^"']+\.(png|jpe?g|webp|gif|svg|woff2?|ttf|otf)/i.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8") + html), "no external images or fonts");
+  const own = new RegExp(`https?://(?!vanguard-ui\\.pages\\.dev|${cfg.siteUrl.replace(/^https?:\/\//, "").replace(/\./g, "\\.")})[^"']+\\.(png|jpe?g|webp|gif|svg|woff2?|ttf|otf)`, "i");
+  assert.ok(!own.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8") + html), "no external images or fonts (the site's own Open Graph image is fine)");
+});
+
+test("every page carries its canonical URL and the Open Graph card, with the crest's image shipped", () => {
+  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"];
+  const base = cfg.siteUrl.replace(/\/+$/, "");
+  for (const d of dirs) {
+    const html = page(d);
+    const url = `${base}/${d ? d + "/" : ""}`;
+    assert.ok(html.includes(`<link rel="canonical" href="${url}">`), `/${d} has no canonical link`);
+    assert.ok(html.includes(`<meta property="og:url" content="${url}">`), `/${d} has no og:url`);
+    assert.ok(/<meta property="og:title" content="[^"]+">/.test(html) && /<meta property="og:description" content="[^"]+">/.test(html), `/${d} lacks og:title or og:description`);
+    assert.ok(html.includes(`<meta property="og:image" content="${base}/assets/og-image.png">`), `/${d} has no og:image`);
+    assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'), `/${d} has no twitter:card`);
+    assert.ok(html.includes('<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">'), `/${d} has no apple-touch-icon`);
+    assert.ok(html.includes('<link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">'), `/${d} has no PNG favicon`);
+  }
+  const notFound = fs.readFileSync(path.join(dist, "404.html"), "utf8");
+  assert.ok(!/rel="canonical"|property="og:/.test(notFound), "the 404 page has no canonical or Open Graph tags");
+  for (const f of ["og-image.png", "apple-touch-icon.png", "favicon-32.png"]) {
+    const buf = fs.readFileSync(path.join(dist, "assets", f));
+    assert.ok(buf.subarray(1, 4).toString("latin1") === "PNG", `dist/assets/${f} missing or not a PNG`);
+  }
+});
+
+test("the crest is the brand mark on every page and sits above the Home title", () => {
+  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"];
+  for (const d of dirs) {
+    const header = page(d).match(/<header class="site-header">[\s\S]*?<\/header>/)[0];
+    assert.ok(/<a class="brand" href="\/"><svg class="brand-mark" viewBox="215 115 594 870" aria-hidden="true"/.test(header), `/${d}: the header's brand mark is not the crest`);
+  }
+  const home = page("");
+  assert.ok(/<svg class="hero-crest" viewBox="215 115 594 870" role="img" aria-label="Vanguard's crest[^"]*"/.test(home), "Home's hero has no labelled crest");
+  assert.equal((home.match(/<clipPath id="vg-crest-letter">/g) || []).length, 1, "the engraved V's clip is defined once on Home");
 });
 
 test("player-facing copy describes the early release honestly", () => {

@@ -65,6 +65,10 @@ The structure is built for one screen. `layout()` puts the grouped sidebar (`NAV
 
 The site never links to the GitHub repo from player-facing pages, and it offers no download.
 
+## The crest
+
+Vanguard's crest (two swords crossed behind a rimmed, riveted heater shield that bears a serif V) is drawn as inline SVG by `scripts/lib/brand.mjs`, in the theme's CSS variables, so it follows the accent: `crestSvg()` makes the small mark beside the brand name in every header and the full crest above the Home title. The build writes `assets/favicon.svg` from the same shapes (`faviconSvg()`: the shield and V alone, since the swords are noise at 16 px) in the theme's own colours. The rasters that can't be generated at build time live in `src/assets/brand/` and are copied to `assets/`: `og-image.png` (1200 x 630, the Open Graph card every page names), `apple-touch-icon.png` (180 px) and `favicon-32.png`; `github-social-preview.png` (1280 x 640) is for the GitHub repos' Settings → Social preview and is not served. The reference drawing is `src/assets/brand/vanguard-crest.svg` (1024 x 1024 on slate; the same file as the addon's `art/brand/vanguard-crest.svg`, which draws it for the addons-list icon). `layout()` also gives every real page a canonical link and Open Graph and Twitter card tags (`socialTags()`), so a link pasted in Discord or a forum unfurls with the crest.
+
 ## Deploying
 
 The site is published to the Cloudflare Pages project `vanguard-ui`, at `https://vanguardui.com` (its custom domain) and `https://vanguard-ui.pages.dev`. Two ways:

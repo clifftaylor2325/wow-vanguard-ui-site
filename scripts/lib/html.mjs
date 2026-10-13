@@ -1,5 +1,7 @@
 // HTML helpers and the shared page layout (header, sidebar nav, footer).
 
+import { crestSvg } from "./brand.mjs";
+
 // Escapes text for HTML.
 export function esc(s) {
   return String(s ?? "")
@@ -128,8 +130,8 @@ ${body}
 </details>`;
 }
 
-// The two linked diamonds of the Vanguard logo, as a small inline SVG.
-const MARK = `<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M11 4 L20 16 L11 28 L2 16 Z" fill="none" stroke="var(--accent)" stroke-width="2.5"/><path d="M21 4 L30 16 L21 28 L12 16 Z" fill="none" stroke="var(--text)" stroke-width="2.5"/></svg>`;
+// The Vanguard crest, as the small inline mark beside the brand name (scripts/lib/brand.mjs).
+const MARK = crestSvg({ cls: "brand-mark" });
 
 // One nav link, marked when it's the page being shown.
 function navLink(n, path) {
@@ -151,6 +153,27 @@ function nextSwitch() {
   return `<div class="nav-foot"><label class="switch"><input type="checkbox" data-pref="next"> <span>Show what's coming in the next release</span></label></div>`;
 }
 
+// The page's canonical URL and the Open Graph and Twitter card tags, so a link pasted in Discord,
+// Reddit or a forum unfurls with the crest. Only real pages get them (the 404 page has no URL of
+// its own); every page shares the one Open Graph image.
+export function socialTags({ path, title, description, site }) {
+  if (!site.url || path === "/404") return "";
+  const url = `${site.url}${path}`;
+  return [
+    `<link rel="canonical" href="${esc(url)}">`,
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:site_name" content="Vanguard">`,
+    `<meta property="og:title" content="${esc(title)}">`,
+    `<meta property="og:description" content="${esc(description)}">`,
+    `<meta property="og:url" content="${esc(url)}">`,
+    `<meta property="og:image" content="${esc(site.url)}/assets/og-image.png">`,
+    `<meta property="og:image:width" content="1200">`,
+    `<meta property="og:image:height" content="630">`,
+    `<meta property="og:image:alt" content="Vanguard's crest, two swords crossed behind a shield bearing a V, beside the name">`,
+    `<meta name="twitter:card" content="summary_large_image">`,
+  ].join("\n") + "\n";
+}
+
 // A full HTML page with the shared header, sidebar and footer. Every page, Home
 // included, has the same grouped sidebar; it's the only nav (the header holds
 // the brand and the Menu button, the footer no links).
@@ -170,7 +193,9 @@ export function layout({ path, title, description, body, site, scripts = [] }) {
 <meta name="description" content="${esc(description)}">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="${esc(site.theme.bg)}">
-<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
+${socialTags({ path, title: fullTitle, description, site })}<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="stylesheet" href="${esc(asset("/assets/theme.css"))}">
 <link rel="stylesheet" href="${esc(asset("/assets/site.css"))}">
 <script>(function (d) { d.className += " js"; try { if (localStorage.getItem("vg-show-next") === "1") d.className += " show-next"; } catch (e) {} })(document.documentElement);</script>
