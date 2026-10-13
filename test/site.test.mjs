@@ -657,3 +657,22 @@ test("support links render only once a URL is set, and only https ones", () => {
   }
   assert.equal(/id="support"/.test(page("credits")), on, "Credits has a Support section exactly when a support URL is set");
 });
+
+test("every page has its own search title and description, and Home carries SoftwareApplication data without ratings", () => {
+  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits"];
+  const titles = new Set(), descs = new Set();
+  for (const d of dirs) {
+    const html = page(d);
+    const title = html.match(/<title>([^<]+)<\/title>/)[1], desc = html.match(/<meta name="description" content="([^"]+)">/)[1];
+    assert.ok(title.length <= 62, `/${d} title is ${title.length} characters`);
+    assert.ok(!titles.has(title) && !descs.has(desc), `/${d} repeats another page's title or description`);
+    titles.add(title); descs.add(desc);
+    if (d) assert.ok(desc.length <= 170, `/${d} description is ${desc.length} characters`);
+    assert.equal(/application\/ld\+json/.test(html), d === "", `/${d} JSON-LD only belongs on Home`);
+  }
+  const ld = JSON.parse(page("").match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  const app = ld["@graph"].find((n) => n["@type"] === "SoftwareApplication");
+  assert.equal(app.offers.price, "0");
+  assert.ok(app.softwareVersion && app.url === `${cfg.siteUrl.replace(/\/+$/, "")}/`);
+  assert.ok(!("aggregateRating" in app) && !("review" in app) && !("downloadUrl" in app), "no invented ratings, no download URL");
+});
