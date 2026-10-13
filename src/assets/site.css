@@ -27,6 +27,8 @@
   --r-1: 3px; --r-2: 6px; --r-3: 8px; --r-4: 12px;
   --fs-xs: 0.8rem; --fs-sm: 0.9rem; --fs-md: 1.0625rem; --fs-lg: 1.15rem; --fs-xl: 1.4rem;
   --header-h: 56px; --sidebar-w: 250px; --content-max: 920px; --shell-max: 1360px;
+  /* The crest's darker brass (its rim and the swords' grips), from the accent. */
+  --crest-dark: color-mix(in oklab, var(--accent) 82%, #000);
   --dur: 160ms; --ease: ease;
 }
 
@@ -73,7 +75,7 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 .site-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 70%, transparent) 30%, var(--accent) 50%, color-mix(in oklab, var(--accent) 70%, transparent) 70%, transparent); opacity: 0.7; pointer-events: none; }
 .header-inner { max-width: var(--shell-max); margin: 0 auto; min-height: var(--header-h); padding: 0 var(--sp-4); display: flex; align-items: center; gap: var(--sp-4); }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 600; font-size: 1.25rem; }
-.brand-mark { width: 26px; height: 26px; flex: none; }
+.brand-mark { width: 22px; height: 32px; flex: none; }
 .nav-toggle { margin-left: auto; font: inherit; cursor: pointer; padding: 6px 12px; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); font-weight: 600; }
 .nav-toggle::after { content: " ▾"; color: var(--text2); }
 .nav-toggle[aria-expanded="true"]::after { content: " ▴"; }
@@ -320,7 +322,7 @@ table.stack { margin: 0 0 1em; }
 /* ------------------------------------------------------------------ Home hero
    Every layer is CSS gradients or inline SVG in the theme colors; decoration
    is aria-hidden. Embers drift only without prefers-reduced-motion. */
-.hero { position: relative; isolation: isolate; overflow: hidden; margin: 0; border-radius: var(--r-4); min-height: clamp(300px, 46vh, 440px); display: grid; place-items: center; text-align: center; padding: 40px 22px 56px; border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--divider)); box-shadow: 0 40px 80px -40px #000, 0 0 0 1px color-mix(in oklab, var(--bg) 60%, transparent); }
+.hero { position: relative; isolation: isolate; overflow: hidden; margin: 0; border-radius: var(--r-4); min-height: clamp(300px, 46vh, 440px); display: grid; place-items: center; text-align: center; padding: 26px 22px 44px; border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--divider)); box-shadow: 0 40px 80px -40px #000, 0 0 0 1px color-mix(in oklab, var(--bg) 60%, transparent); }
 .hero-art, .hero-art > * { position: absolute; pointer-events: none; }
 .hero-art { inset: 0; z-index: -1; }
 .hero-sky { inset: 0; background:
@@ -358,14 +360,16 @@ table.stack { margin: 0 0 1em; }
 .fr-br { right: -2px; bottom: -2px; transform: scale(-1, -1); }
 
 .hero-inner { position: relative; max-width: 760px; min-width: 0; }
+/* The crest above the title: sized by the viewport so the hero still opens on one screen. */
+.hero-crest { display: block; width: auto; height: clamp(64px, 9vh, 92px); margin: 0 auto 6px; filter: drop-shadow(0 6px 18px color-mix(in oklab, var(--bg) 70%, transparent)); }
 .hero-kicker { margin: 0 0 6px; font-size: 0.85rem; letter-spacing: 0.3em; text-transform: uppercase; color: color-mix(in oklab, var(--accent) 70%, var(--text)); }
 .hero-title { margin: 0; font-weight: 600; font-size: clamp(2.8rem, 10vw, 5.5rem); line-height: 0.95; letter-spacing: 0.015em; color: var(--accent); text-shadow: 0 2px 30px color-mix(in oklab, var(--accent) 35%, transparent); }
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
   .hero-title, .page-title { background: linear-gradient(180deg, color-mix(in oklab, var(--text) 80%, var(--accent)) 8%, var(--accent) 52%, color-mix(in oklab, var(--accent) 72%, var(--accent-ember)) 92%); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 4px 24px color-mix(in oklab, var(--accent) 38%, transparent)); }
 }
-.hero-orn { width: 260px; margin: 8px auto 10px; }
+.hero-orn { width: 260px; margin: 6px auto 6px; }
 .hero-tagline { margin: 0 auto 10px; max-width: 34ch; text-wrap: balance; font-size: clamp(1.25rem, 3.6vw, 1.7rem); line-height: 1.25; color: var(--text); text-shadow: 0 1px 12px var(--bg); }
-.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 16px; }
+.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 12px; }
 .hero-actions .cf-cta.is-soon { background: color-mix(in oklab, var(--bg) 70%, transparent); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 .hero-actions .button { padding: 11px 20px; font-size: 1.05rem; }
 .hero-meta { margin: 12px 0 0; font-size: var(--fs-sm); color: var(--text); text-shadow: 0 1px 8px var(--bg), 0 0 2px var(--bg); }

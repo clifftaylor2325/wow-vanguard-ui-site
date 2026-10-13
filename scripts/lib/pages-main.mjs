@@ -2,6 +2,7 @@
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
 import { esc, md, slug, badge, avail, shot, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
+import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf } from "./features-content.mjs";
 
@@ -133,6 +134,7 @@ export function homePage(model) {
     body: `<section class="hero" aria-labelledby="hero-title">
 ${heroArt()}
 <div class="hero-inner">
+  ${crestSvg({ full: true, cls: "hero-crest", label: "Vanguard's crest: two swords crossed behind a brass shield that bears a V" })}
   <p class="hero-kicker">An addon for WoW&nbsp;Forever</p>
   <h1 id="hero-title" class="hero-title">Vanguard</h1>
   ${ornament("hero-orn")}
