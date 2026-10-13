@@ -1,7 +1,7 @@
 // Home, Install & Update, Getting started, Features, Commands and Settings.
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
-import { esc, md, slug, badge, avail, shot, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
+import { supportAsk, esc, md, slug, badge, avail, shot, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf } from "./features-content.mjs";
@@ -29,7 +29,7 @@ export function curseforgeBox(model, { heading = true } = {}) {
   <div class="cf-box-main">
     <h2 id="cf-h" class="cf-box-h">${heading ? (CURSEFORGE_URL ? "Get Vanguard on CurseForge" : "Vanguard is coming to CurseForge") : ""}</h2>
     ${curseforgeCta({ size: "lg" })}
-    <p class="small cf-box-note">${CURSEFORGE_URL ? "Install and update it with the CurseForge app or from its page on the CurseForge website." : "No link yet: this badge becomes a link to Vanguard's CurseForge page as soon as it's listed. Until then there's nothing to download here."}</p>
+    <p class="small cf-box-note">${CURSEFORGE_URL ? "Install and update it with the CurseForge app or from its page on the CurseForge website." : "No link yet: this badge becomes a link to Vanguard's CurseForge page as soon as it's listed (Wago is planned too). Until then there's nothing to download here."}</p>
   </div>
   <dl class="facts">
     <dt>Current release</dt><dd>${esc(model.version)} (release ${esc(release.tag)})</dd>
@@ -200,7 +200,8 @@ ${disclosure({ id: "update", title: "Update", body: `<p><strong>With the CurseFo
 <p>The <a href="/changelog/">Changelog</a> says what changed in each release.</p>
 ${src("Vanguard.toc (SavedVariables)")}` })}
 ${disclosure({ id: "uninstall", title: "Uninstall", body: `<p>Remove Vanguard in the CurseForge app, or delete the <code>Vanguard</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.</p>
-<p>To go back to the game's own version of just one part (say, its action bars), you don't need to uninstall: turn that module off under <strong>/vg → Modules</strong> and reload. See <a href="/help/#one-feature">Troubleshooting</a>.</p>` })}`,
+<p>To go back to the game's own version of just one part (say, its action bars), you don't need to uninstall: turn that module off under <strong>/vg → Modules</strong> and reload. See <a href="/help/#one-feature">Troubleshooting</a>.</p>` })}
+${supportAsk("install", "Vanguard is free and built by one person. If it saved you an evening of setting up your UI,")}`,
   };
 }
 
