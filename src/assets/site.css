@@ -217,6 +217,9 @@ details.src > p { margin: 4px 0 0; }
 .cf-box-h { border: 0; padding: 0; font-size: 1.2rem; }
 .cf-box-h:empty { display: none; }
 .cf-box-note { max-width: 52ch; }
+.cf-box-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.wago-link { font-size: 0.95rem; color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+.hero-wago { display: inline-block; margin-top: 10px; }
 .facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; }
 .facts dt { color: var(--text2); }
 .facts dd { margin: 0; }

@@ -10,7 +10,7 @@ import os from "node:os";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
-import { CURSEFORGE_URL, esc, NAV, COPYRIGHT, SUPPORT, supportOn, supportLine } from "../scripts/lib/html.mjs";
+import { CURSEFORGE_URL, WAGO_URL, esc, NAV, COPYRIGHT, SUPPORT, supportOn, supportLine } from "../scripts/lib/html.mjs";
 import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
@@ -261,7 +261,9 @@ test("Home and Install have the CurseForge call to action", () => {
     const html = page(p);
     if (CURSEFORGE_URL) {
       assert.ok(html.includes(`data-curseforge="live" href="${CURSEFORGE_URL}"`), `/${p} has no CurseForge link`);
+      if (WAGO_URL) assert.ok(html.includes(`data-wago="live" href="${WAGO_URL}"`), `/${p} has no Wago link`);
     } else {
+      assert.ok(!/data-wago=/.test(html), `/${p} shows a Wago link before CurseForge is live`);
       assert.ok(/<span class="cf-cta[^"]*" data-curseforge="soon">[\s\S]*?Coming soon on CurseForge/.test(html), `/${p} has no "Coming soon on CurseForge" badge`);
       assert.ok(!/<a\b[^>]*data-curseforge/.test(html), `/${p}: the CurseForge badge must not be a link while there's no URL`);
       assert.ok(!/curseforge\.com/i.test(html), `/${p} links to curseforge.com before CURSEFORGE_URL is set`);
