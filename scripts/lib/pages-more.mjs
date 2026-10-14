@@ -170,7 +170,8 @@ function helpFacts(model, read) {
   // Releases before 0.4.0 name the addon ForeverUI in these reasons; read as Vanguard, they're the same.
   const reasons = (ref) => [...(read[ref]("Core/Serialize.lua") || "").matchAll(/return nil, "([^"]+)"/g)].map((m) => m[1].replace("ForeverUI", "Vanguard"));
   const rel = reasons("rel");
-  facts.reasons = rel.length && rel.join("|") === reasons("next").join("|") ? rel : null;
+  // The current release's reasons: a newer release may add some, and the page describes the current one.
+  facts.reasons = rel.length ? rel : null;
   return facts;
 }
 
