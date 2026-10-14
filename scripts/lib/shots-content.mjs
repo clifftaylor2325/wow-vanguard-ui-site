@@ -15,7 +15,7 @@ export const SHOT_GROUPS = [
         "h": 899,
         "alt": "The default layout",
         "caption": "The default layout: your frames either side of your character, the action bars, the quest tracker and the info strip under the minimap, and the bag and menu bar in the corner.",
-        "next": true
+        "next": false
       },
       {
         "file": "02-setup-wizard",

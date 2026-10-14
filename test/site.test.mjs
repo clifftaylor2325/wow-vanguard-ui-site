@@ -270,11 +270,11 @@ test("Home and Install have the CurseForge call to action", () => {
   assert.ok(/install and update it through CurseForge/i.test(page("install")), "/install doesn't explain installing through CurseForge");
 });
 
-test("the home page decoration is hidden from screen readers and the mock is labeled", () => {
+test("the home page decoration is hidden from screen readers and the layout section is a real screenshot", () => {
   const html = page("");
   assert.ok(/<div class="hero-art" aria-hidden="true">/.test(html), "hero decoration must be aria-hidden");
-  assert.ok(/class="mock" role="img" aria-label="Illustration, not a screenshot/.test(html), "UI mock must be labeled as an illustration");
-  assert.ok(!/<img\b/.test(html), "the home page uses no images");
+  assert.ok(/<img src="\/assets\/shots\/01-hud-overview\.webp"[^>]* alt="[^"]+"/.test(html), "the layout section shows the real screenshot, with alt text");
+  assert.ok(!/class="mock"/.test(html), "no illustration standing in for a screenshot");
   const own = new RegExp(`https?://(?!vanguard-ui\\.pages\\.dev|${cfg.siteUrl.replace(/^https?:\/\//, "").replace(/\./g, "\\.")})[^"']+\\.(png|jpe?g|webp|gif|svg|woff2?|ttf|otf)`, "i");
   assert.ok(!own.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8") + html), "no external images or fonts (the site's own Open Graph image is fine)");
 });
