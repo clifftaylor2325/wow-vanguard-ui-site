@@ -2,7 +2,7 @@
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
 import { shotByFile } from "./shots-content.mjs";
-import { supportAsk, esc, md, slug, badge, avail, shotFigure, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
+import { supportAsk, esc, md, slug, badge, avail, shotFigure, ornament, heroFrame, pageHero, curseforgeCta, wagoLink, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf } from "./features-content.mjs";
@@ -29,8 +29,8 @@ export function curseforgeBox(model, { heading = true } = {}) {
   return `<section class="card cf-box" aria-labelledby="cf-h">
   <div class="cf-box-main">
     <h2 id="cf-h" class="cf-box-h">${heading ? (CURSEFORGE_URL ? "Get Vanguard on CurseForge" : "Vanguard is coming to CurseForge") : ""}</h2>
-    ${curseforgeCta({ size: "lg" })}
-    <p class="small cf-box-note">${CURSEFORGE_URL ? "Install and update it with the CurseForge app or from its page on the CurseForge website." : "No link yet: this badge becomes a link to Vanguard's CurseForge page as soon as it's listed (Wago is planned too). Until then there's nothing to download here."}</p>
+    <div class="cf-box-actions">${curseforgeCta({ size: "lg" })}${wagoLink()}</div>
+    <p class="small cf-box-note">${CURSEFORGE_URL ? `Install and update it with the CurseForge app or from its page on the CurseForge website${WAGO_URL ? ", or get it from Wago Addons" : ""}.` : "No link yet: this badge becomes a link to Vanguard's CurseForge page as soon as it's listed (Wago is planned too). Until then there's nothing to download here."}</p>
   </div>
   <dl class="facts">
     <dt>Current release</dt><dd>${esc(model.version)} (release ${esc(release.tag)})</dd>
@@ -124,12 +124,13 @@ ${heroArt()}
   ${ornament("hero-orn")}
   <p class="hero-tagline">${esc(line)}.</p>
   <div class="hero-actions">${curseforgeCta({ size: "lg" })}<a class="button ghost" href="/features/">See the features</a></div>
+  ${wagoLink({ cls: "wago-link hero-wago" })}
   <p class="hero-meta">Current release v${esc(model.version)} · ${relMods.length} modules · the Slate &amp; Brass theme</p>
 </div>
 </section>
 
 <div class="grid four tiles">
-  <a class="card tile" href="/install/"><strong>Install</strong><span>How installing through CurseForge will work.</span></a>
+  <a class="card tile" href="/install/"><strong>Install</strong><span>${CURSEFORGE_URL ? "Get it through CurseForge or Wago." : "How installing through CurseForge will work."}</span></a>
   <a class="card tile" href="/start/"><strong>Set up</strong><span>Open the options, move your frames, pick an accent.</span></a>
   <a class="card tile" href="/commands/"><strong>Commands</strong><span>Every <code>/vg</code> command, searchable.</span></a>
   <a class="card tile" href="/help/"><strong>Fix a problem</strong><span>Self-fixes, then how to report a bug.</span></a>
@@ -155,16 +156,17 @@ export function installPage(model) {
   return {
     path: "/install/",
     title: "Install & Update",
-    description: "How to install, update and remove Vanguard: through CurseForge once it's listed.",
-    body: `${pageHero("Install &amp; Update", `Vanguard is going to be on CurseForge. ${listed ? "Install and update it through CurseForge: the CurseForge app or the CurseForge website." : "Once it's listed, you'll install and update it through CurseForge. It isn't listed yet, and this site doesn't offer it as a download."}`)}
+    description: listed ? "How to install, update and remove Vanguard: through CurseForge or Wago." : "How to install, update and remove Vanguard: through CurseForge once it's listed.",
+    body: `${pageHero("Install &amp; Update", listed ? `Vanguard is on CurseForge${WAGO_URL ? " and Wago" : ""}. Install and update it through CurseForge: the CurseForge app or the CurseForge website.` : "Vanguard is going to be on CurseForge. Once it's listed, you'll install and update it through CurseForge. It isn't listed yet, and this site doesn't offer it as a download.")}
 ${curseforgeBox(model)}
 ${disclosure({ id: "curseforge", title: "Install through CurseForge", body: `<ul>
   <li><strong>With the CurseForge app:</strong> find Vanguard in the app and install it. The app puts it in your AddOns folder and can keep it up to date.</li>
   <li><strong>From the CurseForge website:</strong> Vanguard's page there offers its files. ${listed ? "The button above goes to that page." : "When it's listed, the button above turns into a link to that page."} Then follow the steps under <a href="#by-hand">If you install by hand</a>.</li>
-</ul>
+${WAGO_URL ? `  <li><strong>From Wago Addons:</strong> <a href="${esc(WAGO_URL)}" rel="noopener">Vanguard's Wago page</a> offers the same files, for the Wago app or by hand.</li>
+` : ""}</ul>
 <p>Then turn it on at character select (<strong>AddOns</strong>, tick <strong>Vanguard</strong>), log in, and type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.</p>
-<p class="small">To be confirmed: the exact steps for the WoW Forever client in the CurseForge app will be written here once Vanguard is listed.</p>` })}
-${disclosure({ id: "by-hand", title: "If you install by hand", body: `<p>For when you take the file from Vanguard's CurseForge page instead of using the app.</p>
+${listed ? "" : `<p class="small">To be confirmed: the exact steps for the WoW Forever client in the CurseForge app will be written here once Vanguard is listed.</p>`}` })}
+${disclosure({ id: "by-hand", title: "If you install by hand", body: `<p>For when you take the file from Vanguard's CurseForge${WAGO_URL ? " or Wago" : ""} page instead of using an app.</p>
 <ol class="steps">
   <li><strong>Unzip the file.</strong> Inside is one folder called <code>Vanguard</code>.</li>
   <li><strong>Put the <code>Vanguard</code> folder in your AddOns folder.</strong> The addon's README says: unzip the <code>Vanguard</code> folder into <code>${esc(where ? where[1] : "Interface/AddOns/")}</code> (${esc(where ? where[2] : "your Forever client's AddOns folder")}). The exact AddOns folder for the WoW Forever client (on Windows and macOS) is still being confirmed; until then, use the folder of your Forever client that has <code>Interface/AddOns</code> in it.</li>
@@ -172,7 +174,7 @@ ${disclosure({ id: "by-hand", title: "If you install by hand", body: `<p>For whe
   <li>Type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.</li>
 </ol>
 ${src("README.md (Install)", "scripts/package.mjs (zip layout)", "docs/SMOKE-TEST.md (step 1.2)")}` })}
-${disclosure({ id: "update", title: "Update", body: `<p><strong>With the CurseForge app:</strong> update Vanguard there when a new version is out.</p>
+${disclosure({ id: "update", title: "Update", body: `<p><strong>With the CurseForge${WAGO_URL ? " or Wago" : ""} app:</strong> update Vanguard there when a new version is out.</p>
 <p><strong>By hand:</strong></p>
 <ol class="steps">
   <li>Log out of the game (or close it).</li>
@@ -183,7 +185,7 @@ ${disclosure({ id: "update", title: "Update", body: `<p><strong>With the CurseFo
 <div class="notice" id="renamed"><p><strong>Coming from ForeverUI?</strong> Vanguard was called ForeverUI up to v0.3.0. It was renamed because another, unrelated addon is published under that name. The settings file is named after the addon, so your settings don't move over by themselves: before you update, type <code>/fui export</code> in game and keep the text; after updating, type <code>/vg import</code> and paste it (text from ForeverUI imports fine). Then delete the old <code>ForeverUI</code> folder from your AddOns folder.</p></div>
 <p>The <a href="/changelog/">Changelog</a> says what changed in each release.</p>
 ${src("Vanguard.toc (SavedVariables)")}` })}
-${disclosure({ id: "uninstall", title: "Uninstall", body: `<p>Remove Vanguard in the CurseForge app, or delete the <code>Vanguard</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.</p>
+${disclosure({ id: "uninstall", title: "Uninstall", body: `<p>Remove Vanguard in the CurseForge${WAGO_URL ? " or Wago" : ""} app, or delete the <code>Vanguard</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.</p>
 <p>To go back to the game's own version of just one part (say, its action bars), you don't need to uninstall: turn that module off under <strong>/vg → Modules</strong> and reload. See <a href="/help/#one-feature">Troubleshooting</a>.</p>` })}
 ${supportAsk("install", "Vanguard is free and built by one person. If it saved you an evening of setting up your UI,")}`,
   };

@@ -46,12 +46,14 @@ export const NAV = [
 // The sidebar's groups, in order.
 export const NAV_GROUPS = ["Get started", "Learn", "Reference", "Help", "About"];
 
-// Vanguard's CurseForge page. Vanguard isn't listed yet, so there's no URL:
-// every CurseForge call to action renders as a "Coming soon" badge, not a link.
-// When the listing is live, put its URL here (for example
-// "https://www.curseforge.com/wow/addons/<slug>") and rebuild: the badges
-// become links and the tests switch to checking for the link.
-export const CURSEFORGE_URL = null;
+// Vanguard's CurseForge page. While this is null (before the listing was live)
+// every CurseForge call to action renders as a "Coming soon" badge, not a link;
+// with the URL set, the badges are links and the tests check for the link.
+export const CURSEFORGE_URL = "https://www.curseforge.com/wow/addons/vanguard-ui";
+
+// Vanguard's Wago Addons page: the second place to get it. Shown as a smaller
+// link next to each CurseForge call to action and in the footer; null hides it.
+export const WAGO_URL = "https://addons.wago.io/addons/wow-vanguard-ui";
 
 // Ways to support Vanguard's development, in the order shown. Each stays off the site until its
 // url is set (an https:// address): then a "Support Vanguard" line appears in every page's footer
@@ -96,6 +98,12 @@ export function curseforgeCta({ size = "" } = {}) {
   const gem = `<svg class="cf-gem" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1 L15 8 L8 15 L1 8 Z"/><path d="M8 4.5 L11.5 8 L8 11.5 L4.5 8 Z"/></svg>`;
   if (CURSEFORGE_URL) return `<a class="${cls}" data-curseforge="live" href="${esc(CURSEFORGE_URL)}">${gem}<span>Get Vanguard on CurseForge</span></a>`;
   return `<span class="${cls} is-soon" data-curseforge="soon">${gem}<span>Coming soon on CurseForge</span></span>`;
+}
+
+// The Wago link shown beside a CurseForge call to action; "" while WAGO_URL is unset.
+export function wagoLink({ cls = "wago-link" } = {}) {
+  if (!WAGO_URL) return "";
+  return `<a class="${cls}" data-wago="live" href="${esc(WAGO_URL)}" rel="noopener">Also on Wago</a>`;
 }
 
 // A decorative divider: a fine brass rule with linked diamonds in the middle.
@@ -212,7 +220,7 @@ const SEO = {
 };
 
 // The Home page's schema.org data for search engines: the app and the site. No rating or review
-// is claimed, because there are none; there is no download URL until the CurseForge listing is live.
+// is claimed, because there are none; the site only links to the CurseForge and Wago listings.
 export function homeJsonLd(site, description) {
   const app = { "@type": "SoftwareApplication", name: "Vanguard", description, url: `${site.url}/`, image: `${site.url}/assets/og-image.png`,
     applicationCategory: "GameApplication", operatingSystem: "Windows, macOS", softwareVersion: site.version,
@@ -267,7 +275,7 @@ ${main}
   <div class="footer-inner">
     ${supportLine()}
     <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
-    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `<a href="${esc(CURSEFORGE_URL)}">On CurseForge</a>` : "Coming soon on CurseForge"} and Wago · ${COPYRIGHT}</p>
+    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `on <a href="${esc(CURSEFORGE_URL)}" rel="noopener">CurseForge</a>` : "coming soon on CurseForge"} and ${WAGO_URL ? `<a href="${esc(WAGO_URL)}" rel="noopener">Wago</a>` : "Wago"} · ${COPYRIGHT}</p>
   </div>
 </footer>
 <script src="${esc(asset("/assets/site.js"))}" defer></script>
