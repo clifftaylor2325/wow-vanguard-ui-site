@@ -32,6 +32,7 @@ export const NAV = [
   { path: "/install/", label: "Install", title: "Install & Update", group: "Get started" },
   { path: "/start/", label: "Getting started", title: "Getting started", group: "Get started" },
   { path: "/features/", label: "Features", title: "Features", group: "Learn" },
+  { path: "/screenshots/", label: "Screenshots", title: "Screenshots", group: "Learn" },
   { path: "/commands/", label: "Commands", title: "Commands", group: "Reference" },
   { path: "/settings/", label: "Settings", title: "Settings", group: "Reference" },
   { path: "/profiles/", label: "Profiles & sharing", title: "Profiles & sharing", group: "Learn" },
@@ -199,6 +200,7 @@ const SEO = {
   "/install/": { title: "Install Vanguard in WoW Forever", description: "How to install, update and remove the Vanguard UI addon in WoW Forever, through CurseForge or by hand, and where the AddOns folder is." },
   "/start/": { title: "Getting Started with Vanguard in WoW Forever", description: "Open the Vanguard options, run the setup wizard, move your frames and pick an accent color in the all-in-one UI addon for WoW Forever." },
   "/features/": { title: "Vanguard Features: Unit Frames, Bags, Action Bars", description: "Every Vanguard module for WoW Forever: unit and raid frames, action bars, bags, nameplates, click casting and more, with settings and commands." },
+  "/screenshots/": { title: "Vanguard Screenshots: the UI in WoW Forever", description: "Real in-game screenshots of Vanguard in WoW Forever: the layout, options, looks, bags, quests, raid frames, auction house and map." },
   "/commands/": { title: "Vanguard Slash Commands for WoW Forever", description: "Every /vg slash command in the Vanguard UI addon for WoW Forever, with its help text verbatim from the addon." },
   "/settings/": { title: "Vanguard Settings for WoW Forever", description: "Every page and setting in the Vanguard options window for WoW Forever, with defaults and which changes need a reload." },
   "/profiles/": { title: "Vanguard Profiles: Share a UI Layout in WoW Forever", description: "Share one Vanguard layout across characters, or export it as text and import it on another PC, in WoW Forever." },
@@ -301,7 +303,10 @@ export function avail(inRel, inNext) {
   return inRel && inNext ? "rel" : inNext ? "next" : "old";
 }
 
-// A labelled screenshot placeholder.
-export function shot(label) {
-  return `<figure class="shot" role="img" aria-label="Screenshot coming: ${esc(label)}"><div><strong>Screenshot coming</strong>${esc(label)}</div></figure>`;
+// A real in-game screenshot as a figure that opens the full-size image (a `shot` from
+// scripts/lib/shots-content.mjs). A shot that shows something only the next release has hides
+// with the rest of it.
+export function shotFigure(s, { caption = true } = {}) {
+  const img = `<img src="/assets/shots/${esc(s.file)}.webp" width="${s.w}" height="${s.h}" alt="${esc(s.alt)}" loading="lazy" decoding="async">`;
+  return `<figure class="shot-fig"${s.next ? ' data-avail="next"' : ""}><a href="/assets/shots/${esc(s.file)}.webp">${img}</a>${caption ? `<figcaption>${esc(s.caption)}</figcaption>` : ""}</figure>`;
 }

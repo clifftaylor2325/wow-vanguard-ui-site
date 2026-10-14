@@ -4,7 +4,7 @@ Author: Clifton Taylor.
 
 The player website for [Vanguard](https://github.com/clifftaylor2325/wow-vanguard-ui), a UI addon for WoW Forever. Vanguard is going to be on CurseForge, so the site doesn't host or offer the addon as a download: it points players to CurseForge instead (a "Coming soon on CurseForge" badge until the listing is live). It's a static site (plain HTML and CSS, plus a little vanilla JS for search, copy buttons and the mobile menu). It is **generated from the addon's own source**, so the commands, modules, settings, colors and release facts on the site always match the addon.
 
-Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Brass colors), Install & Update, Getting started, Features, Commands (searchable), Settings (searchable), Profiles & sharing, Troubleshooting & FAQ, Feedback, Changelog, Credits & license. Every page, Home included, shares one grouped sidebar (Get started, Learn, Reference, Help, About), the only nav: the header holds the brand and the footer no links. Each page opens on one screen: a slim title band, a strip of facts, and folded sections the reader opens (see Page look).
+Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Brass colors), Install & Update, Getting started, Features, Screenshots, Commands (searchable), Settings (searchable), Profiles & sharing, Troubleshooting & FAQ, Feedback, Changelog, Credits & license. Every page, Home included, shares one grouped sidebar (Get started, Learn, Reference, Help, About), the only nav: the header holds the brand and the footer no links. Each page opens on one screen: a slim title band, a strip of facts, and folded sections the reader opens (see Page look).
 
 ## Requirements
 
@@ -52,6 +52,10 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
    - Troubleshooting & FAQ (`scripts/lib/help-content.mjs`): every message an answer quotes is read from the addon at build time, each with its file. An answer whose message can't be found in the code is left off the page instead of guessed.
    - Changelog (`scripts/lib/changelog-content.mjs`): each release in player language, and "What's coming in the next release" from the changes merged since the current release. Every line lists the merged pull requests it came from (never shown on the site). The next-release part only shows while the release it was written after is still the current one.
 5. The pages (`scripts/lib/pages-*.mjs`) are written into `dist/`, with the Fira Sans Condensed fonts (and their OFL license) from the addon. No zip is copied into `dist/`.
+
+## Screenshots
+
+The Screenshots page (`pages-more.mjs`, `screenshotsPage()`) and the images beside modules on Features (`FEATURE_SHOTS` in `pages-main.mjs`) read `scripts/lib/shots-content.mjs`: one entry per file in `src/assets/shots/` with its size, alt text and caption. Every file is a real in-game capture (no mock renders), saved as WebP at most 1600 px wide, and cropped or blurred where another player's name or the game's own "Press F6" help line was in frame. A shot that shows something only the next release has is marked `next: true` and hides with the rest of the next release. The build copies the folder to `dist/assets/shots/`. The Home page's hero is still an illustration, labelled as one.
 
 ## Fonts
 

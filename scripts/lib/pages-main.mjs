@@ -1,7 +1,8 @@
 // Home, Install & Update, Getting started, Features, Commands and Settings.
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
-import { supportAsk, esc, md, slug, badge, avail, shot, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
+import { shotByFile } from "./shots-content.mjs";
+import { supportAsk, esc, md, slug, badge, avail, shotFigure, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf } from "./features-content.mjs";
@@ -43,7 +44,7 @@ export function curseforgeBox(model, { heading = true } = {}) {
 
 // The README's opening tagline: "A from-scratch UI suite for WoW Forever".
 export function tagline(readme) {
-  const m = (readme || "").match(/^# Vanguard\s*\n+(?:>[^\n]*\n+)*([^\n(]+?)\s*(?:\(|\.|\n)/);
+  const m = (readme || "").match(/^# Vanguard\s*\n+(?:[><][^\n]*\n+)*([^\n(]+?)\s*(?:\(|\.|\n)/);
   return m ? m[1].trim() : "";
 }
 
@@ -72,27 +73,10 @@ function highlightCard(m, version) {
 </a></li>`;
 }
 
-// The decorative CSS "UI mock": abstract shapes in the layout the README
-// describes (centered frames, bars below, raid tiles above, square minimap,
-// chat bottom left). Marked as an illustration, never a screenshot.
-function uiMock() {
-  const n = (k, cls) => Array.from({ length: k }, () => `<i${cls ? ` class="${cls}"` : ""}></i>`).join("");
-  return `<figure class="mock-wrap">
-  <div class="mock" role="img" aria-label="Illustration, not a screenshot: abstract shapes suggesting unit frames, action bars, raid tiles, chat and a square minimap.">
-    <div class="mk-minimap"><b></b><b></b><b></b><b></b></div>
-    <div class="mk-raid">${n(10)}</div>
-    <div class="mk-small mk-focus"><span></span></div>
-    <div class="mk-small mk-pet"><span></span></div>
-    <div class="mk-player"><span class="mk-hp"></span><span class="mk-pw"></span></div>
-    <div class="mk-small mk-tot"><span></span></div>
-    <div class="mk-cast"><span></span></div>
-    <div class="mk-self" aria-hidden="true"></div>
-    <div class="mk-target"><span class="mk-hp"></span><span class="mk-pw"></span></div>
-    <div class="mk-bars"><div>${n(12)}</div><div>${n(12)}</div><div>${n(12)}</div><span class="mk-xp"></span></div>
-    <div class="mk-chat">${n(5)}</div>
-  </div>
-  <figcaption><span class="mock-tag">Illustration</span> Not a screenshot: the centered layout the addon's README describes, with player and target either side of your character, bars underneath, raid tiles above, chat bottom left and a square minimap.</figcaption>
-</figure>`;
+// The layout at a glance: a real screenshot of the default layout, with what is in it.
+function layoutShot() {
+  return `${shotFigure(shotByFile("01-hud-overview"), { caption: false })}
+<p class="small">The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner. More pictures are on <a href="/screenshots/">Screenshots</a>.</p>`;
 }
 
 // The hero's decorative layers: sky, glow, rune ring, ridges, embers and frame.
@@ -155,7 +139,7 @@ ${heroArt()}
 
 ${disclosure({ id: "hl-h", title: `What's in v${esc(model.version)}`, meta: `${relMods.length} modules`, body: `<p>A few of its modules, in the words the addon uses on its own Modules page. <a href="/features/">All ${relMods.length} are on Features</a>, and each can be turned off under <strong>/vg → Modules</strong>.</p>
 <ul class="feats">${highlights.map((m) => highlightCard(m, model.version)).join("\n")}</ul>` })}
-${disclosure({ id: "mock-h", title: "The layout at a glance", body: uiMock() })}`,
+${disclosure({ id: "mock-h", title: "The layout at a glance", body: layoutShot() })}`,
   };
 }
 
@@ -307,7 +291,7 @@ ${setup.later ? `<p>With the defaults it takes four clicks: <strong>${label(S, "
   <li>“${esc(setup.reloadModule)}${reloadAsk}” (for example after <strong>${layoutName("healing")}</strong> turned the raid frames on)</li>
   <li>“${esc(setup.reloadTile)}${reloadAsk}”</li>
 </ul>
-${shot("the setup wizard, step 1")}`;
+${shotFigure(shotByFile("02-setup-wizard"))}`;
   return disclosure({ id: "setup-wizard", title: "The setup wizard", next: !inRel, meta: inRel ? `${n} steps` : NEXT_BADGE, body });
 }
 
@@ -385,6 +369,15 @@ function featureSource(m, more) {
   return `<p class="small mod-src">Source: ${list}.</p>`;
 }
 
+// The screenshots that show a module, by module key (files in src/assets/shots/).
+const FEATURE_SHOTS = {
+  UnitFrames: ["01-hud-overview"], Bags: ["10-bags"], MenuStrip: ["11-bag-menu-bar"], Windows: ["12-game-windows"],
+  Merchant: ["14-merchant"], QuestDialog: ["15-quest-dialog"], QuestLog: ["16-quest-log"], QuestTracker: ["17-quest-tracker"],
+  Errands: ["18-trainer-train-all", "37-flight-timer"], RaidFrames: ["21-raid-preview-25"], PartyExtras: ["20-party-preview"],
+  ClickCast: ["22-click-casting"], Nameplates: ["32d-nameplates-enemies", "32e-nameplates-cast"], Meter: ["35-vanguard-meter-dps"],
+  CooldownGaps: ["36-cooldown-gaps"],
+};
+
 // One module as a card: name, badges, the addon's one-liner, more, and its facts.
 function featureCard(m, model) {
   const off = startsOff(m, model) ? ` <span class="badge plain">Off until you switch it on</span>` : "";
@@ -394,6 +387,7 @@ function featureCard(m, model) {
   <h3>${esc(m.name)} ${badge(m.inRel, m.inNext, model.version)}${off}</h3>
   ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}
   <details class="mod-details"><summary>More<span class="visually-hidden"> about ${esc(m.name)}</span></summary>
+  ${(FEATURE_SHOTS[m.key] || []).map((f) => shotFigure(shotByFile(f))).join("")}
   ${more ? `<p class="mod-more">${esc(more)}</p>` : ""}${longer.length ? `\n  <p class="mod-longer">${esc(longer.join(" "))}</p>` : ""}
   ${featureFacts(m, model)}
   ${featureSource(m, more)}

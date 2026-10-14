@@ -373,14 +373,18 @@ export function extractSetup(reader) {
   const layouts = plain(findTable(m, "S.LAYOUTS"));
   const screens = plain(findTable(m, "S.SCREENS"));
   const styles = plain(findTable(m, "S.STYLES"));
-  const fmt = m.code.match(/string\.format\("(UI scale %d%%[^"]*)"/)[1];
+  // Before the Pixel-perfect choice the hint was one format string; after it, a scale sentence plus a tail.
+  const oldFmt = (m.code.match(/string\.format\("(UI scale %d%%[^"]*)"/) || [])[1];
+  const moves = (m.code.match(/or "(Moves the game's UI Scale slider to %d%%[^"]*)"/) || [])[1];
+  const tail = (m.code.match(/scale \.\. "([^"]+)"/) || [])[1];
+  const fmt = oldFmt || `${moves}${tail}`;
   const pct = (v) => Math.floor(v * 100 + 0.5);
   for (const s of screens) s.hint = luaFormat(fmt, [pct(s.ui), s.button, s.tile[0], s.tile[1], pct(s.textScale)]);
   const keepText = (m.code.match(/key\s*=\s*"keep"\s*,\s*text\s*=\s*"([^"]+)"/) || [])[1];
   const keepHint = (m.code.match(/if not p then return "([^"]+)"/) || [])[1];
   // Each step's question, found by the list it offers: [layout, screen]; the profile step's apart.
   const question = (list) => (m.code.match(new RegExp(`choicePage\\(page,\\s*"([^"]+)",\\s*${list}`)) || [])[1];
-  const questions = [question("S\\.LAYOUTS"), question("screenChoices\\(\\)")];
+  const questions = [question("(?:S\\.LAYOUTS|layoutChoices\\(\\))"), question("screenChoices\\(\\)")];
   const profileQuestion = question("profileChoices\\(\\)") || null;
   const profileName = (names && names.profile) || null;
   // In chat when setup ends: finished (AGAIN), or closed while still owed (LATER).
