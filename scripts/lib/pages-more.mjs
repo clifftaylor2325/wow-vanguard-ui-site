@@ -2,7 +2,8 @@
 // Messages in quotes are copied from the addon's Lua; each section names its
 // source file. Where the current release and the next release differ, the
 // page says which is which.
-import { esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, supportOn, supportAsk } from "./html.mjs";
+import { SHOT_GROUPS } from "./shots-content.mjs";
+import { shotFigure, esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, supportOn, supportAsk } from "./html.mjs";
 import { src, dateET, says, saysIf, label } from "./pages-main.mjs";
 import { FACTS, SECTIONS } from "./help-content.mjs";
 import { RELEASE_NOTES, NEXT_RELEASE } from "./changelog-content.mjs";
@@ -589,5 +590,27 @@ ${disclosure({ id: "other-ways", title: "Can't chip in? These help too", body: `
   <li>Send a bug report or an idea on the <a href="/feedback/">Feedback page</a>.</li>
   <li>Include the lines of <code>/vg status</code> when something goes wrong, so it can be fixed faster.</li>
 </ul>` })}`,
+  };
+}
+
+// ------------------------------------------------------------------ Screenshots
+
+// One group of screenshots as a folded section. A group whose every shot is next-release only is too.
+function shotGroup(g) {
+  const next = g.shots.every((x) => x.next);
+  return disclosure({ id: g.id, title: esc(g.title), meta: `${g.shots.length} shot${g.shots.length === 1 ? "" : "s"}`, next, cls: "area", body: `<p>${esc(g.intro)}</p>\n<div class="shots-grid">${g.shots.map((x) => shotFigure(x)).join("\n")}</div>` });
+}
+
+// The Screenshots page: real in-game captures, grouped by what they show.
+export function screenshotsPage() {
+  const n = SHOT_GROUPS.reduce((t, g) => t + g.shots.length, 0);
+  return {
+    path: "/screenshots/",
+    title: "Screenshots",
+    description: "Real in-game screenshots of Vanguard in WoW Forever.",
+    body: `${pageHero("Screenshots", "Real captures from the game, not mock-ups. Click one to see it full size.")}
+${glance([`<strong>${n}</strong> in-game screenshots`, `Shots of things only the next release has hide with the rest of it`, `The same pictures sit beside their module on <a href="/features/">Features</a>`])}
+<div class="dis-grid">${SHOT_GROUPS.map(shotGroup).join("\n")}</div>
+<p class="small">Taken in WoW Forever with the default Slate and brass look. Names of other players are blurred or cropped out.</p>`,
   };
 }

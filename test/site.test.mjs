@@ -157,7 +157,7 @@ test("the Commands table has a row for every command in site-data.json", () => {
 });
 
 test("every page links the favicon, and it is shipped", () => {
-  for (const d of ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support"]) {
+  for (const d of ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"]) {
     assert.ok(/<link rel="icon" href="\/assets\/favicon\.svg\?v=[0-9a-f]{8}" type="image\/svg\+xml">/.test(page(d)), `/${d} has no favicon link`);
   }
   assert.ok(/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/.test(fs.readFileSync(path.join(dist, "assets/favicon.svg"), "utf8")), "dist/assets/favicon.svg missing or not an SVG");
@@ -166,9 +166,9 @@ test("every page links the favicon, and it is shipped", () => {
 test("sitemap.xml lists every page under siteUrl, and robots.txt points to it", () => {
   const base = cfg.siteUrl.replace(/\/+$/, "");
   const xml = fs.readFileSync(path.join(dist, "sitemap.xml"), "utf8");
-  const want = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support"].map((d) => `${base}/${d ? d + "/" : ""}`);
+  const want = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"].map((d) => `${base}/${d ? d + "/" : ""}`);
   assert.ok(/^<\?xml version="1\.0" encoding="UTF-8"\?>\n<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/.test(xml), "sitemap.xml has no urlset");
-  assert.deepEqual([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]).sort(), want.sort(), "sitemap.xml must list exactly the 12 pages");
+  assert.deepEqual([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]).sort(), want.sort(), "sitemap.xml must list exactly the 13 pages");
   assert.match(fs.readFileSync(path.join(dist, "robots.txt"), "utf8"), new RegExp(`^Sitemap: ${base.replace(/[.]/g, "\\.")}/sitemap\\.xml$`, "m"));
 });
 
@@ -280,7 +280,7 @@ test("the home page decoration is hidden from screen readers and the mock is lab
 });
 
 test("every page carries its canonical URL and the Open Graph card, with the crest's image shipped", () => {
-  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support"];
+  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
   const base = cfg.siteUrl.replace(/\/+$/, "");
   for (const d of dirs) {
     const html = page(d);
@@ -302,7 +302,7 @@ test("every page carries its canonical URL and the Open Graph card, with the cre
 });
 
 test("the crest is the brand mark on every page and sits above the Home title", () => {
-  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support"];
+  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
   for (const d of dirs) {
     const header = page(d).match(/<header class="site-header">[\s\S]*?<\/header>/)[0];
     assert.ok(/<a class="brand" href="\/"><svg class="brand-mark" viewBox="215 115 594 870" aria-hidden="true"/.test(header), `/${d}: the header's brand mark is not the crest`);
@@ -324,7 +324,7 @@ test("player-facing copy describes the early release honestly", () => {
 });
 
 test("pages are well formed: one h1, skip link, shared nav and footer", () => {
-  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support"];
+  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
   for (const d of dirs) {
     const html = page(d);
     assert.equal((html.match(/<h1[\s>]/g) || []).length, 1, `/${d} needs exactly one h1`);
@@ -338,7 +338,7 @@ test("pages are well formed: one h1, skip link, shared nav and footer", () => {
 });
 
 test("internal links point at pages and anchors that exist", () => {
-  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support"];
+  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
   const ids = Object.fromEntries(dirs.map((d) => [`/${d ? d + "/" : ""}`, new Set([...page(d).matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]))]));
   const bad = [];
   for (const d of dirs) {
@@ -390,7 +390,7 @@ test("fonts: WOFF2 first with the TTF as fallback, and the committed WOFF2 files
 });
 
 test("every inner page and the 404 page open with the shared page hero, and the skip link comes first", () => {
-  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support"];
+  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
   for (const d of [...dirs, "404"]) {
     const html = d === "404" ? fs.readFileSync(path.join(dist, "404.html"), "utf8") : page(d);
     const body = html.slice(html.indexOf("<body"));
@@ -567,7 +567,7 @@ test("'Off until you switch it on' needs every switch off, not any", () => {
 
 // ---------------------------------------------------------------- The shell, the folded sections and the "show what's coming" switch
 
-const PAGE_DIRS = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support"];
+const PAGE_DIRS = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
 const pageHtml = (d) => fs.readFileSync(path.join(dist, d, "index.html"), "utf8");
 
 test("the current release is the default: nothing is tagged 'In vX', and next-release parts hide behind one switch", () => {
@@ -583,7 +583,7 @@ test("the current release is the default: nothing is tagged 'In vX', and next-re
   }
 });
 
-test("every page, Home included, has the grouped sidebar with all 12 pages, and it's the only nav", () => {
+test("every page, Home included, has the grouped sidebar with all 13 pages, and it's the only nav", () => {
   for (const d of PAGE_DIRS) {
     const html = pageHtml(d);
     const nav = (html.match(/<nav class="nav sidebar" aria-label="Main" id="site-nav">[\s\S]*?<\/nav>/) || [])[0];
@@ -659,7 +659,7 @@ test("support links render only once a URL is set, and only https ones", () => {
 });
 
 test("every page has its own search title and description, and Home carries SoftwareApplication data without ratings", () => {
-  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support"];
+  const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
   const titles = new Set(), descs = new Set();
   for (const d of dirs) {
     const html = page(d);

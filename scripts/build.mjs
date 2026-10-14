@@ -16,7 +16,7 @@ import { buildModel } from "./lib/model.mjs";
 import { layout, pageHero, NAV } from "./lib/html.mjs";
 import { FONTS, WOFF2_DIR } from "./lib/fonts.mjs";
 import { homePage, installPage, startPage, featuresPage, commandsPage, settingsPage } from "./lib/pages-main.mjs";
-import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage, supportPage } from "./lib/pages-more.mjs";
+import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage, supportPage, screenshotsPage } from "./lib/pages-more.mjs";
 import { longerGaps } from "./lib/features-content.mjs";
 import { faviconSvg } from "./lib/brand.mjs";
 
@@ -124,6 +124,8 @@ function main() {
   // The crest as raster, for the places that can't take SVG or CSS: the Open Graph image, the
   // iOS home-screen icon and the PNG favicon fallback (src/assets/brand/, made from the crest).
   for (const f of BRAND_RASTER) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets/brand", f)));
+  // The screenshots (webp, cropped and blurred where a player's name was in frame).
+  for (const f of fs.readdirSync(path.join(root, "src/assets/shots"))) write(`assets/shots/${f}`, fs.readFileSync(path.join(root, "src/assets/shots", f)));
   write("sitemap.xml", sitemapXml(base));
   write("robots.txt", robotsTxt(base));
   write("_headers", headersFile());
@@ -142,7 +144,7 @@ function main() {
   site.assets = stampAssets(["assets/theme.css", "assets/site.css", "assets/site.js", "assets/feedback.js", "assets/favicon.svg"]);
 
   const pages = [
-    homePage(model), installPage(model), startPage(model, read), featuresPage(model), commandsPage(model), settingsPage(model, read),
+    homePage(model), installPage(model), startPage(model, read), featuresPage(model), screenshotsPage(), commandsPage(model), settingsPage(model, read),
     profilesPage(model, read), helpPage(model, read), feedbackPage(model, read), changelogPage(model), creditsPage(model, site), supportPage(),
   ];
   for (const p of pages) write(path.join(p.path, "index.html"), layout({ ...p, site }));

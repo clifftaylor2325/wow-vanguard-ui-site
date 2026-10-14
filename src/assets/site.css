@@ -301,8 +301,13 @@ table.stack { margin: 0 0 1em; }
   table.stack td[data-label]::before { content: attr(data-label) ": "; color: var(--text2); font-size: var(--fs-sm); }
 }
 
-.shot { margin: var(--sp-4) 0; border: 1px dashed var(--ui-line); border-radius: var(--r-3); padding: 24px; text-align: center; color: var(--text2); }
-.shot strong { display: block; color: var(--text); }
+.shot-fig { margin: var(--sp-3) 0; }
+.shot-fig a { display: block; border: 1px solid var(--divider); border-radius: var(--r-2); overflow: hidden; background: var(--panel); }
+.shot-fig a:hover, .shot-fig a:focus-visible { border-color: var(--accent); }
+.shot-fig img { display: block; width: 100%; height: auto; }
+.shot-fig figcaption { margin-top: 6px; font-size: var(--fs-sm); color: var(--text2); }
+.mod-details .shot-fig { max-width: 560px; }
+.shots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: var(--sp-3); align-items: start; }
 .swatches { list-style: none; margin: 0 0 1em; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 18px; }
 .swatch { display: inline-flex; align-items: center; gap: 8px; margin: 0; }
 .swatch i { width: 22px; height: 22px; border-radius: var(--r-1); border: 1px solid var(--divider); flex: none; }

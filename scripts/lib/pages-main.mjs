@@ -1,7 +1,8 @@
 // Home, Install & Update, Getting started, Features, Commands and Settings.
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
-import { supportAsk, esc, md, slug, badge, avail, shot, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
+import { shotByFile } from "./shots-content.mjs";
+import { supportAsk, esc, md, slug, badge, avail, shotFigure, ornament, heroFrame, pageHero, curseforgeCta, CURSEFORGE_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf } from "./features-content.mjs";
@@ -43,7 +44,7 @@ export function curseforgeBox(model, { heading = true } = {}) {
 
 // The README's opening tagline: "A from-scratch UI suite for WoW Forever".
 export function tagline(readme) {
-  const m = (readme || "").match(/^# Vanguard\s*\n+(?:>[^\n]*\n+)*([^\n(]+?)\s*(?:\(|\.|\n)/);
+  const m = (readme || "").match(/^# Vanguard\s*\n+(?:[><][^\n]*\n+)*([^\n(]+?)\s*(?:\(|\.|\n)/);
   return m ? m[1].trim() : "";
 }
 
@@ -307,7 +308,7 @@ ${setup.later ? `<p>With the defaults it takes four clicks: <strong>${label(S, "
   <li>“${esc(setup.reloadModule)}${reloadAsk}” (for example after <strong>${layoutName("healing")}</strong> turned the raid frames on)</li>
   <li>“${esc(setup.reloadTile)}${reloadAsk}”</li>
 </ul>
-${shot("the setup wizard, step 1")}`;
+${shotFigure(shotByFile("02-setup-wizard"))}`;
   return disclosure({ id: "setup-wizard", title: "The setup wizard", next: !inRel, meta: inRel ? `${n} steps` : NEXT_BADGE, body });
 }
 
@@ -385,6 +386,16 @@ function featureSource(m, more) {
   return `<p class="small mod-src">Source: ${list}.</p>`;
 }
 
+// The screenshots that show a module, by module key (files in src/assets/shots/).
+const FEATURE_SHOTS = {
+  UnitFrames: ["01-hud-overview"], Bags: ["10-bags"], MenuStrip: ["11-bag-menu-bar"], Windows: ["12-game-windows"],
+  TalentPlanner: ["13-spellbook-talents"], Merchant: ["14-merchant"], QuestDialog: ["15-quest-dialog"], QuestLog: ["16-quest-log"],
+  Errands: ["18-trainer-train-all", "37-flight-timer"], RaidFrames: ["21-raid-preview-25"], PartyExtras: ["20-party-preview"],
+  ClickCast: ["22b-click-casting-grid"], Rolls: ["26-roll-tracker"], AuctionHelper: ["29-ah-deals"], Nameplates: ["32d-nameplates-enemies"],
+  Minimap: ["33b-minimap-field"], InfoStrip: ["33-minimap-info-strip"], Waypoints: ["34-world-map"], Meter: ["35-vanguard-meter-dps"],
+  CooldownGaps: ["36-cooldown-gaps"],
+};
+
 // One module as a card: name, badges, the addon's one-liner, more, and its facts.
 function featureCard(m, model) {
   const off = startsOff(m, model) ? ` <span class="badge plain">Off until you switch it on</span>` : "";
@@ -394,6 +405,7 @@ function featureCard(m, model) {
   <h3>${esc(m.name)} ${badge(m.inRel, m.inNext, model.version)}${off}</h3>
   ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}
   <details class="mod-details"><summary>More<span class="visually-hidden"> about ${esc(m.name)}</span></summary>
+  ${(FEATURE_SHOTS[m.key] || []).map((f) => shotFigure(shotByFile(f))).join("")}
   ${more ? `<p class="mod-more">${esc(more)}</p>` : ""}${longer.length ? `\n  <p class="mod-longer">${esc(longer.join(" "))}</p>` : ""}
   ${featureFacts(m, model)}
   ${featureSource(m, more)}
