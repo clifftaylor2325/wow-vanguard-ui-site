@@ -168,8 +168,8 @@ RELEASE_NOTES["v0.5.0"] = { groups: [
     ] },
 ] };
 
-// v0.6.0, not tagged yet: its notes wait here, keyed by tag, and show on the
-// Changelog once that release exists (sourceRef and the tag move together).
+// v0.6.0: its notes are keyed by tag and show on the Changelog now that the
+// release exists, written from the addon's docs/CHANGELOG.md and the merged PRs.
 // Everything merged from #205 to #383 that a player can see, in the addon's own words where
 // Core/WhatsNewNotes.lua has them. Not listed: changes only the addon's developers see (#185,
 // #241, #242, #277, #283, #292, #293, #295, #296, #322, #345: tests, builds, CI, docs and
@@ -203,14 +203,14 @@ RELEASE_NOTES["v0.6.0"] = { groups: [
       { label: "Errands", text: "A boat and zeppelin timer learns each ride's time and counts down the next one. It starts off.", from: [307] },
       { label: "Legacy", text: "/vg legacy probe lists what the game has for the Legacy system, and a perk planner keeps a list of perks within the tree's 16 points. The planner starts off.", from: [323] },
       { label: "Levelling", text: "Quest XP in the tracker and quest log, XP bar tooltips and a warning when a supply you keep stocked runs low.", from: [288] },
-      { label: "Nameplates", text: "/vg plates says whether the game shows enemy nameplates and turns them on, and the Nameplates page has Enemy and Friendly switches, on by default.", from: [382] },
+      { label: "Nameplates", text: "/vg plates says whether the game shows enemy nameplates and turns them on, and the Nameplates page has Enemy and Friendly switches that follow the game's own settings. Enemy plates are on by default, and Vanguard dresses both alike.", from: [382, 384, 387] },
     ] },
     { id: "improved", title: "Improved", items: [
       { label: "Auction helper", text: "The tabs are now called Lists and Posting and are sized to their names. Posting shows a step guide (Item, Price, Post, Listed) with a line saying what to do next, a price the game asks you to confirm is confirmed with a second click, and a failed post names the auction house's error. Clicking an item in your bags while Posting is open keeps you on Posting.", from: [205, 298, 312, 371] },
       { label: "Auction helper", text: "Deals show their market value and full item names, Upgrades no longer repeats an item, and prices, sales and your character list are kept apart by realm, ruleset and faction side.", from: [275, 373] },
       { label: "Options window", text: "The options are split into one page for each part: Unit frames, Raid frames, Healing, Click casting, Talents, Action bars, Nameplates, Quests, Bars and bags, Map, Chat, Game windows, Combat tools and Town and gear. Escape closes the window, switches are larger and captions wrap.", from: [273, 326, 327, 330, 338, 340, 341] },
       { label: "Quest log", text: "Track and Untrack buttons redraw at once, Shift-click tracks a quest, and a zone's header has a chevron to fold it. Hovering a reward card in the quest log shows the item's tooltip.", from: [310, 378, 379, 380] },
-      { label: "Quest tracker", text: "Click +N more to show every quest, and the tracker starts below the info strip so the two don't overlap.", from: [350, 353] },
+      { label: "Quest tracker", text: "Click +N more to show up to 10 watched quests, and the choice is remembered. The tracker starts below the info strip so the two don't overlap.", from: [350, 353, 385] },
       { label: "Trainers", text: "Train all sits clear of the money line and matches the Train button's height.", from: [354, 358, 360] },
       { label: "Click casting", text: "The Add key picker and the spell picker stay above everything else, so clicks reach them.", from: [356, 357] },
       { label: "Setup", text: "The setup wizard keeps your current layout unless you pick another. Before it changes anything it backs up your profile, Done ends with a reload, and the last step sits above the frame handles with its title and step centred.", from: [280, 205] },
@@ -232,8 +232,8 @@ RELEASE_NOTES["v0.6.0"] = { groups: [
 
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.5.0 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.6.0 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.5.0",
+  after: "v0.6.0",
   groups: [],
 };
