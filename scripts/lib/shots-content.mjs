@@ -1,7 +1,7 @@
 // The screenshots on the Screenshots page and beside the features they show.
 // Every file is a real in-game capture (no mock renders) from src/assets/shots/, cropped or
 // blurred where a real player's name or the game's own help line was in frame. `next` marks a
-// shot that shows something only the next release has: it hides with the rest of the next
+
 // release until the reader switches it on. Captions describe only what is in the picture.
 export const SHOT_GROUPS = [
   {
@@ -54,7 +54,7 @@ export const SHOT_GROUPS = [
         "h": 899,
         "alt": "Unlock mode",
         "caption": "Unlock mode (/vg unlock): a handle on every frame, a grid, and Exit without saving or Save and lock at the top.",
-        "next": true
+        "next": false
       },
       {
         "file": "06-mover-popover",
@@ -62,7 +62,7 @@ export const SHOT_GROUPS = [
         "h": 525,
         "alt": "Right-click a handle for its anchor, offsets, scale, opacity and whether it matches another frame's width or height",
         "caption": "Right-click a handle for its anchor, offsets, scale, opacity and whether it matches another frame's width or height.",
-        "next": true
+        "next": false
       },
       {
         "file": "07a-profile-picker",
@@ -70,7 +70,7 @@ export const SHOT_GROUPS = [
         "h": 815,
         "alt": "The profile picker in the options header, with the backups Vanguard keeps beside each profile",
         "caption": "The profile picker in the options header, with the backups Vanguard keeps beside each profile.",
-        "next": true
+        "next": false
       }
     ]
   },
@@ -93,7 +93,7 @@ export const SHOT_GROUPS = [
         "h": 836,
         "alt": "High contrast",
         "caption": "High contrast: opaque panels and white text.",
-        "next": true
+        "next": false
       },
       {
         "file": "08b-theme-vellum",
@@ -101,7 +101,7 @@ export const SHOT_GROUPS = [
         "h": 834,
         "alt": "Vellum and ink",
         "caption": "Vellum and ink: a warm dark with cream text.",
-        "next": true
+        "next": false
       },
       {
         "file": "08c-theme-classic",
@@ -109,7 +109,7 @@ export const SHOT_GROUPS = [
         "h": 827,
         "alt": "Classic look",
         "caption": "Classic look: dark leather and bronze.",
-        "next": true
+        "next": false
       },
       {
         "file": "08d-theme-midnight",
@@ -117,7 +117,7 @@ export const SHOT_GROUPS = [
         "h": 823,
         "alt": "Midnight",
         "caption": "Midnight.",
-        "next": true
+        "next": false
       },
       {
         "file": "08e-theme-obsidian",
@@ -125,7 +125,7 @@ export const SHOT_GROUPS = [
         "h": 823,
         "alt": "Obsidian",
         "caption": "Obsidian.",
-        "next": true
+        "next": false
       },
       {
         "file": "08f-theme-moss",
@@ -133,7 +133,7 @@ export const SHOT_GROUPS = [
         "h": 818,
         "alt": "Moss",
         "caption": "Moss.",
-        "next": true
+        "next": false
       },
       {
         "file": "08g-theme-ember",
@@ -141,7 +141,7 @@ export const SHOT_GROUPS = [
         "h": 848,
         "alt": "Ash and ember",
         "caption": "Ash and ember.",
-        "next": true
+        "next": false
       }
     ]
   },
@@ -203,7 +203,7 @@ export const SHOT_GROUPS = [
         "h": 632,
         "alt": "The quest log, with zones folded and the chosen quest's text and buttons",
         "caption": "The quest log, with zones folded and the chosen quest's text and buttons.",
-        "next": true
+        "next": false
       },
       {
         "file": "17-quest-tracker",
@@ -305,7 +305,7 @@ export const SHOT_GROUPS = [
         "h": 187,
         "alt": "The Vanguard meter showing damage per second",
         "caption": "The Vanguard meter showing damage per second.",
-        "next": true
+        "next": false
       },
       {
         "file": "36-cooldown-gaps",
@@ -313,7 +313,7 @@ export const SHOT_GROUPS = [
         "h": 276,
         "alt": "The cooldown gaps row",
         "caption": "The cooldown gaps row: icons for what the game's Cooldown Manager misses.",
-        "next": true
+        "next": false
       }
     ]
   }
