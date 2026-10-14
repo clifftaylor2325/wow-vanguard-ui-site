@@ -100,10 +100,12 @@ export function curseforgeCta({ size = "" } = {}) {
   return `<span class="${cls} is-soon" data-curseforge="soon">${gem}<span>Coming soon on CurseForge</span></span>`;
 }
 
-// The Wago link shown beside a CurseForge call to action; "" while WAGO_URL is unset.
-export function wagoLink({ cls = "wago-link" } = {}) {
-  if (!WAGO_URL) return "";
-  return `<a class="${cls}" data-wago="live" href="${esc(WAGO_URL)}" rel="noopener">Also on Wago</a>`;
+// The Wago call to action: the same button as CurseForge's, so the two stores are equal.
+export function wagoLink({ size = "" } = {}) {
+  const cls = `cf-cta${size ? ` cf-cta-${size}` : ""}`;
+  const gem = `<svg class="cf-gem" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1 L15 8 L8 15 L1 8 Z"/><path d="M8 4.5 L11.5 8 L8 11.5 L4.5 8 Z"/></svg>`;
+  if (!WAGO_URL) return `<span class="${cls} is-soon" data-wago="soon">${gem}<span>Coming soon on Wago</span></span>`;
+  return `<a class="${cls}" data-wago="live" href="${esc(WAGO_URL)}" rel="noopener">${gem}<span>Get Vanguard on Wago</span></a>`;
 }
 
 // A decorative divider: a fine brass rule with linked diamonds in the middle.
@@ -275,7 +277,7 @@ ${main}
   <div class="footer-inner">
     ${supportLine()}
     <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
-    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `on <a href="${esc(CURSEFORGE_URL)}" rel="noopener">CurseForge</a>` : "coming soon on CurseForge"} and ${WAGO_URL ? `<a href="${esc(WAGO_URL)}" rel="noopener">Wago</a>` : "Wago"} · ${COPYRIGHT}</p>
+    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `on <a href="${esc(CURSEFORGE_URL)}" rel="noopener">CurseForge</a>` : "coming soon on CurseForge"} and ${WAGO_URL ? `on <a href="${esc(WAGO_URL)}" rel="noopener">Wago</a>` : "coming soon on Wago"} · ${COPYRIGHT}</p>
   </div>
 </footer>
 <script src="${esc(asset("/assets/site.js"))}" defer></script>

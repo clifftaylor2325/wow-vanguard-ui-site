@@ -29,7 +29,7 @@ export function curseforgeBox(model, { heading = true } = {}) {
   return `<section class="card cf-box" aria-labelledby="cf-h">
   <div class="cf-box-main">
     <h2 id="cf-h" class="cf-box-h">${heading ? (CURSEFORGE_URL ? "Get Vanguard on CurseForge" : "Vanguard is coming to CurseForge") : ""}</h2>
-    <div class="cf-box-actions">${curseforgeCta({ size: "lg" })}${wagoLink()}</div>
+    <div class="cf-box-actions">${curseforgeCta({ size: "lg" })}${wagoLink({ size: "lg" })}</div>
     <p class="small cf-box-note">${CURSEFORGE_URL ? `Install and update it with the CurseForge app or from its page on the CurseForge website${WAGO_URL ? ", or get it from Wago Addons" : ""}.` : "No link yet: this badge becomes a link to Vanguard's CurseForge page as soon as it's listed (Wago is planned too). Until then there's nothing to download here."}</p>
   </div>
   <dl class="facts">
@@ -123,8 +123,7 @@ ${heroArt()}
   <h1 id="hero-title" class="hero-title">Vanguard</h1>
   ${ornament("hero-orn")}
   <p class="hero-tagline">${esc(line)}.</p>
-  <div class="hero-actions">${curseforgeCta({ size: "lg" })}<a class="button ghost" href="/features/">See the features</a></div>
-  ${wagoLink({ cls: "wago-link hero-wago" })}
+  <div class="hero-actions">${curseforgeCta({ size: "lg" })}${wagoLink({ size: "lg" })}<a class="button ghost" href="/features/">See the features</a></div>
   <p class="hero-meta">Current release v${esc(model.version)} · ${relMods.length} modules · the Slate &amp; Brass theme</p>
 </div>
 </section>
