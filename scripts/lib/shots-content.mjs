@@ -19,24 +19,24 @@ export const SHOT_GROUPS = [
       },
       {
         "file": "02-setup-wizard",
-        "w": 1600,
-        "h": 899,
+        "w": 640,
+        "h": 525,
         "alt": "The first-run setup wizard, step 1",
         "caption": "The first-run setup wizard, step 1: pick a layout, or keep the one you have.",
         "next": false
       },
       {
         "file": "03-options-general",
-        "w": 1600,
-        "h": 899,
+        "w": 1041,
+        "h": 815,
         "alt": "The options window",
         "caption": "The options window (/vg): General, with a live preview at the top and the page list on the left.",
         "next": false
       },
       {
         "file": "04-options-modules",
-        "w": 1600,
-        "h": 899,
+        "w": 1041,
+        "h": 815,
         "alt": "The Modules page",
         "caption": "The Modules page: every part is a module you can switch off, and an off module costs nothing.",
         "next": false
@@ -58,26 +58,18 @@ export const SHOT_GROUPS = [
       },
       {
         "file": "06-mover-popover",
-        "w": 1600,
-        "h": 899,
+        "w": 475,
+        "h": 525,
         "alt": "Right-click a handle for its anchor, offsets, scale, opacity and whether it matches another frame's width or height",
         "caption": "Right-click a handle for its anchor, offsets, scale, opacity and whether it matches another frame's width or height.",
         "next": true
       },
       {
         "file": "07a-profile-picker",
-        "w": 1600,
-        "h": 899,
+        "w": 1041,
+        "h": 815,
         "alt": "The profile picker in the options header, with the backups Vanguard keeps beside each profile",
         "caption": "The profile picker in the options header, with the backups Vanguard keeps beside each profile.",
-        "next": true
-      },
-      {
-        "file": "07b-profile-picker-general",
-        "w": 1600,
-        "h": 899,
-        "alt": "The same picker from the General page",
-        "caption": "The same picker from the General page.",
         "next": true
       }
     ]
@@ -155,13 +147,13 @@ export const SHOT_GROUPS = [
   },
   {
     "id": "windows",
-    "title": "Bags, windows and talents",
+    "title": "Bags and windows",
     "intro": "The game's own windows in Vanguard's flat panels.",
     "shots": [
       {
         "file": "10-bags",
-        "w": 612,
-        "h": 741,
+        "w": 602,
+        "h": 464,
         "alt": "The combined backpack, in sections with a Sort button and a search box",
         "caption": "The combined backpack, in sections with a Sort button and a search box.",
         "next": false
@@ -180,14 +172,6 @@ export const SHOT_GROUPS = [
         "h": 843,
         "alt": "The character pane in Vanguard's look, with durability on each slot",
         "caption": "The character pane in Vanguard's look, with durability on each slot.",
-        "next": false
-      },
-      {
-        "file": "13-spellbook-talents",
-        "w": 1600,
-        "h": 939,
-        "alt": "The talent planner on the game's talents window",
-        "caption": "The talent planner on the game's talents window: planned ranks as badges, and the bar along the foot.",
         "next": false
       }
     ]
@@ -216,10 +200,18 @@ export const SHOT_GROUPS = [
       {
         "file": "16-quest-log",
         "w": 1018,
-        "h": 625,
+        "h": 632,
         "alt": "The quest log, with zones folded and the chosen quest's text and buttons",
         "caption": "The quest log, with zones folded and the chosen quest's text and buttons.",
         "next": true
+      },
+      {
+        "file": "17-quest-tracker",
+        "w": 366,
+        "h": 195,
+        "alt": "The quest tracker",
+        "caption": "The quest tracker under the info strip, with its objectives and a quest item button.",
+        "next": false
       },
       {
         "file": "18-trainer-train-all",
@@ -231,8 +223,8 @@ export const SHOT_GROUPS = [
       },
       {
         "file": "37-flight-timer",
-        "w": 330,
-        "h": 195,
+        "w": 550,
+        "h": 560,
         "alt": "The flight timer counting down to landing, above your action bars",
         "caption": "The flight timer counting down to landing, above your action bars.",
         "next": false
@@ -246,32 +238,32 @@ export const SHOT_GROUPS = [
     "shots": [
       {
         "file": "20-party-preview",
-        "w": 656,
-        "h": 574,
+        "w": 379,
+        "h": 573,
         "alt": "Party frames growing up from just above your player frame",
         "caption": "Party frames growing up from just above your player frame (shown with /vg preview).",
         "next": false
       },
       {
         "file": "21-raid-preview-25",
-        "w": 691,
-        "h": 545,
+        "w": 728,
+        "h": 507,
         "alt": "A raid of 25, with roles, a dead and an offline tile",
         "caption": "A raid of 25, with roles, a dead and an offline tile (/vg preview 25).",
         "next": false
       },
       {
         "file": "21b-raid-preview-40",
-        "w": 765,
-        "h": 674,
+        "w": 589,
+        "h": 439,
         "alt": "A raid of 40 drawn smaller so it fits",
         "caption": "A raid of 40 drawn smaller so it fits (/vg preview 40).",
         "next": false
       },
       {
         "file": "21c-raid-preview-10",
-        "w": 540,
-        "h": 603,
+        "w": 345,
+        "h": 550,
         "alt": "A raid of 10",
         "caption": "A raid of 10 (/vg preview 10).",
         "next": false
@@ -283,45 +275,6 @@ export const SHOT_GROUPS = [
         "alt": "Click casting",
         "caption": "Click casting: keys while hovering a frame, and a Try it tile.",
         "next": false
-      },
-      {
-        "file": "22b-click-casting-grid",
-        "w": 1046,
-        "h": 816,
-        "alt": "Click casting",
-        "caption": "Click casting: a grid of mouse buttons and modifier keys, with a starter layout for your class.",
-        "next": false
-      },
-      {
-        "file": "26-roll-tracker",
-        "w": 807,
-        "h": 790,
-        "alt": "The roll tracker, with the top roll in the accent color",
-        "caption": "The roll tracker, with the top roll in the accent color.",
-        "next": true
-      }
-    ]
-  },
-  {
-    "id": "auction",
-    "title": "Auction house",
-    "intro": "Vanguard's Lists and Posting tabs on the game's window.",
-    "shots": [
-      {
-        "file": "29-ah-deals",
-        "w": 1137,
-        "h": 812,
-        "alt": "The Lists tab showing Deals",
-        "caption": "The Lists tab showing Deals: listings under a vendor's price or well under the market value.",
-        "next": true
-      },
-      {
-        "file": "29b-ah-upgrades",
-        "w": 1120,
-        "h": 789,
-        "alt": "The Lists tab showing Upgrades",
-        "caption": "The Lists tab showing Upgrades: armor and weapons that beat what you wear.",
-        "next": true
       }
     ]
   },
@@ -339,27 +292,11 @@ export const SHOT_GROUPS = [
         "next": false
       },
       {
-        "file": "33-minimap-info-strip",
-        "w": 259,
-        "h": 422,
-        "alt": "The minimap with its zone and coordinate bands, and the info strip under it",
-        "caption": "The minimap with its zone and coordinate bands, and the info strip under it.",
-        "next": true
-      },
-      {
-        "file": "33b-minimap-field",
-        "w": 330,
-        "h": 451,
-        "alt": "The minimap in the field",
-        "caption": "The minimap in the field.",
-        "next": true
-      },
-      {
-        "file": "34-world-map",
-        "w": 1063,
-        "h": 560,
-        "alt": "The world map with a /way waypoint, shown over the quest list",
-        "caption": "The world map with a /way waypoint, shown over the quest list.",
+        "file": "32e-nameplates-cast",
+        "w": 520,
+        "h": 300,
+        "alt": "A nameplate with a cast bar",
+        "caption": "A nameplate with a cast bar under it.",
         "next": false
       },
       {
@@ -371,16 +308,8 @@ export const SHOT_GROUPS = [
         "next": true
       },
       {
-        "file": "35b-vanguard-meter-hps",
-        "w": 459,
-        "h": 179,
-        "alt": "The Vanguard meter showing healing per second",
-        "caption": "The Vanguard meter showing healing per second.",
-        "next": true
-      },
-      {
         "file": "36-cooldown-gaps",
-        "w": 880,
+        "w": 860,
         "h": 276,
         "alt": "The cooldown gaps row",
         "caption": "The cooldown gaps row: icons for what the game's Cooldown Manager misses.",

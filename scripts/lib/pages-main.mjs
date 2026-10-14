@@ -389,10 +389,9 @@ function featureSource(m, more) {
 // The screenshots that show a module, by module key (files in src/assets/shots/).
 const FEATURE_SHOTS = {
   UnitFrames: ["01-hud-overview"], Bags: ["10-bags"], MenuStrip: ["11-bag-menu-bar"], Windows: ["12-game-windows"],
-  TalentPlanner: ["13-spellbook-talents"], Merchant: ["14-merchant"], QuestDialog: ["15-quest-dialog"], QuestLog: ["16-quest-log"],
+  Merchant: ["14-merchant"], QuestDialog: ["15-quest-dialog"], QuestLog: ["16-quest-log"], QuestTracker: ["17-quest-tracker"],
   Errands: ["18-trainer-train-all", "37-flight-timer"], RaidFrames: ["21-raid-preview-25"], PartyExtras: ["20-party-preview"],
-  ClickCast: ["22b-click-casting-grid"], Rolls: ["26-roll-tracker"], AuctionHelper: ["29-ah-deals"], Nameplates: ["32d-nameplates-enemies"],
-  Minimap: ["33b-minimap-field"], InfoStrip: ["33-minimap-info-strip"], Waypoints: ["34-world-map"], Meter: ["35-vanguard-meter-dps"],
+  ClickCast: ["22-click-casting"], Nameplates: ["32d-nameplates-enemies", "32e-nameplates-cast"], Meter: ["35-vanguard-meter-dps"],
   CooldownGaps: ["36-cooldown-gaps"],
 };
 
