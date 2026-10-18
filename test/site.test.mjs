@@ -621,6 +621,7 @@ test("pages load their CSS and JS by a versioned URL, and assets are revalidated
     assert.equal(m[1], want, `${f}'s version must be the hash of the built file`);
   }
   assert.match(fs.readFileSync(path.join(dist, "_headers"), "utf8"), /^\/assets\/\*\n  Cache-Control: no-cache\n/);
+  assert.match(fs.readFileSync(path.join(dist, "_headers"), "utf8"), /\n\/\*\n(  [A-Za-z-]+: .+\n)*  X-Content-Type-Options: nosniff\n/);
 });
 
 // The addon's license as the footer and Credits page say it: MIT (v0.4.0 and before) or all rights reserved.

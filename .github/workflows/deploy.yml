@@ -69,14 +69,14 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          if npx --yes wrangler@4 pages project list | grep -qw vanguard-ui; then
+          if npx --yes wrangler@4.149.0 pages project list | grep -qw vanguard-ui; then
             echo "Pages project vanguard-ui exists."
           else
-            npx --yes wrangler@4 pages project create vanguard-ui --production-branch main
+            npx --yes wrangler@4.149.0 pages project create vanguard-ui --production-branch main
           fi
 
       - name: Deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx --yes wrangler@4 pages deploy dist --project-name vanguard-ui --branch main --commit-dirty=true
+        run: npx --yes wrangler@4.149.0 pages deploy dist --project-name vanguard-ui --branch main --commit-dirty=true

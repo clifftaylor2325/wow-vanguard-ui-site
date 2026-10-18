@@ -24,10 +24,23 @@ const PAD = 15;
 // "2026-10-05" (UTC) for a time in ms.
 const dayOf = (now) => new Date(now).toISOString().slice(0, 10);
 
+// What identifies a player on the network: the address itself for IPv4, and the /64 for IPv6
+// (one household or host owns the whole /64, so it must not be 2^64 different players).
+export function playerNet(ip) {
+  if (!ip.includes(":")) return ip;
+  const mapped = ip.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
+  if (mapped) return mapped[1];
+  const [head, tail] = ip.split("::");
+  const left = head ? head.split(":") : [];
+  const right = tail ? tail.split(":") : [];
+  const gap = tail === undefined ? [] : Array(Math.max(0, 8 - left.length - right.length)).fill("0");
+  return `${[...left, ...gap, ...right].slice(0, 4).map((g) => g.toLowerCase().replace(/^0+(?=.)/, "")).join(":")}::/64`;
+}
+
 // The KV prefixes: this player's slots (today's key and, for the rolling
 // hour across midnight, yesterday's) and today's new-issue slots.
 export async function capKeys(ip, salt, now) {
-  const [today, yesterday] = await Promise.all([dayOf(now), dayOf(now - DAY)].map((d) => sha256Hex(`${ip}${salt}${d}`)));
+  const [today, yesterday] = await Promise.all([dayOf(now), dayOf(now - DAY)].map((d) => sha256Hex(`${playerNet(ip)}${salt}${d}`)));
   return { player: `rl:p:${today}:`, playerBefore: `rl:p:${yesterday}:`, day: `rl:d:${dayOf(now)}:` };
 }
 

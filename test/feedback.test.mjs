@@ -13,6 +13,7 @@ import { parseFeedback, hasFeedback, FEEDBACK_START, FEEDBACK_END } from "../src
 import { readFields, validate, FALLBACK_AREAS } from "../src/feedback/fields.js";
 import { bugIssue, featureIssue, duplicateComment, refIn } from "../src/feedback/body.js";
 import { handlePost, handleGet, configProblem } from "../functions/_lib/handler.js";
+import { playerNet, capKeys } from "../functions/_lib/ratelimit.js";
 import { apiBase, gitHub } from "../functions/_lib/github.js";
 import { SITEVERIFY } from "../functions/_lib/turnstile.js";
 import { startStub } from "../scripts/github-stub.mjs";
@@ -799,4 +800,28 @@ test("60 new issues at once from 70 players: no more than 60 get through", async
   const results = await Promise.all(Array.from({ length: 70 }, (_, i) => send(env, s, featureFields(), { clock, at: clock.now + i, ip: `198.51.100.${i}` })));
   assert.equal(results.filter((r) => r.status === 200).length, 60);
   assert.equal(s.issues.length, 60);
+});
+
+test("a request that announces a body over 64 KB is refused without reading it", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const req = new Request("http://localhost:8788/api/feedback", { method: "POST", headers: { "content-type": "application/json", "content-length": "70000", "cf-connecting-ip": "203.0.113.7" }, body: "{}" });
+  const res = await handlePost(req, env, { fetchFn: mockServices().fetchFn, now: () => clock.now, areas: AREAS });
+  assert.equal(res.status, 400);
+  assert.equal((await res.json()).error, "bad_request");
+});
+
+test("the rate caps count an IPv6 /64 as one player, and an IPv4 address as itself", async () => {
+  assert.equal(playerNet("203.0.113.7"), "203.0.113.7");
+  assert.equal(playerNet("::ffff:203.0.113.7"), "203.0.113.7");
+  assert.equal(playerNet("2001:db8:85a3:8d3:1319:8a2e:370:7344"), "2001:db8:85a3:8d3::/64");
+  assert.equal(playerNet("2001:0DB8:85a3:08d3::7344"), "2001:db8:85a3:8d3::/64");
+  assert.equal(playerNet("2001:db8::1"), "2001:db8:0:0::/64");
+  assert.equal(playerNet("::1"), "0:0:0:0::/64");
+  const now = Date.UTC(2026, 9, 5, 12, 0, 0);
+  const a = await capKeys("2001:db8:85a3:8d3:1:2:3:4", "salt", now);
+  const b = await capKeys("2001:db8:85a3:8d3:ffff:ffff:ffff:ffff", "salt", now);
+  const c = await capKeys("2001:db8:85a3:8d4:1:2:3:4", "salt", now);
+  assert.equal(a.player, b.player);
+  assert.notEqual(a.player, c.player);
 });

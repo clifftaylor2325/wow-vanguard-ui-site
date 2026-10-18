@@ -17,8 +17,8 @@
     "shots": "node scripts/shots.mjs",
     "serve": "node scripts/serve.mjs",
     "stub:github": "node scripts/github-stub.mjs",
-    "dev": "npx --yes wrangler@4 pages dev dist --kv FEEDBACK_KV --port 8788 --compatibility-date 2025-09-01",
-    "deploy": "npx wrangler pages deploy dist --project-name vanguard-ui",
+    "dev": "npx --yes wrangler@4.149.0 pages dev dist --kv FEEDBACK_KV --port 8788 --compatibility-date 2025-09-01",
+    "deploy": "npx wrangler@4.149.0 pages deploy dist --project-name vanguard-ui",
     "fonts": "node scripts/fonts.mjs"
   },
   "devDependencies": {
