@@ -86,6 +86,7 @@ function newReference() {
 // The request's JSON object, or null when it isn't one (or is too big).
 async function readBody(request) {
   if (!/^application\/json\b/i.test(request.headers.get("content-type") || "")) return null;
+  if (Number(request.headers.get("content-length")) > MAX_BODY) return null;
   const text = await request.text();
   if (text.length > MAX_BODY) return null;
   try {

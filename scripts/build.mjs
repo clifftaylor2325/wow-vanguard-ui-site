@@ -76,8 +76,10 @@ function stampAssets(files) {
 // _headers (Cloudflare Pages): browsers check back before reusing a copy of
 // an asset, so files the pages load by a fixed name (the feedback form's
 // modules) never stay stale either. Unchanged files still come back as 304.
+// Every page also gets the plain security headers (no CSP yet: it needs a browser pass over the
+// feedback form's Turnstile frame first).
 function headersFile() {
-  return `/assets/*\n  Cache-Control: no-cache\n`;
+  return `/assets/*\n  Cache-Control: no-cache\n\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n`;
 }
 
 // sitemap.xml: every page in NAV, under siteUrl from site.config.json.
