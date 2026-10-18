@@ -8,7 +8,7 @@
 export const RELEASE_NOTES = {
   "v0.3.0": [
     { text: "A new look, Slate & Brass: flat slate panels, a brass accent and crisp one-pixel borders at any UI scale.", from: [19, 25] },
-    { text: "Vanguard's own font (Fira Sans Condensed), new artwork and the Vanguard logo.", from: [20] },
+    { text: "Vanguard's own font (Fira Sans Condensed), new artwork and a new logo.", from: [20] },
     { text: "Softer surfaces: a light sheen, soft shadows and one consistent set of text sizes.", from: [21] },
     { text: "A redesigned options window: a header, an icon for each page, settings grouped on cards, and new kinds of controls.", from: [22] },
     { text: "Frames: a choice of bar texture, bars that fill smoothly, a dark style for the raid frames, and glows.", from: [23] },

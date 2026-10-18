@@ -144,7 +144,7 @@ function main() {
   site.assets = stampAssets(["assets/theme.css", "assets/site.css", "assets/site.js", "assets/feedback.js", "assets/favicon.svg"]);
 
   const pages = [
-    homePage(model), installPage(model), startPage(model, read), featuresPage(model), screenshotsPage(), commandsPage(model), settingsPage(model, read),
+    homePage(model), installPage(model), startPage(model, read), featuresPage(model), screenshotsPage(model), commandsPage(model), settingsPage(model, read),
     profilesPage(model, read), helpPage(model, read), feedbackPage(model, read), changelogPage(model), creditsPage(model, site), supportPage(),
   ];
   for (const p of pages) write(path.join(p.path, "index.html"), layout({ ...p, site }));

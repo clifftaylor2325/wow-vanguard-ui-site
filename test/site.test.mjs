@@ -321,7 +321,7 @@ test("player-facing copy describes the early release honestly", () => {
     .filter((f) => banned.test(fs.readFileSync(f, "utf8")))
     .map((f) => path.relative(dist, f));
   assert.deepEqual(bad, [], `old unverified wording found in dist/: ${bad.join(", ")}`);
-  assert.match(page(""), /Parts have been tested in game, and some features are still being polished/);
+  assert.match(page(""), /Not everything has been checked in the game yet, and some features are still being polished/);
   assert.doesNotMatch(page(""), /None of this has been checked in game yet/);
 });
 
@@ -690,4 +690,14 @@ test("Support: a page, a header button, and one UTM-tagged Ko-fi ask each on Ins
   assert.ok(!/storage\.ko-fi\.com/.test(page("support")), "no Ko-fi script on the Support page");
   for (const d of ["start", "features", "commands", "settings", "profiles", "feedback", "credits"]) assert.ok(!/utm_campaign=/.test(page(d)), `/${d} carries no ask`);
   assert.equal(on, /class="support-btn" href="\/support\/"/.test(page("")), "the header button shows exactly when Ko-fi is on");
+});
+
+test("/feedback/: the copyable bug template only sends players to chat for errors when /vg errors does not exist", () => {
+  const h = page("feedback");
+  const hasErrors = /Type <code>\/vg errors<\/code>/.test(h);
+  assert.equal(/failed to load/.test(h.slice(h.indexOf("Vanguard bug report"))), !hasErrors, "template and steps agree about /vg errors");
+});
+
+test("a page footer does not claim in-game testing the addon's own notes deny", () => {
+  assert.doesNotMatch(page(""), /have been tested in game/i);
 });

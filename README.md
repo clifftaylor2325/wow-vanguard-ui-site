@@ -2,7 +2,7 @@
 
 Author: Clifton Taylor.
 
-The player website for [Vanguard](https://github.com/clifftaylor2325/wow-vanguard-ui), a UI addon for WoW Forever. Vanguard is going to be on CurseForge, so the site doesn't host or offer the addon as a download: it points players to CurseForge instead (a "Coming soon on CurseForge" badge until the listing is live). It's a static site (plain HTML and CSS, plus a little vanilla JS for search, copy buttons and the mobile menu). It is **generated from the addon's own source**, so the commands, modules, settings, colors and release facts on the site always match the addon.
+The player website for [Vanguard](https://github.com/clifftaylor2325/wow-vanguard-ui), a UI addon for WoW Forever. Vanguard is on CurseForge and Wago, so the site doesn't host or offer the addon as a download: it points players to those two listings instead (a "Coming soon" badge shows for a store whose URL constant in `scripts/lib/html.mjs` is `null`). It's a static site (plain HTML and CSS, plus a little vanilla JS for search, copy buttons and the mobile menu). It is **generated from the addon's own source**, so the commands, modules, settings, colors and release facts on the site always match the addon.
 
 Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Brass colors), Install & Update, Getting started, Features, Screenshots, Commands (searchable), Settings (searchable), Profiles & sharing, Troubleshooting & FAQ, Feedback, Changelog, Credits & license. Every page, Home included, shares one grouped sidebar (Get started, Learn, Reference, Help, About), the only nav: the header holds the brand and the footer no links. Each page opens on one screen: a slim title band, a strip of facts, and folded sections the reader opens (see Page look).
 
@@ -156,7 +156,7 @@ For an exact cap, a future change could keep the counters in a Durable Object (o
 
 ## CurseForge
 
-Installing is going to be through CurseForge (the CurseForge app or website). `CURSEFORGE_URL` in `scripts/lib/html.mjs` is `null` until Vanguard is listed, so every call to action (Home, Install, the footer) renders as a styled, non-link "Coming soon on CurseForge" badge. When the listing is live, set `CURSEFORGE_URL` to its URL and run `npm run check`: the badges become links, and the tests switch to checking for the link.
+Installing is through CurseForge or Wago. `CURSEFORGE_URL` and `WAGO_URL` in `scripts/lib/html.mjs` hold the listing URLs, and every call to action (Home, Install, the footer) links to both. If either is set back to `null`, that store renders as a styled, non-link "Coming soon" badge and the tests switch to checking for the badge.
 
 To move the site to a newer addon commit, update `sourceRef` and run `npm run check`. When a new release is published, `latest` picks it up on the next build.
 
@@ -169,11 +169,11 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 `npm test` (`test/site.test.mjs`) re-reads the Lua with its own, separate extraction. It fails if any slash command, help line, module or options page is missing from the generated site. It also checks:
 
 - that no `.zip` is shipped in `dist/` and nothing links to a download (no `download` links, no `/download/` paths, no checksums)
-- that Home and Install have the CurseForge call to action (a non-link "Coming soon" badge while `CURSEFORGE_URL` is `null`)
+- that Home and Install have the CurseForge call to action (a non-link "Coming soon" badge only while `CURSEFORGE_URL` is `null`)
 - that the home page's decoration is `aria-hidden` and its UI mock is labeled as an illustration
 - one `h1` per page and no duplicate ids
 - that the skip link is the first focusable element and targets `<main id="main">`, and that every inner page opens with the shared page hero
-- that every page, Home included, has the grouped sidebar with all 11 pages and no other nav (the header links only the brand, the footer no pages), that nothing is tagged "In vX", that every page hiding next-release parts has the switch that shows them, and that folded sections start closed unless marked open by default (Features and Settings start fully folded)
+- that every page, Home included, has the grouped sidebar with every page and no other nav (the header links only the brand, the footer no pages), that nothing is tagged "In vX", that every page hiding next-release parts has the switch that shows them, and that folded sections start closed unless marked open by default (Features and Settings start fully folded)
 - that each `@font-face` lists WOFF2 first and the TTF second, keeps `font-display: swap`, and that `dist/fonts/` ships the committed WOFF2 files
 - that every internal link and anchor resolves
 - that nothing in `dist/` links to github.com
