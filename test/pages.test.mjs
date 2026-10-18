@@ -88,6 +88,11 @@ test("/start/: the layout and screen-preset tables match the wizard's own lists"
   for (const [, name, w, h] of screens) assert.ok(t.includes(`${name} (${w} x ${h})`), `screen preset ${name} (${w} x ${h})`);
   const keep = (setup.match(/key = "keep", text = "([^"]+)"/) || [])[1];
   assert.ok(keep && t.includes(keep), `"${keep}"`);
+  // The Screen step's own buttons: its Keep ("Keep my current sizes") and the Pixel-perfect choice.
+  const screenKeep = (setup.match(/out\[#out \+ 1\] = \{ key = "keep", text = "([^"]+)"/) || [])[1];
+  const pixel = (setup.match(/S\.PIXEL = \{ key = "pixel", text = "([^"]+)"/) || [])[1];
+  if (screenKeep) assert.ok(t.includes(`Step 2`) && t.slice(t.indexOf("Step 2")).includes(screenKeep), `screen step "${screenKeep}"`);
+  if (pixel) assert.ok(t.slice(t.indexOf("Step 2")).includes(pixel), `screen step "${pixel}"`);
 });
 
 test("/start/: the Escape-menu button is at the top of the menu, or just under it", () => {

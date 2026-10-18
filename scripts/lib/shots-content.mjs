@@ -217,8 +217,8 @@ export const SHOT_GROUPS = [
         "file": "18-trainer-train-all",
         "w": 572,
         "h": 798,
-        "alt": "A class trainer, with Train all beside Train",
-        "caption": "A class trainer, with Train all beside Train.",
+        "alt": "A profession trainer, with Train all beside Train",
+        "caption": "A profession trainer, with Train all beside Train.",
         "next": false
       },
       {
@@ -281,7 +281,7 @@ export const SHOT_GROUPS = [
   {
     "id": "field",
     "title": "In the field",
-    "intro": "Nameplates, minimap, map and combat tools.",
+    "intro": "Nameplates and combat tools.",
     "shots": [
       {
         "file": "32d-nameplates-enemies",

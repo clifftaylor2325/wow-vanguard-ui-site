@@ -183,7 +183,7 @@ details.disclosure.aside > summary > h3 { font-size: var(--fs-sm); color: var(--
 @media (max-width: 559px) { .dis-grid { gap: 6px; } .dis-grid > details.disclosure > summary { min-height: 42px; padding: 6px 10px; gap: 8px; } .dis-grid > details.disclosure > summary > h2 { font-size: 1rem; } }
 .counts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
 details.src { margin-top: var(--sp-3); font-size: var(--fs-sm); color: var(--text2); }
-details.src > summary { cursor: pointer; display: inline; }
+details.src > summary { cursor: pointer; display: inline-flex; align-items: center; min-height: 24px; }
 details.src > p { margin: 4px 0 0; }
 @media (max-width: 559px) { .dis-meta { display: none; } }
 
@@ -470,7 +470,7 @@ table.stack { margin: 0 0 1em; }
 .mod h3 { margin: 0 0 2px; font-size: var(--fs-md); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 .mod > p { margin: 0; color: var(--text2); }
 .mod .mod-details { margin-top: 6px; }
-.mod .mod-details > summary { cursor: pointer; font-size: var(--fs-sm); color: var(--accent); width: max-content; }
+.mod .mod-details > summary { cursor: pointer; font-size: var(--fs-sm); color: var(--accent); width: max-content; display: inline-flex; align-items: center; min-height: 24px; }
 .mod .mod-more, .mod .mod-longer { color: var(--text2); margin: 8px 0 0; }
 .mod .facts { margin-top: 8px; }
 .mod .mod-src { margin: 8px 0 0; }

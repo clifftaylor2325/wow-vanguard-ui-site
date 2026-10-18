@@ -380,7 +380,9 @@ export function extractSetup(reader) {
   const fmt = oldFmt || `${moves}${tail}`;
   const pct = (v) => Math.floor(v * 100 + 0.5);
   for (const s of screens) s.hint = luaFormat(fmt, [pct(s.ui), s.button, s.tile[0], s.tile[1], pct(s.textScale)]);
-  const keepText = (m.code.match(/key\s*=\s*"keep"\s*,\s*text\s*=\s*"([^"]+)"/) || [])[1];
+  // The Screen step's own Keep button ("Keep my current sizes"); the first "keep" in the file is the Layout step's.
+  const keepText = (m.code.match(/out\[#out \+ 1\]\s*=\s*\{\s*key\s*=\s*"keep"\s*,\s*text\s*=\s*"([^"]+)"/) || m.code.match(/key\s*=\s*"keep"\s*,\s*text\s*=\s*"([^"]+)"/) || [])[1];
+  const pixelText = (m.code.match(/S\.PIXEL\s*=\s*\{\s*key\s*=\s*"pixel"\s*,\s*text\s*=\s*"([^"]+)"/) || [])[1] || null;
   const keepHint = (m.code.match(/if not p then return "([^"]+)"/) || [])[1];
   // Each step's question, found by the list it offers: [layout, screen]; the profile step's apart.
   const question = (list) => (m.code.match(new RegExp(`choicePage\\(page,\\s*"([^"]+)",\\s*${list}`)) || [])[1];
@@ -398,7 +400,7 @@ export function extractSetup(reader) {
   const yourScreen = (m.code.match(/"\s*·\s*(your screen)"/) || [])[1];
   const caption = (m.code.match(/string\.format\("(Step %d of %d · %s)"/) || [])[1];
   const title = (m.code.match(/"title",\s*"text",\s*"([^"]+)"/) || [])[1];
-  return { steps, layouts, screens, styles, keepText, keepHint, questions, profileQuestion, profileName, again, later, moveLines, combat, reloadModule, reloadTile, keepBelow, yourScreen, caption, title };
+  return { steps, layouts, screens, styles, keepText, pixelText, keepHint, questions, profileQuestion, profileName, again, later, moveLines, combat, reloadModule, reloadTile, keepBelow, yourScreen, caption, title };
 }
 
 // ---------------------------------------------------------------- everything

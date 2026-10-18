@@ -170,7 +170,7 @@ export const LONGER = {
     R("Each tile shows only while its unit exists.", "each while its unit exists"),
   ],
   RaidFrames: [
-    R("Party and raid frames grow up from just above your player frame, centered on it.", "A party or a raid of 10 grows up from just above your player frame, centered on it"),
+    R("A party or a raid of 10 grows up from just above your player frame, centered on it. A bigger raid (25 or 40) moves to the left of your character and stacks its groups as rows.", "A party or a raid of 10 grows up from just above your player frame, centered on it", "A bigger raid (25 or 40) moves to the left of your character"),
     R("A raid of more than 10 is drawn at 80% size, or 72% above 25.", "A raid of more than 10 is also drawn smaller (80%, or 72% above 25)"),
     R("A thin line in the full class color runs along each tile's top, so close colors like shaman and mage blues still tell apart; you can also pick dark bars with class-colored names, or bright class colors.", "so close colors (shaman and mage blues, rogue and paladin yellows) still tell apart", "or dark bars with class-colored names, or bright class colors"),
     R("Tanks get a small shield and healers a cross before the name, and the raid's main tank gets the shield in your accent color.", "a small shield for tanks and a cross for healers before the name", "The raid's main tank gets the shield in your accent color"),

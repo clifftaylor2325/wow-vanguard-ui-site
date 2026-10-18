@@ -218,7 +218,7 @@ function helpSection(s, facts, open) {
 
 // The closing part: known issues, then what to do when the page doesn't help.
 function helpFooter() {
-  return disclosure({ id: "known-issues", title: "Known issues", body: `<p>No known issues have been confirmed yet. Vanguard is an early release: parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p>
+  return disclosure({ id: "known-issues", title: "Known issues", body: `<p>No known issues have been confirmed yet. Vanguard is an early release: not everything has been checked in the game yet, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p>
 <div class="notice info"><p><strong>Not covered here?</strong> Or the fix didn't help? Report it there as well, and include every line of <code>/vg status</code>.</p></div>` });
 }
 
@@ -226,6 +226,7 @@ function helpFooter() {
 export function helpPage(model, read) {
   const facts = helpFacts(model, read);
   const sections = SECTIONS.map((s) => ({ ...s, shown: sourcedEntries(s, facts) }));
+  for (const s of sections) for (const e of s.entries) if (!s.shown.includes(e)) console.warn(`help: left off "${e.q}" (a quoted fact is not in the addon at this ref)`);
   const body = [pageHero("Troubleshooting &amp; FAQ", "Each answer uses Vanguard's own commands and quotes its real messages. Open a question to see the fix."),
     glance([`Start with <code>/vg status</code>: its lines say what's loaded`, `Nothing here helps? <a href="/feedback/">Send a report</a>`]),
     ...sections.map((s, i) => helpSection(s, facts, i === 0)), helpFooter(), supportAsk("help", "Problem solved?")];
@@ -408,7 +409,7 @@ What happened instead:
 
 /vg status (paste every line):
 
-/vg errors (paste every line; on ${v}, paste any "failed to load" line from chat instead):
+${relErrors ? "/vg errors (paste every line):" : `/vg errors (paste every line; on ${v}, paste any "failed to load" line from chat instead):`}
 
 Screen resolution and UI scale (if you know them):`;
   const featureTemplate = `Vanguard feature request
@@ -602,14 +603,14 @@ function shotGroup(g) {
 }
 
 // The Screenshots page: real in-game captures, grouped by what they show.
-export function screenshotsPage() {
+export function screenshotsPage(model) {
   const n = SHOT_GROUPS.reduce((t, g) => t + g.shots.length, 0);
   return {
     path: "/screenshots/",
     title: "Screenshots",
     description: "Real in-game screenshots of Vanguard in WoW Forever.",
     body: `${pageHero("Screenshots", "Real captures from the game, not mock-ups. Click one to see it full size.")}
-${glance([`<strong>${n}</strong> in-game screenshots`, `Shots of things only the next release has hide with the rest of it`, `The same pictures sit beside their module on <a href="/features/">Features</a>`])}
+${glance([`<strong>${n}</strong> in-game screenshots`, ...(model && !model.same ? [`Shots of things only the next release has hide with the rest of it`] : []), `The same pictures sit beside their module on <a href="/features/">Features</a>`])}
 <div class="dis-grid">${SHOT_GROUPS.map(shotGroup).join("\n")}</div>
 <p class="small">Taken in WoW Forever with the default Slate and brass look. Names of other players are blurred or cropped out.</p>`,
   };

@@ -207,14 +207,14 @@ export function socialTags({ path, title, description, site }) {
 // description is the addon's own TOC Notes line, so it is not overridden here.
 const SEO = {
   "/": { title: "Vanguard: All-in-One UI Addon for WoW Forever" },
-  "/install/": { title: "Install Vanguard in WoW Forever", description: "How to install, update and remove the Vanguard UI addon in WoW Forever, through CurseForge or by hand, and where the AddOns folder is." },
+  "/install/": { title: "Install Vanguard in WoW Forever", description: "How to install, update and remove the Vanguard UI addon in WoW Forever, through CurseForge or by hand." },
   "/start/": { title: "Getting Started with Vanguard in WoW Forever", description: "Open the Vanguard options, run the setup wizard, move your frames and pick an accent color in the all-in-one UI addon for WoW Forever." },
   "/features/": { title: "Vanguard Features: Unit Frames, Bags, Action Bars", description: "Every Vanguard module for WoW Forever: unit and raid frames, action bars, bags, nameplates, click casting and more, with settings and commands." },
-  "/screenshots/": { title: "Vanguard Screenshots: the UI in WoW Forever", description: "Real in-game screenshots of Vanguard in WoW Forever: the layout, options, looks, bags, quests, raid frames, auction house and map." },
+  "/screenshots/": { title: "Vanguard Screenshots: the UI in WoW Forever", description: "Real in-game screenshots of Vanguard in WoW Forever: the layout, options, looks, bags, quests, raid frames, nameplates and more." },
   "/commands/": { title: "Vanguard Slash Commands for WoW Forever", description: "Every /vg slash command in the Vanguard UI addon for WoW Forever, with its help text verbatim from the addon." },
   "/settings/": { title: "Vanguard Settings for WoW Forever", description: "Every page and setting in the Vanguard options window for WoW Forever, with defaults and which changes need a reload." },
   "/profiles/": { title: "Vanguard Profiles: Share a UI Layout in WoW Forever", description: "Share one Vanguard layout across characters, or export it as text and import it on another PC, in WoW Forever." },
-  "/help/": { title: "Vanguard Troubleshooting and FAQ for WoW Forever", description: "Fixes for common Vanguard problems in WoW Forever, such as a missing addon or lost settings, using the addon's own commands and messages." },
+  "/help/": { title: "Vanguard Troubleshooting and FAQ for WoW Forever", description: "Fixes for common Vanguard problems in WoW Forever, using the addon's own commands and messages." },
   "/changelog/": { title: "Vanguard Changelog: What Changed in Each Release", description: "What changed in each Vanguard release for WoW Forever, newest first, written for players, and what is coming next." },
   "/feedback/": { title: "Send Vanguard Feedback or Report a Bug", description: "Report a Vanguard bug or request a feature for the WoW Forever UI addon." },
   "/support/": { title: "Support Vanguard, the Free WoW Forever UI Addon", description: "Vanguard is free and built by one person. Here is what support pays for, how to give it, and other ways to help." },
@@ -225,7 +225,7 @@ const SEO = {
 // is claimed, because there are none; the site only links to the CurseForge and Wago listings.
 export function homeJsonLd(site, description) {
   const app = { "@type": "SoftwareApplication", name: "Vanguard", description, url: `${site.url}/`, image: `${site.url}/assets/og-image.png`,
-    applicationCategory: "GameApplication", operatingSystem: "Windows, macOS", softwareVersion: site.version,
+    applicationCategory: "GameApplication", softwareVersion: site.version,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, author: { "@type": "Person", name: site.author } };
   const web = { "@type": "WebSite", name: "Vanguard", url: `${site.url}/` };
   return `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@graph": [app, web] }).replace(/</g, "\\u003c")}</script>\n`;
@@ -276,7 +276,7 @@ ${main}
   ${ornament("footer-orn")}
   <div class="footer-inner">
     ${supportLine()}
-    <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: parts have been tested in game, and some features are still being polished.</p>
+    <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: not everything has been checked in the game yet, and some features are still being polished.</p>
     <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `on <a href="${esc(CURSEFORGE_URL)}" rel="noopener">CurseForge</a>` : "coming soon on CurseForge"} and ${WAGO_URL ? `on <a href="${esc(WAGO_URL)}" rel="noopener">Wago</a>` : "coming soon on Wago"} · ${COPYRIGHT}</p>
   </div>
 </footer>

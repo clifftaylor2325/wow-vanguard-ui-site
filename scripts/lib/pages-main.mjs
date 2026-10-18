@@ -135,7 +135,7 @@ ${heroArt()}
   <a class="card tile" href="/help/"><strong>Fix a problem</strong><span>Self-fixes, then how to report a bug.</span></a>
 </div>
 
-<div class="notice info early"><p><strong>Vanguard is an early release.</strong> Parts have been tested in game, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p></div>
+<div class="notice info early"><p><strong>Vanguard is an early release.</strong> Not everything has been checked in the game yet, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p></div>
 
 ${disclosure({ id: "hl-h", title: `What's in v${esc(model.version)}`, meta: `${relMods.length} modules`, body: `<p>A few of its modules, in the words the addon uses on its own Modules page. <a href="/features/">All ${relMods.length} are on Features</a>, and each can be turned off under <strong>/vg → Modules</strong>.</p>
 <ul class="feats">${highlights.map((m) => highlightCard(m, model.version)).join("\n")}</ul>` })}
@@ -260,7 +260,7 @@ ${setup.layouts.map((l, i) => `<tr><td data-label="Layout"><strong>${esc(l.text)
 <p>It asks: “${esc(setup.questions[1] || "")}” The wizard picks the preset for your screen when it opens and marks it “${s("your screen")}”: <strong>${scr("ultrawide")}</strong> for a screen at least ${esc(wide)} times as wide as it is tall; otherwise by height: <strong>${scr("4k")}</strong> from ${esc(tall4k)} pixels tall, <strong>${scr("1440")}</strong> from ${esc(tall1440)}, and <strong>${scr("1080")}</strong> from ${esc(setup.keepBelow)}. On a screen under ${esc(setup.keepBelow)} pixels tall, <strong>${esc(setup.keepText)}</strong> is picked${keepLayout ? `, and so it is whenever you run setup again` : ""}. Your choice takes effect when you click <strong>${label(S, "Core/Setup.lua", "Next")}</strong>.</p>
 <div class="table-wrap"><table class="stack"><thead><tr><th scope="col">Choice</th><th scope="col">What it sets</th></tr></thead><tbody>
 ${setup.screens.map((p) => `<tr><td data-label="Choice"><strong>${screenRow(p)}</strong></td><td data-label="What it sets">${esc(p.hint)}</td></tr>`).join("\n")}
-<tr><td data-label="Choice"><strong>${esc(setup.keepText)}</strong></td><td data-label="What it sets">${esc(setup.keepHint)}</td></tr>
+${setup.pixelText ? `<tr><td data-label="Choice"><strong>${esc(setup.pixelText)}</strong></td><td data-label="What it sets">Leaves the game's UI scale alone and turns on <strong>${pixel}</strong> under General → Look instead.</td></tr>\n` : ""}<tr><td data-label="Choice"><strong>${esc(setup.keepText)}</strong></td><td data-label="What it sets">${esc(setup.keepHint)}</td></tr>
 </tbody></table></div>
 <p>The UI scale a preset sets is the game's own UI scale (the one in the game's graphics settings). It changes once you're out of combat, and choosing a preset turns off <strong>${pixel}</strong> under <strong>General → Look</strong>. ${esc(setup.reloadTile)}</p>
 
@@ -424,7 +424,7 @@ function featuresIntro(model) {
 export function featuresPage(model) {
   const groups = featureAreas(model);
   const body = [pageHero("Features", FEATURES_LEDE), featuresIntro(model), `<div class="dis-grid">${groups.map((g) => areaSection(g, model)).join("\n")}</div>`,
-    `<p class="small">The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version, so v${esc(model.version)} may not have every detail yet; <a href="/settings/">Settings</a> shows exactly which options each release has.</p>`];
+    `<p class="small">The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version${model.same ? "" : `, so v${esc(model.version)} may not have every detail yet`}; <a href="/settings/">Settings</a> shows exactly which options each release has.</p>`];
   return { path: "/features/", title: "Features", description: "Every Vanguard module: what it does, where its settings are, and its commands.", body: body.join("\n") };
 }
 
