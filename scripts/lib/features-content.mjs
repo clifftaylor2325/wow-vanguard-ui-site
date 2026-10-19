@@ -84,7 +84,7 @@ export const MORE = {
   QuestAuto: { more: "Accept quests (and quests a party member shares with you, on its own switch), turn in finished ones and skip the chatter when an NPC has just one quest for you. It never picks a reward for you unless you also switch on taking the one that sells for most. Hold Shift while talking to skip it.",
     check: ["accept quests a party member shares with you (its own switch", "turn in finished ones (it never chooses among rewards for you, unless you also switch on \"take the one that sells for most\"), and skip the chatter when an NPC has just one quest for you", "hold Shift while talking to skip it"], from: "Quest automation" },
   GameAlerts: { more: "Loss of control and the talking head on flat panels (or the talking head hidden). On a Hardcore realm, death notices take the theme's font and red. If you like, a rare that shows up on your minimap is announced once, out of combat.",
-    check: ["Loss of control (stunned, feared...) shows on a flat panel", "the talking head on one at the top center (or hidden", "on a Hardcore realm the game's death notices there take the theme's title font and its red", "a rare that shows up on your minimap is announced", "out of combat and once per rare"], from: "Game windows" },
+    check: ["Loss of control (stunned, feared...) shows on a flat panel", "the talking head on one at the top left, under the raid tools (or hidden", "on a Hardcore realm the game's death notices there take the theme's title font and its red", "a rare that shows up on your minimap is announced", "out of combat and once per rare"], from: "Game windows" },
   Errands: { more: "A Train all button on the trainer's window shows how many you can learn and learns everything you can afford in one click. Keep stocked tops up items you name from merchants who sell them, while you can pay. The flight timer counts down to landing on routes you've flown before.",
     check: ["a **Train all** button on the trainer's window shows how many you can learn, learns everything you can afford in one click", "**Keep stocked**", "a merchant who sells it tops you up", "while you can pay", "The **flight timer** saves each flight's time by route, and the next flight on that route shows a bar (movable) counting down to landing"], from: "Errands" },
   InstancePrep: { more: "Stepping into a dungeon or raid, a card lists what you're short of: ammo, soul shards, your class's reagents, food and drink, bandages, potions, worn gear and your stocked items. A ready check or /vg prep always shows it, saying \"Everything's packed.\" when nothing is short.",
@@ -127,7 +127,7 @@ export const LONGER = {
   UnitFrames: [
     R("The game's own boss frames are hidden.", "the game's own boss frames are hidden"),
     R("The player and target frames are sized for a 1080p screen at the 80% UI scale that first-run setup picks.", "sized for a 1080p screen at setup's 80% UI scale"),
-    R("Player and target sit either side of your character, with your cast bar and swing timer between them, the pet and target of target outside them and the focus above the player.", "Player and target sit either side of your character with your cast bar and swing timer between them", "the pet and target of target outside them, the focus above the player"),
+    R("Player and target sit either side of your character, with your cast bar and swing timer between them, the target of target outside the target, the pet over the player frame's right end and the focus above the player.", "Player and target sit either side of your character with your cast bar and swing timer between them", "the target of target outside the target, the pet over the player frame's right end", "the focus above the player"),
   ],
   CastBars: [
     R("Your own cast bar sits between the player and target frames, with the swing timer.", "with your cast bar and swing timer between them"),
@@ -397,7 +397,7 @@ export const LONGER = {
     R("The addons that share feeds bring what the strip needs, so with none of them installed it stays hidden.", "the addons that share feeds load it, so with none of them the strip stays hidden"),
   ],
   GameAlerts: [
-    R("Loss of control (stunned, feared...) shows a little above your character and the talking head at the top center; hiding the talking head is your choice under Combat tools.", "Loss of control (stunned, feared...) shows on a flat panel a little above your character", "the talking head on one at the top center (or hidden; your choice under Combat tools)"),
+    R("Loss of control (stunned, feared...) shows a little above your character and the talking head at the top left, under the raid tools; hiding the talking head is your choice under Combat tools.", "Loss of control (stunned, feared...) shows on a flat panel a little above your character", "the talking head on one at the top left, under the raid tools (or hidden; your choice under Combat tools)"),
     R("The rare announcement is off until you switch it on under Combat tools; it plays the raid warning sound with one chat line, out of combat and once per rare.", "(off until you switch it on, under Combat tools), a rare", "with the raid warning sound and one chat line, out of combat and once per rare"),
   ],
   InstancePrep: [
@@ -508,7 +508,7 @@ Object.assign(LONGER, {
   CooldownGlow: [
     R("The share is a slider, 30% by default and from 10 to 60; /vg cdmglow sets it from chat.", "30 % by default, 10 to 60", "`/vg cdmglow [on|off|<percent>]`"),
     R("It decorates the game's own icon and never copies it.", "It decorates the game's own icon and never copies it"),
-    R("Where the client hides the time, the glow stays off with no error; the glow itself is static, with no fade.", "when the time is hidden the glow stays off with no error", "The glow is static (no fade)"),
+    R("Where the client hides the time, or which aura an icon tracks, the glow stays off with no error; the glow itself is static, with no fade.", "when the time is hidden, or the game hides which aura an icon tracks, the glow stays off with no error", "The glow is static (no fade)"),
   ],
   CraftQueue: [
     R("It is off until you turn it on under Town and gear → Craft queue.", "off until you turn it on under Town and gear → Craft queue"),

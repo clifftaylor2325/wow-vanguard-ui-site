@@ -272,10 +272,33 @@ RELEASE_NOTES["v0.7.0"] = { groups: [
     ] },
 ] };
 
+// v0.7.1: written from the addon's docs/CHANGELOG.md and the PRs merged from #538 to #566.
+// Not listed: #563 (CLAUDE.md, developers only) and #567 (the version bump).
+RELEASE_NOTES["v0.7.1"] = { groups: [
+    { id: "improved", title: "Improved", items: [
+      { label: "Chat", text: "The chat window is one rounded panel with a tab bar, tabs you can always see and its side buttons stacked.", from: [543, 566] },
+      { label: "Cast bar", text: "Your cast bar moves up with the action bars instead of sitting under them.", from: [554] },
+      { label: "Versus deck", text: "The Versus deck rounds its corners instead of cutting them.", from: [552] },
+      { label: "Nameplates", text: "A green check marks mobs you have tagged, on nameplates and unit frames.", from: [551] },
+      { label: "Edit Mode", text: "In Edit Mode the window sits over the handles, bars line up with no gap and the default spots are tidier.", from: [544, 565] },
+      { label: "Quest arrow", text: "The quest arrow sits centred at the top of the screen by default.", from: [540] },
+      { label: "Game windows", text: "More of the game's art is in the Vanguard look: the world map and its quest panel, the Settings window's Graphics section and its language and microphone rows, and the arrows on dropdowns and steppers.", from: [550, 559, 562, 545] },
+      { label: "Mail", text: "You can add and remove presets from the Find mail panel.", from: [560] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Game windows", text: "The calendar's today marker fits its cell, the guild list shows the selected guild's banner, Legacy keeps its challenge icons, and the professions skill bar stays inside its box.", from: [549, 542, 541, 539] },
+      { label: "Group finder and setup", text: "The group finder's search box no longer overlaps its button, and the setup wizard's choices rest flat with the picked one on the selected rail.", from: [538, 561, 548] },
+      { label: "Mail and bags", text: "The Find mail panel closes with the mailbox, and the bags' Filter and Groups buttons fit their labels.", from: [555, 547] },
+      { label: "Escape", text: "Escape closes the meter's spell panel and the Instance prep card.", from: [558] },
+      { label: "Safety", text: "The Cooldown Manager glow never reads an aura the game hides, and /vg probe never makes a call the game restricts.", from: [556, 553] },
+      { label: "Your name", text: "Your own name counts as you when it carries a realm other than the realm's name, in chat watch, the chat filter and the roll tracker.", from: [557] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.7.0 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.7.1 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.7.0",
+  after: "v0.7.1",
   groups: [],
 };
