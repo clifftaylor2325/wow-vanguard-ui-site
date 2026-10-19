@@ -540,7 +540,9 @@ function moduleFlags(ref, key) {
   if (start < 0) return [];
   let depth = 0, i = lua.indexOf("{", start), body = "";
   do { const c = lua[i++]; depth += c === "{" ? 1 : c === "}" ? -1 : 0; body += depth === 1 && c !== "{" ? c : depth > 1 ? " " : ""; } while (depth > 0 && i < lua.length);
-  return [...body.matchAll(/\b\w+\s*=\s*(true|false)\b/g)].map((m) => m[1] === "true");
+  const all = [...body.matchAll(/\b(\w+)\s*=\s*(true|false)\b/g)];
+  const master = all.find((m) => m[1] === "on" || m[1] === "enabled");
+  return (master ? [master] : all).map((m) => m[2] === "true");
 }
 
 // "Off until you switch it on" shows exactly where every switch defaults off and the addon says it starts off.

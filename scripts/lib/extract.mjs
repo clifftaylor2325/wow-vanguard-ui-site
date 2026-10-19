@@ -399,7 +399,7 @@ export function extractSetup(reader) {
   const keepBelow = Number((m.code.match(/if h < (\d+) then return "keep"/) || [])[1]);
   const yourScreen = (m.code.match(/"\s*·\s*(your screen)"/) || [])[1];
   const caption = (m.code.match(/string\.format\("(Step %d of %d · %s)"/) || [])[1];
-  const title = (m.code.match(/"title",\s*"text",\s*"([^"]+)"/) || [])[1];
+  const title = (m.code.match(/"title",\s*"text",\s*"([^"]+)"/) || m.code.match(/ns\.WindowTitle\(f,\s*"([^"]+)"/) || [])[1];
   return { steps, layouts, screens, styles, keepText, pixelText, keepHint, questions, profileQuestion, profileName, again, later, moveLines, combat, reloadModule, reloadTile, keepBelow, yourScreen, caption, title };
 }
 

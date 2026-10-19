@@ -236,7 +236,7 @@ function wizardSection(setup, inRel, read) {
   const reloadAsk = says(D, "Core/Dialog.lua", " Reload the UI now to apply it?");
   const reloadBtn = label(D, "Core/Dialog.lua", "Reload");
   const laterBtn = label(D, "Core/Dialog.lua", "Later");
-  const pixel = says(O, "Core/Options.lua", "Pixel-perfect scale (crisp 1-pixel lines)");
+  const pixel = says(O, "Core/Options.lua", "Pixel-perfect scale");
   const layoutName = (key) => esc(setup.layouts.find((l) => l.key === key)?.text || "");
   const scr = (key) => esc(setup.screens.find((p) => p.key === key)?.text || "");
   const screenRow = (p) => `${esc(p.text)} (${p.w} x ${p.h})`;
@@ -334,11 +334,12 @@ ${disclosure({ id: "modules", title: "Keep the game's version of something", bod
 
 // ------------------------------------------------------------------ Features
 
-// True when the addon says a module starts off: every switch in its defaults
+// True when the addon says a module starts off: its own on/enabled switch is off (else every switch in its defaults)
 // is off and its own description says so ("off until", "switch it on").
 export function startsOff(m, model) {
   const d = model.next.modules.find((x) => x.name === m.key)?.defaults || {};
-  const flags = Object.values(d).filter((v) => typeof v === "boolean");
+  const master = ["on", "enabled"].find((k) => typeof d[k] === "boolean");
+  const flags = master ? [d[master]] : Object.values(d).filter((v) => typeof v === "boolean");
   return flags.length > 0 && flags.every((v) => !v) && /off until|switch it on/i.test(m.desc);
 }
 
