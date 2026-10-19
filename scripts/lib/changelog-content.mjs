@@ -230,10 +230,52 @@ RELEASE_NOTES["v0.6.0"] = { groups: [
     ] },
 ] };
 
+// v0.7.0: written from the addon's docs/CHANGELOG.md and the PRs merged from #388 to #537. Not
+// listed: changes only the addon's developers see (#478, #486, #502, #505, #526, #536, #537:
+// release tooling, tests, checks and docs). Nothing in this release was checked in the game yet.
+RELEASE_NOTES["v0.7.0"] = { groups: [
+    { id: "new", title: "New", items: [
+      { label: "Quest arrow", text: "An on-screen arrow points to the nearest quest objective, and on to a quest on another map. A map click can turn it on, with a recent list and a Clear button.", from: [466, 467, 507, 517] },
+      { label: "Questing", text: "Quest spots show on the minimap, quest mobs get a mark on their nameplate, and the quest log shows XP to your next level. Quests can be tracked automatically, and quest history is kept for your whole account. Shared quests can be accepted from your group (off by default).", from: [468, 469, 480, 485] },
+      { label: "Quest log", text: "Ctrl-click marks quests and Abandon takes all the marked ones. Objectives show as rows with a count and progress bar.", from: [469, 504] },
+      { label: "Chat history", text: "Chat windows can keep their lines across reloads and logins, and gold selling, boosting, recruiting and repeated lines can go to a Filtered tab instead of your chat. Both start off.", from: [475, 443, 449] },
+      { label: "Chat", text: "A Find button and Find in chat search the open windows and saved history. The Chat page lets you pick, make, rename and close tabs, choose what each shows, and set window size, lock and floating windows.", from: [508, 516, 520, 523] },
+      { label: "Bags", text: "Make your own categories in the combined bag, search with words, deposit to the bank, and use Filter and Groups buttons on the search row.", from: [471, 501, 510] },
+      { label: "Town", text: "The merchant window has a sell list, Sell all of one item, and Stack and Max buying. Mail has Take all and Return all.", from: [471, 451, 454, 456] },
+      { label: "Alts", text: "/vg alts shows an overview of your characters, also on the Game windows page.", from: [471] },
+      { label: "HUD", text: "A Versus deck can join the player and target frames, with shield corners on unit frames and cast bars. Calm HUD dims your frames out of combat, and a low-health screen-edge tint warns you in a fight. All three start off.", from: [420, 421, 444, 446] },
+      { label: "Cast bars and frames", text: "A ring at the cursor for the global cooldown and your cast (off by default), an interrupt-ready mark on cast bars, and an eating, drinking and missing-buff chip on your frame (off until you tick it). Raid frames show three indicator icons from the game's aura filters.", from: [487] },
+      { label: "Graphics", text: "/vg graphics checks your computer, screen and frame rate and suggests settings. /vg graphics apply sets them and undo puts them back.", from: [451, 458] },
+      { label: "Cooldown Manager", text: "The Cooldowns page has the Cooldown Manager's settings and a setup wizard, and key text shows on its icons.", from: [481] },
+      { label: "Character sheet", text: "Item level and missing-enchant marks show on the character sheet, and /vg gear lists them. /vg pets and the stable master line read the game's pet stable.", from: [507, 506] },
+      { label: "Rolls and info", text: "The roll tracker reads the loot list from Forever's encounter loot history, and the info strip shows ammo when your ranged weapon needs it.", from: [482, 521, 524] },
+      { label: "Forever rules", text: "The game rules show in /vg realm, with a note when a rules change moves your saved-data key. The TOC lists the 12.1.5 build, and beta data can be cleared on request.", from: [512, 521] },
+      { label: "Quiet the game", text: "A Quiet module can silence invite declines, battleground release, error and zone text and camera zoom.", from: [479] },
+      { label: "Vanguard meter", text: "Each line shows its share of the total. Kinds and segments, a spell panel, a chat report, a death recap link on the Deaths view, Report and Reset buttons and a width setting.", from: [494, 529, 532, 533, 534] },
+      { label: "Other addons", text: "Chat says once when EllesmereUI's unit frame, action bar, nameplate or raid frame addons do a job a Vanguard module does, and asks about ElvUI, Tukui, Auctionator and TradeSkillMaster.", from: [484, 492, 519] },
+    ] },
+    { id: "improved", title: "Improved", items: [
+      { label: "Game windows", text: "Many more game windows are in the Vanguard look: the spellbook, guild, social, map, group finder, Legacy, calendar, Edit Mode, keybindings and the Lua error window. The auction house tabs and panels too, and a failing part no longer stops the rest.", from: [399, 413, 415, 427, 429, 434, 436, 442] },
+      { label: "Controls", text: "One selected look and one press state for rows, tabs, sliders, scroll bars and buttons across the options and game windows; buttons light only while the mouse is over them. The game's remaining arrow art is skinned, and /vg errors opens a copy window.", from: [403, 404, 405, 406, 407, 408, 409, 410, 411, 414, 416] },
+      { label: "Classic look", text: "A flat panel under each action bar and a round minimap option.", from: [500, 522] },
+      { label: "Options window", text: "Reload tags, a searchable settings list, a page reset and grouped Modules. Setup has Larger text and readability switches.", from: [509, 519] },
+      { label: "Safer colours", text: "Dispel types stay apart (on with the game's colour-blind mode), and dispel badges show a corner mark per type.", from: [495, 515] },
+      { label: "Chat tabs", text: "Chat tabs wear the theme's tab look and the alert glow takes the accent colour, with a bigger default window and a softer backdrop.", from: [535] },
+      { label: "Performance", text: "/vg perf reads the game's addon profiler and /vg perf slow names Vanguard's slowest handlers. /vg mem reads memory after a garbage collection.", from: [451, 459, 460] },
+      { label: "Saved data", text: "Vanguard trims the oldest price data if the game says the saved file is too large.", from: [477, 503] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Safety", text: "Chat filters skip hidden text, saved click-cast Import checks the whole string first, and values the game may hide are no longer tested in raid roles, heals, threat and health text.", from: [490, 491, 503, 513] },
+      { label: "Merchants and mail", text: "The merchant sell list is safer (junk, stock), the mail Take button never takes pay-on-delivery mail, mail runs re-check the whole mail, and the auction house closes safely in combat.", from: [493, 511] },
+      { label: "Windows", text: "A stuck window drag ends cleanly, and slash and auction input is parsed more strictly.", from: [530, 531] },
+      { label: "Tooltips", text: "Tooltip hooks no longer break when another addon covers the same job.", from: [489, 464, 465] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.6.0 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.7.0 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.6.0",
+  after: "v0.7.0",
   groups: [],
 };

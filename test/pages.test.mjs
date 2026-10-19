@@ -71,7 +71,7 @@ test("/start/: the setup wizard's title, steps in order, caption, questions and 
     last = at;
   });
   assert.ok(t.includes(`Step 1 of ${steps.length} · ${steps[0]}`), "the wizard's caption, as the addon formats it");
-  const title = (setup.match(/"title",\s*"text",\s*"([^"]+)"/) || [])[1];
+  const title = (setup.match(/"title",\s*"text",\s*"([^"]+)"/) || setup.match(/ns\.WindowTitle\(f,\s*"([^"]+)"/) || [])[1];
   assert.ok(title && t.includes(`“${title}”`), `wizard title "${title}"`);
   for (const [, q] of setup.matchAll(/choicePage\(page,\s*"([^"]+)"/g)) assert.ok(t.includes(`“${q}”`), `step question "${q}"`);
   for (const line of literals(inline(setup, "local lines"))) assert.ok(t.includes(`“${line}”`), `move-step line "${line}"`);
