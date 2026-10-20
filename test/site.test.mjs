@@ -541,8 +541,15 @@ function moduleFlags(ref, key) {
   let depth = 0, i = lua.indexOf("{", start), body = "";
   do { const c = lua[i++]; depth += c === "{" ? 1 : c === "}" ? -1 : 0; body += depth === 1 && c !== "{" ? c : depth > 1 ? " " : ""; } while (depth > 0 && i < lua.length);
   const all = [...body.matchAll(/\b(\w+)\s*=\s*(true|false)\b/g)];
-  const master = all.find((m) => m[1] === "on" || m[1] === "enabled");
-  return (master ? [master] : all).map((m) => m[2] === "true");
+  const own = ownSwitches(ref, key);
+  const master = own ? all.filter((m) => own.includes(m[1])) : all.filter((m) => m[1] === "on" || m[1] === "enabled").slice(0, 1);
+  return (master.length ? master : all).map((m) => m[2] === "true");
+}
+
+// A module's own switch keys from O.MODULE_LINKS in Core/Options.lua, read here on its own (null when not listed).
+function ownSwitches(ref, key) {
+  const row = show(ref, "Core/Options.lua").match(new RegExp(`\\n\\s*${key} = \\{ keys = \\{([^}]*)\\}`));
+  return row ? [...row[1].matchAll(/"(\w+)"/g)].map((m) => m[1]) : null;
 }
 
 // "Off until you switch it on" shows exactly where every switch defaults off and the addon says it starts off.
@@ -567,6 +574,14 @@ test("'Off until you switch it on' needs every switch off, not any", () => {
   assert.equal(offCase({ a: true, b: false }), false, "first switch on: no label");
   assert.equal(offCase({ a: false, b: false }, "Shows a frame."), false, "the addon doesn't say it starts off: no label");
   assert.equal(offCase({ size: 3 }), false, "no switches at all: no label");
+});
+
+// A module listed in O.MODULE_LINKS is judged by its own switches there, whatever its other switches default to.
+test("'Off until you switch it on' reads a module's own switches from O.MODULE_LINKS", () => {
+  const model = (defaults) => ({ next: { modules: [{ name: "Made", defaults }], moduleLinks: { Made: { keys: ["strip", "recap"] } } } });
+  const desc = "Off until you switch it on.";
+  assert.equal(startsOff({ key: "Made", desc }, model({ strip: false, recap: false, sound: true })), true, "own switches off: the label shows");
+  assert.equal(startsOff({ key: "Made", desc }, model({ strip: true, recap: false, sound: false })), false, "one own switch on: no label");
 });
 
 // ---------------------------------------------------------------- The shell, the folded sections and the "show what's coming" switch

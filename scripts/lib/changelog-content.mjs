@@ -317,10 +317,33 @@ RELEASE_NOTES["v0.7.2"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.7.3"] = { groups: [
+    { id: "improved", title: "Improved", items: [
+      { label: "Options window", text: "The Options window is taller, its changed dot names the default, the Modules page explains modules with their own switch, search finds more, and the addons button explains itself. Buff settings live on the Unit frames page.", from: [632, 641] },
+      { label: "Other addons", text: "The Other addons card lists Forever add-ons and keeps answers you can change later.", from: [608] },
+      { label: "Moving frames", text: "The unlock bar explains itself and leads back to the options, Reset puts moved windows back, and five more game windows can be dragged. Situations gets a Your situations card.", from: [627, 611] },
+      { label: "Errors and prompts", text: "The errors window has Report a bug and Clear buttons, the AFK screen steps aside when something needs you, and a destroy popup shows its confirm button in the danger colour.", from: [631, 620] },
+      { label: "Unit frames and plates", text: "Unit frames show tooltips on hover, grey for tapped mobs, a Ghost label, raid marks and quieter threat. The pet has a cast bar, and nameplates can show health numbers.", from: [612, 628] },
+      { label: "Swing timer", text: "The swing timer dims when you are out of reach and turns on by itself for every class that swings.", from: [622] },
+      { label: "Group and raid", text: "Raid tiles in a fight show missing health, summons, tooltips and indicator names. Your role is guarded in a group, with an Automatic whisper role and a Needs my role line.", from: [630, 605] },
+      { label: "Damage meter", text: "The game's damage meter gets the Vanguard look for its header controls and breakdown, and its lines stay flat when the game reuses them.", from: [636, 615] },
+      { label: "Quest tracker", text: "Tracker objectives are rows, muted when done, with an accent line on the followed quest; the tracker tooltip shows a Failed line, and the arrow says Here and Turn in and has a Pin button.", from: [614, 606] },
+      { label: "Quest windows", text: "Quest windows show reward captions and the best-reward crown, a needs line, an empty-log message and an honest Accepted. Quest-start pins and /way titles read better, and history follows the game's own flag.", from: [629, 616] },
+      { label: "Minimap", text: "Minimap objectives are an accent dot under the quest mark, and the followed quest's mark is larger. The drawer takes late buttons, sorts them, closes on Escape and opens on the side with room.", from: [638, 618] },
+      { label: "Info strips and bars", text: "Info strips fit their text, follow Text size, explain their numbers on hover, open their window on click and keep rates through a reload. The clock follows the game's clock, and the reputation bar names its standing and takes the XP bar's spot at the cap.", from: [619, 624, 609, 626] },
+      { label: "Chat", text: "Channel tags are numbered, Copy works on the shown tab, and bare and guild links are clickable. The chat filter card says what it caught, and watch words match in any order and are marked.", from: [613, 625, 635] },
+      { label: "Invites and errors", text: "A summon that comes in a fight is taken when it ends, declines give one line per sender, and hiding the red error line keeps the four errors you must act on.", from: [633, 640, 637] },
+      { label: "Bags and town", text: "Bank search finds more words, bags show the Junk value, and an item can leave its group. Mail scrolls with days left on every letter, the auction scan counts down, and deals survive a trip to the mailbox. The Keep stocked window, the Train all count and the travel bar spot are clearer.", from: [617, 621, 623, 634] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Bug sweeps", text: "About 170 fixes across combat, group, quests, map, chat, bags, merchant, mail, auction and setup.", from: [592, 593, 594, 595, 596, 597, 598, 599, 600, 601, 602, 603, 604, 607] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.7.2 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.7.3 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.7.2",
+  after: "v0.7.3",
   groups: [],
 };
