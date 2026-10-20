@@ -531,9 +531,10 @@ export function changelogPage(model) {
 
 // ------------------------------------------------------------------ Credits
 
-// A README section's body ("## Credits" -> text up to the next heading).
+// A README section's body ("## Credits" -> text up to the next heading; the
+// spec text that follows the README starts with a feature page's "# Title").
 function section(readme, name) {
-  const m = readme.match(new RegExp(`^## ${name}\\s*\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, "m"));
+  const m = readme.match(new RegExp(`^## ${name}\\s*\\n([\\s\\S]*?)(?=^#{1,2} |(?![\\s\\S]))`, "m"));
   return m ? m[1].trim() : "";
 }
 

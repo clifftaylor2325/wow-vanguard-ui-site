@@ -57,8 +57,8 @@ export const MORE = {
     check: ["combined bag", "with a Sort button beside the search box", "item slots bordered in each item's quality color", "quest items, equipment, consumables, trade goods, other, junk (gray items) and empty slots", "the bank in the same look"], from: "Everything else" },
   Merchant: { more: "Repairs with your own gold and sells your gray items. The error line drops what the action bar already shows (ability not ready, not enough rage or energy, no target). Each part can be turned off.",
     check: ["repairs with your own gold and sells your gray items", "The error line drops what the action bar already shows (ability not ready, not enough rage or energy, no target)", "Each can be turned off"], from: "At a merchant" },
-  ChatExtras: { more: "Web addresses in chat become links you can click to copy. A Copy button over the chat (or /vg copy) opens the recent chat as plain text. Optional short channel names, and Ctrl + mouse wheel jumps to the top or bottom of a chat window.",
-    check: ["web addresses in chat become links", "click one and it opens selected, ready to copy", "button over the chat (or `/vg copy`) opens the recent chat as plain text", "Short channel names (off until you switch it on)", "Ctrl + mouse wheel jumps to the top or the bottom of a chat window"], from: "Chat extras" },
+  ChatExtras: { more: "Web addresses in chat become links you can click to copy. A Copy button (or /vg copy) opens the recent chat as plain text. Optional short channel names, and Ctrl + mouse wheel jumps to the top or bottom of a chat window.",
+    check: ["web addresses in chat become links", "click one and it opens selected, ready to copy", "(or `/vg copy`) opens the recent chat as plain text", "Short channel names (off until you switch it on)", "Ctrl + mouse wheel jumps to the top or the bottom of a chat window"], from: "Chat extras" },
   ChatWatch: { more: "Add phrases (for example \"LFM\") and pick the channels to watch. When someone says one, the whisper sound plays and a small toast shows who said it; click it to whisper them. Your own lines never ring.",
     check: ["phrases that ring a sound and show a toast you can click to whisper the sender", "Add phrases (\"LFM\"", "tick the channels to watch", "the whisper sound plays and a small accent-edged toast", "and the line for 8 seconds", "your own lines (your name, alone or with your realm) never ring"], from: "Chat watch" },
   MinimapButtons: { more: "Other addons' round minimap buttons are gathered into a drawer beside the map. The small \"...\" button on the map's left edge opens it.",
@@ -213,8 +213,8 @@ export const LONGER = {
     R("Move them with /vg unlock, or turn that off under Action bars to leave them to the game's Edit Mode, where your client has it.", "or turn that off under Action bars to leave them to Edit Mode"),
   ],
   DataBars: [
-    RC("Hover a bar to see its numbers: your level, XP and rested XP, or the watched faction's name and progress.", ["over thin XP and reputation bars", "Everything else**: XP and reputation bars"], "Modules/DataBars.lua", "text = \"hover\"", "\"Level %d  %s / %s (%d%%)\"", "-- Shows the bar's text only while hovered (text = \"hover\"), or always."),
-    RC("The XP bar shows rested XP as a lighter strip and hides at the level cap; the reputation bar takes its standing's color and shows only while you watch a faction.", ["over thin XP and reputation bars", "Everything else**: XP and reputation bars"], "Modules/DataBars.lua", "-- The rested overlay: a lighter strip from the left edge", "-- Fills the XP bar, or hides it at max level", "-- Fills the reputation bar in its standing color, or hides it with no watched"),
+    RC("Hover a bar to see its numbers: your level, XP and rested XP, or the watched faction's name and progress.", ["over thin XP and reputation bars", "XP and reputation bars (hover the XP bar"], "Modules/DataBars.lua", "text = \"hover\"", "\"Level %d  %s / %s (%d%%)\"", "-- Shows the bar's text only while hovered (text = \"hover\"), or always."),
+    RC("The XP bar shows rested XP as a lighter strip and hides at the level cap; the reputation bar takes its standing's color and shows only while you watch a faction.", ["over thin XP and reputation bars", "XP and reputation bars (hover the XP bar"], "Modules/DataBars.lua", "-- The rested overlay: a lighter strip from the left edge", "-- Fills the XP bar, or hides it at max level", "-- Fills the reputation bar in its standing color, or hides it with no watched"),
     R("They're always shown unless you pick another visibility (On mouseover, In combat, Hidden or the action bars' row of conditions), one setting for both.", "On mouseover, In combat, Hidden or the action bars' row of conditions", "so are the XP and reputation bars, which share one setting"),
   ],
   QuestHistory: [
@@ -244,7 +244,7 @@ export const LONGER = {
   ],
   QuestMinimap: [
     R("A small gold ! on the minimap shows where each quest in your log has its spot, and a gold ? once it is ready to turn in.", "a small gold `!` on the minimap where each quest in your log has its spot on the map you're on, and a gold `?` once it's ready to turn in"),
-    R("A spot farther than the minimap shows sits faint on its edge, in its direction, and the marks turn with the minimap when it rotates.", "A spot farther than the minimap shows sits faint on its edge, in its direction, and the marks turn with the minimap when it rotates"),
+    R("A spot farther than the minimap shows sits faint on its edge, in its direction, and the marks turn with the minimap when it rotates.", "A spot farther than the minimap shows sits faint on its edge, in its direction", "the marks turn with the minimap when it rotates"),
     R("Without the client's quest spots or minimap scale, no marks are drawn.", "without them, or without the client's minimap scale, no marks are drawn"),
   ],
   CharacterExtras: [
@@ -423,7 +423,7 @@ export const LONGER = {
     R("Their own layout and buttons stay as the game has them, and the quest and gossip windows get the look only when Vanguard's quest dialog is switched off.", "quest and gossip (only when Vanguard's quest dialog is switched off)", "Their own layout and buttons stay as the game has them"),
   ],
   Tooltips: [
-    R("Vanguard's text size slider (under General, 70% to 130%) sizes tooltip text too.", "one slider (/vg > General, 70% to 130%) sizes all of Vanguard's text, chat and tooltips included"),
+    R("Vanguard's text size slider (under General, 70% to 130%) sizes tooltip text too.", "slider (/vg > General, 70% to 130%) sizes all of Vanguard's text, chat and tooltips included"),
     R("The sell price is left out where the game already shows a price.", "(unless the game already shows a price)"),
   ],
   TalentPlanner: [
@@ -450,10 +450,19 @@ export function longerOf(key) {
   return (LONGER[key] || []).map((x) => x.s);
 }
 
+// A phrase as the addon's feature pages may start a paragraph with it: capitalised.
+export const capitalised = (phrase) => phrase.charAt(0).toUpperCase() + phrase.slice(1);
+
+// Whether the README says a phrase. Since the docs split a README bullet's text
+// opens a paragraph on its feature page, so its first letter may be a capital.
+export function readmeSays(readme, phrase) {
+  return readme.includes(phrase) || readme.includes(capitalised(phrase));
+}
+
 // README phrases the longer text needs that the README no longer has, as "Module: phrase".
 export function longerGaps(readme) {
   const gaps = [];
-  for (const [key, list] of Object.entries(LONGER)) for (const x of list) for (const p of x.readme || []) if (!readme.includes(p)) gaps.push(`${key}: ${p}`);
+  for (const [key, list] of Object.entries(LONGER)) for (const x of list) for (const p of x.readme || []) if (!readmeSays(readme, p)) gaps.push(`${key}: ${p}`);
   return gaps;
 }
 

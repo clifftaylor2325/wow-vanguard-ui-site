@@ -15,7 +15,7 @@ import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 import { featuresPage, startsOff } from "../scripts/lib/pages-main.mjs";
-import { MORE } from "../scripts/lib/features-content.mjs";
+import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader } from "../scripts/lib/source.mjs";
 import { extractAddon } from "../scripts/lib/extract.mjs";
 import { buildModel } from "../scripts/lib/model.mjs";
@@ -498,7 +498,7 @@ test("a Features paragraph drops out when its README phrase disappears", () => {
   for (const [key, entry] of Object.entries(MORE)) {
     assert.ok(featureCardOf(full, key).includes("mod-more"), `${key} has no longer text with the full README`);
     for (const phrase of entry.check) {
-      const cut = { ...model, next: { ...model.next, readme: model.next.readme.replaceAll(phrase, "") } };
+      const cut = { ...model, next: { ...model.next, readme: model.next.readme.replaceAll(phrase, "").replaceAll(capitalised(phrase), "") } };
       assert.ok(!featureCardOf(featuresPage(cut).body, key).includes("mod-more"), `${key} keeps its text without "${phrase}"`);
     }
   }

@@ -405,6 +405,22 @@ export function extractSetup(reader) {
 
 // ---------------------------------------------------------------- everything
 
+// The addon's behaviour spec as one text: README.md first (the tagline, Install,
+// License and Credits are read from it), then the pages it moved into docs/ in
+// the docs split (one feature page per area, the command reference, the API
+// and development notes). A ref from before the split has only the README.
+const SPEC_DOCS = ["docs/COMMANDS.md", "docs/API.md", "docs/DEVELOPMENT.md"];
+export function specText(reader) {
+  const features = (reader.list ? reader.list("docs/features") : []).filter((f) => f.endsWith(".md")).map((f) => `docs/features/${f}`);
+  const pages = features.length ? [...features, ...SPEC_DOCS] : [];
+  return ["README.md", ...pages].map((f) => reader.read(f) || "").join("\n\n");
+}
+
+// A read(file) for one ref where "README.md" means the whole spec (specText).
+export function specReader(reader) {
+  return (file) => (file === "README.md" ? specText(reader) : reader.read(file));
+}
+
 // All data for one ref.
 export function extractAddon(reader) {
   // Vanguard.toc from 0.4.0; ForeverUI.toc in releases made before the rename.
@@ -423,7 +439,7 @@ export function extractAddon(reader) {
     pages: extractPages(reader, files, modules),
     theme: extractTheme(reader),
     setup: extractSetup(reader),
-    readme: reader.read("README.md") || "",
+    readme: specText(reader),
     license: reader.read("LICENSE") || "",
     has: (file) => reader.read(file) != null,
   };
