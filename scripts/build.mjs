@@ -11,7 +11,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { loadConfig, root } from "./lib/config.mjs";
 import { gitReader } from "./lib/source.mjs";
-import { extractAddon } from "./lib/extract.mjs";
+import { extractAddon, specReader } from "./lib/extract.mjs";
 import { buildModel } from "./lib/model.mjs";
 import { layout, pageHero, NAV } from "./lib/html.mjs";
 import { FONTS, WOFF2_DIR } from "./lib/fonts.mjs";
@@ -118,7 +118,7 @@ function main() {
   const theme = themeCss(next.theme);
   const base = cfg.siteUrl.replace(/\/+$/, "");
   const site = { theme: theme.vars, author: SITE_AUTHOR, version: rel.meta.Version, hasNext: !model.same, url: base };
-  const read = { rel: relReader.read, next: nextReader.read };
+  const read = { rel: specReader(relReader), next: specReader(nextReader) };
 
   fs.rmSync(cfg.outDir, { recursive: true, force: true });
   write("assets/theme.css", theme.css);

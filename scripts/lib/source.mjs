@@ -17,8 +17,16 @@ export function gitReader(repoPath, ref) {
     return text;
   };
   const readBuffer = (file) => execFileSync("git", ["show", `${ref}:${file}`], { cwd: repoPath, maxBuffer: 64 << 20 });
+  // The file names in one folder at this ref ([] when it has none).
+  const list = (dir) => {
+    try {
+      return execFileSync("git", ["ls-tree", "--name-only", `${ref}:${dir}`], { cwd: repoPath, stdio: ["ignore", "pipe", "ignore"] }).toString("utf8").split("\n").filter(Boolean);
+    } catch {
+      return [];
+    }
+  };
   const commit = execFileSync("git", ["rev-parse", `${ref}^{commit}`], { cwd: repoPath }).toString().trim();
-  return { ref, commit, read, readBuffer };
+  return { ref, commit, read, readBuffer, list };
 }
 
 // The files the TOC loads, in load order (Lua only).

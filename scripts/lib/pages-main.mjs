@@ -5,7 +5,7 @@ import { shotByFile } from "./shots-content.mjs";
 import { supportAsk, esc, md, slug, badge, avail, shotFigure, ornament, heroFrame, pageHero, curseforgeCta, wagoLink, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
-import { MORE, longerOf } from "./features-content.mjs";
+import { MORE, longerOf, readmeSays } from "./features-content.mjs";
 
 // "September 27, 2026" in New York time.
 export function dateET(iso) {
@@ -346,7 +346,7 @@ export function startsOff(m, model) {
 // The module's longer description, while the README still says what it's written from.
 function moreOf(m, model) {
   const entry = MORE[m.key];
-  return entry && entry.check.every((c) => model.next.readme.includes(c)) ? entry.more : null;
+  return entry && entry.check.every((c) => readmeSays(model.next.readme, c)) ? entry.more : null;
 }
 
 // A command's help text as the addon prints it (newest source first).

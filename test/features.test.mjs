@@ -7,6 +7,8 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { loadConfig } from "../scripts/lib/config.mjs";
 import { LONGER, MORE, longerGaps } from "../scripts/lib/features-content.mjs";
+import { gitReader } from "../scripts/lib/source.mjs";
+import { specText } from "../scripts/lib/extract.mjs";
 
 const cfg = loadConfig();
 
@@ -24,7 +26,7 @@ const html = fs.readFileSync(path.join(cfg.outDir, "features", "index.html"), "u
 const all = Object.entries(LONGER).flatMap(([key, list]) => list.map((x) => [key, x]));
 
 test("the README still has every phrase the longer text is written from", () => {
-  const readme = show("README.md");
+  const readme = specText(gitReader(cfg.sourcePath, cfg.sourceRef));
   assert.ok(readme.length > 1000, "no README at the source ref");
   assert.deepEqual(longerGaps(readme), []);
 });
