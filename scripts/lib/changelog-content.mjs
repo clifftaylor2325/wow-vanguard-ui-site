@@ -340,10 +340,17 @@ RELEASE_NOTES["v0.7.3"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.7.4"] = { groups: [
+    { id: "improved", title: "Improved", items: [
+      { label: "Credits", text: "The Map page's OpenMap card credits OpenMap's author, jiforever (jigrobbulus on CurseForge), and the Credits list names OpenMap.", from: [644] },
+      { label: "Action buttons", text: "Long key names are short on the buttons (Caps Lock Cap, Page Up PU, Insert Ins, Delete Del) and stay on one line. A button holding an item you wear gets a thin green ring, and the keybind banner repeats your last bind and has a Done button.", from: [643] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.7.3 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.7.4 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.7.3",
+  after: "v0.7.4",
   groups: [],
 };
