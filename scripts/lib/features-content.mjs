@@ -553,7 +553,7 @@ Object.assign(LONGER, {
     R("Each part has its own switch under Quests → Quest guidance.", "each part switched under `/vg` → Quests → Quest guidance"),
     R("Without a quest flag from the client, nothing is marked.", "without one nothing is marked"),
     R("Hover a pin for the quest, and click it to point the arrow there.", "hover one for the quest, click it to point the arrow there"),
-    R("Pins aren't drawn on a map where the game's own map already shows quest offers, or while Questie is loaded.", "Vanguard draws none on a map where the game's own map already shows quest offers, or while Questie is loaded"),
+    R("Pins aren't drawn on a map where the game's own map already shows quest offers, or while Questie or OpenMap is loaded.", "Vanguard draws none on a map where the game's own map already shows quest offers, or while Questie or OpenMap is loaded"),
   ],
   OfficerLoot: [
     R("/vg loot add <player> <item> adds a reserve, /vg loot list prints them and /vg loot clear forgets them.", "`/vg loot add <player> <item>` adds a reserve", "`/vg loot list` prints them by item and `/vg loot clear` forgets them"),

@@ -295,10 +295,32 @@ RELEASE_NOTES["v0.7.1"] = { groups: [
     ] },
 ] };
 
+// v0.7.2: written from the addon's docs/CHANGELOG.md and the PRs merged from #568 to #589.
+// Not listed: #582 and #583 (the docs split, developers only) and #591 (the version bump).
+RELEASE_NOTES["v0.7.2"] = { groups: [
+    { id: "improved", title: "Improved", items: [
+      { label: "Window buttons", text: "Window buttons (close, minimize, maximize, back) show only their mark at rest; under the mouse a grey rounded tile appears and the close cross turns vermilion.", from: [587] },
+      { label: "Game windows", text: "The world map's breadcrumbs and their arrows are one control, the inbox Prev and Next captions sit clear of their arrows, and the Spellbook's category icons fill their tiles.", from: [570, 571, 574] },
+      { label: "Character and settings", text: "The character pane's tabs, fold chevrons and rows take the theme, and the Settings window's Graphics box sits under its tabs with centred tab labels.", from: [572, 573] },
+      { label: "Social", text: "The social window shows status in words with the presence dot centred on the name.", from: [579] },
+      { label: "Chat", text: "Chat tabs sit over the panel in the tab bar, and the frame, tabs, edit box, text fade, find box and bubbles are polished; the edit box sits under the panel with a rail in the channel's colour.", from: [575, 577] },
+      { label: "Nameplates", text: "A grey X and a grey nameplate bar mark mobs another player has tagged; mobs you tagged keep the green check.", from: [576] },
+      { label: "Action bars and Edit Mode", text: "Scaled action bars touch in the bottom stack, and in Edit Mode the handles keep a dialog's layer and bars stack on whole pixels.", from: [568, 569] },
+      { label: "Minimap", text: "On a round minimap, quest marks, the zone name and the rim buttons stay on the map.", from: [580] },
+      { label: "OpenMap", text: "With OpenMap loaded, Vanguard's map extras step aside: no cursor spot on the coordinates line and no quest-start pins. The Map page says so.", from: [584] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Chat", text: "The Combat Log's filter strip sits in a band under the bar, and the copy box and the find box never stack.", from: [581, 588] },
+      { label: "Game windows", text: "Reputation rows read their state once the game has filled them. A window drag held as a fight starts ends before the lockdown, popups keep their own layout, Forever's addon list is dressed, and the social side windows are fixed.", from: [578, 585] },
+      { label: "Profiles", text: "A backup never overwrites another character's profile, swapping back to a spec with no profile undoes the staged switch, and a settings restore reads its backup the way an import does.", from: [589] },
+      { label: "Options and Quiet", text: "Hiding the red error line keeps the yellow info lines, and an options search hit marks its row when the window opens again.", from: [589] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.7.1 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.7.2 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.7.1",
+  after: "v0.7.2",
   groups: [],
 };
