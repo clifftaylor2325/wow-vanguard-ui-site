@@ -334,12 +334,13 @@ ${disclosure({ id: "modules", title: "Keep the game's version of something", bod
 
 // ------------------------------------------------------------------ Features
 
-// True when the addon says a module starts off: its own on/enabled switch is off (else every switch in its defaults)
-// is off and its own description says so ("off until", "switch it on").
+// True when the addon says a module starts off: its own switches (O.MODULE_LINKS, else on/enabled, else every
+// switch in its defaults) are off and its own description says so ("off until", "switch it on").
 export function startsOff(m, model) {
   const d = model.next.modules.find((x) => x.name === m.key)?.defaults || {};
-  const master = ["on", "enabled"].find((k) => typeof d[k] === "boolean");
-  const flags = master ? [d[master]] : Object.values(d).filter((v) => typeof v === "boolean");
+  const own = model.next.moduleLinks?.[m.key]?.keys || [["on", "enabled"].find((k) => typeof d[k] === "boolean")];
+  const master = own.filter((k) => typeof d[k] === "boolean");
+  const flags = master.length ? master.map((k) => d[k]) : Object.values(d).filter((v) => typeof v === "boolean");
   return flags.length > 0 && flags.every((v) => !v) && /off until|switch it on/i.test(m.desc);
 }
 

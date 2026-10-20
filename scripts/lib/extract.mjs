@@ -112,6 +112,13 @@ export function extractModuleInfo(reader) {
   return t ? plain(t) : {};
 }
 
+// O.MODULE_LINKS: module -> { keys: its own switches, page } (absent before it existed).
+export function extractModuleLinks(reader) {
+  const m = luaFile(reader, "Core/Options.lua");
+  const t = m && findTable(m, "O.MODULE_LINKS");
+  return t ? plain(t) : {};
+}
+
 // ---------------------------------------------------------------- options pages
 
 // Literal choices from a cycle's choice expression: [[value, label], ...] or null.
@@ -436,6 +443,7 @@ export function extractAddon(reader) {
     commands: extractCommands(reader),
     modules,
     moduleInfo: extractModuleInfo(reader),
+    moduleLinks: extractModuleLinks(reader),
     pages: extractPages(reader, files, modules),
     theme: extractTheme(reader),
     setup: extractSetup(reader),
