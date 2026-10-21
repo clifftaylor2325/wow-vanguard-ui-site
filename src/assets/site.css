@@ -61,8 +61,8 @@ h1 { font-size: 2rem; margin-top: 0.4em; }
 /* Section headings: a brass diamond and a rule that fades from brass, as on Home. */
 h2 { font-size: var(--fs-xl); padding-bottom: 6px; background: linear-gradient(90deg, var(--accent), color-mix(in oklab, var(--accent) 35%, var(--divider)) 28%, var(--divider) 62%, transparent) left bottom / 100% 1px no-repeat; }
 h2::before { content: ""; display: inline-block; width: 0.4em; height: 0.4em; margin: 0 0.55em 0 0.1em; vertical-align: 0.17em; background: var(--accent); transform: rotate(45deg); }
-.cf-box-h, .sec-head h2, summary h2 { background: none; }
-.cf-box-h::before, .sec-head h2::before, summary h2::before { content: none; }
+.cf-box-h, summary h2 { background: none; }
+.cf-box-h::before, summary h2::before { content: none; }
 h3 { font-size: var(--fs-lg); }
 p, ul, ol { margin: 0 0 1em; }
 li { margin: 0.25em 0; }
@@ -132,19 +132,11 @@ main { min-width: 0; padding: var(--sp-3) 0 var(--sp-6); }
 @media (min-width: 1200px) { .grid.four { grid-template-columns: repeat(4, 1fr); } }
 
 /* ------------------------------------------------------------------ Cards
-   Showcase cards (Home highlights, tiles, the CurseForge box) carry the full
-   brass edge, glow, inner hairline and corner diamonds. Plain cards (module
-   rows, FAQ entries, quotes) keep only the brass-tinted edge. */
-.card { border: 1px solid var(--card-line); background: var(--panel); }
-.card { position: relative; border-radius: var(--r-3); padding: 14px 16px; min-width: 0; }
-.card.tile, .cf-box { background: radial-gradient(120% 70% at 50% 0%, color-mix(in oklab, var(--accent) 10%, var(--panel)), var(--panel) 62%); box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px color-mix(in oklab, var(--accent) 14%, transparent); }
+   Every card has the brass-tinted edge. Showcase cards (the Home tiles and the
+   CurseForge box) add a faint brass tint at the top. No corner pieces. */
+.card { border: 1px solid var(--card-line); background: var(--panel); border-radius: var(--r-3); padding: 14px 16px; min-width: 0; }
+.card.tile, .cf-box { background: radial-gradient(120% 70% at 50% 0%, color-mix(in oklab, var(--accent) 10%, var(--panel)), var(--panel) 62%); }
 blockquote.card { margin-left: 0; margin-right: 0; overflow-wrap: anywhere; }
-.card.tile::before, .card.tile::after, .cf-box::before, .cf-box::after { content: ""; position: absolute; width: 9px; height: 9px; background: var(--accent); transform: rotate(45deg); pointer-events: none; }
-.card.tile::before, .cf-box::before { left: 18px; top: -5px; }
-.card.tile::after, .cf-box::after { right: 18px; bottom: -5px; }
-.card.tile::before, .card.tile::after, .cf-box::before, .cf-box::after { width: 7px; height: 7px; }
-.card.tile::before, .cf-box::before { top: -4px; }
-.card.tile::after, .cf-box::after { bottom: -4px; }
 .card > :first-child { margin-top: 0; }
 .card > :last-child { margin-bottom: 0; }
 a.tile { display: block; color: var(--text); text-decoration: none; }
@@ -233,8 +225,7 @@ details.src > p { margin: 4px 0 0; }
 .facts dd { margin: 0; }
 .button, .cf-cta { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: var(--r-2); border: 1px solid var(--accent); background: var(--accent); color: var(--bg); font-weight: 600; text-decoration: none; cursor: pointer; font: inherit; font-weight: 600; }
 .button:hover, a.cf-cta:hover { filter: brightness(1.08); }
-.button.secondary, .button.ghost { background: transparent; color: var(--accent); }
-.button.ghost { border-color: var(--ui-line); color: var(--text); }
+.button.secondary { background: transparent; color: var(--accent); }
 .cf-cta.is-soon { background: transparent; color: var(--text); border-style: dashed; border-color: var(--ui-line); cursor: default; }
 .cf-cta-lg { padding: 11px 20px; font-size: 1.05rem; }
 .cf-gem { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; }
@@ -500,5 +491,4 @@ table.stack { margin: 0 0 1em; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
-  .feat:hover, .feat:focus-visible { transform: none; }
 }
