@@ -391,7 +391,7 @@ test("fonts: WOFF2 first with the TTF as fallback, and the committed WOFF2 files
   }
 });
 
-test("every inner page and the 404 page open with the shared page hero, and the skip link comes first", () => {
+test("every inner page and the 404 page open with the shared title block, and the skip link comes first", () => {
   const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
   for (const d of [...dirs, "404"]) {
     const html = d === "404" ? fs.readFileSync(path.join(dist, "404.html"), "utf8") : page(d);
@@ -400,7 +400,8 @@ test("every inner page and the 404 page open with the shared page hero, and the 
     assert.ok(first && /class="skip" href="#main"/.test(first[0]), `/${d}: the skip link must be the first focusable element`);
     assert.ok(/<main id="main"/.test(html), `/${d}: the skip link target must be the main landmark`);
     if (!d) continue;
-    assert.ok(/<div class="page-hero">\s*<div class="hero-art" aria-hidden="true">[\s\S]*?<h1 class="page-title">/.test(html), `/${d}: no page hero with the h1`);
+    assert.ok(/<div class="page-hero">\s*<h1 class="page-title">[\s\S]*?<\/h1>\s*<svg class="ornament page-orn"[\s\S]*?<\/svg>\s*(<p class="lede">[\s\S]*?<\/p>\s*)?<\/div>/.test(html), `/${d}: no title block with the h1 first and the lede optional`);
+    assert.ok(!/<div class="page-hero">[\s\S]{0,400}hero-art/.test(html), `/${d}: the title block carries no hero art`);
   }
 });
 

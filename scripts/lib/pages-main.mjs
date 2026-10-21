@@ -1,8 +1,8 @@
 // Home, Install & Update, Getting started, Features, Commands and Settings.
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
-import { shotByFile } from "./shots-content.mjs";
-import { supportAsk, esc, md, slug, badge, avail, shotFigure, ornament, heroFrame, pageHero, curseforgeCta, wagoLink, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
+import { shotByFile, slotByKey } from "./shots-content.mjs";
+import { supportAsk, esc, md, slug, badge, avail, shotFigure, slotFigure, ornament, heroFrame, pageHero, curseforgeCta, wagoLink, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf, readmeSays } from "./features-content.mjs";
@@ -62,15 +62,39 @@ const GLYPHS = {
   Nameplates: `<path d="M18 4 l3 3 l-3 3 l-3 -3 Z" class="g-fill"/><rect x="5" y="13" width="26" height="6" rx="1"/><rect x="5" y="13" width="17" height="6" rx="1" class="g-fill"/><rect x="5" y="22" width="5" height="5"/><rect x="12" y="22" width="5" height="5"/>`,
 };
 
-// One highlight card.
-function highlightCard(m, version) {
+// The accent presets as swatches, from Core/Theme.lua (PRESET_ORDER and PRESETS): the first is the
+// default. A preset only the next release has hides with the rest of it.
+export function swatchList(model) {
+  const { rel, next } = model;
+  const presets = next.theme.presetOrder.map((k) => [k, next.theme.presets[k]]).filter((x) => x[1]);
+  const item = ([k, hex], i) => `<li class="swatch"${rel.theme?.presets?.[k] ? "" : ' data-avail="next"'}><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? " (default)" : ""} <span class="small">${esc(hex)}</span></span></li>`;
+  return `<ul class="swatches">${presets.map(item).join("")}</ul>`;
+}
+
+// One row of the tour: the module's name and description (the addon's own words) with its
+// glyph, a link to its Features entry, and the screenshot slot for it.
+function tourRow(m, version) {
   const glyph = GLYPHS[m.key] || `<path d="M18 4 L32 18 L18 32 L4 18 Z"/>`;
-  return `<li><a class="feat" href="/features/#${esc(m.id)}">
-  <span class="feat-glyph"><svg viewBox="0 0 36 32" aria-hidden="true" focusable="false">${glyph}</svg></span>
-  <span class="feat-name">${esc(m.name)}</span>
-  <span class="feat-desc">${esc(m.desc)}</span>
-  <span class="feat-foot">${badge(m.inRel, m.inNext, version)}<span class="feat-more">Read more<span class="visually-hidden"> about ${esc(m.name)}</span> <span aria-hidden="true">→</span></span></span>
-</a></li>`;
+  const slot = slotByKey(`tour-${m.key}`);
+  return `<li class="tour-row" data-module="${esc(m.key)}">
+  <div class="tour-text">
+    <h3 class="tour-name"><span class="tour-glyph"><svg viewBox="0 0 36 32" aria-hidden="true" focusable="false">${glyph}</svg></span>${esc(m.name)}</h3>
+    <p class="tour-desc">${esc(m.desc)}</p>
+    <p class="tour-foot">${badge(m.inRel, m.inNext, version)}<a class="tour-more" href="/features/#${esc(m.id)}">More on Features<span class="visually-hidden"> about ${esc(m.name)}</span> <span aria-hidden="true">→</span></a></p>
+  </div>
+  ${slot ? `<div class="tour-shot">${slotFigure(slot, { caption: false })}</div>` : ""}
+</li>`;
+}
+
+// The tour's last row: the accent presets, as the Getting started page lists them (no screenshot).
+function presetsRow(model) {
+  return `<li class="tour-row tour-presets">
+  <div class="tour-text">
+    <h3 class="tour-name">Accent presets</h3>
+    ${swatchList(model)}
+    <p class="tour-foot"><a class="tour-more" href="/start/#accent">Pick an accent <span aria-hidden="true">→</span></a></p>
+  </div>
+</li>`;
 }
 
 // The layout at a glance: a real screenshot of the default layout, with what is in it.
@@ -79,29 +103,9 @@ function layoutShot() {
 <p class="small">The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner. More pictures are on <a href="/screenshots/">Screenshots</a>.</p>`;
 }
 
-// The hero's decorative layers: sky, glow, rune ring, ridges, embers and frame.
+// The hero's decoration: a quiet sky gradient (in CSS) and the brass frame.
 function heroArt() {
-  const embers = Array.from({ length: 18 }, (_, i) => {
-    const x = (i * 37 + 11) % 100;
-    const d = 7 + ((i * 5) % 9);
-    const delay = -((i * 1.7) % d).toFixed(1);
-    const s = 2 + (i % 3);
-    const y = 18 + ((i * 23) % 64);
-    return `<i style="--x:${x}%;--y:${y}%;--d:${d}s;--t:${delay}s;--s:${s}px"${i % 4 === 0 ? ' class="e2"' : ""}></i>`;
-  }).join("");
-  const ticks = Array.from({ length: 24 }, (_, i) => `<path d="M100 8 v${i % 3 === 0 ? 9 : 5}" transform="rotate(${i * 15} 100 100)"/>`).join("");
-  return `<div class="hero-art" aria-hidden="true">
-  <div class="hero-sky"></div>
-  <div class="hero-glow"></div>
-  <svg class="hero-ring" viewBox="0 0 200 200" focusable="false"><circle cx="100" cy="100" r="92" class="ring-a"/><circle cx="100" cy="100" r="78" class="ring-b"/>${ticks}<path d="M100 14 l4 6 l-4 6 l-4 -6 Z M186 100 l-6 4 l-6 -4 l6 -4 Z M100 186 l-4 -6 l4 -6 l4 6 Z M14 100 l6 -4 l6 4 l-6 4 Z" class="ring-gem"/></svg>
-  <svg class="hero-ridges" viewBox="0 0 1200 260" preserveAspectRatio="none" focusable="false">
-    <path class="ridge-3" d="M0 150 L80 118 L150 136 L240 92 L330 128 L420 98 L520 140 L600 104 L690 132 L790 86 L880 124 L960 100 L1050 134 L1130 108 L1200 126 V260 H0 Z"/>
-    <path class="ridge-2" d="M0 190 L110 150 L190 172 L300 134 L380 166 L470 142 L560 178 L660 140 L760 170 L850 146 L940 176 L1040 138 L1120 164 L1200 150 V260 H0 Z"/>
-    <path class="ridge-1" d="M0 230 L140 196 L260 214 L380 188 L520 220 L640 196 L780 222 L900 192 L1030 218 L1200 196 V260 H0 Z"/>
-  </svg>
-  <div class="embers">${embers}</div>
-  ${heroFrame()}
-</div>`;
+  return `<div class="hero-art" aria-hidden="true"><div class="hero-sky"></div>${heroFrame()}</div>`;
 }
 
 export function homePage(model) {
@@ -118,13 +122,21 @@ export function homePage(model) {
     body: `<section class="hero" aria-labelledby="hero-title">
 ${heroArt()}
 <div class="hero-inner">
-  ${crestSvg({ full: true, cls: "hero-crest", label: "Vanguard's crest: two swords crossed behind a brass shield that bears a V" })}
-  <p class="hero-kicker">An addon for WoW&nbsp;Forever</p>
-  <h1 id="hero-title" class="hero-title">Vanguard</h1>
-  ${ornament("hero-orn")}
-  <p class="hero-tagline">${esc(line)}.</p>
-  <div class="hero-actions">${curseforgeCta({ size: "lg" })}${wagoLink({ size: "lg" })}<a class="button ghost" href="/features/">See the features</a></div>
-  <p class="hero-meta">Current release v${esc(model.version)} · ${relMods.length} modules · the Slate &amp; Brass theme</p>
+  <div class="hero-text">
+    <div class="hero-brand">
+      ${crestSvg({ full: true, cls: "hero-crest", label: "Vanguard's crest: two swords crossed behind a brass shield that bears a V" })}
+      <div class="hero-name">
+        <p class="hero-kicker">An addon for WoW&nbsp;Forever</p>
+        <h1 id="hero-title" class="hero-title">Vanguard</h1>
+      </div>
+    </div>
+    ${ornament("hero-orn")}
+    <p class="hero-tagline">${esc(line)}.</p>
+    <div class="hero-actions">${curseforgeCta({ size: "lg" })}${wagoLink({ size: "lg" })}</div>
+    <p class="hero-more"><a class="hero-link" href="/features/">See the features →</a></p>
+    <p class="hero-meta">Current release v${esc(model.version)} · ${relMods.length} modules · the Slate &amp; Brass theme</p>
+  </div>
+  <div class="hero-shot">${slotFigure(slotByKey("hero-hud"))}</div>
 </div>
 </section>
 
@@ -138,7 +150,7 @@ ${heroArt()}
 <div class="notice info early"><p><strong>Vanguard is an early release.</strong> Not everything has been checked in the game yet, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p></div>
 
 ${disclosure({ id: "hl-h", title: `What's in v${esc(model.version)}`, meta: `${relMods.length} modules`, body: `<p>A few of its modules, in the words the addon uses on its own Modules page. <a href="/features/">All ${relMods.length} are on Features</a>, and each can be turned off under <strong>/vg → Modules</strong>.</p>
-<ul class="feats">${highlights.map((m) => highlightCard(m, model.version)).join("\n")}</ul>` })}
+<ul class="tour">${[...highlights.map((m) => tourRow(m, model.version)), presetsRow(model)].join("\n")}</ul>` })}
 ${disclosure({ id: "mock-h", title: "The layout at a glance", body: layoutShot() })}`,
   };
 }
@@ -298,7 +310,6 @@ ${shotFigure(shotByFile("02-setup-wizard"))}`;
 
 export function startPage(model, read) {
   const { rel, next } = model;
-  const presets = next.theme.presetOrder.map((k) => [k, next.theme.presets[k]]).filter((x) => x[1]);
   const gameMenu = next.has("Core/GameMenu.lua") && !rel.has("Core/GameMenu.lua");
   const popoverNext = /scale and opacity/.test(JSON.stringify(next.pages)) && !/scale and opacity/.test(JSON.stringify(rel.pages));
   const OW = read.next("Core/OptionsWindow.lua");
@@ -327,7 +338,7 @@ ${disclosure({ id: "move", title: "Move your frames", body: `<ol class="steps">
 </ol>
 <p>While you're moving frames, <code>/vg grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/vg snap on|off</code> makes frames snap to each other. <code>/vg frames</code> lists the frames you can move, and <code>/vg reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.</p>` })}
 ${disclosure({ id: "accent", title: "Pick an accent color", body: `<p>Click a swatch under <strong>/vg → General → Look</strong>, or type <code>/vg accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/vg accent reset</code> puts the default back.</p>
-<ul class="swatches">${presets.map(([k, hex], i) => `<li class="swatch"><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? " (default)" : ""} <span class="small">${esc(hex)}</span></span></li>`).join("")}</ul>` })}
+${swatchList(model)}` })}
 ${disclosure({ id: "modules", title: "Keep the game's version of something", body: `<p>Every part of Vanguard is a module you can turn off under <strong>/vg → Modules</strong> (or type <code>/vg disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “${o("A module that's off builds nothing and costs nothing.")}” The list is on <a href="/features/">Features</a>.</p>` })}`,
   };
 }
