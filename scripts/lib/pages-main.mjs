@@ -1,8 +1,8 @@
 // Home, Install & Update, Getting started, Features, Commands and Settings.
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
-import { shotByFile } from "./shots-content.mjs";
-import { supportAsk, esc, md, slug, badge, avail, shotFigure, ornament, heroFrame, pageHero, curseforgeCta, wagoLink, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
+import { shotByFile, slotByKey } from "./shots-content.mjs";
+import { supportAsk, esc, md, slug, badge, avail, shotFigure, slotFigure, ornament, heroFrame, pageHero, curseforgeCta, wagoLink, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf, readmeSays } from "./features-content.mjs";
@@ -79,29 +79,9 @@ function layoutShot() {
 <p class="small">The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner. More pictures are on <a href="/screenshots/">Screenshots</a>.</p>`;
 }
 
-// The hero's decorative layers: sky, glow, rune ring, ridges, embers and frame.
+// The hero's decoration: a quiet sky gradient (in CSS) and the brass frame.
 function heroArt() {
-  const embers = Array.from({ length: 18 }, (_, i) => {
-    const x = (i * 37 + 11) % 100;
-    const d = 7 + ((i * 5) % 9);
-    const delay = -((i * 1.7) % d).toFixed(1);
-    const s = 2 + (i % 3);
-    const y = 18 + ((i * 23) % 64);
-    return `<i style="--x:${x}%;--y:${y}%;--d:${d}s;--t:${delay}s;--s:${s}px"${i % 4 === 0 ? ' class="e2"' : ""}></i>`;
-  }).join("");
-  const ticks = Array.from({ length: 24 }, (_, i) => `<path d="M100 8 v${i % 3 === 0 ? 9 : 5}" transform="rotate(${i * 15} 100 100)"/>`).join("");
-  return `<div class="hero-art" aria-hidden="true">
-  <div class="hero-sky"></div>
-  <div class="hero-glow"></div>
-  <svg class="hero-ring" viewBox="0 0 200 200" focusable="false"><circle cx="100" cy="100" r="92" class="ring-a"/><circle cx="100" cy="100" r="78" class="ring-b"/>${ticks}<path d="M100 14 l4 6 l-4 6 l-4 -6 Z M186 100 l-6 4 l-6 -4 l6 -4 Z M100 186 l-4 -6 l4 -6 l4 6 Z M14 100 l6 -4 l6 4 l-6 4 Z" class="ring-gem"/></svg>
-  <svg class="hero-ridges" viewBox="0 0 1200 260" preserveAspectRatio="none" focusable="false">
-    <path class="ridge-3" d="M0 150 L80 118 L150 136 L240 92 L330 128 L420 98 L520 140 L600 104 L690 132 L790 86 L880 124 L960 100 L1050 134 L1130 108 L1200 126 V260 H0 Z"/>
-    <path class="ridge-2" d="M0 190 L110 150 L190 172 L300 134 L380 166 L470 142 L560 178 L660 140 L760 170 L850 146 L940 176 L1040 138 L1120 164 L1200 150 V260 H0 Z"/>
-    <path class="ridge-1" d="M0 230 L140 196 L260 214 L380 188 L520 220 L640 196 L780 222 L900 192 L1030 218 L1200 196 V260 H0 Z"/>
-  </svg>
-  <div class="embers">${embers}</div>
-  ${heroFrame()}
-</div>`;
+  return `<div class="hero-art" aria-hidden="true"><div class="hero-sky"></div>${heroFrame()}</div>`;
 }
 
 export function homePage(model) {
@@ -118,13 +98,21 @@ export function homePage(model) {
     body: `<section class="hero" aria-labelledby="hero-title">
 ${heroArt()}
 <div class="hero-inner">
-  ${crestSvg({ full: true, cls: "hero-crest", label: "Vanguard's crest: two swords crossed behind a brass shield that bears a V" })}
-  <p class="hero-kicker">An addon for WoW&nbsp;Forever</p>
-  <h1 id="hero-title" class="hero-title">Vanguard</h1>
-  ${ornament("hero-orn")}
-  <p class="hero-tagline">${esc(line)}.</p>
-  <div class="hero-actions">${curseforgeCta({ size: "lg" })}${wagoLink({ size: "lg" })}<a class="button ghost" href="/features/">See the features</a></div>
-  <p class="hero-meta">Current release v${esc(model.version)} · ${relMods.length} modules · the Slate &amp; Brass theme</p>
+  <div class="hero-text">
+    <div class="hero-brand">
+      ${crestSvg({ full: true, cls: "hero-crest", label: "Vanguard's crest: two swords crossed behind a brass shield that bears a V" })}
+      <div class="hero-name">
+        <p class="hero-kicker">An addon for WoW&nbsp;Forever</p>
+        <h1 id="hero-title" class="hero-title">Vanguard</h1>
+      </div>
+    </div>
+    ${ornament("hero-orn")}
+    <p class="hero-tagline">${esc(line)}.</p>
+    <div class="hero-actions">${curseforgeCta({ size: "lg" })}${wagoLink({ size: "lg" })}</div>
+    <p class="hero-more"><a class="hero-link" href="/features/">See the features →</a></p>
+    <p class="hero-meta">Current release v${esc(model.version)} · ${relMods.length} modules · the Slate &amp; Brass theme</p>
+  </div>
+  <div class="hero-shot">${slotFigure(slotByKey("hero-hud"))}</div>
 </div>
 </section>
 

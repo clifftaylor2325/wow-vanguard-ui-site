@@ -346,37 +346,19 @@ table.stack { margin: 0 0 1em; }
 .ornament .orn-gem { fill: var(--accent); }
 
 /* ------------------------------------------------------------------ Home hero
-   Every layer is CSS gradients or inline SVG in the theme colors; decoration
-   is aria-hidden. Embers drift only without prefers-reduced-motion. */
-.hero { position: relative; isolation: isolate; overflow: hidden; margin: 0; border-radius: var(--r-4); min-height: clamp(300px, 46vh, 440px); display: grid; place-items: center; text-align: center; padding: 26px 22px 44px; border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--divider)); box-shadow: 0 40px 80px -40px #000, 0 0 0 1px color-mix(in oklab, var(--bg) 60%, transparent); }
+   A quiet sky behind two columns: the crest, name, tagline and store buttons on the left, the
+   hero screenshot (or its slot) on the right; stacked under 900px. The decoration is CSS
+   gradients in the theme colors and is aria-hidden. */
+.hero { position: relative; isolation: isolate; overflow: hidden; margin: 0; border-radius: var(--r-4); padding: 24px 20px; border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--divider)); box-shadow: 0 40px 80px -40px #000, 0 0 0 1px color-mix(in oklab, var(--bg) 60%, transparent); }
 .hero-art, .hero-art > * { position: absolute; pointer-events: none; }
 .hero-art { inset: 0; z-index: -1; }
 .hero-sky { inset: 0; background:
-  radial-gradient(ellipse 75% 50% at 50% 86%, color-mix(in oklab, var(--accent) 42%, transparent), transparent 70%),
-  radial-gradient(ellipse 45% 32% at 50% 92%, color-mix(in oklab, var(--glow) 34%, transparent), transparent 72%),
-  radial-gradient(ellipse 60% 55% at 8% 0%, color-mix(in oklab, var(--cool) 22%, transparent), transparent 70%),
-  radial-gradient(ellipse 55% 50% at 94% 6%, color-mix(in oklab, var(--cool) 18%, transparent), transparent 70%),
-  linear-gradient(180deg, color-mix(in oklab, var(--cool) 9%, var(--bg)) 0%, var(--raised) 46%, color-mix(in oklab, var(--accent) 20%, var(--raised)) 80%, var(--bg) 100%); }
-.hero-sky::after { content: ""; position: absolute; inset: 0 0 45% 0; opacity: 0.55;
-  background-image: radial-gradient(1px 1px at 12% 22%, var(--text) 50%, transparent 51%), radial-gradient(1px 1px at 27% 9%, var(--text2) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 41% 30%, var(--text) 50%, transparent 51%), radial-gradient(1px 1px at 63% 14%, var(--text2) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 78% 26%, var(--text) 50%, transparent 51%), radial-gradient(1px 1px at 88% 11%, var(--text2) 50%, transparent 51%), radial-gradient(1px 1px at 6% 48%, var(--text2) 50%, transparent 51%), radial-gradient(1px 1px at 94% 44%, var(--text2) 50%, transparent 51%), radial-gradient(1px 1px at 55% 4%, var(--text) 50%, transparent 51%), radial-gradient(1px 1px at 34% 52%, var(--text2) 50%, transparent 51%);
-  -webkit-mask-image: linear-gradient(180deg, #000, transparent); mask-image: linear-gradient(180deg, #000, transparent); }
-.hero-glow { left: 50%; top: 50%; width: min(640px, 120%); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, color-mix(in oklab, var(--accent) 30%, transparent) 0%, color-mix(in oklab, var(--accent) 10%, transparent) 38%, transparent 66%); animation: fui-breathe 9s ease-in-out infinite; }
-.hero-ring { left: 50%; top: 45%; width: min(440px, 92%); transform: translate(-50%, -50%); overflow: visible; opacity: 0.5; animation: fui-turn 140s linear infinite; }
-.hero-ring circle, .hero-ring path { fill: none; stroke: var(--accent); stroke-width: 0.6; }
-.hero-ring .ring-a { stroke-dasharray: 2 5; opacity: 0.8; }
-.hero-ring .ring-b { opacity: 0.45; }
-.hero-ring .ring-gem { fill: var(--accent); stroke: none; opacity: 0.85; }
-.hero-ridges { left: 0; bottom: 0; width: 100%; height: 40%; }
-.hero-ridges .ridge-3 { fill: color-mix(in oklab, var(--accent) 10%, var(--raised)); stroke: color-mix(in oklab, var(--accent) 45%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; opacity: 0.9; }
-.hero-ridges .ridge-2 { fill: var(--panel); }
-.hero-ridges .ridge-1 { fill: var(--bg); }
-.embers { inset: 0; overflow: hidden; }
-.embers i { position: absolute; left: var(--x, 50%); bottom: -12px; width: var(--s, 3px); height: var(--s, 3px); border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px 2px color-mix(in oklab, var(--accent) 55%, transparent); opacity: 0; animation: fui-rise var(--d, 10s) linear var(--t, 0s) infinite; }
-.embers i.e2 { background: var(--glow); box-shadow: 0 0 6px 2px color-mix(in oklab, var(--glow) 55%, transparent); }
-.embers i:nth-child(even) { animation-name: fui-rise-b; }
-.hero-frame { inset: 12px; border: 1px solid color-mix(in oklab, var(--accent) 38%, transparent); border-radius: var(--r-2); }
+  radial-gradient(ellipse 60% 55% at 6% 0%, color-mix(in oklab, var(--cool) 14%, transparent), transparent 70%),
+  radial-gradient(ellipse 70% 40% at 50% 112%, color-mix(in oklab, var(--glow) 20%, transparent), transparent 72%),
+  linear-gradient(180deg, color-mix(in oklab, var(--cool) 6%, var(--bg)) 0%, var(--raised) 100%); }
+.hero-frame { inset: 8px; border: 1px solid color-mix(in oklab, var(--accent) 38%, transparent); border-radius: var(--r-2); }
 .hero-frame::before { content: ""; position: absolute; inset: 5px; border: 1px solid color-mix(in oklab, var(--accent) 14%, transparent); border-radius: var(--r-1); }
-.hero-frame .fr { position: absolute; width: 54px; height: 54px; overflow: visible; }
+.hero-frame .fr { position: absolute; width: 30px; height: 30px; overflow: visible; }
 .hero-frame .fr path { fill: none; stroke: var(--accent); stroke-width: 1.6; }
 .hero-frame .fr .fr-thin { stroke-width: 0.9; opacity: 0.6; }
 .hero-frame .fr .fr-gem { fill: var(--accent); stroke: none; }
@@ -385,27 +367,50 @@ table.stack { margin: 0 0 1em; }
 .fr-bl { left: -2px; bottom: -2px; transform: scaleY(-1); }
 .fr-br { right: -2px; bottom: -2px; transform: scale(-1, -1); }
 
-.hero-inner { position: relative; max-width: 760px; min-width: 0; }
-/* The crest above the title: sized by the viewport so the hero still opens on one screen. */
-.hero-crest { display: block; width: auto; height: clamp(64px, 9vh, 92px); margin: 0 auto 6px; filter: drop-shadow(0 6px 18px color-mix(in oklab, var(--bg) 70%, transparent)); }
-.hero-kicker { margin: 0 0 6px; font-size: 0.85rem; letter-spacing: 0.3em; text-transform: uppercase; color: color-mix(in oklab, var(--accent) 70%, var(--text)); }
-.hero-title { margin: 0; font-weight: 600; font-size: clamp(2.8rem, 10vw, 5.5rem); line-height: 0.95; letter-spacing: 0.015em; color: var(--accent); text-shadow: 0 2px 30px color-mix(in oklab, var(--accent) 35%, transparent); }
+.hero-inner { position: relative; display: grid; gap: var(--sp-4); min-width: 0; }
+.hero-text, .hero-shot { min-width: 0; }
+.hero-text { text-align: left; }
+.hero-shot .shot-fig { margin: 0; }
+/* The crest beside the name (a lockup), so the hero stays short enough to open on one screen. */
+.hero-brand { display: flex; align-items: center; gap: 14px; }
+.hero-name { min-width: 0; }
+.hero-crest { display: block; flex: none; width: auto; height: 64px; filter: drop-shadow(0 6px 18px color-mix(in oklab, var(--bg) 70%, transparent)); }
+.hero-kicker { margin: 0 0 2px; font-size: 0.85rem; letter-spacing: 0.26em; text-transform: uppercase; color: color-mix(in oklab, var(--accent) 70%, var(--text)); }
+.hero-title { margin: 0; font-weight: 600; font-size: clamp(2.3rem, 7vw, 3.8rem); line-height: 1; letter-spacing: 0.015em; color: var(--accent); }
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .hero-title, .page-title { background: linear-gradient(180deg, color-mix(in oklab, var(--text) 80%, var(--accent)) 8%, var(--accent) 52%, color-mix(in oklab, var(--accent) 72%, var(--glow)) 92%); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 4px 24px color-mix(in oklab, var(--accent) 38%, transparent)); }
+  .hero-title, .page-title { background: linear-gradient(180deg, color-mix(in oklab, var(--text) 80%, var(--accent)) 8%, var(--accent) 52%, color-mix(in oklab, var(--accent) 72%, var(--glow)) 92%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 4px 24px color-mix(in oklab, var(--accent) 38%, transparent)); }
 }
-.hero-orn { width: 260px; margin: 6px auto 6px; }
-.hero-tagline { margin: 0 auto 10px; max-width: 34ch; text-wrap: balance; font-size: clamp(1.25rem, 3.6vw, 1.7rem); line-height: 1.25; color: var(--text); text-shadow: 0 1px 12px var(--bg); }
-.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 12px; }
-.hero-actions .cf-cta.is-soon { background: color-mix(in oklab, var(--bg) 70%, transparent); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
-.hero-actions .button { padding: 11px 20px; font-size: 1.05rem; }
-.hero-meta { margin: 12px 0 0; font-size: var(--fs-sm); color: var(--text); text-shadow: 0 1px 8px var(--bg), 0 0 2px var(--bg); }
+.hero-orn { width: 170px; margin: 8px 0 0; }
+.hero-tagline { margin: 8px 0 0; max-width: 30ch; text-wrap: balance; font-size: clamp(1.1rem, 3.2vw, 1.45rem); line-height: 1.25; color: var(--text); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.hero-actions .cf-cta { flex: 1 1 auto; justify-content: center; white-space: nowrap; padding-top: 9px; padding-bottom: 9px; }
+.hero-more { margin: 8px 0 0; }
+.hero-link { font-weight: 600; }
+.hero-meta { margin: 8px 0 0; font-size: var(--fs-sm); color: var(--text2); }
 
-@media (max-width: 559px) { .hero { min-height: 280px; padding: 26px 16px 40px; } .hero-orn { margin: 6px auto 8px; } .hero-actions { margin-top: 12px; } }
-
-@keyframes fui-rise { 0% { transform: translate(0, 0); opacity: 0; } 12% { opacity: 0.9; } 70% { opacity: 0.6; } 100% { transform: translate(28px, -460px); opacity: 0; } }
-@keyframes fui-rise-b { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 0.8; } 65% { opacity: 0.5; } 100% { transform: translate(-34px, -420px); opacity: 0; } }
-@keyframes fui-breathe { 0%, 100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); } }
-@keyframes fui-turn { to { transform: translate(-50%, -50%) rotate(360deg); } }
+@media (min-width: 900px) {
+  .hero { padding: 24px 36px; }
+  .hero-title { font-size: clamp(2.2rem, 4.4vw, 3.8rem); }
+  .hero-kicker { font-size: 0.8rem; letter-spacing: 0.2em; }
+  .hero-inner { grid-template-columns: minmax(270px, 0.85fr) minmax(0, 1fr); align-items: center; gap: var(--sp-6); }
+}
+/* On a phone the hero gives up its kicker, rule and release line, and crops the screenshot to a
+   strip, so it and the rows under it still end inside the first screen. */
+@media (max-width: 559px) {
+  .hero { padding: 12px 16px; }
+  .hero-inner { gap: 10px; }
+  .hero-frame { inset: 5px; }
+  .hero-frame .fr { width: 20px; height: 20px; }
+  .hero-kicker, .hero-meta, .hero-orn { display: none; }
+  .hero-crest { height: 44px; }
+  .hero-tagline { margin-top: 6px; }
+  .hero-actions { gap: 8px; margin-top: 8px; }
+  .hero-actions .cf-cta { padding-top: 7px; padding-bottom: 7px; }
+  .hero-more { margin-top: 6px; }
+  .hero-shot .shot-slot-box { aspect-ratio: auto; height: 140px; }
+  .hero-shot .shot-fig img { max-height: 140px; object-fit: cover; }
+  .hero-shot figcaption { display: none; }
+}
 
 /* Home: the highlight cards and the layout sketch sit in folded sections. */
 .feats { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: 1fr; }
@@ -496,7 +501,5 @@ table.stack { margin: 0 0 1em; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
-  /* Embers stay put as faint sparks instead of drifting. */
-  .embers i { bottom: auto; top: var(--y, 50%); opacity: 0.45; }
   .feat:hover, .feat:focus-visible { transform: none; }
 }
