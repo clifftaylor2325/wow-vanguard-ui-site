@@ -327,6 +327,8 @@ export function slotFigure(slot, { caption = true } = {}) {
     if (!shot) throw new Error(`slot ${slot.key}: no shot ${slot.file} in shots-content.mjs`);
     return shotFigure({ ...shot, caption: slot.caption || shot.caption }, { caption });
   }
-  const want = esc(slot.want);
-  return `<figure class="shot-slot" data-slot="${esc(slot.key)}" style="--slot-aspect: ${esc(slot.aspect)}"><div class="shot-slot-box" role="img" aria-label="Screenshot to come: ${want}"><span class="shot-slot-kicker">Screenshot coming</span><span class="shot-slot-want">${want}</span></div></figure>`;
+  // The placeholder shows the slot's caption (what the reader will see there); `want`, the
+  // capture brief, is for whoever takes the picture and never reaches the page.
+  const text = esc(slot.caption);
+  return `<figure class="shot-slot" data-slot="${esc(slot.key)}" style="--slot-aspect: ${esc(slot.aspect)}"><div class="shot-slot-box" role="img" aria-label="Screenshot to come: ${text}"><span class="shot-slot-kicker">Screenshot coming</span><span class="shot-slot-want">${text}</span></div></figure>`;
 }

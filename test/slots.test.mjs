@@ -10,12 +10,12 @@ import { slotFigure } from "../scripts/lib/html.mjs";
 
 const home = () => fs.readFileSync(path.join(loadConfig().outDir, "index.html"), "utf8");
 
-test("a slot with no file is a placeholder that says what will go there", () => {
+test("a slot with no file is a placeholder that shows the caption of what will go there", () => {
   const slot = { key: "fake-empty", file: null, aspect: "16 / 10", want: "A crop of the thing, framed 16:10.", caption: "The thing." };
   const html = slotFigure(slot);
   assert.match(html, /^<figure class="shot-slot" data-slot="fake-empty" style="--slot-aspect: 16 \/ 10">/);
-  assert.match(html, /role="img" aria-label="Screenshot to come: A crop of the thing, framed 16:10\."/);
-  assert.match(html, /<span class="shot-slot-kicker">Screenshot coming<\/span><span class="shot-slot-want">A crop of the thing, framed 16:10\.<\/span>/);
+  assert.match(html, /role="img" aria-label="Screenshot to come: The thing\."/);
+  assert.match(html, /<span class="shot-slot-kicker">Screenshot coming<\/span><span class="shot-slot-want">The thing\.<\/span>/);
   assert.ok(!/<img|<figcaption|<svg/.test(html), "a placeholder draws no picture and no interface");
 });
 

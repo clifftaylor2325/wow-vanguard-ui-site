@@ -325,12 +325,13 @@ export function shotByFile(file) {
   return null;
 }
 
-// The places on Home that wait for a screenshot of their own. A slot names the capture it wants
-// until its `file` points at a shot above: then the page shows that shot, and `caption` is the
-// figure's caption (write it for the picture that fills the slot, and re-read it against the
-// picture: a caption describes only what is in it). `want` is the one hand-written line here: it
-// says what to capture and how to frame it, and claims nothing about the features. Fill a slot by
-// adding the WebP to src/assets/shots/, its entry to SHOT_GROUPS, and the file name here.
+// The places on Home that wait for a screenshot of their own. While a slot's `file` is null the
+// page shows a placeholder carrying its `caption`; once `file` points at a shot above, the page
+// shows that shot with the same caption (write it for the picture that fills the slot, and
+// re-read it against the picture: a caption describes only what is in it). `want` is the capture
+// brief for whoever takes the picture: what to show and how to frame it. It is never put on the
+// page. Fill a slot by adding the WebP to src/assets/shots/, its entry to SHOT_GROUPS, and the
+// file name here.
 export const SLOTS = [
   { key: "hero-hud", file: null, aspect: "16 / 9", want: "The full interface in combat, framed 16:9, with no other players' names in frame.", caption: "The interface in a fight." },
   { key: "tour-UnitFrames", file: null, aspect: "16 / 10", want: "A close crop of the player and target frames in combat, framed 16:10.", caption: "The unit frames in a fight." },
