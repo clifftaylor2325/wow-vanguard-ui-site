@@ -378,7 +378,8 @@ table.stack { margin: 0 0 1em; }
 .hero-kicker { margin: 0 0 2px; font-size: 0.85rem; letter-spacing: 0.26em; text-transform: uppercase; color: color-mix(in oklab, var(--accent) 70%, var(--text)); }
 .hero-title { margin: 0; font-weight: 600; font-size: clamp(2.3rem, 7vw, 3.8rem); line-height: 1; letter-spacing: 0.015em; color: var(--accent); }
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .hero-title, .page-title { background: linear-gradient(180deg, color-mix(in oklab, var(--text) 80%, var(--accent)) 8%, var(--accent) 52%, color-mix(in oklab, var(--accent) 72%, var(--glow)) 92%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 4px 24px color-mix(in oklab, var(--accent) 38%, transparent)); }
+  .hero-title, .page-title { background: linear-gradient(180deg, color-mix(in oklab, var(--text) 80%, var(--accent)) 8%, var(--accent) 52%, color-mix(in oklab, var(--accent) 72%, var(--glow)) 92%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero-title { filter: drop-shadow(0 4px 24px color-mix(in oklab, var(--accent) 38%, transparent)); }
 }
 .hero-orn { width: 170px; margin: 8px 0 0; }
 .hero-tagline { margin: 8px 0 0; max-width: 30ch; text-wrap: balance; font-size: clamp(1.1rem, 3.2vw, 1.45rem); line-height: 1.25; color: var(--text); }
@@ -435,23 +436,14 @@ table.stack { margin: 0 0 1em; }
   .tour-row.tour-presets { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* ------------------------------------------------------------------ Inner-page hero
-   A slim band at the top of every page but Home: the Home hero's sky, brass
-   frame and ornament around the h1 and a one-line lede (pageHero() in html.mjs). */
-.page-hero { position: relative; isolation: isolate; overflow: hidden; margin: 0 0 var(--sp-3); padding: 14px 22px 12px; border-radius: var(--r-4); text-align: center; border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--divider)); box-shadow: 0 24px 48px -36px #000, 0 0 0 1px color-mix(in oklab, var(--bg) 60%, transparent); }
-.page-hero .hero-sky { background:
-  radial-gradient(ellipse 70% 30% at 50% 104%, color-mix(in oklab, var(--accent) 34%, transparent), transparent 72%),
-  radial-gradient(ellipse 40% 20% at 50% 106%, color-mix(in oklab, var(--glow) 26%, transparent), transparent 72%),
-  radial-gradient(ellipse 60% 70% at 6% 0%, color-mix(in oklab, var(--cool) 20%, transparent), transparent 70%),
-  radial-gradient(ellipse 55% 70% at 96% 4%, color-mix(in oklab, var(--cool) 16%, transparent), transparent 70%),
-  linear-gradient(180deg, color-mix(in oklab, var(--cool) 8%, var(--bg)) 0%, var(--raised) 55%, color-mix(in oklab, var(--accent) 10%, var(--raised)) 100%); }
-.page-hero .hero-frame { inset: 8px; }
-.page-hero .hero-frame .fr { width: 32px; height: 32px; }
-.page-hero-inner { position: relative; max-width: 780px; margin: 0 auto; min-width: 0; }
-.page-title { margin: 0; font-size: clamp(1.5rem, 3.5vw, 1.9rem); line-height: 1.1; letter-spacing: 0.015em; text-wrap: balance; }
-.page-orn { width: 120px; height: 12px; margin: 3px auto 5px; }
-.page-hero .lede { margin: 0 auto; max-width: 70ch; font-size: 0.98rem; line-height: 1.4; text-wrap: pretty; text-shadow: 0 1px 12px var(--bg), 0 0 2px var(--bg); }
-@media (max-width: 559px) { .page-hero { padding: 10px 12px 10px; } .page-hero .lede { font-size: 0.9rem; } .page-hero .hero-frame { inset: 5px; } .page-hero .hero-frame .fr { width: 22px; height: 22px; } }
+/* ------------------------------------------------------------------ Inner-page title block
+   The top of every page but Home (pageHero() in html.mjs): the h1, a small brass rule and a
+   one-line lede, left-aligned, with no box. */
+.page-hero { margin: 0 0 var(--sp-3); text-align: left; }
+.page-title { margin: 0; font-size: clamp(1.6rem, 4vw, 1.9rem); line-height: 1.15; letter-spacing: 0.015em; text-wrap: balance; }
+.page-orn { width: 110px; height: 10px; margin: 4px 0 6px; }
+.page-hero .lede { margin: 0; max-width: 70ch; font-size: 0.98rem; line-height: 1.4; text-wrap: pretty; }
+@media (max-width: 559px) { .page-hero .lede { font-size: 0.92rem; } }
 
 /* ------------------------------------------------------------------ Feedback form (/feedback/)
    The form needs JS; without it the steps and templates below still work. */
