@@ -62,15 +62,39 @@ const GLYPHS = {
   Nameplates: `<path d="M18 4 l3 3 l-3 3 l-3 -3 Z" class="g-fill"/><rect x="5" y="13" width="26" height="6" rx="1"/><rect x="5" y="13" width="17" height="6" rx="1" class="g-fill"/><rect x="5" y="22" width="5" height="5"/><rect x="12" y="22" width="5" height="5"/>`,
 };
 
-// One highlight card.
-function highlightCard(m, version) {
+// The accent presets as swatches, from Core/Theme.lua (PRESET_ORDER and PRESETS): the first is the
+// default. A preset only the next release has hides with the rest of it.
+export function swatchList(model) {
+  const { rel, next } = model;
+  const presets = next.theme.presetOrder.map((k) => [k, next.theme.presets[k]]).filter((x) => x[1]);
+  const item = ([k, hex], i) => `<li class="swatch"${rel.theme?.presets?.[k] ? "" : ' data-avail="next"'}><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? " (default)" : ""} <span class="small">${esc(hex)}</span></span></li>`;
+  return `<ul class="swatches">${presets.map(item).join("")}</ul>`;
+}
+
+// One row of the tour: the module's name and description (the addon's own words) with its
+// glyph, a link to its Features entry, and the screenshot slot for it.
+function tourRow(m, version) {
   const glyph = GLYPHS[m.key] || `<path d="M18 4 L32 18 L18 32 L4 18 Z"/>`;
-  return `<li><a class="feat" href="/features/#${esc(m.id)}">
-  <span class="feat-glyph"><svg viewBox="0 0 36 32" aria-hidden="true" focusable="false">${glyph}</svg></span>
-  <span class="feat-name">${esc(m.name)}</span>
-  <span class="feat-desc">${esc(m.desc)}</span>
-  <span class="feat-foot">${badge(m.inRel, m.inNext, version)}<span class="feat-more">Read more<span class="visually-hidden"> about ${esc(m.name)}</span> <span aria-hidden="true">→</span></span></span>
-</a></li>`;
+  const slot = slotByKey(`tour-${m.key}`);
+  return `<li class="tour-row" data-module="${esc(m.key)}">
+  <div class="tour-text">
+    <h3 class="tour-name"><span class="tour-glyph"><svg viewBox="0 0 36 32" aria-hidden="true" focusable="false">${glyph}</svg></span>${esc(m.name)}</h3>
+    <p class="tour-desc">${esc(m.desc)}</p>
+    <p class="tour-foot">${badge(m.inRel, m.inNext, version)}<a class="tour-more" href="/features/#${esc(m.id)}">More on Features<span class="visually-hidden"> about ${esc(m.name)}</span> <span aria-hidden="true">→</span></a></p>
+  </div>
+  ${slot ? `<div class="tour-shot">${slotFigure(slot, { caption: false })}</div>` : ""}
+</li>`;
+}
+
+// The tour's last row: the accent presets, as the Getting started page lists them (no screenshot).
+function presetsRow(model) {
+  return `<li class="tour-row tour-presets">
+  <div class="tour-text">
+    <h3 class="tour-name">Accent presets</h3>
+    ${swatchList(model)}
+    <p class="tour-foot"><a class="tour-more" href="/start/#accent">Pick an accent <span aria-hidden="true">→</span></a></p>
+  </div>
+</li>`;
 }
 
 // The layout at a glance: a real screenshot of the default layout, with what is in it.
@@ -126,7 +150,7 @@ ${heroArt()}
 <div class="notice info early"><p><strong>Vanguard is an early release.</strong> Not everything has been checked in the game yet, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p></div>
 
 ${disclosure({ id: "hl-h", title: `What's in v${esc(model.version)}`, meta: `${relMods.length} modules`, body: `<p>A few of its modules, in the words the addon uses on its own Modules page. <a href="/features/">All ${relMods.length} are on Features</a>, and each can be turned off under <strong>/vg → Modules</strong>.</p>
-<ul class="feats">${highlights.map((m) => highlightCard(m, model.version)).join("\n")}</ul>` })}
+<ul class="tour">${[...highlights.map((m) => tourRow(m, model.version)), presetsRow(model)].join("\n")}</ul>` })}
 ${disclosure({ id: "mock-h", title: "The layout at a glance", body: layoutShot() })}`,
   };
 }
@@ -286,7 +310,6 @@ ${shotFigure(shotByFile("02-setup-wizard"))}`;
 
 export function startPage(model, read) {
   const { rel, next } = model;
-  const presets = next.theme.presetOrder.map((k) => [k, next.theme.presets[k]]).filter((x) => x[1]);
   const gameMenu = next.has("Core/GameMenu.lua") && !rel.has("Core/GameMenu.lua");
   const popoverNext = /scale and opacity/.test(JSON.stringify(next.pages)) && !/scale and opacity/.test(JSON.stringify(rel.pages));
   const OW = read.next("Core/OptionsWindow.lua");
@@ -315,7 +338,7 @@ ${disclosure({ id: "move", title: "Move your frames", body: `<ol class="steps">
 </ol>
 <p>While you're moving frames, <code>/vg grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/vg snap on|off</code> makes frames snap to each other. <code>/vg frames</code> lists the frames you can move, and <code>/vg reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.</p>` })}
 ${disclosure({ id: "accent", title: "Pick an accent color", body: `<p>Click a swatch under <strong>/vg → General → Look</strong>, or type <code>/vg accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/vg accent reset</code> puts the default back.</p>
-<ul class="swatches">${presets.map(([k, hex], i) => `<li class="swatch"><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? " (default)" : ""} <span class="small">${esc(hex)}</span></span></li>`).join("")}</ul>` })}
+${swatchList(model)}` })}
 ${disclosure({ id: "modules", title: "Keep the game's version of something", body: `<p>Every part of Vanguard is a module you can turn off under <strong>/vg → Modules</strong> (or type <code>/vg disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “${o("A module that's off builds nothing and costs nothing.")}” The list is on <a href="/features/">Features</a>.</p>` })}`,
   };
 }

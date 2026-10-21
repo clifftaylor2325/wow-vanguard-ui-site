@@ -135,13 +135,13 @@ main { min-width: 0; padding: var(--sp-3) 0 var(--sp-6); }
    Showcase cards (Home highlights, tiles, the CurseForge box) carry the full
    brass edge, glow, inner hairline and corner diamonds. Plain cards (module
    rows, FAQ entries, quotes) keep only the brass-tinted edge. */
-.card, .feat { border: 1px solid var(--card-line); background: var(--panel); }
+.card { border: 1px solid var(--card-line); background: var(--panel); }
 .card { position: relative; border-radius: var(--r-3); padding: 14px 16px; min-width: 0; }
-.feat, .card.tile, .cf-box { background: radial-gradient(120% 70% at 50% 0%, color-mix(in oklab, var(--accent) 10%, var(--panel)), var(--panel) 62%); box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px color-mix(in oklab, var(--accent) 14%, transparent); }
+.card.tile, .cf-box { background: radial-gradient(120% 70% at 50% 0%, color-mix(in oklab, var(--accent) 10%, var(--panel)), var(--panel) 62%); box-shadow: inset 0 0 0 4px var(--panel), inset 0 0 0 5px color-mix(in oklab, var(--accent) 14%, transparent); }
 blockquote.card { margin-left: 0; margin-right: 0; overflow-wrap: anywhere; }
-.feat::before, .feat::after, .card.tile::before, .card.tile::after, .cf-box::before, .cf-box::after { content: ""; position: absolute; width: 9px; height: 9px; background: var(--accent); transform: rotate(45deg); pointer-events: none; }
-.feat::before, .card.tile::before, .cf-box::before { left: 18px; top: -5px; }
-.feat::after, .card.tile::after, .cf-box::after { right: 18px; bottom: -5px; }
+.card.tile::before, .card.tile::after, .cf-box::before, .cf-box::after { content: ""; position: absolute; width: 9px; height: 9px; background: var(--accent); transform: rotate(45deg); pointer-events: none; }
+.card.tile::before, .cf-box::before { left: 18px; top: -5px; }
+.card.tile::after, .cf-box::after { right: 18px; bottom: -5px; }
 .card.tile::before, .card.tile::after, .cf-box::before, .cf-box::after { width: 7px; height: 7px; }
 .card.tile::before, .cf-box::before { top: -4px; }
 .card.tile::after, .cf-box::after { bottom: -4px; }
@@ -412,21 +412,28 @@ table.stack { margin: 0 0 1em; }
   .hero-shot figcaption { display: none; }
 }
 
-/* Home: the highlight cards and the layout sketch sit in folded sections. */
-.feats { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: 1fr; }
-@media (min-width: 640px) { .feats { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 980px) { .feats { grid-template-columns: repeat(3, 1fr); } }
-.feats li { margin: 0; min-width: 0; }
-.feat { position: relative; display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 16px 18px; border-radius: var(--r-3); color: var(--text); text-decoration: none; transition: transform var(--dur) var(--ease), border-color var(--dur) var(--ease); }
-.feat:hover, .feat:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
-.feat-glyph { width: 36px; height: 32px; }
-.feat-glyph svg { fill: none; stroke: var(--accent); stroke-width: 1.4; }
-.feat-glyph .g-fill { fill: color-mix(in oklab, var(--accent) 35%, transparent); }
-.feat-name { font-size: 1.1rem; font-weight: 600; color: var(--accent); }
-.feat-desc { color: var(--text2); font-size: 0.98rem; }
-.feat-foot { margin-top: auto; padding-top: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: var(--fs-sm); }
-.feat-more { color: var(--accent); margin-left: auto; }
-
+/* Home: the tour inside "What's in vX" (a folded section). One row per flagship module: its name
+   and description beside its screenshot slot, alternating sides from 720px; the last row is the
+   accent presets. */
+.tour { list-style: none; margin: 0; padding: 0; }
+.tour-row { display: grid; gap: var(--sp-3); align-items: center; margin: 0; padding: var(--sp-4) 0; border-top: 1px solid var(--divider); }
+.tour-row:first-child { padding-top: var(--sp-2); border-top: 0; }
+.tour-row:last-child { padding-bottom: 0; }
+.tour-text, .tour-shot { min-width: 0; }
+.tour-shot .shot-fig { margin: 0; }
+.tour-name { display: flex; align-items: center; gap: 10px; margin: 0 0 4px; font-size: 1.1rem; color: var(--accent); }
+.tour-glyph { flex: none; width: 30px; height: 27px; }
+.tour-glyph svg { display: block; width: 100%; height: 100%; fill: none; stroke: var(--accent); stroke-width: 1.4; }
+.tour-glyph .g-fill { fill: color-mix(in oklab, var(--accent) 35%, transparent); }
+.tour-desc { margin: 0 0 8px; color: var(--text2); }
+.tour-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; font-size: var(--fs-sm); }
+.tour-presets .swatches { margin: 6px 0 8px; }
+@media (min-width: 720px) {
+  .tour-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: var(--sp-5); }
+  .tour-row:nth-child(even) { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+  .tour-row:nth-child(even) .tour-text { order: 2; }
+  .tour-row.tour-presets { grid-template-columns: minmax(0, 1fr); }
+}
 
 /* ------------------------------------------------------------------ Inner-page hero
    A slim band at the top of every page but Home: the Home hero's sky, brass
