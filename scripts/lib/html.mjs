@@ -1,6 +1,7 @@
 // HTML helpers and the shared page layout (header, sidebar nav, footer).
 
 import { crestSvg } from "./brand.mjs";
+import { shotByFile } from "./shots-content.mjs";
 
 // Escapes text for HTML.
 export function esc(s) {
@@ -319,4 +320,18 @@ export function avail(inRel, inNext) {
 export function shotFigure(s, { caption = true } = {}) {
   const img = `<img src="/assets/shots/${esc(s.file)}.webp" width="${s.w}" height="${s.h}" alt="${esc(s.alt)}" loading="lazy" decoding="async">`;
   return `<figure class="shot-fig"${s.next ? ' data-avail="next"' : ""}><a href="/assets/shots/${esc(s.file)}.webp">${img}</a>${caption ? `<figcaption>${esc(s.caption)}</figcaption>` : ""}</figure>`;
+}
+
+// A place on a page that shows a screenshot (a slot from scripts/lib/shots-content.mjs). Once its
+// `file` is set it is the real shot, with the slot's caption; until then it is a framed panel that
+// says in words what capture will go there (no drawn UI: only real captures are shown). A `file`
+// that is not in shots-content stops the build.
+export function slotFigure(slot, { caption = true } = {}) {
+  if (slot.file) {
+    const shot = shotByFile(slot.file);
+    if (!shot) throw new Error(`slot ${slot.key}: no shot ${slot.file} in shots-content.mjs`);
+    return shotFigure({ ...shot, caption: slot.caption || shot.caption }, { caption });
+  }
+  const want = esc(slot.want);
+  return `<figure class="shot-slot" data-slot="${esc(slot.key)}" style="--slot-aspect: ${esc(slot.aspect)}"><div class="shot-slot-box" role="img" aria-label="Screenshot to come: ${want}"><span class="shot-slot-kicker">Screenshot coming</span><span class="shot-slot-want">${want}</span></div></figure>`;
 }

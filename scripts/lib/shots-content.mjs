@@ -324,3 +324,24 @@ export function shotByFile(file) {
   for (const g of SHOT_GROUPS) for (const s of g.shots) if (s.file === file) return s;
   return null;
 }
+
+// The places on Home that wait for a screenshot of their own. A slot names the capture it wants
+// until its `file` points at a shot above: then the page shows that shot, and `caption` is the
+// figure's caption (write it for the picture that fills the slot, and re-read it against the
+// picture: a caption describes only what is in it). `want` is the one hand-written line here: it
+// says what to capture and how to frame it, and claims nothing about the features. Fill a slot by
+// adding the WebP to src/assets/shots/, its entry to SHOT_GROUPS, and the file name here.
+export const SLOTS = [
+  { key: "hero-hud", file: null, aspect: "16 / 9", want: "The full interface in combat, framed 16:9, with no other players' names in frame.", caption: "The interface in a fight." },
+  { key: "tour-UnitFrames", file: null, aspect: "16 / 10", want: "A close crop of the player and target frames in combat, framed 16:10.", caption: "The unit frames in a fight." },
+  { key: "tour-RaidFrames", file: null, aspect: "16 / 10", want: "A close crop of a raid group's frames in combat, framed 16:10, with no real players' names.", caption: "The raid frames in a fight." },
+  { key: "tour-ClickCast", file: null, aspect: "16 / 10", want: "A close crop of click casting in use over a group's frames, framed 16:10.", caption: "Click casting in use." },
+  { key: "tour-ActionBars", file: null, aspect: "16 / 10", want: "A close crop of the action bars, framed 16:10.", caption: "The action bars." },
+  { key: "tour-Bags", file: null, aspect: "16 / 10", want: "A close crop of the open bag, framed 16:10.", caption: "The bag, open." },
+  { key: "tour-Nameplates", file: null, aspect: "16 / 10", want: "A close crop of nameplates on enemies in combat, framed 16:10.", caption: "Nameplates on enemies in a fight." },
+];
+
+// A slot by key (null when there is none).
+export function slotByKey(key) {
+  return SLOTS.find((s) => s.key === key) || null;
+}

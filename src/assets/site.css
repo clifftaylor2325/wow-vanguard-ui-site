@@ -318,6 +318,12 @@ table.stack { margin: 0 0 1em; }
 .shot-fig img { display: block; width: 100%; height: auto; }
 .shot-fig figcaption { margin-top: 6px; font-size: var(--fs-sm); color: var(--text2); }
 .mod-details .shot-fig { max-width: 560px; }
+/* A screenshot slot with no capture yet (slotFigure() in html.mjs): a framed panel that says in words
+   what will go there. No drawn interface; the hatch is only a texture. */
+.shot-slot { margin: 0; min-width: 0; }
+.shot-slot-box { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; aspect-ratio: var(--slot-aspect, 16 / 9); padding: 12px 16px; overflow: hidden; text-align: center; border: 1px solid var(--card-line); border-radius: var(--r-2); background: repeating-linear-gradient(135deg, transparent 0 11px, color-mix(in oklab, var(--accent) 7%, transparent) 11px 12px), var(--panel); }
+.shot-slot-kicker { font-size: var(--fs-xs); letter-spacing: 0.18em; text-transform: uppercase; color: color-mix(in oklab, var(--accent) 70%, var(--muted)); }
+.shot-slot-want { max-width: 36ch; font-size: var(--fs-sm); line-height: 1.35; color: var(--muted); text-wrap: balance; }
 .shots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: var(--sp-3); align-items: start; }
 .swatches { list-style: none; margin: 0 0 1em; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 18px; }
 .swatch { display: inline-flex; align-items: center; gap: 8px; margin: 0; }
