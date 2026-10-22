@@ -42,6 +42,19 @@ export function curseforgeBox(model, { heading = true } = {}) {
 
 // ------------------------------------------------------------------ Home
 
+// The Forever client's interface number among those the TOC declares ("16001" from
+// "16001, 120105, 120007"): Forever's game version 1.60.1 encodes below 20000.
+export function foreverInterface(meta) {
+  return String(meta.Interface || "").split(/\s*,\s*/).find((n) => /^\d+$/.test(n) && Number(n) < 20000) || "";
+}
+
+// Home's facts line: which client, which release and when, how many modules.
+function heroFacts(model, moduleCount) {
+  const iface = foreverInterface(model.rel.meta);
+  const client = iface ? `Built for WoW Forever (Interface ${esc(iface)})` : "Built for WoW Forever";
+  return `${client} · v${esc(model.version)}, released ${esc(dateET(model.release.publishedAt))} · ${moduleCount} modules`;
+}
+
 // The README's opening tagline: "A from-scratch UI suite for WoW Forever".
 export function tagline(readme) {
   const m = (readme || "").match(/^# Vanguard\s*\n+(?:[><][^\n]*\n+)*([^\n(]+?)\s*(?:\(|\.|\n)/);
@@ -124,7 +137,7 @@ ${heroArt()}
   ${ornament("hero-orn")}
   <p class="hero-tagline">${esc(line)}.</p>
   <div class="hero-actions">${curseforgeCta({ size: "lg" })}${wagoLink({ size: "lg" })}<a class="button ghost" href="/features/">See the features</a></div>
-  <p class="hero-meta">Current release v${esc(model.version)} · ${relMods.length} modules · the Slate &amp; Brass theme</p>
+  <p class="hero-meta">${heroFacts(model, relMods.length)}</p>
 </div>
 </section>
 
