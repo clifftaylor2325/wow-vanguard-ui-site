@@ -169,6 +169,9 @@ test("sitemap.xml lists every page under siteUrl, and robots.txt points to it", 
   const want = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"].map((d) => `${base}/${d ? d + "/" : ""}`);
   assert.ok(/^<\?xml version="1\.0" encoding="UTF-8"\?>\n<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/.test(xml), "sitemap.xml has no urlset");
   assert.deepEqual([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]).sort(), want.sort(), "sitemap.xml must list exactly the 13 pages");
+  const meta = JSON.parse(fs.readFileSync(cfg.releaseJson, "utf8"));
+  const day = new Date(meta.releases.find((r) => r.tagName === meta.current).publishedAt).toISOString().slice(0, 10);
+  assert.equal([...xml.matchAll(/<url><loc>[^<]+<\/loc><lastmod>([^<]+)<\/lastmod><\/url>/g)].filter((m) => m[1] === day).length, want.length, `every page's lastmod is ${day}`);
   assert.match(fs.readFileSync(path.join(dist, "robots.txt"), "utf8"), new RegExp(`^Sitemap: ${base.replace(/[.]/g, "\\.")}/sitemap\\.xml$`, "m"));
 });
 
@@ -637,8 +640,28 @@ test("pages load their CSS and JS by a versioned URL, and assets are revalidated
     const want = crypto.createHash("sha256").update(fs.readFileSync(path.join(dist, "assets", f))).digest("hex").slice(0, 8);
     assert.equal(m[1], want, `${f}'s version must be the hash of the built file`);
   }
-  assert.match(fs.readFileSync(path.join(dist, "_headers"), "utf8"), /^\/assets\/\*\n  Cache-Control: no-cache\n/);
-  assert.match(fs.readFileSync(path.join(dist, "_headers"), "utf8"), /\n\/\*\n(  [A-Za-z-]+: .+\n)*  X-Content-Type-Options: nosniff\n/);
+  const headers = fs.readFileSync(path.join(dist, "_headers"), "utf8");
+  assert.match(headers, /^\/assets\/\*\n  Cache-Control: no-cache\n/);
+  assert.match(headers, /\n\/\*\n(  [A-Za-z-]+: .+\n)*  X-Content-Type-Options: nosniff\n/);
+  assert.match(headers, /\n\/fonts\/\*\n  Cache-Control: public, max-age=604800\n/, "fonts keep their names, so a week, not immutable");
+});
+
+test("only the files pages load by a ?v=<hash> URL are cached as immutable", () => {
+  const headers = fs.readFileSync(path.join(dist, "_headers"), "utf8");
+  const immutable = [...headers.matchAll(/^(\S+)\n  ! Cache-Control\n  Cache-Control: public, max-age=31536000, immutable\n/gm)].map((m) => m[1]).sort();
+  const stamped = [...new Set([...page("").matchAll(/"(\/assets\/[^"?]+)\?v=[0-9a-f]{8}"/g)].map((m) => m[1]))];
+  assert.deepEqual(immutable, ["/assets/favicon.svg", "/assets/feedback.js", "/assets/site.css", "/assets/site.js", "/assets/theme.css"]);
+  for (const f of stamped) assert.ok(immutable.includes(f), `${f} is stamped but not cached long`);
+  assert.equal((headers.match(/immutable/g) || []).length, immutable.length, "no other rule is immutable");
+});
+
+test("every page preloads the body font that site.css names first", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  const font = css.match(/src: url\("(\/fonts\/[^"]+\.woff2)"\)/)[1];
+  assert.ok(fs.existsSync(path.join(dist, font)), `${font} is not in dist`);
+  for (const d of ["", "install", "features", "feedback"]) {
+    assert.ok(page(d).includes(`<link rel="preload" href="${font}" as="font" type="font/woff2" crossorigin>`), `/${d} doesn't preload ${font}`);
+  }
 });
 
 // The addon's license as the footer and Credits page say it: MIT (v0.4.0 and before) or all rights reserved.
@@ -695,6 +718,7 @@ test("every page has its own search title and description, and Home carries Soft
   assert.equal(app.offers.price, "0");
   assert.ok(app.softwareVersion && app.url === `${cfg.siteUrl.replace(/\/+$/, "")}/`);
   assert.ok(!("aggregateRating" in app) && !("review" in app) && !("downloadUrl" in app), "no invented ratings, no download URL");
+  assert.equal(app.operatingSystem, "Windows, macOS");
 });
 
 test("Support: a page, a header button, and one UTM-tagged Ko-fi ask each on Install, Changelog and Troubleshooting", () => {

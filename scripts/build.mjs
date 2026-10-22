@@ -76,15 +76,22 @@ function stampAssets(files) {
 // _headers (Cloudflare Pages): browsers check back before reusing a copy of
 // an asset, so files the pages load by a fixed name (the feedback form's
 // modules) never stay stale either. Unchanged files still come back as 304.
+// The stamped files are the exception: a page always asks for them by their
+// ?v=<hash> URL, so a copy can be kept for a year ("! Cache-Control" drops the
+// no-cache from /assets/*). Fonts keep their names when `npm run fonts` remakes
+// them, so they are kept for a week, not forever.
 // Every page also gets the plain security headers (no CSP yet: it needs a browser pass over the
 // feedback form's Turnstile frame first).
-function headersFile() {
-  return `/assets/*\n  Cache-Control: no-cache\n\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n`;
+function headersFile(stamped) {
+  const forever = stamped.map((f) => `${f}\n  ! Cache-Control\n  Cache-Control: public, max-age=31536000, immutable\n`).join("\n");
+  return `/assets/*\n  Cache-Control: no-cache\n\n${forever}\n/fonts/*\n  Cache-Control: public, max-age=604800\n\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n`;
 }
 
-// sitemap.xml: every page in NAV, under siteUrl from site.config.json.
-function sitemapXml(base) {
-  const urls = NAV.map((n) => `  <url><loc>${base}${n.path}</loc></url>`).join("\n");
+// sitemap.xml: every page in NAV, under siteUrl from site.config.json. Every page is
+// regenerated from the current release, so each one's lastmod is that release's date.
+function sitemapXml(base, publishedAt) {
+  const lastmod = new Date(publishedAt).toISOString().slice(0, 10);
+  const urls = NAV.map((n) => `  <url><loc>${base}${n.path}</loc><lastmod>${lastmod}</lastmod></url>`).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 }
 
@@ -128,9 +135,8 @@ function main() {
   for (const f of BRAND_RASTER) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets/brand", f)));
   // The screenshots (webp, cropped and blurred where a player's name was in frame).
   for (const f of fs.readdirSync(path.join(root, "src/assets/shots"))) write(`assets/shots/${f}`, fs.readFileSync(path.join(root, "src/assets/shots", f)));
-  write("sitemap.xml", sitemapXml(base));
+  write("sitemap.xml", sitemapXml(base, release.publishedAt));
   write("robots.txt", robotsTxt(base));
-  write("_headers", headersFile());
   for (const f of ["site.css", "site.js", "feedback.js"]) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets", f)));
   // The feedback form's shared code: the same files the Pages Function imports (functions/_lib/handler.js).
   for (const f of FEEDBACK_SHARED) write(`assets/feedback/${f}`, fs.readFileSync(path.join(root, "src/feedback", f)));
@@ -144,6 +150,7 @@ function main() {
   }
 
   site.assets = stampAssets(["assets/theme.css", "assets/site.css", "assets/site.js", "assets/feedback.js", "assets/favicon.svg"]);
+  write("_headers", headersFile(Object.keys(site.assets)));
 
   const pages = [
     homePage(model), installPage(model), startPage(model, read), featuresPage(model), screenshotsPage(model), commandsPage(model), settingsPage(model, read),

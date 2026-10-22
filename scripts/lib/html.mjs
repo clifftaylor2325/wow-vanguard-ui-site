@@ -225,7 +225,7 @@ const SEO = {
 // is claimed, because there are none; the site only links to the CurseForge and Wago listings.
 export function homeJsonLd(site, description) {
   const app = { "@type": "SoftwareApplication", name: "Vanguard", description, url: `${site.url}/`, image: `${site.url}/assets/og-image.png`,
-    applicationCategory: "GameApplication", softwareVersion: site.version,
+    applicationCategory: "GameApplication", operatingSystem: "Windows, macOS", softwareVersion: site.version,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, author: { "@type": "Person", name: site.author } };
   const web = { "@type": "WebSite", name: "Vanguard", url: `${site.url}/` };
   return `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@graph": [app, web] }).replace(/</g, "\\u003c")}</script>\n`;
@@ -255,7 +255,8 @@ export function layout({ path, title, description, body, site, scripts = [] }) {
 ${socialTags({ path, title: fullTitle, description, site })}<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-${path === "/" && site.url ? homeJsonLd(site, description) : ""}<link rel="stylesheet" href="${esc(asset("/assets/theme.css"))}">
+${path === "/" && site.url ? homeJsonLd(site, description) : ""}<link rel="preload" href="/fonts/FiraSansCondensed-Medium.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="${esc(asset("/assets/theme.css"))}">
 <link rel="stylesheet" href="${esc(asset("/assets/site.css"))}">
 <script>(function (d) { d.className += " js"; try { if (localStorage.getItem("vg-show-next") === "1") d.className += " show-next"; } catch (e) {} })(document.documentElement);</script>
 </head>
