@@ -171,3 +171,13 @@ test("/start/ and /profiles/: no GitHub username and no untested-style wording",
     assert.doesNotMatch(text(h), banned, `/${p}/ has untested-style wording`);
   }
 });
+
+test("/: the hero's facts line names the Forever interface, the release and its date", () => {
+  const toc = show(REL, "Vanguard.toc");
+  const iface = (toc.match(/^## Interface:\s*(.+)$/m) || [])[1].split(/\s*,\s*/).find((n) => Number(n) < 20000);
+  const rel = meta.releases.find((r) => r.tagName === REL);
+  const date = new Date(rel.publishedAt).toLocaleDateString("en-US", { timeZone: "America/New_York", year: "numeric", month: "long", day: "numeric" });
+  const facts = text((html("").match(/<p class="hero-meta">([\s\S]*?)<\/p>/) || [])[1] || "");
+  assert.ok(iface, "the TOC declares no Forever interface");
+  assert.equal(facts.startsWith(`Built for WoW Forever (Interface ${iface}) · ${REL}, released ${date} · `), true, facts);
+});
