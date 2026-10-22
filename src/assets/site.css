@@ -15,6 +15,16 @@
   font-display: swap;
 }
 
+/* Colors: this file uses only the variables theme.css always defines (--bg,
+   --panel, --raised, --divider, --text, --text2, --muted, --accent, --good,
+   --warn, --bad) and the aliases below. An alias names a preset with a
+   fallback, so when the addon renames a preset the page falls back to the
+   accent instead of losing the color. test/palette.test.mjs checks this. */
+:root {
+  --glow: var(--accent-copper, var(--accent));
+  --cool: var(--accent-arcane, var(--accent));
+}
+
 /* Derived from the theme: the edge of form controls and other UI parts
    (search box, buttons, copy buttons, the menu button, chips). Brass mixed
    into the divider so it keeps the look but reaches 3:1 against the page,
@@ -337,10 +347,10 @@ table.stack { margin: 0 0 1em; }
 .hero-art { inset: 0; z-index: -1; }
 .hero-sky { inset: 0; background:
   radial-gradient(ellipse 75% 50% at 50% 86%, color-mix(in oklab, var(--accent) 42%, transparent), transparent 70%),
-  radial-gradient(ellipse 45% 32% at 50% 92%, color-mix(in oklab, var(--accent-ember) 34%, transparent), transparent 72%),
-  radial-gradient(ellipse 60% 55% at 8% 0%, color-mix(in oklab, var(--accent-void) 22%, transparent), transparent 70%),
-  radial-gradient(ellipse 55% 50% at 94% 6%, color-mix(in oklab, var(--accent-arcane) 18%, transparent), transparent 70%),
-  linear-gradient(180deg, color-mix(in oklab, var(--accent-arcane) 9%, var(--bg)) 0%, var(--raised) 46%, color-mix(in oklab, var(--accent) 20%, var(--raised)) 80%, var(--bg) 100%); }
+  radial-gradient(ellipse 45% 32% at 50% 92%, color-mix(in oklab, var(--glow) 34%, transparent), transparent 72%),
+  radial-gradient(ellipse 60% 55% at 8% 0%, color-mix(in oklab, var(--cool) 22%, transparent), transparent 70%),
+  radial-gradient(ellipse 55% 50% at 94% 6%, color-mix(in oklab, var(--cool) 18%, transparent), transparent 70%),
+  linear-gradient(180deg, color-mix(in oklab, var(--cool) 9%, var(--bg)) 0%, var(--raised) 46%, color-mix(in oklab, var(--accent) 20%, var(--raised)) 80%, var(--bg) 100%); }
 .hero-sky::after { content: ""; position: absolute; inset: 0 0 45% 0; opacity: 0.55;
   background-image: radial-gradient(1px 1px at 12% 22%, var(--text) 50%, transparent 51%), radial-gradient(1px 1px at 27% 9%, var(--text2) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 41% 30%, var(--text) 50%, transparent 51%), radial-gradient(1px 1px at 63% 14%, var(--text2) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 78% 26%, var(--text) 50%, transparent 51%), radial-gradient(1px 1px at 88% 11%, var(--text2) 50%, transparent 51%), radial-gradient(1px 1px at 6% 48%, var(--text2) 50%, transparent 51%), radial-gradient(1px 1px at 94% 44%, var(--text2) 50%, transparent 51%), radial-gradient(1px 1px at 55% 4%, var(--text) 50%, transparent 51%), radial-gradient(1px 1px at 34% 52%, var(--text2) 50%, transparent 51%);
   -webkit-mask-image: linear-gradient(180deg, #000, transparent); mask-image: linear-gradient(180deg, #000, transparent); }
@@ -355,8 +365,8 @@ table.stack { margin: 0 0 1em; }
 .hero-ridges .ridge-2 { fill: var(--panel); }
 .hero-ridges .ridge-1 { fill: var(--bg); }
 .embers { inset: 0; overflow: hidden; }
-.embers i { position: absolute; left: var(--x); bottom: -12px; width: var(--s); height: var(--s); border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px 2px color-mix(in oklab, var(--accent) 55%, transparent); opacity: 0; animation: fui-rise var(--d) linear var(--t) infinite; }
-.embers i.e2 { background: var(--accent-ember); box-shadow: 0 0 6px 2px color-mix(in oklab, var(--accent-ember) 55%, transparent); }
+.embers i { position: absolute; left: var(--x, 50%); bottom: -12px; width: var(--s, 3px); height: var(--s, 3px); border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px 2px color-mix(in oklab, var(--accent) 55%, transparent); opacity: 0; animation: fui-rise var(--d, 10s) linear var(--t, 0s) infinite; }
+.embers i.e2 { background: var(--glow); box-shadow: 0 0 6px 2px color-mix(in oklab, var(--glow) 55%, transparent); }
 .embers i:nth-child(even) { animation-name: fui-rise-b; }
 .hero-frame { inset: 12px; border: 1px solid color-mix(in oklab, var(--accent) 38%, transparent); border-radius: var(--r-2); }
 .hero-frame::before { content: ""; position: absolute; inset: 5px; border: 1px solid color-mix(in oklab, var(--accent) 14%, transparent); border-radius: var(--r-1); }
@@ -375,7 +385,7 @@ table.stack { margin: 0 0 1em; }
 .hero-kicker { margin: 0 0 6px; font-size: 0.85rem; letter-spacing: 0.3em; text-transform: uppercase; color: color-mix(in oklab, var(--accent) 70%, var(--text)); }
 .hero-title { margin: 0; font-weight: 600; font-size: clamp(2.8rem, 10vw, 5.5rem); line-height: 0.95; letter-spacing: 0.015em; color: var(--accent); text-shadow: 0 2px 30px color-mix(in oklab, var(--accent) 35%, transparent); }
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .hero-title, .page-title { background: linear-gradient(180deg, color-mix(in oklab, var(--text) 80%, var(--accent)) 8%, var(--accent) 52%, color-mix(in oklab, var(--accent) 72%, var(--accent-ember)) 92%); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 4px 24px color-mix(in oklab, var(--accent) 38%, transparent)); }
+  .hero-title, .page-title { background: linear-gradient(180deg, color-mix(in oklab, var(--text) 80%, var(--accent)) 8%, var(--accent) 52%, color-mix(in oklab, var(--accent) 72%, var(--glow)) 92%); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 4px 24px color-mix(in oklab, var(--accent) 38%, transparent)); }
 }
 .hero-orn { width: 260px; margin: 6px auto 6px; }
 .hero-tagline { margin: 0 auto 10px; max-width: 34ch; text-wrap: balance; font-size: clamp(1.25rem, 3.6vw, 1.7rem); line-height: 1.25; color: var(--text); text-shadow: 0 1px 12px var(--bg); }
@@ -413,10 +423,10 @@ table.stack { margin: 0 0 1em; }
 .page-hero { position: relative; isolation: isolate; overflow: hidden; margin: 0 0 var(--sp-3); padding: 14px 22px 12px; border-radius: var(--r-4); text-align: center; border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--divider)); box-shadow: 0 24px 48px -36px #000, 0 0 0 1px color-mix(in oklab, var(--bg) 60%, transparent); }
 .page-hero .hero-sky { background:
   radial-gradient(ellipse 70% 30% at 50% 104%, color-mix(in oklab, var(--accent) 34%, transparent), transparent 72%),
-  radial-gradient(ellipse 40% 20% at 50% 106%, color-mix(in oklab, var(--accent-ember) 26%, transparent), transparent 72%),
-  radial-gradient(ellipse 60% 70% at 6% 0%, color-mix(in oklab, var(--accent-void) 20%, transparent), transparent 70%),
-  radial-gradient(ellipse 55% 70% at 96% 4%, color-mix(in oklab, var(--accent-arcane) 16%, transparent), transparent 70%),
-  linear-gradient(180deg, color-mix(in oklab, var(--accent-arcane) 8%, var(--bg)) 0%, var(--raised) 55%, color-mix(in oklab, var(--accent) 10%, var(--raised)) 100%); }
+  radial-gradient(ellipse 40% 20% at 50% 106%, color-mix(in oklab, var(--glow) 26%, transparent), transparent 72%),
+  radial-gradient(ellipse 60% 70% at 6% 0%, color-mix(in oklab, var(--cool) 20%, transparent), transparent 70%),
+  radial-gradient(ellipse 55% 70% at 96% 4%, color-mix(in oklab, var(--cool) 16%, transparent), transparent 70%),
+  linear-gradient(180deg, color-mix(in oklab, var(--cool) 8%, var(--bg)) 0%, var(--raised) 55%, color-mix(in oklab, var(--accent) 10%, var(--raised)) 100%); }
 .page-hero .hero-frame { inset: 8px; }
 .page-hero .hero-frame .fr { width: 32px; height: 32px; }
 .page-hero-inner { position: relative; max-width: 780px; margin: 0 auto; min-width: 0; }
@@ -481,6 +491,6 @@ table.stack { margin: 0 0 1em; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
   /* Embers stay put as faint sparks instead of drifting. */
-  .embers i { bottom: auto; top: var(--y); opacity: 0.45; }
+  .embers i { bottom: auto; top: var(--y, 50%); opacity: 0.45; }
   .feat:hover, .feat:focus-visible { transform: none; }
 }
