@@ -399,7 +399,7 @@ function featureCard(m, model) {
   const off = startsOff(m, model) ? ` <span class="badge plain">Off until you switch it on</span>` : "";
   const more = moreOf(m, model);
   const longer = longerOf(m.key);
-  return `<article class="card mod" id="${m.id}" data-module="${esc(m.key)}"${m.inRel ? "" : ' data-avail="next"'}>
+  return `<article class="card mod" id="${m.id}" data-module="${esc(m.key)}" data-count${m.inRel ? "" : ' data-avail="next"'}>
   <h3>${esc(m.name)} ${badge(m.inRel, m.inNext, model.version)}${off}</h3>
   ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}
   <details class="mod-details"><summary>More<span class="visually-hidden"> about ${esc(m.name)}</span></summary>
@@ -435,10 +435,21 @@ function featuresIntro(model) {
   return glance([`<strong>${count((m) => m.inRel)}</strong> modules in v${esc(model.version)}`, more ? nextOnly(`<strong>${more}</strong> more in the next release`) : "", `Every module is on unless marked <span class="badge plain">Off until you switch it on</span>`]);
 }
 
+// The search box over the module cards (site.js, the same one as Commands and Settings).
+// It reads each card's whole text, the folded More included, and opens the areas with a match.
+function featureSearchBox(model) {
+  return `<div class="search" data-target="#mod-list" data-items=".mod" data-groups=".area" data-noun="modules" data-noun-one="module">
+  <label for="mod-q" class="search-label visually-hidden">Search modules</label>
+  <input id="mod-q" type="search" placeholder="Search modules, for example: raid, bags, cast bar" autocomplete="off">
+  ${model.same ? "" : `<div class="filters"><label class="switch"><input type="checkbox" data-filter="next" checked> <span>Show what's coming in the next release</span></label></div>`}
+  <p class="count" aria-live="polite" role="status"></p>
+</div>`;
+}
+
 // The Features page: one card per module, grouped by area.
 export function featuresPage(model) {
   const groups = featureAreas(model);
-  const body = [pageHero("Features", FEATURES_LEDE), featuresIntro(model), `<div class="dis-grid">${groups.map((g) => areaSection(g, model)).join("\n")}</div>`,
+  const body = [pageHero("Features", FEATURES_LEDE), featuresIntro(model), featureSearchBox(model), `<div id="mod-list" class="dis-grid">${groups.map((g) => areaSection(g, model)).join("\n")}</div>`,
     `<p class="small">The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version${model.same ? "" : `, so v${esc(model.version)} may not have every detail yet`}; <a href="/settings/">Settings</a> shows exactly which options each release has.</p>`];
   return { path: "/features/", title: "Features", description: "Every Vanguard module: what it does, where its settings are, and its commands.", body: body.join("\n") };
 }
