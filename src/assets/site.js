@@ -177,6 +177,47 @@
     el.scrollIntoView({ block: "start" });
   }
 
+  // The folded sections of the page (nested ones too), for Expand all and printing.
+  function sections() {
+    return document.querySelectorAll("main details.disclosure");
+  }
+
+  // Expand all / Collapse all, in the corner of an inner page's title block, on
+  // pages with two or more folded sections. It reads "Collapse all" once every
+  // section is open, however they got there.
+  function wireExpandAll() {
+    var hero = document.querySelector("main .page-hero");
+    var all = sections();
+    if (!hero || all.length < 2) return;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "expand-all";
+    var allOpen = function () { for (var i = 0; i < all.length; i++) if (!all[i].open) return false; return true; };
+    var label = function () { btn.textContent = allOpen() ? "Collapse all" : "Expand all"; };
+    btn.addEventListener("click", function () {
+      var open = !allOpen();
+      for (var i = 0; i < all.length; i++) all[i].open = open;
+      label();
+    });
+    for (var i = 0; i < all.length; i++) all[i].addEventListener("toggle", label);
+    label();
+    hero.appendChild(btn);
+  }
+
+  // Printing shows every folded section, then puts them back as they were.
+  function wirePrint() {
+    var was = [];
+    window.addEventListener("beforeprint", function () {
+      var all = sections();
+      was = [];
+      for (var i = 0; i < all.length; i++) { was.push(all[i].open); all[i].open = true; }
+    });
+    window.addEventListener("afterprint", function () {
+      var all = sections();
+      for (var i = 0; i < all.length && i < was.length; i++) all[i].open = was[i];
+    });
+  }
+
   // The buttons that open and close a group of table rows (Commands).
   function wireGroups() {
     var btns = document.querySelectorAll("tbody button[aria-expanded]");
@@ -258,6 +299,8 @@
   document.querySelectorAll(".search[data-target]").forEach(wireSearch);
   wireGroups();
   openForHash();
+  wireExpandAll();
+  wirePrint();
   window.addEventListener("hashchange", openForHash);
   document.addEventListener("click", function (e) {
     var btn = e.target.closest && e.target.closest("button.copy");

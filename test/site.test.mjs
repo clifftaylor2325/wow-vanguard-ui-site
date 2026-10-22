@@ -743,3 +743,14 @@ test("/feedback/: the copyable bug template only sends players to chat for error
 test("a page footer does not claim in-game testing the addon's own notes deny", () => {
   assert.doesNotMatch(page(""), /have been tested in game/i);
 });
+
+test("site.js adds Expand all to inner pages and opens every section for printing; print hides the chrome", () => {
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.ok(js.includes('btn.className = "expand-all"') && js.includes('"Collapse all" : "Expand all"'), "site.js must add the Expand all / Collapse all button");
+  assert.ok(js.includes('addEventListener("beforeprint"') && js.includes('addEventListener("afterprint"'), "site.js must open sections for printing and put them back");
+  const print = (css.match(/@media print \{([\s\S]*?)\n\}/) || [])[1] || "";
+  for (const sel of [".site-header", ".nav", ".site-footer", ".expand-all"]) assert.ok(print.includes(sel), `print hides ${sel}`);
+  assert.match(css, /\.expand-all \{ position: absolute;/, "the button sits in the title block's corner, taking no height");
+  assert.ok(page("install").includes('class="page-hero"'), "inner pages keep the title block the button goes in");
+});
