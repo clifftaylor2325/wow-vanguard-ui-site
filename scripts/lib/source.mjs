@@ -2,7 +2,17 @@
 // site always documents an exact, reproducible commit.
 import { execFileSync } from "node:child_process";
 
+// A string table lookup, L["…"] or ns.L["…"] (either quote), with its key.
+const L_LOOKUP = /(?<![\w.])(?:ns\.)?L\[\s*("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')\s*\]/g;
+
+// Lua source with each string table lookup replaced by its English key, so the
+// extractors read L["Experience bar"] as the literal "Experience bar" they always read.
+export function unwrapLocale(text) {
+  return text.replace(L_LOOKUP, "$1");
+}
+
 // A reader for one ref of the repo at repoPath: read(file) -> text or null.
+// Lua files come back with their string table lookups unwrapped (unwrapLocale).
 export function gitReader(repoPath, ref) {
   const cache = new Map();
   const read = (file) => {
@@ -13,6 +23,7 @@ export function gitReader(repoPath, ref) {
     } catch {
       text = null;
     }
+    if (text != null && /\.lua$/i.test(file)) text = unwrapLocale(text);
     cache.set(file, text);
     return text;
   };
