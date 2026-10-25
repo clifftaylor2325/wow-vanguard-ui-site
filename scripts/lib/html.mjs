@@ -1,6 +1,7 @@
 // HTML helpers and the shared page layout (header, sidebar nav, footer).
 
 import { crestSvg } from "./brand.mjs";
+import { EN, scriptStrings, localiseLinks } from "./i18n-site.mjs";
 
 // Escapes text for HTML.
 export function esc(s) {
@@ -26,7 +27,8 @@ export function md(s) {
 }
 
 // Every page in nav order: path, nav label, title. `group` is its heading in
-// the sidebar.
+// the sidebar. Other languages say them through scripts/lib/i18n-site.mjs
+// (nav.<path>, title.<path>, group.<group>).
 export const NAV = [
   { path: "/", label: "Home", title: "Vanguard" },
   { path: "/install/", label: "Install", title: "Install & Update", group: "Get started" },
@@ -69,11 +71,13 @@ export function supportOn(links = SUPPORT) {
 }
 
 // The "Support Vanguard" line: each switched-on link with what it is for; "" when none is.
-export function supportLine(links = SUPPORT) {
+// A link's `what` is English; another language says it as support.<name>.
+export function supportLine(links = SUPPORT, loc = EN) {
   const on = supportOn(links);
   if (!on.length) return "";
-  const items = on.map((l) => `<a href="${esc(l.url)}" rel="noopener">${esc(l.name)}</a> <span class="small">(${esc(l.what)})</span>`);
-  return `<p class="support">Support Vanguard: ${items.join(" · ")}</p>`;
+  const what = (l) => (loc.english ? esc(l.what) : loc.t(`support.${l.name}`));
+  const items = on.map((l) => `<a href="${esc(l.url)}" rel="noopener">${esc(l.name)}</a> <span class="small">(${what(l)})</span>`);
+  return `<p class="support">${loc.t("supportLine", { links: items.join(" · ") })}</p>`;
 }
 
 // A short, one-sentence ask on a page where a player has just been helped, linking Ko-fi with a
@@ -87,8 +91,8 @@ export function supportAsk(campaign, lead, links = SUPPORT) {
 }
 
 // The header's Support button: a link to the Support page, not straight to Ko-fi.
-export function supportButton(links = SUPPORT) {
-  return supportOn(links).length ? `<a class="support-btn" href="/support/">♥ Support</a>` : "";
+export function supportButton(links = SUPPORT, loc = EN) {
+  return supportOn(links).length ? `<a class="support-btn" href="/support/">${loc.t("supportButton")}</a>` : "";
 }
 
 // The CurseForge call to action: a link once CURSEFORGE_URL is set, until then
@@ -161,23 +165,50 @@ ${body}
 const MARK = crestSvg({ cls: "brand-mark" });
 
 // One nav link, marked when it's the page being shown.
-function navLink(n, path) {
-  return `<li${n.path === path ? ' class="is-here"' : ""}><a href="${n.path}"${n.path === path ? ' aria-current="page"' : ""}>${esc(n.label)}</a></li>`;
+function navLink(n, path, loc) {
+  return `<li${n.path === path ? ' class="is-here"' : ""}><a href="${n.path}"${n.path === path ? ' aria-current="page"' : ""}>${loc.t(`nav.${n.path}`)}</a></li>`;
 }
 
 // The sidebar list: Home, then every page under its group heading.
-function sidebarList(path) {
+function sidebarList(path, loc) {
   const groups = NAV_GROUPS.map((g) => {
     const id = `nav-g-${slug(g)}`;
-    return `<li class="nav-group"><span class="nav-group-h" id="${id}">${esc(g)}</span><ul aria-labelledby="${id}">${NAV.filter((n) => n.group === g).map((n) => navLink(n, path)).join("")}</ul></li>`;
+    return `<li class="nav-group"><span class="nav-group-h" id="${id}">${loc.t(`group.${g}`)}</span><ul aria-labelledby="${id}">${NAV.filter((n) => n.group === g).map((n) => navLink(n, path, loc)).join("")}</ul></li>`;
   });
-  return `<ul id="nav-list">${navLink(NAV[0], path)}${groups.join("")}</ul>`;
+  return `<ul id="nav-list">${navLink(NAV[0], path, loc)}${groups.join("")}</ul>`;
 }
 
 // The sidebar's switch that shows what the next release adds (only while a
 // next release is in the works).
-function nextSwitch() {
-  return `<div class="nav-foot"><label class="switch"><input type="checkbox" data-pref="next"> <span>Show what's coming in the next release</span></label></div>`;
+function nextSwitch(loc) {
+  return `<div class="nav-foot"><label class="switch"><input type="checkbox" data-pref="next"> <span>${loc.t("nextSwitch")}</span></label></div>`;
+}
+
+// The language switcher at the sidebar's foot (only when the site is published
+// in more than one language): a select that site.js turns into navigation, and
+// plain links for a browser without scripts. Each option carries, in its own
+// language, the line site.js offers a reader whose browser asks for it.
+export function langSwitch(alts, loc) {
+  if (alts.length < 2) return "";
+  const own = (a) => `lang="${esc(a.lang)}" data-offer="${esc(a.strings["lang.offer"])}" data-dismiss="${esc(a.strings["lang.dismiss"])}"`;
+  const option = (a) => `<option value="${esc(a.href)}" ${own(a)}${a.code === loc.code ? " selected" : ""}>${esc(a.name)}</option>`;
+  const link = (a) => `<li><a href="${esc(a.href)}" lang="${esc(a.lang)}" hreflang="${esc(a.lang)}"${a.code === loc.code ? ' aria-current="true"' : ""}>${esc(a.name)}</a></li>`;
+  return `<div class="nav-lang"><label for="lang-select">${loc.t("lang.label")}</label>
+<select id="lang-select" data-lang-switch>${alts.map(option).join("")}</select>
+<noscript><ul class="lang-links">${alts.map(link).join("")}</ul></noscript></div>`;
+}
+
+// The sidebar's foot: the next-release switch and the language switcher, whichever apply.
+function navFoot(site, alts, loc) {
+  return `${site.hasNext ? nextSwitch(loc) : ""}${langSwitch(alts, loc)}`;
+}
+
+// A <link rel="alternate" hreflang> for every published language of the page,
+// plus x-default (English), so a search engine shows each reader their own.
+export function hreflangTags(alts) {
+  if (alts.length < 2) return "";
+  const tags = alts.map((a) => `<link rel="alternate" hreflang="${esc(a.lang)}" href="${esc(a.url)}">`);
+  return `${[...tags, `<link rel="alternate" hreflang="x-default" href="${esc(alts[0].url)}">`].join("\n")}\n`;
 }
 
 // The page's canonical URL and the Open Graph and Twitter card tags, so a link pasted in Discord,
@@ -231,20 +262,38 @@ export function homeJsonLd(site, description) {
   return `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@graph": [app, web] }).replace(/</g, "\\u003c")}</script>\n`;
 }
 
+// The page's <title>: in English the search title from SEO, elsewhere the
+// page's own title in that language (Home's is its search title).
+function pageTitle(path, title, loc) {
+  if (loc.english) return SEO[path]?.title || `${title} · Vanguard`;
+  if (path === "/") return loc.text("title./");
+  const key = `title.${path}`;
+  return `${key in loc.strings ? loc.text(key) : title} · Vanguard`;
+}
+
+// The footer's two lines: who made Vanguard, and where the current release is.
+function footerLines(site, loc) {
+  const store = (url, name) => (url ? loc.t("footer.on", { store: `<a href="${esc(url)}" rel="noopener">${name}</a>` }) : loc.t("footer.soon", { store: name }));
+  return `<p>${loc.t("footer.about", { author: esc(site.author) })}</p>
+    <p>${loc.t("footer.release", { version: esc(site.version), curseforge: store(CURSEFORGE_URL, "CurseForge"), wago: store(WAGO_URL, "Wago"), copyright: COPYRIGHT })}</p>`;
+}
+
 // A full HTML page with the shared header, sidebar and footer. Every page, Home
 // included, has the same grouped sidebar; it's the only nav (the header holds
 // the brand and the Menu button, the footer no links).
-export function layout({ path, title, description, body, site, scripts = [] }) {
-  const seo = SEO[path] || {};
-  const fullTitle = seo.title || `${title} · Vanguard`;
-  description = seo.description || description;
-  const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">Menu</button>`;
-  const nav = `<nav class="nav sidebar" aria-label="Main" id="site-nav">${sidebarList(path)}${site.hasNext ? nextSwitch() : ""}</nav>`;
-  const main = `<main id="main" tabindex="-1">\n${body}\n</main>`;
+// `loc` is the language (scripts/lib/i18n-site.mjs) and `alts` every published
+// language's copy of the page. A page that isn't `translated` keeps its English
+// body, marked lang="en", inside the translated shell.
+export function layout({ path, title, description, body, site, scripts = [], loc = EN, alts = [], translated = false }) {
+  const fullTitle = pageTitle(path, title, loc);
+  if (loc.english || !translated) description = SEO[path]?.description || description;
+  const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">${loc.t("menu")}</button>`;
+  const nav = `<nav class="nav sidebar" aria-label="Main" id="site-nav">${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
+  const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${localiseLinks(body, loc)}\n</main>`;
   // An asset's URL with the build's version query (the plain path if it has none).
   const asset = (p) => site.assets?.[p] || p;
   return `<!doctype html>
-<html lang="en">
+<html lang="${esc(loc.lang)}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -252,20 +301,20 @@ export function layout({ path, title, description, body, site, scripts = [] }) {
 <meta name="description" content="${esc(description)}">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="${esc(site.theme.bg)}">
-${socialTags({ path, title: fullTitle, description, site })}<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
+${socialTags({ path: path === "/404" ? path : loc.href(path), title: fullTitle, description, site })}${hreflangTags(alts)}<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-${path === "/" && site.url ? homeJsonLd(site, description) : ""}<link rel="preload" href="/fonts/FiraSansCondensed-Medium.woff2" as="font" type="font/woff2" crossorigin>
+${path === "/" && loc.english && site.url ? homeJsonLd(site, description) : ""}<link rel="preload" href="/fonts/FiraSansCondensed-Medium.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${esc(asset("/assets/theme.css"))}">
 <link rel="stylesheet" href="${esc(asset("/assets/site.css"))}">
 <script>(function (d) { d.className += " js"; try { if (localStorage.getItem("vg-show-next") === "1") d.className += " show-next"; } catch (e) {} })(document.documentElement);</script>
 </head>
 <body class="has-sidebar">
-<a class="skip" href="#main">Skip to content</a>
+<a class="skip" href="#main">${loc.t("skip")}</a>
 <header class="site-header">
   <div class="header-inner">
-    <a class="brand" href="/">${MARK}<span>Vanguard</span></a>
-    ${supportButton()}
+    <a class="brand" href="${loc.href("/")}">${MARK}<span>Vanguard</span></a>
+    ${localiseLinks(supportButton(SUPPORT, loc), loc)}
     ${toggle}
   </div>
 </header>
@@ -276,12 +325,11 @@ ${main}
 <footer class="site-footer">
   ${ornament("footer-orn")}
   <div class="footer-inner">
-    ${supportLine()}
-    <p>Vanguard is an addon for WoW Forever, made by ${esc(site.author)}. It is an early release: not everything has been checked in the game yet, and some features are still being polished.</p>
-    <p>Current release: Vanguard ${esc(site.version)} · ${CURSEFORGE_URL ? `on <a href="${esc(CURSEFORGE_URL)}" rel="noopener">CurseForge</a>` : "coming soon on CurseForge"} and ${WAGO_URL ? `on <a href="${esc(WAGO_URL)}" rel="noopener">Wago</a>` : "coming soon on Wago"} · ${COPYRIGHT}</p>
+    ${supportLine(SUPPORT, loc)}
+    ${footerLines(site, loc)}
   </div>
 </footer>
-<script src="${esc(asset("/assets/site.js"))}" defer></script>
+${scriptStrings(loc)}<script src="${esc(asset("/assets/site.js"))}" defer></script>
 ${scripts.map((s) => `<script type="module" src="${esc(asset(s))}"></script>\n`).join("")}</body>
 </html>
 `;
@@ -294,12 +342,22 @@ export const COPYRIGHT = "© 2026 Clifton Taylor. All rights reserved.";
 // The "Next release" tag.
 export const NEXT_BADGE = `<span class="badge next">Next release</span>`;
 
+// The "Next release" tag in a language.
+export function nextBadge(loc = EN) {
+  return `<span class="badge next">${loc.t("badge.next")}</span>`;
+}
+
+// The "Needs reload" tag in a language.
+export function reloadBadge(loc = EN) {
+  return `<span class="badge reload">${loc.t("badge.reload")}</span>`;
+}
+
 // Availability badge for something by where it exists. Being in the current
 // release is the default and gets no tag; only the exceptions are marked.
-export function badge(inRel, inNext, version) {
+export function badge(inRel, inNext, version, loc = EN) {
   if (inRel && inNext) return "";
-  if (inNext) return NEXT_BADGE;
-  if (inRel) return `<span class="badge old">v${esc(version)} only</span>`;
+  if (inNext) return nextBadge(loc);
+  if (inRel) return `<span class="badge old">${loc.t("badge.old", { version: esc(version) })}</span>`;
   return "";
 }
 

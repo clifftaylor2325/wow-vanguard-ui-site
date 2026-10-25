@@ -5,5 +5,6 @@
   "sourcePath": ".cache/wow-vanguard-ui",
   "cacheDir": ".cache",
   "outDir": "dist",
-  "siteUrl": "https://vanguardui.com"
+  "siteUrl": "https://vanguardui.com",
+  "locales": []
 }

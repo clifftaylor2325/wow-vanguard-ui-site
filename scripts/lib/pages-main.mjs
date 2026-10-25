@@ -2,10 +2,12 @@
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
 import { shotByFile } from "./shots-content.mjs";
-import { supportAsk, esc, md, slug, badge, avail, shotFigure, ornament, heroFrame, pageHero, curseforgeCta, wagoLink, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
+import { supportAsk, esc, md, slug, badge, nextBadge, reloadBadge, avail, shotFigure, ornament, heroFrame, pageHero, curseforgeCta, wagoLink, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf, readmeSays } from "./features-content.mjs";
+import { EN } from "./i18n-site.mjs";
+import { splitHelp } from "./extract.mjs";
 
 // "September 27, 2026" in New York time.
 export function dateET(iso) {
@@ -14,7 +16,12 @@ export function dateET(iso) {
 
 // A short "Source: ..." footnote, folded until the reader asks.
 export function src(...files) {
-  return `<details class="src"><summary>Source</summary><p class="small">Source: ${files.map((f) => `<code>${esc(f)}</code>`).join(", ")} in the Vanguard addon repository.</p></details>`;
+  return sourceNote(EN, files);
+}
+
+// The "Source: ..." footnote in a language (file names stay as they are).
+function sourceNote(loc, files) {
+  return `<details class="src"><summary>${loc.t("source")}</summary><p class="small">${loc.t("source.line", { files: files.map((f) => `<code>${esc(f)}</code>`).join(", ") })}</p></details>`;
 }
 
 // The README's "Written from scratch..." sentence (release README).
@@ -425,59 +432,59 @@ function areaSection([area, list], model) {
   return disclosure({ id: `area-${slug(area)}`, title: esc(area), meta, next: rel === 0, cls: "area", body: `<div class="mods">${list.map((m) => featureCard(m, model)).join("\n")}</div>` });
 }
 
-// The Features lede, shown in the page hero.
-const FEATURES_LEDE = `Vanguard is built from modules. Each one replaces or adds one piece of the game's interface, and each can be turned off on its own under <strong>/vg → Modules</strong>.`;
+// The Features lede, shown in the page hero. In another language it ends by
+// saying the module descriptions below are in English (plan D8).
+function featuresLede(loc) {
+  const lede = loc.t("feat.lede", { modules: esc(loc.addon("Modules")) });
+  return loc.english ? lede : `${lede} ${loc.t("feat.englishNote")}`;
+}
 
 // The facts strip under the page hero: the counts, and what the tags mean.
-function featuresIntro(model) {
+function featuresIntro(model, loc) {
   const count = (f) => model.modules.filter(f).length;
   const more = count((m) => m.inNext && !m.inRel);
-  return glance([`<strong>${count((m) => m.inRel)}</strong> modules in v${esc(model.version)}`, more ? nextOnly(`<strong>${more}</strong> more in the next release`) : "", `Every module is on unless marked <span class="badge plain">Off until you switch it on</span>`]);
+  const off = `<span class="badge plain">${loc.t("feat.offBadge")}</span>`;
+  return glance([loc.n("feat.inRelease", count((m) => m.inRel), { version: esc(model.version) }), more ? nextOnly(loc.t("glance.more", { n: more })) : "", loc.t("feat.everyOn", { badge: off })]);
 }
 
 // The search box over the module cards (site.js, the same one as Commands and Settings).
 // It reads each card's whole text, the folded More included, and opens the areas with a match.
-function featureSearchBox(model) {
+function featureSearchBox(model, loc) {
   return `<div class="search" data-target="#mod-list" data-items=".mod" data-groups=".area" data-noun="modules" data-noun-one="module">
-  <label for="mod-q" class="search-label visually-hidden">Search modules</label>
-  <input id="mod-q" type="search" placeholder="Search modules, for example: raid, bags, cast bar" autocomplete="off">
-  ${model.same ? "" : `<div class="filters"><label class="switch"><input type="checkbox" data-filter="next" checked> <span>Show what's coming in the next release</span></label></div>`}
+  <label for="mod-q" class="search-label visually-hidden">${loc.t("feat.search")}</label>
+  <input id="mod-q" type="search" placeholder="${esc(loc.text("feat.placeholder"))}" autocomplete="off">
+  ${model.same ? "" : `<div class="filters"><label class="switch"><input type="checkbox" data-filter="next" checked> <span>${loc.t("nextSwitch")}</span></label></div>`}
   <p class="count" aria-live="polite" role="status"></p>
 </div>`;
 }
 
-// The Features page: one card per module, grouped by area.
-export function featuresPage(model) {
+// The Features page: one card per module, grouped by area. In another language
+// only the intro and the search are translated; the cards stay English (lang="en").
+export function featuresPage(model, loc = EN) {
   const groups = featureAreas(model);
-  const body = [pageHero("Features", FEATURES_LEDE), featuresIntro(model), featureSearchBox(model), `<div id="mod-list" class="dis-grid">${groups.map((g) => areaSection(g, model)).join("\n")}</div>`,
-    `<p class="small">The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version${model.same ? "" : `, so v${esc(model.version)} may not have every detail yet`}; <a href="/settings/">Settings</a> shows exactly which options each release has.</p>`];
-  return { path: "/features/", title: "Features", description: "Every Vanguard module: what it does, where its settings are, and its commands.", body: body.join("\n") };
+  const lang = loc.english ? "" : ' lang="en"';
+  const body = [pageHero(loc.t("title./features/"), featuresLede(loc)), featuresIntro(model, loc), featureSearchBox(model, loc), `<div id="mod-list" class="dis-grid"${lang}>${groups.map((g) => areaSection(g, model)).join("\n")}</div>`,
+    `<p class="small"${lang}>The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version${model.same ? "" : `, so v${esc(model.version)} may not have every detail yet`}; <a href="/settings/">Settings</a> shows exactly which options each release has.</p>`];
+  return { path: "/features/", title: "Features", description: loc.text("feat.description"), body: body.join("\n"), translated: true };
 }
 
 // ------------------------------------------------------------------ Commands
 
-// The Commands table's columns; the first is each row's header.
-const CMD_COLS = ["Command", "What it does"];
-
-// The visible lines of one command entry.
-function cmdLines(e, version) {
-  const show = (lines) => lines.map((l) => `<p class="cmd-text"><span class="cmd-line">/vg ${esc(l.syntax)}</span><br>${esc(l.text)}</p>`).join("");
+// The visible lines of one command entry. A help line's text is the addon's,
+// in the page's language; its syntax stays as typed.
+function cmdLines(e, loc) {
+  const text = (l) => (loc.english ? l.text : splitHelp(loc.addon(l.line)).text || l.text);
+  const show = (lines) => lines.map((l) => `<p class="cmd-text"><span class="cmd-line">/vg ${esc(l.syntax)}</span><br>${esc(text(l))}</p>`).join("");
   if (e.relLines && !e.changed) return show(e.relLines);
-  if (e.relLines && e.changed) return `${show(e.relLines)}${nextOnly(`<p class="cmd-meta">In the next release the help line reads:</p>${show(e.nextLines)}`, "div")}`;
+  if (e.relLines && e.changed) return `${show(e.relLines)}${nextOnly(`<p class="cmd-meta">${loc.t("cmd.nextReads")}</p>${show(e.nextLines)}`, "div")}`;
   if (e.nextLines) return show(e.nextLines);
   return "";
 }
 
-// "a", "a and b", "a, b and c".
-function andList(items) {
-  if (items.length < 2) return items.join("");
-  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
-}
-
 // The other ways to open the options window, without repeating /vg itself.
-function fuiAliases(slashes, keys) {
+function fuiAliases(slashes, keys, loc) {
   const alts = [...slashes.filter((s) => s !== "/vg"), ...keys.map((k) => `/vg ${k}`)];
-  return alts.length ? ` Also ${andList(alts.map((a) => `<code>${esc(a)}</code>`))}.` : "";
+  return alts.length ? ` ${loc.t("cmd.also", { list: loc.list(alts.map((a) => `<code>${esc(a)}</code>`)) })}` : "";
 }
 
 // The command as shown in its row: every word it accepts.
@@ -495,39 +502,41 @@ function cmdCopy(e) {
 }
 
 // What a command does: the addon's help lines, or a plain note for /vg and /vg help.
-function cmdWhat(e, c, version) {
-  if (e.special === "fui") return `<p class="cmd-text">Opens (or closes) the options window.${fuiAliases(c.slashes, e.keys)} The help's first line says: “${esc(c.relIntro)}”</p>`;
-  if (e.special === "help") return `<p class="cmd-text">Prints the list of commands in chat: the help lines quoted on this page.</p>`;
-  return cmdLines(e, version);
+function cmdWhat(e, c, loc) {
+  if (e.special === "fui") return `<p class="cmd-text">${loc.t("cmd.opens")}${fuiAliases(c.slashes, e.keys, loc)} ${loc.t("cmd.firstLine", { text: esc(loc.addon(c.relIntro)) })}</p>`;
+  if (e.special === "help") return `<p class="cmd-text">${loc.t("cmd.helpPrints")}</p>`;
+  return cmdLines(e, loc);
 }
 
 // Links to the Features sections of the modules a command needs.
-function cmdModules(e, model) {
+function cmdModules(e, model, loc) {
   return e.modules.map((m) => {
     const mm = model.modules.find((x) => x.key === m);
-    return `<a href="/features/#${mm ? mm.id : slug(m)}">${esc(mm ? mm.name : m)}</a>`;
+    return `<a href="/features/#${mm ? mm.id : slug(m)}">${esc(loc.addon(mm ? mm.name : m))}</a>`;
   }).join(", ");
 }
 
-// The words the search box matches for a command.
-function cmdSearch(e) {
+// The words the search box matches for a command: its words and help lines,
+// in English and in the page's language.
+function cmdSearch(e, loc) {
   const lines = [...(e.relLines || []), ...(e.nextLines || [])].map((l) => l.line);
-  return [e.keys.join(" "), ...lines, e.special || ""].join(" ");
+  const own = loc.english ? [] : lines.map((l) => loc.addon(l)).filter((l) => !lines.includes(l));
+  return [e.keys.join(" "), ...lines, ...own, e.special || ""].join(" ");
 }
 
 // The row header: an anchor for each word, the command, its Copy button and its version tag.
-function cmdHead(e, version) {
+function cmdHead(e, version, loc) {
   const anchors = e.keys.map((k) => `<span id="cmd-${esc(k)}" data-command="${esc(k)}"></span>`).join("");
   const copy = esc(cmdCopy(e));
-  const b = badge(e.inRel, e.inNext, version);
-  return `<th scope="row" class="cmd-cap">${anchors}<div class="cmd-head"><code class="cmd-syntax">${esc(cmdTyped(e))}</code> <button class="copy" type="button" data-copy="${copy}" aria-label="Copy ${copy}">Copy</button>${b ? ` ${b}` : ""}</div></th>`;
+  const b = badge(e.inRel, e.inNext, version, loc);
+  return `<th scope="row" class="cmd-cap">${anchors}<div class="cmd-head"><code class="cmd-syntax">${esc(cmdTyped(e))}</code> <button class="copy" type="button" data-copy="${copy}" aria-label="${esc(loc.text("copy.label", { text: cmdCopy(e) }))}">${loc.t("copy")}</button>${b ? ` ${b}` : ""}</div></th>`;
 }
 
 // One command as a table row (a card on narrow screens): the command, then what it does and which module it needs.
-function cmdRow(e, model) {
-  const mods = cmdModules(e, model);
-  const what = `${cmdWhat(e, model.commands, model.version)}${mods ? `<p class="cmd-meta">Needs ${mods}</p>` : ""}`;
-  return `<tr class="cmd opt-item" id="entry-${esc(e.id)}" data-count data-avail="${avail(e.inRel, e.inNext)}" data-search="${esc(cmdSearch(e))}">${cmdHead(e, model.version)}<td data-label="${CMD_COLS[1]}">${what}</td></tr>`;
+function cmdRow(e, model, loc) {
+  const mods = cmdModules(e, model, loc);
+  const what = `${cmdWhat(e, model.commands, loc)}${mods ? `<p class="cmd-meta">${loc.t("cmd.needs", { modules: mods })}</p>` : ""}`;
+  return `<tr class="cmd opt-item" id="entry-${esc(e.id)}" data-count data-avail="${avail(e.inRel, e.inNext)}" data-search="${esc(cmdSearch(e, loc))}">${cmdHead(e, model.version, loc)}<td data-label="${loc.t("cmd.col.what")}">${what}</td></tr>`;
 }
 
 // The commands grouped by the feature area of the module they need (the Features page's areas;
@@ -542,73 +551,87 @@ function cmdGroups(model) {
   return [...groups.values()].filter((g) => g.entries.length);
 }
 
+// A command group's count: "12 commands", "+ 2 next release" behind the next-release switch.
+function cmdGroupMeta(g, loc) {
+  const rel = g.entries.filter((e) => e.inRel).length;
+  const more = g.entries.length - rel;
+  return `${rel ? loc.n("cmd.count", rel) : ""}${more ? nextOnly(`${rel ? " + " : ""}${loc.t("group.moreNext", { n: more })}`) : ""}`;
+}
+
 // Every command in one table, in folded groups (a heading row with a button opens each).
-function cmdTable(model) {
-  const head = `<thead class="visually-hidden"><tr>${CMD_COLS.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead>`;
+function cmdTable(model, loc) {
+  const cols = [loc.t("cmd.col.command"), loc.t("cmd.col.what")];
+  const head = `<thead class="visually-hidden"><tr>${cols.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead>`;
   const groups = cmdGroups(model).map((g) => {
-    const rel = g.entries.filter((e) => e.inRel).length;
-    const more = g.entries.length - rel;
-    const meta = `${rel ? `${rel} command${rel === 1 ? "" : "s"}` : ""}${more ? nextOnly(`${rel ? " + " : ""}${more} next release`) : ""}`;
-    const heading = `<tr class="opt-row h"><th scope="rowgroup" colspan="${CMD_COLS.length}"><button type="button" class="group-toggle" aria-expanded="false">${esc(g.name)}<span class="dis-meta">${meta}</span></button></th></tr>`;
-    return `<tbody class="cmd-group collapsed" data-group="${esc(g.id)}"${rel ? "" : ' data-avail="next"'}>${heading}\n${g.entries.map((e) => cmdRow(e, model)).join("\n")}</tbody>`;
+    const rel = g.entries.some((e) => e.inRel);
+    const heading = `<tr class="opt-row h"><th scope="rowgroup" colspan="${cols.length}"><button type="button" class="group-toggle" aria-expanded="false">${loc.t(`area.${g.name}`)}<span class="dis-meta">${cmdGroupMeta(g, loc)}</span></button></th></tr>`;
+    return `<tbody class="cmd-group collapsed" data-group="${esc(g.id)}"${rel ? "" : ' data-avail="next"'}>${heading}\n${g.entries.map((e) => cmdRow(e, model, loc)).join("\n")}</tbody>`;
   });
-  return `<table class="opt-table cmd-table" id="cmd-list"><caption>Every command, grouped by the part of Vanguard it needs</caption>${head}\n${groups.join("\n")}\n</table>`;
+  return `<table class="opt-table cmd-table" id="cmd-list"><caption>${loc.t("cmd.caption")}</caption>${head}\n${groups.join("\n")}\n</table>`;
 }
 
 // The search box's switches: each only when some command needs it (one the next release adds, one it drops).
-function cmdFilters(c, version) {
-  const next = [...c.nextKeys].some((k) => !c.relKeys.has(k)) ? `<label class="switch"><input type="checkbox" data-filter="next" checked> <span>Show what's coming in the next release</span></label>` : "";
-  const old = [...c.relKeys].some((k) => !c.nextKeys.has(k)) ? `<label><input type="checkbox" data-filter="old" checked> Show v${esc(version)}-only commands</label>` : "";
+function cmdFilters(c, version, loc) {
+  const next = [...c.nextKeys].some((k) => !c.relKeys.has(k)) ? `<label class="switch"><input type="checkbox" data-filter="next" checked> <span>${loc.t("nextSwitch")}</span></label>` : "";
+  const old = [...c.relKeys].some((k) => !c.nextKeys.has(k)) ? `<label><input type="checkbox" data-filter="old" checked> ${loc.t("cmd.showOld", { version: esc(version) })}</label>` : "";
   return next || old ? `<div class="filters">${next}${old}</div>` : "";
 }
 
 // The search box over the commands, with its switches and a live count.
-function cmdSearchBox(c, version) {
+function cmdSearchBox(c, version, loc) {
   return `<div class="search" data-target="#cmd-list" data-items=".cmd" data-noun="commands" data-noun-one="command">
-  <label for="cmd-q" class="search-label">Search commands</label>
-  <input id="cmd-q" type="search" placeholder="for example: reset, profile, errors" autocomplete="off">
-  ${cmdFilters(c, version)}
+  <label for="cmd-q" class="search-label">${loc.t("cmd.search")}</label>
+  <input id="cmd-q" type="search" placeholder="${esc(loc.text("cmd.placeholder"))}" autocomplete="off">
+  ${cmdFilters(c, version, loc)}
   <p class="count" aria-live="polite" role="status"></p>
 </div>`;
 }
 
 // The Commands page body: the counts, the search and the grouped table.
-function commandsBody(model) {
+function commandsBody(model, loc) {
   const { commands: c, version } = model;
   const more = [...c.nextKeys].filter((k) => !c.relKeys.has(k)).length;
-  const hero = pageHero("Commands", `One chat command, <code>/vg</code> (or <code>/vanguard</code>), followed by a word. The help text is quoted exactly as the addon prints it with <code>/vg help</code>.`);
-  const counts = glance([`<strong>${c.relKeys.size}</strong> command words in v${esc(version)}`, more ? nextOnly(`<strong>${more}</strong> more in the next release`) : "", `An unknown word prints “${esc(c.unknown || "Unknown command. /vg help")}”`]);
-  return [hero, counts, cmdSearchBox(c, version), cmdTable(model), src("Core/Slash.lua (HELP, COMMANDS, SLASH_VANGUARD1/2)")].join("\n");
+  const hero = pageHero(loc.t("title./commands/"), loc.t("cmd.lede"));
+  const unknown = esc(loc.addon(c.unknown || "Unknown command. /vg help"));
+  const counts = glance([loc.n("cmd.words", c.relKeys.size, { version: esc(version) }), more ? nextOnly(loc.t("glance.more", { n: more })) : "", loc.t("cmd.unknown", { text: unknown })]);
+  return [hero, counts, cmdSearchBox(c, version, loc), cmdTable(model, loc), sourceNote(loc, ["Core/Slash.lua (HELP, COMMANDS, SLASH_VANGUARD1/2)"])].join("\n");
 }
 
 // The Commands page.
-export function commandsPage(model) {
-  return { path: "/commands/", title: "Commands", description: "Every /vg command with its help text, verbatim from the addon.", body: commandsBody(model) };
+export function commandsPage(model, loc = EN) {
+  return { path: "/commands/", title: "Commands", description: loc.text("cmd.description"), body: commandsBody(model, loc), translated: true };
 }
 
 // ------------------------------------------------------------------ Settings
 
-// The columns of a settings table; the first is each row's header.
-const COLS = ["Setting", "Values", "Default", "Notes"];
+// The columns of a settings table (string keys); the first is each row's header.
+const COLS = ["set.col.setting", "set.col.values", "set.col.default", "set.col.notes"];
 
-// What the addon calls each kind of row on the site.
-const KIND_NAME = { check: "Switch", cycle: "Choice", slider: "Slider", button: "Button", visibility: "Visibility" };
+// The kinds of row the site names (kind.<kind>).
+const KINDS = ["check", "cycle", "slider", "button", "visibility"];
+
+// A default as the page's language says it: a switch's On or Off is the site's
+// word, a choice is the addon's label, a number stays a number.
+function defaultWord(r, value, loc) {
+  if (r.kind === "check") return loc.text(value === "On" ? "set.on" : "set.off");
+  return r.kind === "cycle" ? loc.addon(value) : value;
+}
 
 // Text for a row's default across versions.
-function defaultText(r, version) {
-  const a = r.relDefault;
-  const b = r.nextDefault;
-  if (r.inRel && r.inNext && a && b && a !== b) return `${esc(a)}${nextOnly(` (${esc(b)} in the next release)`)}`;
+function defaultText(r, loc) {
+  const a = r.relDefault && defaultWord(r, r.relDefault, loc);
+  const b = r.nextDefault && defaultWord(r, r.nextDefault, loc);
+  if (r.inRel && r.inNext && a && b && a !== b) return `${esc(a)}${nextOnly(` ${loc.t("set.defaultNext", { value: esc(b) })}`)}`;
   return a || b ? esc(a || b) : "";
 }
 
 // A row's choices and range, as one line ("" when it has neither).
-function valuesText(r) {
+function valuesText(r, loc) {
   const out = [];
-  if (r.choices && r.choices.length) out.push(r.choices.map((c) => esc(c[1])).join(" / "));
+  if (r.choices && r.choices.length) out.push(r.choices.map((c) => esc(loc.addon(c[1]))).join(" / "));
   if (r.range) {
     const f = (x) => (r.range.percent && r.range.max <= 2 ? `${Math.round(x * 100)}%` : String(x));
-    out.push(`${esc(f(r.range.min))} to ${esc(f(r.range.max))}`);
+    out.push(loc.t("set.range", { min: esc(f(r.range.min)), max: esc(f(r.range.max)) }));
   }
   return out.join("; ");
 }
@@ -628,61 +651,68 @@ function groupRow(html, attrs) {
 }
 
 // A heading or note row from the addon, spanning the table.
-function wideRow(r, attrs, version) {
-  const b = r.inRel && r.inNext ? "" : ` ${badge(r.inRel, r.inNext, version)}`;
-  if (r.kind === "header") return groupRow(`${esc(r.caption)}${b}`, attrs);
-  return `<tr class="opt-row t opt-item" ${attrs}><td colspan="${COLS.length}">${esc(r.caption)}${b}</td></tr>`;
+function wideRow(r, attrs, version, loc) {
+  const b = r.inRel && r.inNext ? "" : ` ${badge(r.inRel, r.inNext, version, loc)}`;
+  if (r.kind === "header") return groupRow(`${esc(loc.addon(r.caption))}${b}`, attrs);
+  return `<tr class="opt-row t opt-item" ${attrs}><td colspan="${COLS.length}">${esc(loc.addon(r.caption))}${b}</td></tr>`;
+}
+
+// The words the search box matches for a row: its page, caption and choices,
+// in English and in the page's language.
+function rowSearch(r, pageTitle, loc) {
+  const words = [pageTitle, r.caption, ...(r.choices || []).map((c) => c[1])];
+  const own = loc.english ? [] : words.map((w) => loc.addon(w)).filter((w) => !words.includes(w));
+  return `${pageTitle} ${r.caption} ${(r.choices || []).map((c) => c[1]).join(" ")}${own.length ? ` ${own.join(" ")}` : ""}`;
 }
 
 // One setting as a table row: the caption is the row header; each cell carries its card label.
-function optRow(r, version, pageTitle, id) {
-  const search = `${pageTitle} ${r.caption} ${(r.choices || []).map((c) => c[1]).join(" ")}`;
-  const attrs = `data-avail="${avail(r.inRel, r.inNext)}" data-search="${esc(search)}"`;
-  if (r.kind === "header" || r.kind === "text") return wideRow(r, attrs, version);
-  const loop = r.loop ? ` <span class="small">(${esc(r.loop.variable)} = ${r.loop.from} to ${r.loop.to})</span>` : "";
-  const notes = `${r.reload ? `<span class="badge reload">Needs reload</span> ` : ""}${badge(r.inRel, r.inNext, version)}`;
-  const kind = KIND_NAME[r.kind] ? ` <span class="opt-kind">${KIND_NAME[r.kind]}</span>` : "";
-  const cells = [valuesText(r), defaultText(r, version), notes].map((h, i) => `<td data-label="${COLS[i + 1]}">${h}</td>`);
-  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(r.caption)}${loop}${kind}</th>${cells.join("")}</tr>`;
+function optRow(r, version, pageTitle, id, loc) {
+  const attrs = `data-avail="${avail(r.inRel, r.inNext)}" data-search="${esc(rowSearch(r, pageTitle, loc))}"`;
+  if (r.kind === "header" || r.kind === "text") return wideRow(r, attrs, version, loc);
+  const loop = r.loop ? ` <span class="small">(${esc(r.loop.variable)} = ${loc.t("set.range", { min: r.loop.from, max: r.loop.to })})</span>` : "";
+  const notes = `${r.reload ? `${reloadBadge(loc)} ` : ""}${badge(r.inRel, r.inNext, version, loc)}`;
+  const kind = KINDS.includes(r.kind) ? ` <span class="opt-kind">${loc.t(`kind.${r.kind}`)}</span>` : "";
+  const cells = [valuesText(r, loc), defaultText(r, loc), notes].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
+  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(loc.addon(r.caption))}${loop}${kind}</th>${cells.join("")}</tr>`;
 }
 
 // The heading over rows the options window repeats, e.g. "The rows below repeat for each n from 1 to 8".
-function repeatHeading(rep) {
-  const each = rep.variable ? `each ${esc(`<${rep.variable}>`)} from` : "each of";
-  return `The rows below repeat for ${each} ${rep.from} to ${rep.to}`;
+function repeatHeading(rep, loc) {
+  if (rep.variable) return loc.t("set.repeatEach", { variable: esc(`<${rep.variable}>`), from: rep.from, to: rep.to });
+  return loc.t("set.repeatOf", { from: rep.from, to: rep.to });
 }
 
 // A page's table rows, with a heading before rows repeated for every bar.
-function pageRows(p, version, used) {
+function pageRows(p, version, used, loc) {
   const out = [];
   let inRepeat = null;
   for (const r of p.rows) {
     const rep = r.repeated ? JSON.stringify(r.repeated) : null;
-    if (rep && rep !== inRepeat) out.push(groupRow(repeatHeading(r.repeated), `data-search="${esc(p.title)} each"`));
+    if (rep && rep !== inRepeat) out.push(groupRow(repeatHeading(r.repeated, loc), `data-search="${esc(p.title)} each"`));
     inRepeat = rep;
-    out.push(optRow(r, version, p.title, rowId(p.id, r.caption, used)));
+    out.push(optRow(r, version, p.title, rowId(p.id, r.caption, used), loc));
   }
   return out.join("\n");
 }
 
 // The Modules page's closing note: one switch per module.
-function modulesRow(p, model) {
+function modulesRow(p, model, loc) {
   if (p.key !== "modules") return "";
-  const mods = model.modules.map((m) => `<a href="/features/#${m.id}">${esc(m.name)}</a>${m.inRel ? "" : " (next release)"}`).join(", ");
-  return `<tr class="opt-row t"><td colspan="${COLS.length}">Then one switch per module (it applies after a reload): ${mods}.</td></tr>`;
+  const mods = model.modules.map((m) => `<a href="/features/#${m.id}">${esc(loc.addon(m.name))}</a>${m.inRel ? "" : ` ${loc.t("set.moduleNext")}`}`).join(", ");
+  return `<tr class="opt-row t"><td colspan="${COLS.length}">${loc.t("set.modulesRow", { modules: mods })}</td></tr>`;
 }
 
 // One options page, folded: its heading opens a table of its settings (one card per row on narrow screens).
-function pageSection(p, model, used) {
-  const head = `<thead><tr>${COLS.map((c) => `<th scope="col">${c}</th>`).join("")}</tr></thead>`;
+function pageSection(p, model, used, loc) {
+  const head = `<thead><tr>${COLS.map((c) => `<th scope="col">${loc.t(c)}</th>`).join("")}</tr></thead>`;
   const n = p.rows.filter((r) => r.kind !== "header" && r.kind !== "text").length;
-  const b = badge(p.inRel, p.inNext, model.version);
+  const b = badge(p.inRel, p.inNext, model.version, loc);
   return `<details class="opt-page disclosure" data-page="${esc(p.key)}"${p.inRel ? "" : ' data-avail="next"'}>
-<summary><h2 id="${p.id}">${esc(p.title)}</h2><span class="dis-meta">${n} setting${n === 1 ? "" : "s"}${b ? ` ${b}` : ""}</span></summary>
+<summary><h2 id="${p.id}">${esc(loc.addon(p.title))}</h2><span class="dis-meta">${loc.n("set.count", n)}${b ? ` ${b}` : ""}</span></summary>
 <div class="dis-body">
 <table class="opt-table" aria-labelledby="${p.id}">${head}<tbody>
-${pageRows(p, model.version, used)}
-${modulesRow(p, model)}
+${pageRows(p, model.version, used, loc)}
+${modulesRow(p, model, loc)}
 </tbody></table>
 </div>
 </details>`;
@@ -693,39 +723,61 @@ function combatReloadLine(dialogLua) {
   return (dialogLua || "").match(/ns\.Chat\("(Type \/reload in chat[^"]*)"\)/)?.[1] || null;
 }
 
-// The note on Reload buttons built during a fight, read from Core/Dialog.lua ("" when the addon has none).
-function combatReloadNote(read) {
-  const line = combatReloadLine(read.next("Core/Dialog.lua"));
-  if (!line) return "";
-  const b = combatReloadLine(read.rel("Core/Dialog.lua")) ? "" : `<span class="badge next">Next release</span> `;
-  return `<div class="notice info" id="reload-in-combat"><p>${b}WoW Forever lets an addon reload only from a click on a secure button, so that's what <strong>Reload now</strong> and the <strong>Reload</strong> button in Vanguard's reload prompt are. That secure part can't be built during a fight: a Reload button made in combat gets it when the fight ends. Until then, clicking it doesn't reload; it says “${esc(line)}”</p></div>`;
+// The addon's reload words the notes quote, in the page's language.
+function reloadWords(loc) {
+  return { prompt: esc(loc.addon("Some changes need a reload")), reloadNow: esc(loc.addon("Reload now")), reload: esc(loc.addon("Reload")) };
 }
 
-export function settingsPage(model, read) {
+// The note on Reload buttons built during a fight, read from Core/Dialog.lua ("" when the addon has none).
+function combatReloadNote(read, loc) {
+  const line = combatReloadLine(read.next("Core/Dialog.lua"));
+  if (!line) return "";
+  const b = combatReloadLine(read.rel("Core/Dialog.lua")) ? "" : `${nextBadge(loc)} `;
+  return `<div class="notice info" id="reload-in-combat"><p>${b}${loc.t("set.combatReload", { ...reloadWords(loc), line: esc(loc.addon(line)) })}</p></div>`;
+}
+
+// The search box over the settings, with its version switches and a live count.
+function settingsSearchBox(model, loc) {
+  return `<div class="search" data-target="#opt-list" data-items=".opt-row" data-groups=".opt-page" data-noun="settings" data-noun-one="setting">
+  <label for="opt-q" class="search-label">${loc.t("set.search")}</label>
+  <input id="opt-q" type="search" placeholder="${esc(loc.text("set.placeholder"))}" autocomplete="off">
+  ${model.same ? "" : `<div class="filters">
+    <label class="switch"><input type="checkbox" data-filter="next" checked> <span>${loc.t("nextSwitch")}</span></label>
+    <label><input type="checkbox" data-filter="old" checked> ${loc.t("set.showOld", { version: esc(model.version) })}</label>
+  </div>`}
+  <p class="count" aria-live="polite" role="status"></p>
+</div>`;
+}
+
+// The counts line: settings in the release (and the next one), and pages.
+function settingsCounts(model, loc) {
   const { pages, version } = model;
   const count = (f) => pages.reduce((n, p) => n + p.rows.filter((r) => r.kind !== "header" && r.kind !== "text" && f(r)).length, 0);
-  const used = new Set(pages.map((p) => p.id));
+  const parts = [loc.n("set.inRelease", count((r) => r.inRel), { version: esc(version) }), model.same ? "" : loc.t("set.inNext", { n: count((r) => r.inNext) }), loc.n("set.pages", pages.length)];
+  return `<p class="counts">${parts.filter(Boolean).join(" · ")}.</p>`;
+}
+
+// The folded aside under the settings: reloads, defaults and what isn't listed.
+function settingsAside(read, loc) {
+  return disclosure({ id: "reloads", level: 3, title: loc.t("set.aboutTitle"), cls: "aside", body: `<p>${loc.t("set.aboutReload", { badge: reloadBadge(loc), ...reloadWords(loc) })}</p>
+${combatReloadNote(read, loc)}
+<p class="small">${loc.t("set.aboutClients")}</p>` });
+}
+
+export function settingsPage(model, read, loc = EN) {
+  const used = new Set(model.pages.map((p) => p.id));
   return {
     path: "/settings/",
     title: "Settings",
-    description: "Every page and setting in the Vanguard options window, with defaults.",
-    body: `${pageHero("Settings", `Every page of the options window (<code>/vg</code>) and every setting on it, with the caption exactly as the addon shows it. Open a page below to see its settings.`)}
-<p class="counts"><strong>${count((r) => r.inRel)}</strong> settings in v${esc(version)}${model.same ? "" : ` · <strong>${count((r) => r.inNext)}</strong> in the next release`} · <strong>${pages.length}</strong> pages.</p>
-<div class="search" data-target="#opt-list" data-items=".opt-row" data-groups=".opt-page" data-noun="settings" data-noun-one="setting">
-  <label for="opt-q" class="search-label">Search settings</label>
-  <input id="opt-q" type="search" placeholder="for example: raid, tooltip, chat" autocomplete="off">
-  ${model.same ? "" : `<div class="filters">
-    <label class="switch"><input type="checkbox" data-filter="next" checked> <span>Show what's coming in the next release</span></label>
-    <label><input type="checkbox" data-filter="old" checked> Show v${esc(version)}-only settings</label>
-  </div>`}
-  <p class="count" aria-live="polite" role="status"></p>
-</div>
+    description: loc.text("set.description"),
+    translated: true,
+    body: `${pageHero(loc.t("title./settings/"), loc.t("set.lede"))}
+${settingsCounts(model, loc)}
+${settingsSearchBox(model, loc)}
 <div id="opt-list" class="dis-grid">
-${pages.map((p) => pageSection(p, model, used)).join("\n")}
+${model.pages.map((p) => pageSection(p, model, used, loc)).join("\n")}
 </div>
-${disclosure({ id: "reloads", level: 3, title: "About reloads, defaults and what's not listed", cls: "aside", body: `<p>Settings marked <span class="badge reload">Needs reload</span> apply after a reload: the window says “Some changes need a reload” and offers <strong>Reload now</strong>. Defaults are shown where the addon's code states one; where it doesn't, none is shown.</p>
-${combatReloadNote(read)}
-<p class="small">Some rows only appear on some clients (for example the Specialization card on the Profiles page needs a client with specializations; the game's own click bindings need a client that has them). Lists that you fill in yourself (your profiles, your chat watch phrases, the bindings grid) aren't listed row by row.</p>` })}
-${src("Core/Options.lua (PAGES and row builders)", "Modules/RaidHealing.lua", "Modules/ClickCastOptions.lua", "Modules/Nameplates.lua", "Modules/Situations.lua", "Core/Visibility.lua", "Core/Dialog.lua (ns.ReloadButton)", "module defaults tables")}`,
+${settingsAside(read, loc)}
+${sourceNote(loc, ["Core/Options.lua (PAGES and row builders)", "Modules/RaidHealing.lua", "Modules/ClickCastOptions.lua", "Modules/Nameplates.lua", "Modules/Situations.lua", "Core/Visibility.lua", "Core/Dialog.lua (ns.ReloadButton)", "module defaults tables"])}`,
   };
 }

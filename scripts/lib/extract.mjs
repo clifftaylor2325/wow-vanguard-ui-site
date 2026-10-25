@@ -17,7 +17,7 @@ function luaFile(reader, file) {
 // Help lines split into the syntax column and the description: at a run of 2+
 // spaces, or (when the line has a single space there) after the command word
 // and its bracketed arguments.
-function splitHelp(line) {
+export function splitHelp(line) {
   const m = line.match(/^(\S(?:.*?\S)?)\s{2,}(\S.*)$/);
   if (m) return { syntax: m[1], text: m[2] };
   let i = line.search(/\s|$/);
