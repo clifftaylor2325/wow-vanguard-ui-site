@@ -556,7 +556,7 @@ Object.assign(LONGER, {
     R("Pins aren't drawn on a map where the game's own map already shows quest offers, or while Questie or OpenMap is loaded.", "Vanguard draws none on a map where the game's own map already shows quest offers, or while Questie or OpenMap is loaded"),
   ],
   OfficerLoot: [
-    R("/vg loot add <player> <item> adds a reserve, /vg loot list prints them and /vg loot clear forgets them.", "`/vg loot add <player> <item>` adds a reserve", "`/vg loot list` prints them by item and `/vg loot clear` forgets them"),
+    R("/vg loot add <player> <item> adds a reserve, /vg loot list prints them, and /vg loot clear asks first, then forgets them.", "`/vg loot add <player> <item>` adds a reserve", "`/vg loot list` prints them by item and `/vg loot clear`", "asks first, saying how many reserves go", "then forgets them"),
     R("Names are compared without case and without a “-Realm” ending.", "Names are compared without case and without a \"-Realm\" ending"),
     R("The roster lists the group, tanks then healers then damage then the rest.", "listing the group, tanks then healers then damage then the rest"),
     R("/vg loot focus <item> names the item a round of /roll is for, since a /roll line says nothing about it.", "`/vg loot focus <item>` names one yourself", "since a `/roll` line says nothing about its item"),
