@@ -175,6 +175,8 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 
 `SUPPORT` in `scripts/lib/html.mjs` lists the ways to support development: currently only Ko-fi (a one-off tip). A link stays off the site until its `url` is set to an `https://` address; to add another, give it an entry with a `url` of `null` until it's ready. Once one is, every page's footer gets a "Support Vanguard" line and the Credits page gets a Support section, both naming only the links that are set. Set the URLs, run `npm run check`, and the tests switch to checking for the links. Donation links stay on the website and never in the addon.
 
+`DISCORD_URL` in `scripts/lib/html.mjs` holds the Vanguard Discord invite. While it is set, every page's footer gets a “Questions, bug reports and ideas: Discord” line (`footer.discord` in the string tables); set it to `null` and the line goes away.
+
 ## Tests
 
 `npm test` (`test/site.test.mjs`) re-reads the Lua with its own, separate extraction. It fails if any slash command, help line, module or options page is missing from the generated site. It also checks:

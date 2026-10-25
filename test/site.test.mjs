@@ -10,7 +10,7 @@ import os from "node:os";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
-import { CURSEFORGE_URL, WAGO_URL, esc, NAV, COPYRIGHT, SUPPORT, supportOn, supportLine } from "../scripts/lib/html.mjs";
+import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, esc, NAV, COPYRIGHT, SUPPORT, supportOn, supportLine, discordLine } from "../scripts/lib/html.mjs";
 import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
@@ -700,6 +700,17 @@ test("support links render only once a URL is set, and only https ones", () => {
     if (!on) assert.ok(!/patreon\.com|ko-fi\.com/i.test(html), `/${d} links to a donation site before its URL is set`);
   }
   assert.equal(/id="support"/.test(page("credits")), on, "Credits has a Support section exactly when a support URL is set");
+});
+
+test("the Discord line is in every page's footer exactly while DISCORD_URL is set", () => {
+  assert.equal(discordLine(null), "", "no line without a URL");
+  assert.ok(discordLine('https://discord.gg/a"b').includes('href="https://discord.gg/a&quot;b"'), "the URL is escaped");
+  for (const d of PAGE_DIRS) {
+    const html = pageHtml(d);
+    const footer = (html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
+    assert.equal(footer.includes(`href="${DISCORD_URL}"`), Boolean(DISCORD_URL), `/${d}: the footer's Discord link`);
+    assert.ok(!/class="discord"/.test(html.replace(footer, "")), `/${d}: the Discord line is only in the footer`);
+  }
 });
 
 test("every page has its own search title and description, and Home carries SoftwareApplication data without ratings", () => {

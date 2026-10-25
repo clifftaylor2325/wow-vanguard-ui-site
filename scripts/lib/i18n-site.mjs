@@ -35,6 +35,7 @@ export const ENGLISH_STRINGS = {
   "footer.release": "Current release: Vanguard {version} · {curseforge} and {wago} · {copyright}",
   "footer.on": "on {store}",
   "footer.soon": "coming soon on {store}",
+  "footer.discord": "Questions, bug reports and ideas: {discord}",
   "lang.label": "Language",
   "lang.offer": "Read this site in English",
   "lang.dismiss": "No thanks",
