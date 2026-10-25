@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { loadConfig } from "../scripts/lib/config.mjs";
+import { unwrapLocale } from "../scripts/lib/source.mjs";
 
 const cfg = loadConfig();
 const dist = cfg.outDir;
@@ -15,10 +16,13 @@ const NEXT = cfg.sourceRef;
 const REL = meta.current;
 const html = (p) => fs.readFileSync(path.join(dist, p, "index.html"), "utf8");
 
-// A file of the addon at a ref (empty string when missing).
+// Lua source with L["…"] lookups unwrapped (unwrapLocale); any other file as it is.
+const unwrapIf = (file, text) => (/\.lua$/i.test(file) ? unwrapLocale(text) : text);
+
+// A file of the addon at a ref (empty string when missing; a Lua file with its string table lookups read as their English, as the build reads it).
 function show(ref, file) {
   try {
-    return execFileSync("git", ["show", `${ref}:${file}`], { cwd: cfg.sourcePath, maxBuffer: 64 << 20, stdio: ["ignore", "pipe", "ignore"] }).toString();
+    return unwrapIf(file, execFileSync("git", ["show", `${ref}:${file}`], { cwd: cfg.sourcePath, maxBuffer: 64 << 20, stdio: ["ignore", "pipe", "ignore"] }).toString());
   } catch {
     return "";
   }
@@ -124,7 +128,8 @@ test("/profiles/: Edit Mode is framed as 'where your client supports Edit Mode'"
   const switching = paras.find((p) => /switches Edit Mode/.test(p));
   assert.ok(switching, "the paragraph on switching layouts");
   assert.ok(switching.startsWith("Where your client supports Edit Mode,"), switching);
-  assert.ok(prof.includes('"Edit Mode layout "') && switching.includes("“Edit Mode layout <layout>, from profile <name>.”"), "the switch message");
+  const switchText = prof.includes('"Edit Mode layout "') || prof.includes('"Edit Mode layout {layout}, from profile {profile}."');
+  assert.ok(switchText && switching.includes("“Edit Mode layout <layout>, from profile <name>.”"), "the switch message");
   assert.ok(prof.includes(", which this account doesn't have.") && text(sec).includes(", which this account doesn't have.”"), "the missing-layout message");
   const carried = text(section(html("profiles"), "string"));
   assert.ok(carried.includes("Where your client supports Edit Mode, the name of the game's Edit Mode layout"), "what the string carries");
@@ -140,7 +145,9 @@ test("/profiles/: the chat commands table has every profile action and its messa
     assert.ok(rows.some((r) => r.startsWith(`/vg profile ${key}`)), `row for /vg profile ${key}`);
   }
   const t = text(table);
-  for (const lit of literals(actions).map((s) => s.trim()).filter((s) => s.length > 3)) assert.ok(t.includes(lit), `message text "${lit}"`);
+  // A message with ns.Format slots ({profile}) is checked piece by piece, as the page shows a placeholder for each slot.
+  const pieces = literals(actions).flatMap((s) => s.split(/\{\w+\}/)).map((s) => s.trim());
+  for (const lit of pieces.filter((s) => s.length > 3)) assert.ok(t.includes(lit), `message text "${lit}"`);
   assert.ok(t.includes("Reload the UI now to apply it?"), "the reload question after copy and reset");
 });
 

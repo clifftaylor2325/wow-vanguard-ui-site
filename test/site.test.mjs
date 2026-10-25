@@ -30,10 +30,13 @@ const page = (p) => fs.readFileSync(path.join(dist, p, "index.html"), "utf8");
 const meta = JSON.parse(fs.readFileSync(cfg.releaseJson, "utf8"));
 const refs = { release: meta.current, next: cfg.sourceRef };
 
-// A file of the addon at a ref (empty string when missing).
+// Lua source with L["…"] lookups unwrapped (unwrapLocale); any other file as it is.
+const unwrapIf = (file, text) => (/\.lua$/i.test(file) ? unwrapLocale(text) : text);
+
+// A file of the addon at a ref (empty string when missing; a Lua file with its string table lookups read as their English, as the build reads it).
 function show(ref, file) {
   try {
-    return execFileSync("git", ["show", `${ref}:${file}`], { cwd: cfg.sourcePath, maxBuffer: 64 << 20, stdio: ["ignore", "pipe", "ignore"] }).toString();
+    return unwrapIf(file, execFileSync("git", ["show", `${ref}:${file}`], { cwd: cfg.sourcePath, maxBuffer: 64 << 20, stdio: ["ignore", "pipe", "ignore"] }).toString());
   } catch {
     return "";
   }

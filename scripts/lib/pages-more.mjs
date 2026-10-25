@@ -55,8 +55,14 @@ export function profilesPage(model, read) {
   says(N.opt, f.opt, 'Situations = { "Situations",');
   const ownNew = !R.prof.includes(OWN);
   const relReloadUI = saysIf(read.rel("Core/Dialog.lua") || "", f.dlg, "ReloadUI()");
-  const uiQ = q("prof", "This profile was made at UI scale %d%%%s (yours: %d%%). Use its UI scale?")
-    .replace("%d%%%s", "&lt;its scale&gt;% on a &lt;width&gt; x &lt;height&gt; screen").replace("%d%%", "&lt;yours&gt;%");
+  // /vg export's box title: written in Core/Slash.lua before the string table, by ns.ExportTitle in Core/Profiles.lua after.
+  const exportTitle = saysIf(N.slash, f.slash, "Vanguard export (") ? `${q("slash", "Vanguard export (")}profile &lt;name&gt;)${q("slash", "  Ctrl+C to copy")}`
+    : q("prof", "Vanguard export (profile ", name, ")  Ctrl+C to copy");
+  // The question with its screen part: one format string before the string table, a sentence with named slots after.
+  const uiOld = saysIf(N.prof, f.prof, "This profile was made at UI scale %d%%%s (yours: %d%%). Use its UI scale?");
+  const uiQ = uiOld ? uiOld.replace("%d%%%s", "&lt;its scale&gt;% on a &lt;width&gt; x &lt;height&gt; screen").replace("%d%%", "&lt;yours&gt;%")
+    : q("prof", "This profile was made at UI scale {scale}% on a {width} x {height} screen (yours: {mine}%). Use its UI scale?")
+      .replace("{scale}", "&lt;its scale&gt;").replace("{width}", "&lt;width&gt;").replace("{height}", "&lt;height&gt;").replace("{mine}", "&lt;yours&gt;");
   const defaultName = (N.db.match(/local DEFAULT_PROFILE = "([^"]+)"/) || [])[1];
   if (!defaultName) throw new Error(`${f.db}: the first profile's name not found in the addon source`);
   return {
@@ -102,7 +108,7 @@ ${relReloadUI ? `<p>In v${esc(v)}, if the <strong>Reload</strong> button doesn't
 <p>On the Profiles page, <strong>${L("opt", "Reset profile")}</strong> does the same as <code>/vg profile reset</code>, straight away and without asking first. The options window then shows its <strong>Reload now</strong> button.</p>` })}
 ${disclosure({ id: "share", title: `Move a profile to another account or PC`, body: `<p>You copy your profile out as a line of text, and paste that text into Vanguard on the other PC.</p>
 <ol class="steps">
-  <li><strong>Export.</strong> Click <strong>${L("opt", "Export profile")}</strong> on the Profiles page, or type <code>/vg export</code>. A window opens with the text already selected. Its title says “${q("opt", "Vanguard export  Ctrl+C to copy")}” (with <code>/vg export</code>: “${q("slash", "Vanguard export (")}profile &lt;name&gt;)${q("slash", "  Ctrl+C to copy")}”). Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy it, then click <strong>${L("dlg", "Close")}</strong>.</li>
+  <li><strong>Export.</strong> Click <strong>${L("opt", "Export profile")}</strong> on the Profiles page, or type <code>/vg export</code>. A window opens with the text already selected. Its title says “${q("opt", "Vanguard export  Ctrl+C to copy")}” (with <code>/vg export</code>: “${exportTitle}”). Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy it, then click <strong>${L("dlg", "Close")}</strong>.</li>
   <li><strong>Send it to yourself</strong> in any way you like, as long as the whole text arrives.</li>
   <li><strong>Import.</strong> On the other PC, click <strong>${L("opt", "Import")}</strong> on the Profiles page or type <code>/vg import</code>. A window titled “${q("slash", "Paste a Vanguard string, then Import")}” opens. Paste with <kbd>Ctrl</kbd>+<kbd>V</kbd> and click <strong>${L("dlg", "Import")}</strong>.</li>
 </ol>
