@@ -173,9 +173,11 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 
 ## Supporting Vanguard
 
-`SUPPORT` in `scripts/lib/html.mjs` lists the ways to support development: currently only Ko-fi (a one-off tip). A link stays off the site until its `url` is set to an `https://` address; to add another, give it an entry with a `url` of `null` until it's ready. Once one is, every page's footer gets a "Support Vanguard" line and the Credits page gets a Support section, both naming only the links that are set. Set the URLs, run `npm run check`, and the tests switch to checking for the links. Donation links stay on the website and never in the addon.
+`SUPPORT` in `scripts/lib/html.mjs` lists the ways to support development: currently only Ko-fi (a one-off tip). A link stays off the site until its `url` is set to an `https://` address; to add another, give it an entry with a `url` of `null` until it's ready. Once one is, the header gets a Support button (to the Support page) and the Credits page gets a Support section naming only the links that are set; the footer leaves support to the header. Set the URLs, run `npm run check`, and the tests switch to checking for the links. Donation links stay on the website and never in the addon.
 
-`DISCORD_URL` in `scripts/lib/html.mjs` holds the Vanguard Discord invite. While it is set, every page's footer gets a “Questions, bug reports and ideas: Discord” line (`footer.discord` in the string tables); set it to `null` and the line goes away.
+`DISCORD_URL` in `scripts/lib/html.mjs` holds the Vanguard Discord invite. While it is set, every page's footer links it next to the stores; set it to `null` and the link goes away.
+
+The footer stays at two lines: a one-sentence note on who makes Vanguard and that it is an early release, then the links line (`footerLinks()`): current release · CurseForge · Wago · Discord · copyright.
 
 ## Tests
 
@@ -190,7 +192,7 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 - that each `@font-face` lists WOFF2 first and the TTF second, keeps `font-display: swap`, and that `dist/fonts/` ships the committed WOFF2 files
 - that every internal link and anchor resolves
 - that nothing in `dist/` links to github.com
-- that the support links render only once a `SUPPORT` URL is set (https only), and only in the footer and on Credits
+- that the support links render only once a `SUPPORT` URL is set (https only), through the header's Support button and on Credits, never in the footer
 
 CI (`.github/workflows/check.yml`) runs `npm run check` on every pull request (the check `main` requires to merge) and on every push to `main` (which then deploys), and weekly, when it also runs `npm run shots` in the runner's Chrome and uploads the screenshots. A red weekly run opens an issue labelled `ci-failure`; the next green one closes it. New test files under `test/` are picked up by name (`test/*.test.mjs`).
 
