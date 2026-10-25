@@ -57,14 +57,13 @@ export const CURSEFORGE_URL = "https://www.curseforge.com/wow/addons/vanguard-ui
 // link next to each CurseForge call to action and in the footer; null hides it.
 export const WAGO_URL = "https://addons.wago.io/addons/wow-vanguard-ui";
 
-// Vanguard's Discord server: a permanent invite, linked from a line in every
-// page's footer. null takes the line off the site.
+// Vanguard's Discord server: a permanent invite, linked from a button in every
+// page's header and from the footer. null takes both off the site.
 export const DISCORD_URL = "https://discord.gg/8ChnJfyww";
 
 // Ways to support Vanguard's development, in the order shown. Each stays off the site until its
-// url is set (an https:// address): then a "Support Vanguard" line appears in every page's footer
-// and a Support section on the Credits page. Donations stay on the website, never in the
-// addon itself.
+// url is set (an https:// address): then the header gets a Support button (to the Support page)
+// and the Credits page a Support section. Donations stay on the website, never in the addon itself.
 export const SUPPORT = [
   { name: "Ko-fi", url: "https://ko-fi.com/cliftontaylor", what: "a one-off tip" },
 ];
@@ -72,22 +71,6 @@ export const SUPPORT = [
 // The support links that are switched on (their url is set).
 export function supportOn(links = SUPPORT) {
   return links.filter((l) => typeof l.url === "string" && /^https:\/\//.test(l.url));
-}
-
-// The "Support Vanguard" line: each switched-on link with what it is for; "" when none is.
-// A link's `what` is English; another language says it as support.<name>.
-export function supportLine(links = SUPPORT, loc = EN) {
-  const on = supportOn(links);
-  if (!on.length) return "";
-  const what = (l) => (loc.english ? esc(l.what) : loc.t(`support.${l.name}`));
-  const items = on.map((l) => `<a href="${esc(l.url)}" rel="noopener">${esc(l.name)}</a> <span class="small">(${what(l)})</span>`);
-  return `<p class="support">${loc.t("supportLine", { links: items.join(" · ") })}</p>`;
-}
-
-// The footer's Discord line, in the page's language; "" while DISCORD_URL is null.
-export function discordLine(url = DISCORD_URL, loc = EN) {
-  if (!url) return "";
-  return `<p class="discord">${loc.t("footer.discord", { discord: `<a href="${esc(url)}" rel="noopener">Discord</a>` })}</p>`;
 }
 
 // A short, one-sentence ask on a page where a player has just been helped, linking Ko-fi with a
@@ -103,6 +86,14 @@ export function supportAsk(campaign, lead, links = SUPPORT) {
 // The header's Support button: a link to the Support page, not straight to Ko-fi.
 export function supportButton(links = SUPPORT, loc = EN) {
   return supportOn(links).length ? `<a class="support-btn" href="/support/">${loc.t("supportButton")}</a>` : "";
+}
+
+// The header's Discord button: a speech bubble and the name, which stays "Discord" in every
+// language. On a phone only the bubble shows, so aria-label keeps the name. "" while the URL is null.
+export function discordButton(url = DISCORD_URL) {
+  if (!url) return "";
+  const bubble = `<svg class="discord-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 3.5 Q2 2 3.5 2 H12.5 Q14 2 14 3.5 V9.5 Q14 11 12.5 11 H7 L4 14 V11 H3.5 Q2 11 2 9.5 Z"/></svg>`;
+  return `<a class="discord-btn" href="${esc(url)}" rel="noopener" aria-label="Discord">${bubble}<span class="btn-label">Discord</span></a>`;
 }
 
 // The CurseForge call to action: a link once CURSEFORGE_URL is set, until then
@@ -281,11 +272,20 @@ function pageTitle(path, title, loc) {
   return `${key in loc.strings ? loc.text(key) : title} · Vanguard`;
 }
 
-// The footer's two lines: who made Vanguard, and where the current release is.
+// The footer's links line: the current release, the two stores, Discord and the copyright.
+// A store without a URL says it's coming soon; Discord drops out while DISCORD_URL is null.
+export function footerLinks(site, loc = EN, { curseforge = CURSEFORGE_URL, wago = WAGO_URL, discord = DISCORD_URL } = {}) {
+  const link = (url, name) => `<a href="${esc(url)}" rel="noopener">${name}</a>`;
+  const store = (url, name) => (url ? link(url, name) : loc.t("footer.soon", { store: name }));
+  const items = [loc.t("footer.release", { version: esc(site.version) }), store(curseforge, "CurseForge"), store(wago, "Wago")];
+  if (discord) items.push(link(discord, "Discord"));
+  return `<p class="footer-meta">${[...items, COPYRIGHT].join(" · ")}</p>`;
+}
+
+// The footer's two lines: who made Vanguard, then the links line.
 function footerLines(site, loc) {
-  const store = (url, name) => (url ? loc.t("footer.on", { store: `<a href="${esc(url)}" rel="noopener">${name}</a>` }) : loc.t("footer.soon", { store: name }));
   return `<p>${loc.t("footer.about", { author: esc(site.author) })}</p>
-    <p>${loc.t("footer.release", { version: esc(site.version), curseforge: store(CURSEFORGE_URL, "CurseForge"), wago: store(WAGO_URL, "Wago"), copyright: COPYRIGHT })}</p>`;
+    ${footerLinks(site, loc)}`;
 }
 
 // A full HTML page with the shared header, sidebar and footer. Every page, Home
@@ -324,6 +324,7 @@ ${path === "/" && loc.english && site.url ? homeJsonLd(site, description) : ""}<
 <header class="site-header">
   <div class="header-inner">
     <a class="brand" href="${loc.href("/")}">${MARK}<span>Vanguard</span></a>
+    ${discordButton()}
     ${localiseLinks(supportButton(SUPPORT, loc), loc)}
     ${toggle}
   </div>
@@ -335,8 +336,6 @@ ${main}
 <footer class="site-footer">
   ${ornament("footer-orn")}
   <div class="footer-inner">
-    ${supportLine(SUPPORT, loc)}
-    ${discordLine(DISCORD_URL, loc)}
     ${footerLines(site, loc)}
   </div>
 </footer>

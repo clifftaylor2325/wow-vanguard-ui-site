@@ -10,7 +10,7 @@ import os from "node:os";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
-import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, esc, NAV, COPYRIGHT, SUPPORT, supportOn, supportLine, discordLine } from "../scripts/lib/html.mjs";
+import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton } from "../scripts/lib/html.mjs";
 import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
@@ -614,9 +614,10 @@ test("every page, Home included, has the grouped sidebar with all 13 pages, and 
     for (const n of NAV) assert.ok(nav.includes(`href="${n.path}"`), `/${d} sidebar links ${n.path}`);
     assert.equal((nav.match(/class="nav-group-h"/g) || []).length, 5, `/${d} sidebar has five groups`);
     assert.equal((html.match(/<nav\b/g) || []).length, 1, `/${d} has one nav`);
-    // The header links only Home (the brand) and Support; the footer links no pages.
+    // The header links only Home (the brand), Discord and Support; the footer links no pages.
     const header = (html.match(/<header class="site-header">[\s\S]*?<\/header>/) || [""])[0];
-    assert.deepEqual([...header.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((m) => m[1]), supportOn().length ? ["/", "/support/"] : ["/"], `/${d}: the header links only the brand and the Support page`);
+    const want = ["/", ...(DISCORD_URL ? [DISCORD_URL] : []), ...(supportOn().length ? ["/support/"] : [])];
+    assert.deepEqual([...header.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((m) => m[1]), want, `/${d}: the header links only the brand, Discord and the Support page`);
     const footer = (html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
     assert.ok(!/class="footer-links"/.test(footer), `/${d}: the footer has no page links`);
   }
@@ -685,31 +686,38 @@ test("support links render only once a URL is set, and only https ones", () => {
     { name: "Plain", url: "http://example.com", what: "no https" },
     { name: "Empty", url: null, what: "not set" },
   ];
-  assert.deepEqual(supportOn(fake).map((l) => l.name), ["Patreon", "Ko-fi"]);
-  const line = supportLine(fake);
-  assert.ok(line.includes('href="https://www.patreon.com/example"') && line.includes(">Patreon</a>"), "Patreon renders as a link");
-  assert.ok(line.includes('href="https://ko-fi.com/a&quot;b"'), "URLs are escaped");
-  assert.ok(!/Plain|Empty/.test(line), "links without an https URL stay out");
-  assert.equal(supportLine(fake.slice(2)), "", "no line at all when nothing is switched on");
+  assert.deepEqual(supportOn(fake).map((l) => l.name), ["Patreon", "Ko-fi"], "links without an https URL stay out");
+  assert.deepEqual(supportOn(fake.slice(2)), [], "nothing is switched on without an https URL");
   const on = supportOn(SUPPORT).length > 0;
   for (const d of PAGE_DIRS) {
     const html = pageHtml(d);
     const footer = (html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
-    assert.equal(/class="support"/.test(footer), on, `/${d}: the footer's support line shows exactly when a support URL is set`);
-    assert.ok(!/class="support"/.test(html.replace(footer, "")), `/${d}: the support line is only in the footer`);
+    assert.equal(/class="support-btn"/.test(html), on, `/${d}: the header's Support button shows exactly when a support URL is set`);
+    assert.ok(!/patreon\.com|ko-fi\.com/i.test(footer), `/${d}: the footer leaves support to the header button`);
     if (!on) assert.ok(!/patreon\.com|ko-fi\.com/i.test(html), `/${d} links to a donation site before its URL is set`);
   }
   assert.equal(/id="support"/.test(page("credits")), on, "Credits has a Support section exactly when a support URL is set");
 });
 
-test("the Discord line is in every page's footer exactly while DISCORD_URL is set", () => {
-  assert.equal(discordLine(null), "", "no line without a URL");
-  assert.ok(discordLine('https://discord.gg/a"b').includes('href="https://discord.gg/a&quot;b"'), "the URL is escaped");
+test("the header's Discord button: a link while DISCORD_URL is set, named for screen readers", () => {
+  assert.equal(discordButton(null), "", "no button without a URL");
+  const btn = discordButton('https://discord.gg/a"b');
+  assert.ok(btn.includes('href="https://discord.gg/a&quot;b"') && btn.includes('aria-label="Discord"'), "escaped URL and an accessible name");
+  assert.equal(/class="discord-btn"/.test(page("")), Boolean(DISCORD_URL), "Home's header has the button exactly while the URL is set");
+});
+
+test("the footer's links line: release, stores, Discord while its URL is set, copyright", () => {
+  const site = { version: "9.9.9" };
+  const none = footerLinks(site, undefined, { curseforge: null, wago: null, discord: null });
+  assert.ok(none.includes("coming soon on CurseForge") && none.includes("coming soon on Wago"), "a store without a URL is coming soon");
+  assert.ok(!/Discord|href=/.test(none), "no Discord and no links without URLs");
+  const all = footerLinks(site, undefined, { curseforge: "https://cf.example/a", wago: "https://wago.example/b", discord: 'https://discord.gg/a"b' });
+  assert.ok(all.includes("Vanguard 9.9.9") && all.endsWith(`${COPYRIGHT}</p>`), "the release first, the copyright last");
+  assert.ok(all.includes('href="https://discord.gg/a&quot;b"'), "URLs are escaped");
   for (const d of PAGE_DIRS) {
-    const html = pageHtml(d);
-    const footer = (html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
+    const footer = (pageHtml(d).match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
     assert.equal(footer.includes(`href="${DISCORD_URL}"`), Boolean(DISCORD_URL), `/${d}: the footer's Discord link`);
-    assert.ok(!/class="discord"/.test(html.replace(footer, "")), `/${d}: the Discord line is only in the footer`);
+    assert.equal((footer.match(/<p[ >]/g) || []).length, 2, `/${d}: the footer stays at two lines`);
   }
 });
 

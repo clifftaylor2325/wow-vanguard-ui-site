@@ -89,6 +89,11 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 .support-btn { margin-left: auto; padding: 5px 12px; border: 1px solid var(--accent); border-radius: var(--r-2); color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
 .support-btn:hover, .support-btn:focus-visible { background: color-mix(in oklab, var(--accent) 16%, transparent); }
 .support-btn + .nav-toggle { margin-left: 0; }
+.discord-btn { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1px solid var(--accent); border-radius: var(--r-2); background: var(--accent); color: var(--bg); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+.discord-btn:hover, .discord-btn:focus-visible { background: color-mix(in oklab, var(--accent) 82%, var(--text)); }
+.discord-icon { width: 16px; height: 16px; fill: currentColor; flex: none; }
+.discord-btn + .support-btn, .discord-btn + .nav-toggle { margin-left: 0; }
+@media (max-width: 479px) { .header-inner { gap: var(--sp-2); } .discord-btn { padding: 5px 9px; } .discord-btn .btn-label { display: none; } .support-btn, .nav-toggle { white-space: nowrap; padding-left: 10px; padding-right: 10px; } }
 .ask { margin-top: var(--sp-4); }
 .nav-toggle { margin-left: auto; font: inherit; cursor: pointer; padding: 6px 12px; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); font-weight: 600; }
 .nav-toggle::after { content: " ▾"; color: var(--text2); }
