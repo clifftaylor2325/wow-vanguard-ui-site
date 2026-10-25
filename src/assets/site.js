@@ -1,5 +1,6 @@
 // Vanguard site: the sidebar drawer, the "show what's coming" switch, list
-// filtering (Commands, Settings), collapsed sections and copy buttons.
+// filtering (Commands, Settings), collapsed sections, copy buttons and the
+// language switcher.
 // Everything is in the HTML already; without JS every section and the full
 // lists still show.
 (function () {
@@ -8,6 +9,21 @@
   var PREF = "vg-show-next";
   var searches = [];
   var small = window.matchMedia ? window.matchMedia("(max-width: 559px)") : { matches: false };
+
+  // The page's own words when it isn't in English: the JSON the build writes
+  // into #vg-strings (scripts/lib/i18n-site.mjs). An English page has none.
+  function readStrings() {
+    var el = document.getElementById("vg-strings");
+    try { return el ? JSON.parse(el.textContent) : {}; } catch (e) { return {}; }
+  }
+  var STRINGS = readStrings();
+  var plurals = window.Intl && Intl.PluralRules ? new Intl.PluralRules(document.documentElement.lang || "en") : null;
+
+  // One of the page's strings (the English fallback when it has none), with each {name} filled in.
+  function say(key, english, values) {
+    var text = STRINGS[key] || english;
+    return text.replace(/\{(\w+)\}/g, function (all, name) { return values && values[name] !== undefined ? String(values[name]) : all; });
+  }
 
   // Whether a section marked open by default should be open now: on a phone
   // every section starts folded, so the page fits the screen.
@@ -85,11 +101,15 @@
     return false;
   }
 
-  // The counter line: "1 setting shown", "12 settings shown".
+  // The counter line: "1 setting shown", "12 settings shown". Another language
+  // has one form per plural category of its own.
   function countText(box, shown) {
     var one = box.getAttribute("data-noun-one") || "item";
     var many = box.getAttribute("data-noun") || "items";
-    return shown + " " + (shown === 1 ? one : many) + " shown";
+    var forms = STRINGS["count." + many];
+    if (!forms) return shown + " " + (shown === 1 ? one : many) + " shown";
+    var form = forms[plurals ? plurals.select(shown) : "other"] || forms.other;
+    return form.replace("{n}", String(shown));
   }
 
   // Makes the message shown under the list when nothing matches (hidden until then).
@@ -97,7 +117,8 @@
     var empty = document.createElement("div");
     empty.className = "notice search-empty";
     empty.hidden = true;
-    empty.innerHTML = '<p></p><button class="search-clear" type="button">Clear search</button>';
+    empty.innerHTML = '<p></p><button class="search-clear" type="button"></button>';
+    empty.querySelector("button").textContent = say("clear", "Clear search");
     list.parentNode.insertBefore(empty, list.nextSibling);
     return empty;
   }
@@ -107,10 +128,13 @@
     s.empty.hidden = shown > 0;
     if (shown > 0) return;
     var noun = s.box.getAttribute("data-noun") || "items";
-    var what = query ? "No " + noun + " match \u201c" + query + "\u201d." : "No " + noun + " to show.";
-    var boxes = anyUnticked(s.filters) ? "tick the Show boxes above" : "";
-    var hint = query ? " Check the spelling" + (boxes ? ", or " + boxes : ", or try fewer words") : (boxes ? " Tick the Show boxes above" : "");
-    s.empty.querySelector("p").textContent = what + hint + (hint ? "." : "");
+    var what = query ? say("noMatch", "No {noun} match \u201c{q}\u201d.", { noun: noun, q: query }) : say("noneShown", "No {noun} to show.", { noun: noun });
+    var boxes = anyUnticked(s.filters);
+    var hint = query
+      ? (boxes ? say("spellingOrBoxes", "Check the spelling, or tick the Show boxes above.") : say("spellingOrFewer", "Check the spelling, or try fewer words."))
+      : (boxes ? say("tickBoxes", "Tick the Show boxes above.") : "");
+    // Chinese puts no space after a full stop.
+    s.empty.querySelector("p").textContent = what + (hint ? (/[\u3002\uff01\uff1f]$/.test(what) ? "" : " ") + hint : "");
   }
 
   // Filters the list by the search words and boxes, then updates the counter and the no-match message.
@@ -193,7 +217,7 @@
     btn.type = "button";
     btn.className = "expand-all";
     var allOpen = function () { for (var i = 0; i < all.length; i++) if (!all[i].open) return false; return true; };
-    var label = function () { btn.textContent = allOpen() ? "Collapse all" : "Expand all"; };
+    var label = function () { btn.textContent = allOpen() ? say("collapse", "Collapse all") : say("expand", "Expand all"); };
     btn.addEventListener("click", function () {
       var open = !allOpen();
       for (var i = 0; i < all.length; i++) all[i].open = open;
@@ -239,7 +263,7 @@
     }
     var done = function () {
       var old = btn.textContent;
-      btn.textContent = "Copied";
+      btn.textContent = say("copied", "Copied");
       setTimeout(function () { btn.textContent = old; }, 1500);
     };
     if (navigator.clipboard && window.isSecureContext) {
@@ -292,9 +316,79 @@
     }
   }
 
+  // The language a reader picked (or turned down an offer of), kept in the browser.
+  var LANG = "vg-lang";
+  function remember(lang) {
+    try { localStorage.setItem(LANG, lang); } catch (e) { /* kept for this page only */ }
+  }
+  function remembered() {
+    try { return localStorage.getItem(LANG); } catch (e) { return null; }
+  }
+
+  // The switcher's option for one language the browser asks for: the same
+  // language and region, else the same language ("pt-PT" gets Brazilian
+  // Portuguese); Chinese for Taiwan, Hong Kong, Macau or zh-Hant is Traditional.
+  function optionFor(sel, want) {
+    var w = String(want).toLowerCase();
+    if (/^zh-(hant|tw|hk|mo)/.test(w)) w = "zh-tw";
+    else if (/^zh/.test(w)) w = "zh-cn";
+    var same = null;
+    for (var i = 0; i < sel.options.length; i++) {
+      var lang = sel.options[i].lang.toLowerCase();
+      if (lang === w) return sel.options[i];
+      if (!same && lang.split("-")[0] === w.split("-")[0]) same = sel.options[i];
+    }
+    return same;
+  }
+
+  // The option for the browser's first language the site has, or null.
+  function browserOption(sel) {
+    var wants = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ""];
+    for (var i = 0; i < wants.length; i++) {
+      var opt = optionFor(sel, wants[i]);
+      if (opt) return opt;
+    }
+    return null;
+  }
+
+  // Once, a small note in the reader's own language offering this page in it.
+  // It never redirects; following it or turning it down is remembered.
+  function offerLang(sel) {
+    if (remembered()) return;
+    var opt = browserOption(sel);
+    if (!opt || opt.selected) return;
+    var box = document.createElement("div");
+    box.className = "lang-offer";
+    box.lang = opt.lang;
+    var link = document.createElement("a");
+    link.href = opt.value;
+    link.textContent = opt.getAttribute("data-offer");
+    link.addEventListener("click", function () { remember(opt.lang); });
+    var no = document.createElement("button");
+    no.type = "button";
+    no.textContent = opt.getAttribute("data-dismiss");
+    no.addEventListener("click", function () { remember(document.documentElement.lang); box.remove(); });
+    box.appendChild(link);
+    box.appendChild(no);
+    document.body.appendChild(box);
+  }
+
+  // The language select at the sidebar's foot: picking one opens this page in it.
+  function wireLang() {
+    var sel = document.querySelector("select[data-lang-switch]");
+    if (!sel) return;
+    sel.addEventListener("change", function () {
+      var opt = sel.options[sel.selectedIndex];
+      remember(opt.lang);
+      location.href = opt.value + location.hash;
+    });
+    offerLang(sel);
+  }
+
   document.documentElement.classList.add("js");
   foldForSmall();
   wireNav();
+  wireLang();
   wirePref();
   document.querySelectorAll(".search[data-target]").forEach(wireSearch);
   wireGroups();

@@ -200,8 +200,9 @@ test("both searches have singular and plural nouns, a no-match message and a Cle
     assert.ok(page(d).includes(`data-noun="${many}" data-noun-one="${one}"`), `/${d} search needs data-noun and data-noun-one`);
   }
   const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
-  assert.ok(js.includes('"No " + noun + " match \\u201c" + query'), "site.js must show a no-match message");
-  assert.match(js, /<button class="search-clear" type="button">Clear search<\/button>/, "the no-match message must render a Clear search button element");
+  assert.ok(js.includes('say("noMatch", "No {noun} match \\u201c{q}\\u201d."'), "site.js must show a no-match message");
+  assert.match(js, /<button class="search-clear" type="button"><\/button>/, "the no-match message must render a Clear search button element");
+  assert.ok(js.includes('say("clear", "Clear search")'), "the Clear search button is labelled");
 });
 
 test("the Settings repeat heading describes the table rows, not cards (#3)", () => {
@@ -747,7 +748,7 @@ test("a page footer does not claim in-game testing the addon's own notes deny", 
 test("site.js adds Expand all to inner pages and opens every section for printing; print hides the chrome", () => {
   const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
   const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
-  assert.ok(js.includes('btn.className = "expand-all"') && js.includes('"Collapse all" : "Expand all"'), "site.js must add the Expand all / Collapse all button");
+  assert.ok(js.includes('btn.className = "expand-all"') && js.includes('say("collapse", "Collapse all") : say("expand", "Expand all")'), "site.js must add the Expand all / Collapse all button");
   assert.ok(js.includes('addEventListener("beforeprint"') && js.includes('addEventListener("afterprint"'), "site.js must open sections for printing and put them back");
   const print = (css.match(/@media print \{([\s\S]*?)\n\}/) || [])[1] || "";
   for (const sel of [".site-header", ".nav", ".site-footer", ".expand-all"]) assert.ok(print.includes(sel), `print hides ${sel}`);

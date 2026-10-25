@@ -19,6 +19,7 @@ import { homePage, installPage, startPage, featuresPage, commandsPage, settingsP
 import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage, supportPage, screenshotsPage } from "./lib/pages-more.mjs";
 import { longerGaps } from "./lib/features-content.mjs";
 import { faviconSvg } from "./lib/brand.mjs";
+import { publishedLocales, siteLocale, addonTranslations, alternates } from "./lib/i18n-site.mjs";
 
 const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js", "fill.js"];
 
@@ -87,11 +88,12 @@ function headersFile(stamped) {
   return `/assets/*\n  Cache-Control: no-cache\n\n${forever}\n/fonts/*\n  Cache-Control: public, max-age=604800\n\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n`;
 }
 
-// sitemap.xml: every page in NAV, under siteUrl from site.config.json. Every page is
-// regenerated from the current release, so each one's lastmod is that release's date.
-function sitemapXml(base, publishedAt) {
+// sitemap.xml: every page in NAV in every published language, under siteUrl from
+// site.config.json. Every page is regenerated from the current release, so each
+// one's lastmod is that release's date.
+function sitemapXml(base, publishedAt, locales) {
   const lastmod = new Date(publishedAt).toISOString().slice(0, 10);
-  const urls = NAV.map((n) => `  <url><loc>${base}${n.path}</loc><lastmod>${lastmod}</lastmod></url>`).join("\n");
+  const urls = locales.flatMap((l) => NAV.map((n) => alternates([l], n.path, base)[0].url)).map((url) => `  <url><loc>${url}</loc><lastmod>${lastmod}</lastmod></url>`).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 }
 
@@ -107,6 +109,13 @@ function loadRelease() {
   const rel = meta.releases.find((r) => r.tagName === meta.current);
   need(rel, `release ${meta.current} missing from the metadata; run \`npm run fetch -- --force\``);
   return { meta, release: { tag: rel.tagName, publishedAt: rel.publishedAt } };
+}
+
+// The not-found page in one language. Cloudflare Pages serves the 404.html
+// nearest the missing path, so /de/nothing gets the German one.
+function notFoundPage(site, loc) {
+  const home = `<a href="/">${loc.t("notFound.home")}</a>`;
+  return layout({ path: "/404", title: loc.english ? "Not found" : loc.text("notFound.title"), description: loc.text("notFound.title"), site, loc, translated: true, body: pageHero(loc.t("notFound.title"), loc.t("notFound.lede", { home })) });
 }
 
 // Entry point.
@@ -135,7 +144,8 @@ function main() {
   for (const f of BRAND_RASTER) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets/brand", f)));
   // The screenshots (webp, cropped and blurred where a player's name was in frame).
   for (const f of fs.readdirSync(path.join(root, "src/assets/shots"))) write(`assets/shots/${f}`, fs.readFileSync(path.join(root, "src/assets/shots", f)));
-  write("sitemap.xml", sitemapXml(base, release.publishedAt));
+  const locales = publishedLocales(cfg.locales);
+  write("sitemap.xml", sitemapXml(base, release.publishedAt, locales));
   write("robots.txt", robotsTxt(base));
   for (const f of ["site.css", "site.js", "feedback.js"]) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets", f)));
   // The feedback form's shared code: the same files the Pages Function imports (functions/_lib/handler.js).
@@ -152,12 +162,17 @@ function main() {
   site.assets = stampAssets(["assets/theme.css", "assets/site.css", "assets/site.js", "assets/feedback.js", "assets/favicon.svg"]);
   write("_headers", headersFile(Object.keys(site.assets)));
 
-  const pages = [
-    homePage(model), installPage(model), startPage(model, read), featuresPage(model), screenshotsPage(model), commandsPage(model), settingsPage(model, read),
-    profilesPage(model, read), helpPage(model, read), feedbackPage(model, read), changelogPage(model), creditsPage(model, site), supportPage(),
-  ];
-  for (const p of pages) write(path.join(p.path, "index.html"), layout({ ...p, site }));
-  write("404.html", layout({ path: "/404", title: "Not found", description: "Page not found", site, body: pageHero("Page not found", `Try the <a href="/">home page</a>.`) }));
+  const readers = [relReader, nextReader];
+  let pages = [];
+  for (const locale of locales) {
+    const loc = siteLocale(locale, addonTranslations(readers, locale.addon));
+    pages = [
+      homePage(model), installPage(model), startPage(model, read), featuresPage(model, loc), screenshotsPage(model), commandsPage(model, loc), settingsPage(model, read, loc),
+      profilesPage(model, read), helpPage(model, read), feedbackPage(model, read), changelogPage(model), creditsPage(model, site), supportPage(),
+    ];
+    for (const p of pages) write(path.join(loc.prefix, p.path, "index.html"), layout({ ...p, site, loc, alts: alternates(locales, p.path, base) }));
+    write(path.join(loc.prefix, "404.html"), notFoundPage(site, loc));
+  }
 
   const data = {
     source: { release: release.tag, releaseCommit: rel.commit, nextCommit: next.commit },
@@ -168,7 +183,7 @@ function main() {
   };
   write("site-data.json", JSON.stringify(data, null, 1));
   const nCmd = new Set([...model.commands.relKeys, ...model.commands.nextKeys]).size;
-  console.log(`built ${pages.length} pages into ${path.relative(process.cwd(), cfg.outDir)}/ · release ${release.tag} (${rel.commit.slice(0, 7)}) · next ${next.commit.slice(0, 7)} · ${nCmd} command words · ${model.modules.length} modules · ${model.pages.length} options pages`);
+  console.log(`built ${pages.length} pages${locales.length > 1 ? ` in ${locales.length} languages (${locales.map((l) => l.code).join(", ")})` : ""} into ${path.relative(process.cwd(), cfg.outDir)}/ · release ${release.tag} (${rel.commit.slice(0, 7)}) · next ${next.commit.slice(0, 7)} · ${nCmd} command words · ${model.modules.length} modules · ${model.pages.length} options pages`);
 }
 
 main();

@@ -10,6 +10,11 @@
 // Chrome/Chromium. Screenshots go to SHOTS_DIR (default: shots/).
 // It also checks the skip link with the keyboard on every page: the first Tab
 // must focus it, and Enter must move focus to <main id="main">.
+// When the build publishes other languages (SITE_LOCALES, or `locales` in
+// site.config.json), it checks each of them too: every page fits one screen,
+// nothing scrolls sideways, the search speaks that language, the language
+// select opens the same page in it, and a browser that asks for the language
+// is offered it once.
 // The local server listens on SHOTS_PORT (default: any free port).
 //   npm run shots
 // It also walks the feedback form (field errors, the feature fields, the
@@ -27,6 +32,7 @@ import { chromium } from "playwright-core";
 import { loadConfig, root } from "./lib/config.mjs";
 import { serve } from "./serve.mjs";
 import { NAV } from "./lib/html.mjs";
+import { LOCALES } from "./lib/i18n-site.mjs";
 import { mockFeedback, routeFeedbackApi } from "./lib/feedback-mock.mjs";
 
 // msedge.exe in the usual Windows install folders (none on other systems).
@@ -208,6 +214,66 @@ async function feedbackFlow(browser, base, failures, distDir) {
   }
 }
 
+// The languages the build published besides English.
+function builtLocales(dir) {
+  return LOCALES.filter((l) => fs.existsSync(path.join(dir, l.code, "index.html")));
+}
+
+// The no-match message and the counter on a page in another language: neither is English.
+async function checkLocaleSearch(page, base, loc, failures) {
+  await page.goto(`${base}/${loc.code}/settings/`, { waitUntil: "load" });
+  const r = await searchFor(page, "zzqqxx");
+  const want = loc.strings["js.noMatch"].replace("{q}", "zzqqxx");
+  report(failures, `/${loc.code}/settings/ "zzqqxx": ${r.count}; message: ${r.empty}`, !/ shown$/.test(r.count) && (r.empty || "").startsWith(want));
+}
+
+// The language select opens the same page in the language picked, keeping the section link.
+async function checkLangSelect(page, base, loc, failures) {
+  await page.goto(`${base}/settings/#general`, { waitUntil: "load" });
+  await page.selectOption("#lang-select", `/${loc.code}/settings/`);
+  await page.waitForURL(`**/${loc.code}/settings/**`, { timeout: 5000 }).catch(() => {});
+  const r = await page.evaluate(() => [location.pathname + location.hash, document.documentElement.lang]);
+  report(failures, `language select on /settings/#general opens ${r[0]} (lang ${r[1]})`, r[0] === `/${loc.code}/settings/#general` && r[1] === loc.lang);
+}
+
+// A browser asking for the language gets one offer on an English page, and none once it is turned down.
+async function checkLangOffer(browser, base, loc, failures) {
+  const context = await browser.newContext({ locale: loc.lang, viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+  await page.goto(`${base}/install/`, { waitUntil: "load" });
+  const offer = await page.evaluate(() => document.querySelector(".lang-offer a")?.textContent || null);
+  report(failures, `a ${loc.lang} browser on /install/ is offered "${offer}"`, offer === loc.strings["lang.offer"]);
+  if (offer) await page.click(".lang-offer button");
+  await page.goto(`${base}/start/`, { waitUntil: "load" });
+  const again = await page.evaluate(() => !!document.querySelector(".lang-offer"));
+  report(failures, `after "${loc.strings["lang.dismiss"]}" no offer on /start/`, !again);
+  await context.close();
+}
+
+// Every check of one published language, with screenshots of its Settings and Commands.
+async function checkLanguage(browser, base, loc, failures) {
+  for (const [width, height] of [[1280, 800], [390, 844]]) {
+    const page = await browser.newPage({ viewport: { width, height } });
+    await stubFeedbackApi(page);
+    for (const n of NAV.filter((x) => x.path !== "/feedback/")) {
+      await page.goto(`${base}/${loc.code}${n.path}`, { waitUntil: "load" });
+      await page.evaluate(() => document.fonts.ready);
+      await fitsOneScreen(page, `/${loc.code}${n.path} at ${width}x${height}`, failures);
+      if (width === 390) await noSideScroll(page, `/${loc.code}${n.path} at ${width}px`, failures);
+    }
+    for (const name of ["settings", "commands"]) {
+      await page.goto(`${base}/${loc.code}/${name}/`, { waitUntil: "load" });
+      const file = path.join(outDir, `${loc.code}-${name}-${width}.png`);
+      await page.screenshot({ path: file, fullPage: true });
+      console.log(`shot ${path.relative(process.cwd(), file)}`);
+    }
+    if (width === 390) await checkLocaleSearch(page, base, loc, failures);
+    else await checkLangSelect(page, base, loc, failures);
+    await page.close();
+  }
+  await checkLangOffer(browser, base, loc, failures);
+}
+
 // Entry point.
 async function main() {
   const server = await serve(loadConfig().outDir, Number(process.env.SHOTS_PORT || 0));
@@ -253,6 +319,7 @@ async function main() {
       await page.close();
     }
     await checkSearch(browser, base, failures);
+    for (const loc of builtLocales(loadConfig().outDir)) await checkLanguage(browser, base, loc, failures);
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
       await stubFeedbackApi(page);

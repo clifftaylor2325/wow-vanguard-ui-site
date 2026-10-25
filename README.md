@@ -34,7 +34,7 @@ FUI_SRC=/path/to/wow-vanguard-ui npm run check
 
 `npm run shots` looks for Chrome in the usual places; point `CHROME_PATH` at another Chromium browser (Edge works) if it isn't found. `SHOTS_PORT` picks the port of its local server (default: any free port) and `SHOTS_DIR` where the screenshots go (default: `shots/`, git-ignored). On every page it also presses Tab and Enter for real: the first Tab must focus the skip link, and Enter must move focus to `<main id="main">`.
 
-Other overrides: `FUI_REF` (the source commit to read for the next release) and `FUI_RELEASE` (a release tag instead of `latest`).
+Other overrides: `FUI_REF` (the source commit to read for the next release) and `FUI_RELEASE` (a release tag instead of `latest`). `SITE_LOCALES` builds other languages than `locales` lists (comma separated codes, or `all`), and `SITE_OUT` builds somewhere other than `dist/`: `SITE_LOCALES=all SITE_OUT=/tmp/site npm run build` and then `SITE_OUT=/tmp/site npm run shots` previews and checks every language without touching `dist/`.
 
 ## How content is generated
 
@@ -52,6 +52,17 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
    - Troubleshooting & FAQ (`scripts/lib/help-content.mjs`): every message an answer quotes is read from the addon at build time, each with its file. An answer whose message can't be found in the code is left off the page instead of guessed.
    - Changelog (`scripts/lib/changelog-content.mjs`): each release in player language, and "What's coming in the next release" from the changes merged since the current release. Every line lists the merged pull requests it came from (never shown on the site). The next-release part only shows while the release it was written after is still the current one.
 5. The pages (`scripts/lib/pages-*.mjs`) are written into `dist/`, with the Fira Sans Condensed fonts (and their OFL license) from the addon. No zip is copied into `dist/`.
+
+## Languages
+
+English is at the site root. Each other language has a folder with the same paths below it (`/de/settings/`), and its own `404.html`. `locales` in `site.config.json` lists the languages published besides English, by folder code: `de`, `fr`, `es`, `es-mx`, `it`, `pt-br`, `ru`, `ko`, `zh-cn`, `zh-tw`. It is empty until a language's strings have been reviewed by a native speaker, so the live site is English only and has no switcher or `hreflang` yet.
+
+- `scripts/lib/i18n-site.mjs` holds the languages and the English site strings (the sidebar, header, footer, buttons, search texts, and the Settings, Commands and Features text around the addon's own); `scripts/lib/i18n-strings-*.mjs` hold the other languages' drafts. Every language has every key, the same placeholders, and one form per plural category of its language (`test/i18n.test.mjs`).
+- The addon's own words (option captions, page titles, choices, help lines, module names) come from the addon's `Locales/<locale>.lua` at both refs; a text with no translation shows in English, as in the game.
+- Settings, Commands and the top of Features are translated. Every other page keeps its English body, marked `lang="en"`, inside the translated sidebar, header and footer. Help and Support come later; Changelog and the module descriptions stay English.
+- Each page gets `<html lang>`, a `rel="alternate" hreflang` link for every published language plus `x-default` (English), and a sitemap entry per language. Links inside a language's pages stay in its folder.
+- The language select sits at the foot of the sidebar (plain links without JavaScript). Once, a reader whose browser asks for a published language is offered it in a small note; the site never redirects. The choice is kept in the browser as `vg-lang`.
+- Search works on each page as before; on a translated page it matches the translated and the English words.
 
 ## Screenshots
 
@@ -180,6 +191,8 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 - that the support links render only once a `SUPPORT` URL is set (https only), and only in the footer and on Credits
 
 CI (`.github/workflows/check.yml`) runs `npm run check` on every pull request (the check `main` requires to merge) and on every push to `main` (which then deploys), and weekly, when it also runs `npm run shots` in the runner's Chrome and uploads the screenshots. A red weekly run opens an issue labelled `ci-failure`; the next green one closes it. New test files under `test/` are picked up by name (`test/*.test.mjs`).
+
+`test/i18n.test.mjs` builds the site with every language into a temporary folder and checks each page's `lang`, `hreflang`, canonical link and sitemap entry, the switcher, that no English is left in a language's sidebar, header, footer or translated pages, that links stay in the language's folder, and that the addon's translations reach Settings and Commands with English as the fallback. With languages published, `npm run shots` also checks each one: one screen, no sideways scroll, the search's words, the select and the offer.
 
 `test/feedback.test.mjs` covers the feedback form: sanitizing, the parser (with real `/vg status` and `/vg errors` output in `test/fixtures/`), fingerprints, the issue text and checks, hostile markdown in every free-text field, and the Function's paths (create, duplicate → comment with its own reference, spam, Turnstile, rate caps including 10 sends at once, the turn of the hour and midnight, missing settings) against a mock GitHub and an in-memory KV (`scripts/lib/memory-kv.mjs`). It never calls GitHub.
 
