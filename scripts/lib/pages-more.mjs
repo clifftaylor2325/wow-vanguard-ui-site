@@ -149,10 +149,10 @@ ${disclosure({ id: "account-wide", title: `Shared by every character on your acc
 // ------------------------------------------------------------------ Troubleshooting
 
 // Turns a captured Lua string into display text: each join (" .. x .. ")
-// becomes the next placeholder, <name> by default, and each %s an ellipsis.
+// becomes the next placeholder, <name> by default, and each %s or ns.Format slot ({name}) an ellipsis.
 function luaText(text, names = []) {
   let i = 0;
-  return text.replace(/" \.\. [\w.():]+ \.\. "/g, () => `<${names[i++] || "name"}>`).replace(/%s/g, "…");
+  return text.replace(/" \.\. [\w.():]+ \.\. "/g, () => `<${names[i++] || "name"}>`).replace(/%s|\{\w+\}/g, "…");
 }
 
 // One fact from FACTS: the captured text, or null when it isn't in the code

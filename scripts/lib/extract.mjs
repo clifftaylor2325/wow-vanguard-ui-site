@@ -189,12 +189,28 @@ function makeRow(ctx, kind, caption, extraParts, loop) {
   return row;
 }
 
-// Reads a caption string at code[i] and an optional `.. name` after it.
+// The start of a caption written as ns.Format("…{slot}…", { slot = value }).
+const FORMAT_CALL = /^ns\.Format\(\s*/;
+// How a caption's placeholder reads on the site, by its name.
+const SHOWN = { n: "n", p: "phrase" };
+
+// Reads an ns.Format caption's string at code[i]: each {slot} shows as <slot>, and its variable is the identifier
+// the first slot's value starts with ({ n = n } gives n), so a row in a numeric loop is still seen as one.
+function formatCaption(m, i) {
+  const s = readString(m.code, i);
+  const values = (m.code.slice(s.end).match(/^\s*,\s*\{([^}]*)\}/) || [])[1] || "";
+  const first = (s.value.match(/\{(\w+)\}/) || [])[1];
+  const variable = first ? (values.match(new RegExp(`\\b${first}\\s*=\\s*([A-Za-z_]\\w*)`)) || [])[1] || null : null;
+  return { caption: s.value.replace(/\{(\w+)\}/g, (_, name) => `<${SHOWN[name] || name}>`), variable, end: s.end };
+}
+
+// Reads a caption string at code[i] and an optional `.. name` after it, or an ns.Format caption (formatCaption).
 function captionAt(m, i) {
+  const call = m.code.slice(i).match(FORMAT_CALL);
+  if (call) return formatCaption(m, i + call[0].length);
   const s = readString(m.code, i);
   const cat = m.code.slice(s.end).match(/^\s*\.\.\s*([A-Za-z_]\w*)/);
-  const shown = { n: "n", p: "phrase" };
-  return { caption: cat ? `${s.value}<${shown[cat[1]] || cat[1]}>` : s.value, variable: cat ? cat[1] : null, end: s.end };
+  return { caption: cat ? `${s.value}<${SHOWN[cat[1]] || cat[1]}>` : s.value, variable: cat ? cat[1] : null, end: s.end };
 }
 
 // Expands the rows reachable from code[from..to): row literals, check(...)
@@ -202,8 +218,8 @@ function captionAt(m, i) {
 function expandRows(ctx, from, to, stack = [], loop = null) {
   const { m, defs } = ctx;
   const found = [];
-  const lit = /\{\s*"(header|check|cycle|slider|button|text)"\s*,\s*(?=["'])/g;
-  const chk = /\bcheck\(\s*(?=["'])/g;
+  const lit = /\{\s*"(header|check|cycle|slider|button|text)"\s*,\s*(?=["']|ns\.Format\()/g;
+  const chk = /\bcheck\(\s*(?=["']|ns\.Format\()/g;
   const vis = /\b(?:visibilityRows|ns\.Visibility\.Rows)\(\s*(?=["'])/g;
   const ref = /\b[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*\b/g;
   for (const [re, type] of [[lit, "lit"], [chk, "check"], [vis, "vis"]]) {
@@ -236,7 +252,7 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
     const capIdx = f.type === "lit" ? 1 : 0;
     if (!parts[capIdx]) continue;
     const capStart = parts[capIdx][0] + (m.code.slice(parts[capIdx][0]).length - m.code.slice(parts[capIdx][0]).trimStart().length);
-    if (!/["']/.test(m.code[capStart])) continue;
+    if (!/["']/.test(m.code[capStart]) && !FORMAT_CALL.test(m.code.slice(capStart))) continue;
     const cap = captionAt(m, capStart);
     const kind = f.type === "lit" ? f.h[1] : f.type === "check" ? "check" : "visibility";
     const loopFor = cap.variable && here && here.variable === cap.variable ? here : null;

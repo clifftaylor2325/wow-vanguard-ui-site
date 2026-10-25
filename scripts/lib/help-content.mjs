@@ -6,7 +6,7 @@
 // [key, where, file, regex with one capture, placeholder names].
 // where: "rel" (the current release, which the page describes), "next" (the
 // pinned newer source) or "both" (must read the same in both). Lua joins (" .. x .. ") in a capture
-// become <name>, <layout>, ... in order, and %s becomes "…".
+// become <name>, <layout>, ... in order, and %s or an ns.Format slot ({profile}) becomes "…".
 export const FACTS = [
   ["unlockMsg", "both", "Core/Slash.lua", /chat\("(Unlocked: drag the handles\. \/vg lock when done\.)"\)/],
   ["resetAll", "both", "Core/Options.lua", /"button", "(Reset all positions)"/],
@@ -16,7 +16,7 @@ export const FACTS = [
   ["keepDefault", "both", "README.md", /(Turn any module off under Modules to keep the default one\.)/],
   ["errorsHelp", "rel", "Core/Slash.lua", /"errors \[clear\]\s+(opens the errors Vanguard caught this session, with stacks and counts, in the copy window \(for a bug report\))/],
   ["profResetAsk", "both", "Core/Options.lua", /confirmReset\("(Reset this profile\?)", "Reset"/],
-  ["profReset", "both", "Core/Options.lua", /"(Profile %s as it was is saved as profile %s\.)"/],
+  ["profReset", "both", "Core/Options.lua", /"(Profile (?:%s|\{\w+\}) as it was is saved as profile (?:%s|\{\w+\})\.)"/],
   ["nextSwitch", "rel", "Core/Slash.lua", /OfferReload\("(This character will use profile " \.\. name \.\. " after the reload\.)"\)/, ["name"]],
   ["importFailed", "both", "Core/Slash.lua", /chat\("(Import failed:) "/],
   ["unread", "both", "README.md", /(go to the bars unread)/],
