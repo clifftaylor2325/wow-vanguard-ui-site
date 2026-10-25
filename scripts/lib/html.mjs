@@ -57,8 +57,8 @@ export const CURSEFORGE_URL = "https://www.curseforge.com/wow/addons/vanguard-ui
 // link next to each CurseForge call to action and in the footer; null hides it.
 export const WAGO_URL = "https://addons.wago.io/addons/wow-vanguard-ui";
 
-// Vanguard's Discord server: a permanent invite, linked from every page's
-// footer. null takes the link off the site.
+// Vanguard's Discord server: a permanent invite, linked from a button in every
+// page's header and from the footer. null takes both off the site.
 export const DISCORD_URL = "https://discord.gg/8ChnJfyww";
 
 // Ways to support Vanguard's development, in the order shown. Each stays off the site until its
@@ -86,6 +86,14 @@ export function supportAsk(campaign, lead, links = SUPPORT) {
 // The header's Support button: a link to the Support page, not straight to Ko-fi.
 export function supportButton(links = SUPPORT, loc = EN) {
   return supportOn(links).length ? `<a class="support-btn" href="/support/">${loc.t("supportButton")}</a>` : "";
+}
+
+// The header's Discord button: a speech bubble and the name, which stays "Discord" in every
+// language. On a phone only the bubble shows, so aria-label keeps the name. "" while the URL is null.
+export function discordButton(url = DISCORD_URL) {
+  if (!url) return "";
+  const bubble = `<svg class="discord-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 3.5 Q2 2 3.5 2 H12.5 Q14 2 14 3.5 V9.5 Q14 11 12.5 11 H7 L4 14 V11 H3.5 Q2 11 2 9.5 Z"/></svg>`;
+  return `<a class="discord-btn" href="${esc(url)}" rel="noopener" aria-label="Discord">${bubble}<span class="btn-label">Discord</span></a>`;
 }
 
 // The CurseForge call to action: a link once CURSEFORGE_URL is set, until then
@@ -316,6 +324,7 @@ ${path === "/" && loc.english && site.url ? homeJsonLd(site, description) : ""}<
 <header class="site-header">
   <div class="header-inner">
     <a class="brand" href="${loc.href("/")}">${MARK}<span>Vanguard</span></a>
+    ${discordButton()}
     ${localiseLinks(supportButton(SUPPORT, loc), loc)}
     ${toggle}
   </div>

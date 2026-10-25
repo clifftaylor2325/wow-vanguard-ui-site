@@ -10,7 +10,7 @@ import os from "node:os";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
-import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks } from "../scripts/lib/html.mjs";
+import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton } from "../scripts/lib/html.mjs";
 import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
@@ -614,9 +614,10 @@ test("every page, Home included, has the grouped sidebar with all 13 pages, and 
     for (const n of NAV) assert.ok(nav.includes(`href="${n.path}"`), `/${d} sidebar links ${n.path}`);
     assert.equal((nav.match(/class="nav-group-h"/g) || []).length, 5, `/${d} sidebar has five groups`);
     assert.equal((html.match(/<nav\b/g) || []).length, 1, `/${d} has one nav`);
-    // The header links only Home (the brand) and Support; the footer links no pages.
+    // The header links only Home (the brand), Discord and Support; the footer links no pages.
     const header = (html.match(/<header class="site-header">[\s\S]*?<\/header>/) || [""])[0];
-    assert.deepEqual([...header.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((m) => m[1]), supportOn().length ? ["/", "/support/"] : ["/"], `/${d}: the header links only the brand and the Support page`);
+    const want = ["/", ...(DISCORD_URL ? [DISCORD_URL] : []), ...(supportOn().length ? ["/support/"] : [])];
+    assert.deepEqual([...header.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((m) => m[1]), want, `/${d}: the header links only the brand, Discord and the Support page`);
     const footer = (html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
     assert.ok(!/class="footer-links"/.test(footer), `/${d}: the footer has no page links`);
   }
@@ -696,6 +697,13 @@ test("support links render only once a URL is set, and only https ones", () => {
     if (!on) assert.ok(!/patreon\.com|ko-fi\.com/i.test(html), `/${d} links to a donation site before its URL is set`);
   }
   assert.equal(/id="support"/.test(page("credits")), on, "Credits has a Support section exactly when a support URL is set");
+});
+
+test("the header's Discord button: a link while DISCORD_URL is set, named for screen readers", () => {
+  assert.equal(discordButton(null), "", "no button without a URL");
+  const btn = discordButton('https://discord.gg/a"b');
+  assert.ok(btn.includes('href="https://discord.gg/a&quot;b"') && btn.includes('aria-label="Discord"'), "escaped URL and an accessible name");
+  assert.equal(/class="discord-btn"/.test(page("")), Boolean(DISCORD_URL), "Home's header has the button exactly while the URL is set");
 });
 
 test("the footer's links line: release, stores, Discord while its URL is set, copyright", () => {

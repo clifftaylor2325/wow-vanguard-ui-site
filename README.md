@@ -4,7 +4,7 @@ Author: Clifton Taylor.
 
 The player website for [Vanguard](https://github.com/clifftaylor2325/wow-vanguard-ui), a UI addon for WoW Forever. Vanguard is on CurseForge and Wago, so the site doesn't host or offer the addon as a download: it points players to those two listings instead (a "Coming soon" badge shows for a store whose URL constant in `scripts/lib/html.mjs` is `null`). It's a static site (plain HTML and CSS, plus a little vanilla JS for search, copy buttons and the mobile menu). It is **generated from the addon's own source**, so the commands, modules, settings, colors and release facts on the site always match the addon.
 
-Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Brass colors), Install & Update, Getting started, Features, Screenshots, Commands (searchable), Settings (searchable), Profiles & sharing, Troubleshooting & FAQ, Feedback, Changelog, Credits & license. Every page, Home included, shares one grouped sidebar (Get started, Learn, Reference, Help, About), the only nav: the header holds the brand and the footer no links. Each page opens on one screen: a slim title band, a strip of facts, and folded sections the reader opens (see Page look).
+Pages: Home (a hero drawn in pure CSS and inline SVG in the addon's Slate & Brass colors), Install & Update, Getting started, Features, Screenshots, Commands (searchable), Settings (searchable), Profiles & sharing, Troubleshooting & FAQ, Feedback, Changelog, Credits & license. Every page, Home included, shares one grouped sidebar (Get started, Learn, Reference, Help, About), the only nav: the header holds the brand, a Discord button and a Support button, and the footer links no pages. Each page opens on one screen: a slim title band, a strip of facts, and folded sections the reader opens (see Page look).
 
 ## Requirements
 
@@ -175,7 +175,7 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 
 `SUPPORT` in `scripts/lib/html.mjs` lists the ways to support development: currently only Ko-fi (a one-off tip). A link stays off the site until its `url` is set to an `https://` address; to add another, give it an entry with a `url` of `null` until it's ready. Once one is, the header gets a Support button (to the Support page) and the Credits page gets a Support section naming only the links that are set; the footer leaves support to the header. Set the URLs, run `npm run check`, and the tests switch to checking for the links. Donation links stay on the website and never in the addon.
 
-`DISCORD_URL` in `scripts/lib/html.mjs` holds the Vanguard Discord invite. While it is set, every page's footer links it next to the stores; set it to `null` and the link goes away.
+`DISCORD_URL` in `scripts/lib/html.mjs` holds the Vanguard Discord invite. While it is set, every page's header has a Discord button (`discordButton()`: a speech bubble and the name, the bubble alone on a phone) and the footer links it next to the stores; set it to `null` and both go away.
 
 The footer stays at two lines: a one-sentence note on who makes Vanguard and that it is an early release, then the links line (`footerLinks()`): current release · CurseForge · Wago · Discord · copyright.
 
@@ -188,7 +188,7 @@ The footer stays at two lines: a one-sentence note on who makes Vanguard and tha
 - that the home page's decoration is `aria-hidden` and its UI mock is labeled as an illustration
 - one `h1` per page and no duplicate ids
 - that the skip link is the first focusable element and targets `<main id="main">`, and that every inner page opens with the shared page hero
-- that every page, Home included, has the grouped sidebar with every page and no other nav (the header links only the brand, the footer no pages), that nothing is tagged "In vX", that every page hiding next-release parts has the switch that shows them, and that folded sections start closed unless marked open by default (Features and Settings start fully folded)
+- that every page, Home included, has the grouped sidebar with every page and no other nav (the header links only the brand, Discord and Support, the footer no pages), that nothing is tagged "In vX", that every page hiding next-release parts has the switch that shows them, and that folded sections start closed unless marked open by default (Features and Settings start fully folded)
 - that each `@font-face` lists WOFF2 first and the TTF second, keeps `font-display: swap`, and that `dist/fonts/` ships the committed WOFF2 files
 - that every internal link and anchor resolves
 - that nothing in `dist/` links to github.com
