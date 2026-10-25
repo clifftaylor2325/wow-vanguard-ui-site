@@ -16,7 +16,7 @@ import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 import { featuresPage, startsOff } from "../scripts/lib/pages-main.mjs";
 import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
-import { gitReader } from "../scripts/lib/source.mjs";
+import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
 import { extractAddon } from "../scripts/lib/extract.mjs";
 import { buildModel } from "../scripts/lib/model.mjs";
 import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
@@ -753,4 +753,22 @@ test("site.js adds Expand all to inner pages and opens every section for printin
   for (const sel of [".site-header", ".nav", ".site-footer", ".expand-all"]) assert.ok(print.includes(sel), `print hides ${sel}`);
   assert.match(css, /\.expand-all \{ position: absolute;/, "the button sits in the title block's corner, taking no height");
   assert.ok(page("install").includes('class="page-hero"'), "inner pages keep the title block the button goes in");
+});
+
+// The addon's string table lookups read as their English keys, so wrapping a
+// label in L["…"] doesn't change what the site extracts.
+test("the addon's L[\"…\"] lookups unwrap to their English literal", () => {
+  assert.equal(unwrapLocale(`check(L["Experience bar"], "xp") ns.Chat(ns.L['It\\'s off'])`), `check("Experience bar", "xp") ns.Chat('It\\'s off')`);
+  assert.equal(unwrapLocale(`ns.Format(L["{n} \\"items\\""], { n = 1 })`), `ns.Format("{n} \\"items\\"", { n = 1 })`, "an escaped quote stays inside the key");
+  assert.equal(unwrapLocale(`FALL[1] t.L["x"] L[key]`), `FALL[1] t.L["x"] L[key]`, "other tables' fields and a lookup by variable are left alone");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vg-l-"));
+  const git = (...args) => execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@t", ...args], { cwd: dir });
+  git("init", "-q");
+  fs.writeFileSync(path.join(dir, "A.lua"), `check(L["Bags"])`);
+  fs.writeFileSync(path.join(dir, "A.md"), `L["Bags"]`);
+  git("add", ".");
+  git("commit", "-qm", "t");
+  const reader = gitReader(dir, "HEAD");
+  assert.deepEqual([reader.read("A.lua"), reader.read("A.md")], [`check("Bags")`, `L["Bags"]`], "Lua files are read unwrapped, other files as they are");
+  fs.rmSync(dir, { recursive: true, force: true });
 });
