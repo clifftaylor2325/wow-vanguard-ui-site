@@ -57,6 +57,10 @@ export const CURSEFORGE_URL = "https://www.curseforge.com/wow/addons/vanguard-ui
 // link next to each CurseForge call to action and in the footer; null hides it.
 export const WAGO_URL = "https://addons.wago.io/addons/wow-vanguard-ui";
 
+// Vanguard's Discord server: a permanent invite, linked from a line in every
+// page's footer. null takes the line off the site.
+export const DISCORD_URL = "https://discord.gg/8ChnJfyww";
+
 // Ways to support Vanguard's development, in the order shown. Each stays off the site until its
 // url is set (an https:// address): then a "Support Vanguard" line appears in every page's footer
 // and a Support section on the Credits page. Donations stay on the website, never in the
@@ -78,6 +82,12 @@ export function supportLine(links = SUPPORT, loc = EN) {
   const what = (l) => (loc.english ? esc(l.what) : loc.t(`support.${l.name}`));
   const items = on.map((l) => `<a href="${esc(l.url)}" rel="noopener">${esc(l.name)}</a> <span class="small">(${what(l)})</span>`);
   return `<p class="support">${loc.t("supportLine", { links: items.join(" · ") })}</p>`;
+}
+
+// The footer's Discord line, in the page's language; "" while DISCORD_URL is null.
+export function discordLine(url = DISCORD_URL, loc = EN) {
+  if (!url) return "";
+  return `<p class="discord">${loc.t("footer.discord", { discord: `<a href="${esc(url)}" rel="noopener">Discord</a>` })}</p>`;
 }
 
 // A short, one-sentence ask on a page where a player has just been helped, linking Ko-fi with a
@@ -326,6 +336,7 @@ ${main}
   ${ornament("footer-orn")}
   <div class="footer-inner">
     ${supportLine(SUPPORT, loc)}
+    ${discordLine(DISCORD_URL, loc)}
     ${footerLines(site, loc)}
   </div>
 </footer>
