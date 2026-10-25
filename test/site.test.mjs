@@ -17,7 +17,7 @@ import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 import { featuresPage, startsOff } from "../scripts/lib/pages-main.mjs";
 import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
-import { extractAddon } from "../scripts/lib/extract.mjs";
+import { extractAddon, extractPages } from "../scripts/lib/extract.mjs";
 import { buildModel } from "../scripts/lib/model.mjs";
 import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
 
@@ -753,6 +753,27 @@ test("site.js adds Expand all to inner pages and opens every section for printin
   for (const sel of [".site-header", ".nav", ".site-footer", ".expand-all"]) assert.ok(print.includes(sel), `print hides ${sel}`);
   assert.match(css, /\.expand-all \{ position: absolute;/, "the button sits in the title block's corner, taking no height");
   assert.ok(page("install").includes('class="page-hero"'), "inner pages keep the title block the button goes in");
+});
+
+// A row caption the addon writes with ns.Format reads like one it joins with "..":
+// each {slot} as <slot>, still repeated over its loop.
+test("an option row's ns.Format caption reads with <slot> placeholders and keeps its loop", () => {
+  const lua = unwrapLocale(`local ADDON, ns = ...
+local function barRows()
+  local rows = {}
+  for n = 1, 8 do rows[#rows + 1] = check(ns.Format(L["Show bar {n}"], { n = n }), barSetting(n)) end
+  rows[#rows + 1] = { "button", ns.Format(L["Remove: {item}"], { item = item }), remove }
+  return rows
+end
+local PAGES = { { key = "bars", title = L["Bars"], rows = barRows } }`);
+  const [page] = extractPages({ read: (file) => (file === "Core/Options.lua" ? lua : null) }, ["Core/Options.lua"], []);
+  assert.deepEqual(page.rows.map((r) => [r.kind, r.caption, r.loop?.variable ?? null]), [["check", "Show bar <n>", "n"], ["button", "Remove: <item>", null]]);
+});
+
+test("the profile reset quote is found written with %s or with ns.Format slots", () => {
+  const re = FACTS.find((f) => f[0] === "profReset")[3];
+  assert.equal(`ns.Chat(string.format("Profile %s as it was is saved as profile %s.", a, b))`.match(re)?.[1], "Profile %s as it was is saved as profile %s.");
+  assert.equal(unwrapLocale(`ns.Chat(ns.Format(L["Profile {profile} as it was is saved as profile {backup}."], v))`).match(re)?.[1], "Profile {profile} as it was is saved as profile {backup}.");
 });
 
 // The addon's string table lookups read as their English keys, so wrapping a
