@@ -90,7 +90,7 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 /* The language button: a globe and the code, opening this page's languages under it. Under
    900px only; wider, the select at the sidebar's foot is always in view. */
 .lang-menu { position: relative; flex: none; margin-left: auto; }
-.lang-menu > summary { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; list-style: none; cursor: pointer; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); font-weight: 600; font-size: 0.95rem; white-space: nowrap; }
+.lang-menu > summary { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; list-style: none; cursor: pointer; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); font-weight: 600; white-space: nowrap; }
 .lang-menu > summary::-webkit-details-marker { display: none; }
 .lang-menu[open] > summary { border-color: var(--accent); }
 .lang-icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.3; }
@@ -266,6 +266,10 @@ html:not(.js) .nav-lang label, html:not(.js) .nav-lang select { display: none; }
 .button.ghost { border-color: var(--ui-line); color: var(--text); }
 .cf-cta.is-soon { background: transparent; color: var(--text); border-style: dashed; border-color: var(--ui-line); cursor: default; }
 .cf-cta-lg { padding: 11px 20px; font-size: 1.05rem; }
+/* The store pair: each button as wide as the wider label; side by side in the Home hero once there's room, stacked in the narrower CurseForge box. */
+.store-ctas { display: inline-grid; grid-auto-columns: 1fr; grid-auto-rows: 1fr; gap: inherit; }
+.store-ctas > .cf-cta { justify-content: center; }
+@media (min-width: 560px) { .hero-actions .store-ctas { grid-auto-flow: column; } }
 .cf-gem { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; }
 .cf-cta:not(.is-soon) .cf-gem { stroke: var(--bg); }
 

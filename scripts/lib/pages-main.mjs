@@ -2,7 +2,7 @@
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
 import { shotByFile } from "./shots-content.mjs";
-import { supportAsk, esc, md, slug, badge, nextBadge, reloadBadge, avail, shotFigure, ornament, heroFrame, pageHero, curseforgeCta, wagoLink, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
+import { supportAsk, esc, md, slug, badge, nextBadge, reloadBadge, avail, shotFigure, ornament, heroFrame, pageHero, storeCtas, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf, readmeSays } from "./features-content.mjs";
@@ -39,7 +39,7 @@ export function curseforgeBox(model, { heading = true, loc = EN } = {}) {
   return `<section class="card cf-box" aria-labelledby="cf-h">
   <div class="cf-box-main">
     <h2 id="cf-h" class="cf-box-h">${heading ? (CURSEFORGE_URL ? loc.p("Get Vanguard on CurseForge") : loc.p("Vanguard is coming to CurseForge")) : ""}</h2>
-    <div class="cf-box-actions">${curseforgeCta({ size: "lg", loc })}${wagoLink({ size: "lg", loc })}</div>
+    <div class="cf-box-actions">${storeCtas({ size: "lg", loc })}</div>
     <p class="small cf-box-note">${note}</p>
   </div>
   <dl class="facts">
@@ -167,7 +167,7 @@ ${heroArt()}
   <h1 id="hero-title" class="hero-title">Vanguard</h1>
   ${ornament("hero-orn")}
   <p class="hero-tagline">${esc(localTagline(model, loc))}.</p>
-  <div class="hero-actions">${curseforgeCta({ size: "lg", loc })}${wagoLink({ size: "lg", loc })}<a class="button ghost" href="/features/">${loc.p("See the features")}</a></div>
+  <div class="hero-actions">${storeCtas({ size: "lg", loc })}<a class="button ghost" href="/features/">${loc.p("See the features")}</a></div>
   <p class="hero-meta">${heroFacts(model, n, loc)}</p>
 </div>
 </section>
