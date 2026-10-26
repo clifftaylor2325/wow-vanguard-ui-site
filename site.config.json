@@ -1,10 +1,10 @@
 {
   "addonRepo": "clifftaylor2325/wow-vanguard-ui",
-  "sourceRef": "1884d67be8414e6a814831e0ca3412aca97350c4",
+  "sourceRef": "8a680510e9167466d36317b802ea51497d2b1948",
   "release": "latest",
   "sourcePath": ".cache/wow-vanguard-ui",
   "cacheDir": ".cache",
   "outDir": "dist",
   "siteUrl": "https://vanguardui.com",
-  "locales": []
+  "locales": ["de", "fr", "es", "es-mx", "it", "pt-br", "ru", "ko", "zh-cn", "zh-tw"]
 }

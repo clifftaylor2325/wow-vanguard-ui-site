@@ -163,11 +163,13 @@ function luaText(text, names = []) {
 }
 
 // One fact from FACTS: the captured text, or null when it isn't in the code
-// ("both" needs the same text in the current release and the next), in the
-// page's language when the addon translates that text (English otherwise).
+// ("both" needs the same text in the current release and the next, a %s and a
+// {name} slot being the same), in the page's language when the addon translates
+// that text (English otherwise; the next release's wording is the one translated).
 function readFact(read, [, where, file, re, names], loc) {
   const one = (ref) => grab(read[ref](file), re);
-  const raw = where === "both" ? (one("rel") === one("next") ? one("rel") : null) : one(where);
+  const same = (a, b) => a !== null && b !== null && luaText(a, names) === luaText(b, names);
+  const raw = where === "both" ? (same(one("rel"), one("next")) ? one("next") : null) : one(where);
   return raw === null ? null : luaText(loc.addon(raw), names);
 }
 

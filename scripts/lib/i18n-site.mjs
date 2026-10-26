@@ -3,8 +3,8 @@
 // English stays at the site root; each other language gets a folder with the
 // same paths below it (/de/settings/). A language is published only when its
 // code is in `locales` in site.config.json (SITE_LOCALES overrides it for
-// tests and previews): until a native speaker has reviewed its strings, the
-// list leaves it out and the live site doesn't change.
+// tests and previews). Every language is listed: the translations ship as
+// drafted and players' feedback corrects them (Cliff, 2026-10-26).
 //
 // Three kinds of words:
 //   - the site's own (the sidebar, header, footer, buttons, the Settings,
@@ -22,7 +22,7 @@
 // {name} is filled with the value given, which the caller has made HTML.
 // A plural string is an object with one template per plural category of its
 // language (Intl.PluralRules), each with {n}.
-// The translations below are first drafts, not reviewed (plan D6).
+// The translations below are machine drafts; a player's correction goes straight into them.
 import fs from "node:fs";
 import path from "node:path";
 import { md } from "./html.mjs";

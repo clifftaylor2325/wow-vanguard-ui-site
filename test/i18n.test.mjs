@@ -96,7 +96,7 @@ test("the published languages: English first, then the listed codes; an unknown 
   assert.deepEqual(publishedLocales(["ru", "de"]).map((l) => l.code), ["en", "de", "ru"]);
   assert.throws(() => publishedLocales(["deDE"]), /unknown site locale/);
   const raw = JSON.parse(fs.readFileSync(path.join(root, "site.config.json"), "utf8"));
-  assert.ok(Array.isArray(raw.locales), "site.config.json lists `locales` (empty until a language is reviewed)");
+  assert.ok(Array.isArray(raw.locales), "site.config.json lists `locales`");
   publishedLocales(raw.locales);
 });
 

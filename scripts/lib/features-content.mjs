@@ -197,7 +197,7 @@ export const LONGER = {
     R("The bar shows and hides out of combat.", "It shows and hides out of combat"),
   ],
   ClickCast: [
-    R("Spells bind by name, so one you haven't learned yet starts working the day you learn it, and left click stays Target and middle click the unit menu.", "Spells bind by name, so one you haven't learned yet starts working the day you learn it", "Left click stays Target and middle click the unit menu"),
+    R("Spells bind by name, so one you haven't learned yet starts working the day you learn it, and left click stays Target and middle click the unit menu.", "spells bind by name, so one you haven't learned yet starts working the day you learn it", "Left click stays Target and middle click the unit menu"),
     R("A spell with ranks binds at its highest rank unless you open its ranks and pick one; the cell then says \"Flash Heal (Rank 3)\".", "A spell with ranks binds as its highest rank unless you open its ranks and pick one", "Flash Heal (Rank 3)"),
     R("Bindings are per character and spec, and changes apply at once, or when the fight ends if you're in one.", "Bindings are per character and spec; changes apply at once, or when the fight ends if you're in one"),
     R("Where your client has its own click casting, a switch at the bottom of the page (off by default) uses the game's bindings instead.", "(where the client has its own click casting)", "a switch at the bottom of the page, off by default, uses the game's instead"),
@@ -213,7 +213,7 @@ export const LONGER = {
     R("Move them with /vg unlock, or turn that off under Action bars to leave them to the game's Edit Mode, where your client has it.", "or turn that off under Action bars to leave them to Edit Mode"),
   ],
   DataBars: [
-    RC("Hover a bar to see its numbers: your level, XP and rested XP, or the watched faction's name and progress.", ["over thin XP and reputation bars", "hover the XP bar for what is left in the level"], "Modules/DataBars.lua", "text = \"hover\"", "\"Level %d  %s / %s (%d%%)\"", "-- Shows the bar's text only while hovered (text = \"hover\"), or always."),
+    RC("Hover a bar to see its numbers: your level, XP and rested XP, or the watched faction's name and progress.", ["over thin XP and reputation bars", "hover the XP bar for what is left in the level"], "Modules/DataBars.lua", "text = \"hover\"", "\"Level {level}  {cur} / {max} ({percent}%)\"", "-- Shows the bar's text only while hovered (text = \"hover\"), or always."),
     RC("The XP bar shows rested XP as a lighter strip and hides at the level cap; the reputation bar takes its standing's color and shows only while you watch a faction.", ["over thin XP and reputation bars", "hover the XP bar for what is left in the level"], "Modules/DataBars.lua", "-- The rested overlay: a lighter strip from the left edge", "-- Fills the XP bar, or hides it at max level", "-- Fills the reputation bar in its standing color, or hides it with no watched"),
     R("They're always shown unless you pick another visibility (On mouseover, In combat, Hidden or the action bars' row of conditions), one setting for both.", "On mouseover, In combat, Hidden or the action bars' row of conditions", "so are the XP and reputation bars, which share one setting"),
   ],
