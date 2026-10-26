@@ -98,19 +98,19 @@ export function discordButton(url = DISCORD_URL) {
 
 // The CurseForge call to action: a link once CURSEFORGE_URL is set, until then
 // a styled, non-interactive "Coming soon on CurseForge" badge.
-export function curseforgeCta({ size = "" } = {}) {
+export function curseforgeCta({ size = "", loc = EN } = {}) {
   const cls = `cf-cta${size ? ` cf-cta-${size}` : ""}`;
   const gem = `<svg class="cf-gem" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1 L15 8 L8 15 L1 8 Z"/><path d="M8 4.5 L11.5 8 L8 11.5 L4.5 8 Z"/></svg>`;
-  if (CURSEFORGE_URL) return `<a class="${cls}" data-curseforge="live" href="${esc(CURSEFORGE_URL)}">${gem}<span>Get Vanguard on CurseForge</span></a>`;
-  return `<span class="${cls} is-soon" data-curseforge="soon">${gem}<span>Coming soon on CurseForge</span></span>`;
+  if (CURSEFORGE_URL) return `<a class="${cls}" data-curseforge="live" href="${esc(CURSEFORGE_URL)}">${gem}<span>${loc.p("Get Vanguard on CurseForge")}</span></a>`;
+  return `<span class="${cls} is-soon" data-curseforge="soon">${gem}<span>${loc.p("Coming soon on CurseForge")}</span></span>`;
 }
 
 // The Wago call to action: the same button as CurseForge's, so the two stores are equal.
-export function wagoLink({ size = "" } = {}) {
+export function wagoLink({ size = "", loc = EN } = {}) {
   const cls = `cf-cta${size ? ` cf-cta-${size}` : ""}`;
   const gem = `<svg class="cf-gem" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1 L15 8 L8 15 L1 8 Z"/><path d="M8 4.5 L11.5 8 L8 11.5 L4.5 8 Z"/></svg>`;
-  if (!WAGO_URL) return `<span class="${cls} is-soon" data-wago="soon">${gem}<span>Coming soon on Wago</span></span>`;
-  return `<a class="${cls}" data-wago="live" href="${esc(WAGO_URL)}" rel="noopener">${gem}<span>Get Vanguard on Wago</span></a>`;
+  if (!WAGO_URL) return `<span class="${cls} is-soon" data-wago="soon">${gem}<span>${loc.p("Coming soon on Wago")}</span></span>`;
+  return `<a class="${cls}" data-wago="live" href="${esc(WAGO_URL)}" rel="noopener">${gem}<span>${loc.p("Get Vanguard on Wago")}</span></a>`;
 }
 
 // A decorative divider: a fine brass rule with linked diamonds in the middle.
@@ -385,7 +385,7 @@ export function avail(inRel, inNext) {
 // A real in-game screenshot as a figure that opens the full-size image (a `shot` from
 // scripts/lib/shots-content.mjs). A shot that shows something only the next release has hides
 // with the rest of it.
-export function shotFigure(s, { caption = true } = {}) {
-  const img = `<img src="/assets/shots/${esc(s.file)}.webp" width="${s.w}" height="${s.h}" alt="${esc(s.alt)}" loading="lazy" decoding="async">`;
-  return `<figure class="shot-fig"${s.next ? ' data-avail="next"' : ""}><a href="/assets/shots/${esc(s.file)}.webp">${img}</a>${caption ? `<figcaption>${esc(s.caption)}</figcaption>` : ""}</figure>`;
+export function shotFigure(s, { caption = true, loc = EN } = {}) {
+  const img = `<img src="/assets/shots/${esc(s.file)}.webp" width="${s.w}" height="${s.h}" alt="${esc(loc.p(s.alt))}" loading="lazy" decoding="async">`;
+  return `<figure class="shot-fig"${s.next ? ' data-avail="next"' : ""}><a href="/assets/shots/${esc(s.file)}.webp">${img}</a>${caption ? `<figcaption>${esc(loc.p(s.caption))}</figcaption>` : ""}</figure>`;
 }

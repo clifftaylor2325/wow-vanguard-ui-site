@@ -432,11 +432,18 @@ export function extractSetup(reader) {
   const named = (m.code.match(/"(Moves the game's UI Scale slider to \{scale\}%[^"]*)"/) || [])[1];
   const fmt = oldFmt || (named ? positional(named) : `${moves}${tail}`);
   const pct = (v) => Math.floor(v * 100 + 0.5);
-  for (const s of screens) s.hint = luaFormat(fmt, [pct(s.ui), s.button, s.tile[0], s.tile[1], pct(s.textScale)]);
+  for (const s of screens) {
+    s.hint = luaFormat(fmt, [pct(s.ui), s.button, s.tile[0], s.tile[1], pct(s.textScale)]);
+    // The values of the named sentence, for the site to fill the addon's translation of it.
+    s.values = { scale: pct(s.ui), button: s.button, width: s.tile[0], height: s.tile[1], text: pct(s.textScale) };
+  }
   // The Screen step's own Keep button ("Keep my current sizes"); the first "keep" in the file is the Layout step's.
   const keepText = (m.code.match(/out\[#out \+ 1\]\s*=\s*\{\s*key\s*=\s*"keep"\s*,\s*text\s*=\s*"([^"]+)"/) || m.code.match(/key\s*=\s*"keep"\s*,\s*text\s*=\s*"([^"]+)"/) || [])[1];
   const pixelText = (m.code.match(/S\.PIXEL\s*=\s*\{\s*key\s*=\s*"pixel"\s*,\s*text\s*=\s*"([^"]+)"/) || [])[1] || null;
   const keepHint = keepScreenHint(m);
+  // The named sentences as the string table keys them (null before it came in), for their translations.
+  const keepNamed = (m.code.match(/if not p then return ns\.Format\(L\["([^"]+)"/) || m.code.match(/if not p then return ns\.Format\("([^"]+)"/) || [])[1] || null;
+  const keepOwner = (m.code.match(/return "(the game's UI Scale slider[^"]*)"/) || [])[1] || null;
   // Each step's question, found by the list it offers: [layout, screen]; the profile step's apart.
   const question = (list) => (m.code.match(new RegExp(`choicePage\\(page,\\s*"([^"]+)",\\s*${list}`)) || [])[1];
   const questions = [question("(?:S\\.LAYOUTS|layoutChoices\\(\\))"), question("screenChoices\\(\\)")];
@@ -455,7 +462,8 @@ export function extractSetup(reader) {
   const namedCaption = (m.code.match(/"(Step \{step\} of \{count\} · \{name\})"/) || [])[1];
   const caption = oldCaption || (namedCaption && positional(namedCaption));
   const title = (m.code.match(/"title",\s*"text",\s*"([^"]+)"/) || m.code.match(/ns\.WindowTitle\(f,\s*"([^"]+)"/) || [])[1];
-  return { steps, layouts, screens, styles, keepText, pixelText, keepHint, questions, profileQuestion, profileName, again, later, moveLines, combat, reloadModule, reloadTile, keepBelow, yourScreen, caption, title };
+  const sentences = { hint: named || null, caption: namedCaption || null, keep: keepNamed, owner: keepOwner };
+  return { steps, layouts, screens, styles, keepText, pixelText, keepHint, questions, profileQuestion, profileName, again, later, moveLines, combat, reloadModule, reloadTile, keepBelow, yourScreen, caption, title, named: sentences };
 }
 
 // ---------------------------------------------------------------- everything

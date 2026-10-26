@@ -2,7 +2,7 @@
 // the exact report (built by the same code the Pages Function uses), run the
 // Turnstile check, send it to POST /api/feedback, and show the reference.
 // Nothing the player typed is cleared until a report is sent.
-import { readFields, validate } from "./feedback/fields.js";
+import { english, readFields, validate } from "./feedback/fields.js";
 import { bugIssue, featureIssue } from "./feedback/body.js";
 import { parseFeedback } from "./feedback/fill.js";
 
@@ -21,6 +21,11 @@ const t0 = Date.now();
 let config = null;
 let widget = null;
 let token = "";
+
+// The page's translations of this script's messages, keyed by the English (none on the English page).
+const MESSAGES = JSON.parse(($("#fb-messages") || {}).textContent || "{}");
+// A message in the page's language, its {slots} filled.
+const tr = (text, values) => english(MESSAGES[text] ?? text, values);
 
 // The chosen kind: "bug" or "feature".
 // A form control by name (form.title would be the form's own title attribute).
@@ -93,7 +98,7 @@ function fillFrom(box) {
   if (parsed.area && areaValues().includes(parsed.area)) el("area").value = parsed.area;
   box.value = box === el("report") ? parsed.report : "";
   showErrors({});
-  say(filled, "Filled in from what you pasted. Check the fields, then Preview.");
+  say(filled, tr("Filled in from what you pasted. Check the fields, then Preview."));
 }
 
 // A notice line in an alert box (empty text hides it).
@@ -136,7 +141,7 @@ async function showTurnstile() {
   try {
     await loadTurnstile();
   } catch {
-    return say(sendError, "The spam check couldn't load. Check your connection, then try again.", "bad");
+    return say(sendError, tr("The spam check couldn't load. Check your connection, then try again."), "bad");
   }
   if (widget !== null) return;
   widget = window.turnstile.render("#fb-turnstile", {
@@ -158,12 +163,13 @@ function resetTurnstile() {
 async function onPreview(e) {
   e.preventDefault();
   const f = readFields(values());
-  if (!showErrors(validate(f, areaValues()))) return;
+  if (!showErrors(validate(f, areaValues(), tr))) return;
   const issue = await issueFor(f);
   $("#fb-preview-title").textContent = issue.title;
   $("#fb-preview-labels").textContent = issue.labels.join(", ");
   $("#fb-preview-body").textContent = issue.body;
-  $("#fb-preview-note").textContent = `${f.contact ? "Your contact details are not in the report: they're kept privately for 90 days. " : ""}The reference (${PLACEHOLDER_REF} above) is filled in when you send. If this matches a bug that's already been reported, your notes are added to that report instead.`;
+  const kept = f.contact ? `${tr("Your contact details are not in the report: they're kept privately for 90 days.")} ` : "";
+  $("#fb-preview-note").textContent = kept + tr("The reference ({ref} above) is filled in when you send. If this matches a bug that's already been reported, your notes are added to that report instead.", { ref: PLACEHOLDER_REF });
   say(sendError, "");
   step("preview");
   await showTurnstile();
@@ -171,15 +177,15 @@ async function onPreview(e) {
 
 // The message for a failed send, from the Function's answer.
 function failure(res, data) {
-  if (res.status === 400 && data.fields) return "Some fields need another look: go back with Edit.";
-  if (res.status === 429) return data.message || "You've sent several reports in a short time. Please wait a while before sending another.";
-  return (data && data.message) || "Reports can't be sent right now. Your text is still here: try again later, or copy it to keep it.";
+  if (res.status === 400 && data.fields) return tr("Some fields need another look: go back with Edit.");
+  if (res.status === 429) return data.message || tr("You've sent several reports in a short time. Please wait a while before sending another.");
+  return (data && data.message) || tr("Reports can't be sent right now. Your text is still here: try again later, or copy it to keep it.");
 }
 
 // Send: post the fields and the Turnstile token; show the reference.
 async function onSend() {
-  if (!config || !config.accepting) return say(sendError, "Reports can't be sent right now. Copy the report text to keep it, and try again later.", "bad");
-  if (!token) return say(sendError, "Please finish the spam check above first.", "bad");
+  if (!config || !config.accepting) return say(sendError, tr("Reports can't be sent right now. Copy the report text to keep it, and try again later."), "bad");
+  if (!token) return say(sendError, tr("Please finish the spam check above first."), "bad");
   sendBtn.disabled = true;
   say(sendError, "");
   let res;
@@ -200,7 +206,7 @@ async function onSend() {
 // The confirmation: the reference only.
 function sent(data) {
   $("#fb-ref").textContent = data.reference;
-  $("#fb-done-dup").textContent = data.duplicate ? "Another player reported the same error, so your notes were added to that report. This reference is yours alone." : "";
+  $("#fb-done-dup").textContent = data.duplicate ? tr("Another player reported the same error, so your notes were added to that report. This reference is yours alone.") : "";
   step("done");
 }
 
@@ -223,7 +229,7 @@ async function loadConfig() {
   } catch {
     config = null;
   }
-  if (!config || !config.accepting) say(status, "Reports can't be sent from this page right now. You can still fill in the form and preview your report, then copy it to keep it until sending works again.");
+  if (!config || !config.accepting) say(status, tr("Reports can't be sent from this page right now. You can still fill in the form and preview your report, then copy it to keep it until sending works again."));
 }
 
 if (form) {
