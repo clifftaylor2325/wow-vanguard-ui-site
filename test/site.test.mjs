@@ -719,6 +719,14 @@ test("the sidebar's Discord button: a link while DISCORD_URL is set, named for s
   assert.ok(!/discord-btn|support-btn/.test(page("").match(/<header class="site-header">[\s\S]*?<\/header>/)[0]), "the header leaves Discord and Support to the sidebar");
 });
 
+test("the two store buttons share one pair, so they draw at one size, on Home and Install", () => {
+  for (const d of ["", "install", "de", "es/install"]) {
+    const pair = (page(d).match(/<div class="store-ctas">([\s\S]*?)<\/div>/) || [])[1] || "";
+    assert.ok(/data-curseforge=/.test(pair) && /data-wago=/.test(pair), `/${d}: CurseForge and Wago sit in one store pair`);
+  }
+  assert.ok(/\.store-ctas \{[^}]*grid-auto-columns: 1fr;[^}]*grid-auto-rows: 1fr;/.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8")), "the pair's buttons share one width and one height");
+});
+
 test("the footer's links line: release, stores, Discord while its URL is set, copyright", () => {
   const site = { version: "9.9.9" };
   const none = footerLinks(site, undefined, { curseforge: null, wago: null, discord: null, x: null });

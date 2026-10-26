@@ -137,6 +137,12 @@ export function wagoLink({ size = "", loc = EN } = {}) {
   return `<a class="${cls}" data-wago="live" href="${esc(WAGO_URL)}" rel="noopener">${gem}<span>${loc.p("Get Vanguard on Wago")}</span></a>`;
 }
 
+// The two store buttons as a pair that shares one width (the wider label's), side by side
+// where there's room and stacked on a phone, so neither store looks like the lesser one.
+export function storeCtas({ size = "", loc = EN } = {}) {
+  return `<div class="store-ctas">${curseforgeCta({ size, loc })}${wagoLink({ size, loc })}</div>`;
+}
+
 // A decorative divider: a fine brass rule with linked diamonds in the middle.
 export function ornament(cls = "") {
   return `<svg class="ornament${cls ? ` ${cls}` : ""}" viewBox="0 0 240 16" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path class="orn-line" d="M4 8 H92 M148 8 H236"/><path class="orn-line" d="M28 8 l4 -3 l4 3 l-4 3 Z M204 8 l4 -3 l4 3 l-4 3 Z"/><path class="orn-gem" d="M111 8 L119 1 L127 8 L119 15 Z"/><path class="orn-line" d="M101 8 L109 1.5 L117 8 L109 14.5 Z M121 8 L129 1.5 L137 8 L129 14.5 Z"/></svg>`;
