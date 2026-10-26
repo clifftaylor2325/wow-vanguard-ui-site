@@ -44,12 +44,19 @@ function count(n) {
   return n.toLocaleString("en-US");
 }
 
+// A message in English: its {slots} filled from values. The page passes its own, which
+// translates the message first (assets/feedback.js); the Function always answers in English.
+export function english(text, values = {}) {
+  return text.replace(/\{(\w+)\}/g, (slot, k) => (k in values ? values[k] : slot));
+}
+
 // A message when a text field is missing, too short or too long, else "".
-function lengthError(name, value, label) {
+function lengthError(name, value, label, say) {
   const [min, max] = LIMITS[name];
-  if (min > 0 && !value) return `${label} is required.`;
-  if (value && value.length < min) return `${label} needs at least ${count(min)} characters.`;
-  if (value.length > max) return `${label} can be at most ${count(max)} characters (it has ${count(value.length)}).`;
+  const named = { label: say(label) };
+  if (min > 0 && !value) return say("{label} is required.", named);
+  if (value && value.length < min) return say("{label} needs at least {min} characters.", { ...named, min: count(min) });
+  if (value.length > max) return say("{label} can be at most {max} characters (it has {length}).", { ...named, max: count(max), length: count(value.length) });
   return "";
 }
 
@@ -59,17 +66,17 @@ const BUG = [["report", "The pasted report"], ["did", "What you did"], ["expecte
 const FEATURE = [["want", "What you want"], ["why", "Why it would help"]];
 
 // Every problem with the fields: { field: message }; empty when they're fine.
-// areas: the allowed "Part of Vanguard" values (a Set or array).
-export function validate(f, areas) {
+// areas: the allowed "Part of Vanguard" values (a Set or array); say: how a message is written.
+export function validate(f, areas, say = english) {
   const errors = {};
-  if (!f.kind) errors.kind = "Choose Report a bug or Request a feature.";
+  if (!f.kind) errors.kind = say("Choose Report a bug or Request a feature.");
   const checks = [...SHARED, ...(f.kind === "bug" ? BUG : f.kind === "feature" ? FEATURE : [])];
   for (const [name, label] of checks) {
-    const e = lengthError(name, f[name], label);
+    const e = lengthError(name, f[name], label, say);
     if (e) errors[name] = e;
   }
-  if (f.kind === "bug" && !f.report && !f.no_report) errors.no_report = "Paste your report, or tick the box to say you couldn't get one.";
-  if (f.kind === "feature" && !new Set(areas).has(f.area)) errors.area = "Choose the part of Vanguard it's about.";
-  if (!f.public_ack) errors.public_ack = "Please tick this to say you understand where the report goes.";
+  if (f.kind === "bug" && !f.report && !f.no_report) errors.no_report = say("Paste your report, or tick the box to say you couldn't get one.");
+  if (f.kind === "feature" && !new Set(areas).has(f.area)) errors.area = say("Choose the part of Vanguard it's about.");
+  if (!f.public_ack) errors.public_ack = say("Please tick this to say you understand where the report goes.");
   return errors;
 }

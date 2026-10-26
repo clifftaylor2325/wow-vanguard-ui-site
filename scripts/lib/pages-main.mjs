@@ -9,9 +9,9 @@ import { MORE, longerOf, readmeSays } from "./features-content.mjs";
 import { EN } from "./i18n-site.mjs";
 import { splitHelp } from "./extract.mjs";
 
-// "September 27, 2026" in New York time.
-export function dateET(iso) {
-  return new Date(iso).toLocaleDateString("en-US", { timeZone: "America/New_York", year: "numeric", month: "long", day: "numeric" });
+// "September 27, 2026" in New York time, in the page's language.
+export function dateET(iso, loc = EN) {
+  return new Date(iso).toLocaleDateString(loc.english ? "en-US" : loc.lang, { timeZone: "America/New_York", year: "numeric", month: "long", day: "numeric" });
 }
 
 // A short "Source: ..." footnote, folded until the reader asks.
@@ -31,18 +31,21 @@ function scratchLine(readme) {
 
 // The CurseForge card used on Home and Install: the call to action, plus the
 // facts about the current release (no file, size or checksum: the site hosts none).
-export function curseforgeBox(model, { heading = true } = {}) {
+export function curseforgeBox(model, { heading = true, loc = EN } = {}) {
   const { release } = model;
+  const note = CURSEFORGE_URL
+    ? (WAGO_URL ? loc.p("Install and update it with the CurseForge app or from its page on the CurseForge website, or get it from Wago Addons.") : loc.p("Install and update it with the CurseForge app or from its page on the CurseForge website."))
+    : loc.p("No link yet: this badge becomes a link to Vanguard's CurseForge page as soon as it's listed (Wago is planned too). Until then there's nothing to download here.");
   return `<section class="card cf-box" aria-labelledby="cf-h">
   <div class="cf-box-main">
-    <h2 id="cf-h" class="cf-box-h">${heading ? (CURSEFORGE_URL ? "Get Vanguard on CurseForge" : "Vanguard is coming to CurseForge") : ""}</h2>
-    <div class="cf-box-actions">${curseforgeCta({ size: "lg" })}${wagoLink({ size: "lg" })}</div>
-    <p class="small cf-box-note">${CURSEFORGE_URL ? `Install and update it with the CurseForge app or from its page on the CurseForge website${WAGO_URL ? ", or get it from Wago Addons" : ""}.` : "No link yet: this badge becomes a link to Vanguard's CurseForge page as soon as it's listed (Wago is planned too). Until then there's nothing to download here."}</p>
+    <h2 id="cf-h" class="cf-box-h">${heading ? (CURSEFORGE_URL ? loc.p("Get Vanguard on CurseForge") : loc.p("Vanguard is coming to CurseForge")) : ""}</h2>
+    <div class="cf-box-actions">${curseforgeCta({ size: "lg", loc })}${wagoLink({ size: "lg", loc })}</div>
+    <p class="small cf-box-note">${note}</p>
   </div>
   <dl class="facts">
-    <dt>Current release</dt><dd>${esc(model.version)} (release ${esc(release.tag)})</dd>
-    <dt>Published</dt><dd>${esc(dateET(release.publishedAt))}</dd>
-    <dt>Game</dt><dd>WoW Forever (the addon declares Interface ${esc(model.rel.meta.Interface)})</dd>
+    <dt>${loc.p("Current release")}</dt><dd>${loc.p("{version} (release {tag})", { version: esc(model.version), tag: esc(release.tag) })}</dd>
+    <dt>${loc.p("Published")}</dt><dd>${esc(dateET(release.publishedAt, loc))}</dd>
+    <dt>${loc.p("Game")}</dt><dd>${loc.p("WoW Forever (the addon declares Interface {iface})", { iface: esc(model.rel.meta.Interface) })}</dd>
   </dl>
 </section>`;
 }
@@ -56,16 +59,25 @@ export function foreverInterface(meta) {
 }
 
 // Home's facts line: which client, which release and when, how many modules.
-function heroFacts(model, moduleCount) {
+function heroFacts(model, moduleCount, loc) {
   const iface = foreverInterface(model.rel.meta);
-  const client = iface ? `Built for WoW Forever (Interface ${esc(iface)})` : "Built for WoW Forever";
-  return `${client} · v${esc(model.version)}, released ${esc(dateET(model.release.publishedAt))} · ${moduleCount} modules`;
+  const client = iface ? loc.p("Built for WoW Forever (Interface {iface})", { iface: esc(iface) }) : loc.p("Built for WoW Forever");
+  const released = loc.p("v{version}, released {date}", { version: esc(model.version), date: esc(dateET(model.release.publishedAt, loc)) });
+  return `${client} · ${released} · ${loc.pn({ one: "{n} module", other: "{n} modules" }, moduleCount)}`;
 }
 
 // The README's opening tagline: "A from-scratch UI suite for WoW Forever".
 export function tagline(readme) {
   const m = (readme || "").match(/^# Vanguard\s*\n+(?:[><][^\n]*\n+)*([^\n(]+?)\s*(?:\(|\.|\n)/);
   return m ? m[1].trim() : "";
+}
+
+// The tagline in the page's language: the addon's own translated TOC Notes line
+// (## Notes-deDE) up to its colon, which says the same; English from the README.
+function localTagline(model, loc) {
+  const notes = String(model.next.meta[`Notes-${loc.addonLocale}`] || "");
+  if (loc.english || !notes.includes(":")) return tagline(model.next.readme) || tagline(model.rel.readme);
+  return notes.slice(0, notes.indexOf(":")).trim();
 }
 
 // The modules featured on the home page, in this order, when the current
@@ -82,21 +94,22 @@ const GLYPHS = {
   Nameplates: `<path d="M18 4 l3 3 l-3 3 l-3 -3 Z" class="g-fill"/><rect x="5" y="13" width="26" height="6" rx="1"/><rect x="5" y="13" width="17" height="6" rx="1" class="g-fill"/><rect x="5" y="22" width="5" height="5"/><rect x="12" y="22" width="5" height="5"/>`,
 };
 
-// One highlight card.
-function highlightCard(m, version) {
+// One highlight card: the module's name and line in the page's language (the addon's own).
+function highlightCard(m, version, loc) {
   const glyph = GLYPHS[m.key] || `<path d="M18 4 L32 18 L18 32 L4 18 Z"/>`;
+  const name = esc(loc.addon(m.name));
   return `<li><a class="feat" href="/features/#${esc(m.id)}">
   <span class="feat-glyph"><svg viewBox="0 0 36 32" aria-hidden="true" focusable="false">${glyph}</svg></span>
-  <span class="feat-name">${esc(m.name)}</span>
-  <span class="feat-desc">${esc(m.desc)}</span>
-  <span class="feat-foot">${badge(m.inRel, m.inNext, version)}<span class="feat-more">Read more<span class="visually-hidden"> about ${esc(m.name)}</span> <span aria-hidden="true">→</span></span></span>
+  <span class="feat-name">${name}</span>
+  <span class="feat-desc">${esc(loc.addon(m.desc))}</span>
+  <span class="feat-foot">${badge(m.inRel, m.inNext, version, loc)}<span class="feat-more">${loc.p("Read more<span class=\"visually-hidden\"> about {name}</span>", { name })} <span aria-hidden="true">→</span></span></span>
 </a></li>`;
 }
 
 // The layout at a glance: a real screenshot of the default layout, with what is in it.
-function layoutShot() {
-  return `${shotFigure(shotByFile("01-hud-overview"), { caption: false })}
-<p class="small">The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner. More pictures are on <a href="/screenshots/">Screenshots</a>.</p>`;
+function layoutShot(loc) {
+  return `${shotFigure(shotByFile("01-hud-overview"), { caption: false, loc })}
+<p class="small">${loc.p(`The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner. More pictures are on <a href="/screenshots/">Screenshots</a>.`)}</p>`;
 }
 
 // The hero's decorative layers: sky, glow, rune ring, ridges, embers and frame.
@@ -124,89 +137,122 @@ function heroArt() {
 </div>`;
 }
 
-export function homePage(model) {
+// The home page's four tiles under the hero.
+function homeTiles(loc) {
+  const tile = (href, title, line) => `<a class="card tile" href="${href}"><strong>${loc.p(title)}</strong><span>${loc.p(line)}</span></a>`;
+  return `<div class="grid four tiles">
+  ${tile("/install/", "Install", CURSEFORGE_URL ? "Get it through CurseForge or Wago." : "How installing through CurseForge will work.")}
+  ${tile("/start/", "Set up", "Open the options, move your frames, pick an accent.")}
+  ${tile("/commands/", "Commands", "Every <code>/vg</code> command, searchable.")}
+  ${tile("/help/", "Fix a problem", "Self-fixes, then how to report a bug.")}
+</div>`;
+}
+
+export function homePage(model, loc = EN) {
   const { rel } = model;
   const relMods = model.modules.filter((m) => m.inRel);
-  const line = tagline(model.next.readme) || tagline(rel.readme);
-  const notes = String(rel.meta.Notes || "");
-  const parts = notes.includes(":") ? notes.slice(notes.indexOf(":") + 1).trim() : "";
   const highlights = HIGHLIGHTS.map((k) => model.modules.find((m) => m.key === k)).filter((m) => m && m.inRel && m.desc);
+  const n = relMods.length;
+  const description = loc.english ? rel.meta.Notes : model.next.meta[`Notes-${loc.addonLocale}`] || rel.meta.Notes;
   return {
     path: "/",
     title: "Vanguard",
-    description: rel.meta.Notes,
+    description,
+    translated: true,
     body: `<section class="hero" aria-labelledby="hero-title">
 ${heroArt()}
 <div class="hero-inner">
-  ${crestSvg({ full: true, cls: "hero-crest", label: "Vanguard's crest: two swords crossed behind a brass shield that bears a V" })}
-  <p class="hero-kicker">An addon for WoW&nbsp;Forever</p>
+  ${crestSvg({ full: true, cls: "hero-crest", label: loc.p("Vanguard's crest: two swords crossed behind a brass shield that bears a V") })}
+  <p class="hero-kicker">${loc.p("An addon for WoW&nbsp;Forever")}</p>
   <h1 id="hero-title" class="hero-title">Vanguard</h1>
   ${ornament("hero-orn")}
-  <p class="hero-tagline">${esc(line)}.</p>
-  <div class="hero-actions">${curseforgeCta({ size: "lg" })}${wagoLink({ size: "lg" })}<a class="button ghost" href="/features/">See the features</a></div>
-  <p class="hero-meta">${heroFacts(model, relMods.length)}</p>
+  <p class="hero-tagline">${esc(localTagline(model, loc))}.</p>
+  <div class="hero-actions">${curseforgeCta({ size: "lg", loc })}${wagoLink({ size: "lg", loc })}<a class="button ghost" href="/features/">${loc.p("See the features")}</a></div>
+  <p class="hero-meta">${heroFacts(model, n, loc)}</p>
 </div>
 </section>
 
-<div class="grid four tiles">
-  <a class="card tile" href="/install/"><strong>Install</strong><span>${CURSEFORGE_URL ? "Get it through CurseForge or Wago." : "How installing through CurseForge will work."}</span></a>
-  <a class="card tile" href="/start/"><strong>Set up</strong><span>Open the options, move your frames, pick an accent.</span></a>
-  <a class="card tile" href="/commands/"><strong>Commands</strong><span>Every <code>/vg</code> command, searchable.</span></a>
-  <a class="card tile" href="/help/"><strong>Fix a problem</strong><span>Self-fixes, then how to report a bug.</span></a>
-</div>
+${homeTiles(loc)}
 
-<div class="notice info early"><p><strong>Vanguard is an early release.</strong> Not everything has been checked in the game yet, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p></div>
+<div class="notice info early"><p>${loc.p(`<strong>Vanguard is an early release.</strong> Not everything has been checked in the game yet, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.`)}</p></div>
 
-${disclosure({ id: "hl-h", title: `What's in v${esc(model.version)}`, meta: `${relMods.length} modules`, body: `<p>A few of its modules, in the words the addon uses on its own Modules page. <a href="/features/">All ${relMods.length} are on Features</a>, and each can be turned off under <strong>/vg → Modules</strong>.</p>
-<ul class="feats">${highlights.map((m) => highlightCard(m, model.version)).join("\n")}</ul>` })}
-${disclosure({ id: "mock-h", title: "The layout at a glance", body: layoutShot() })}`,
+${disclosure({ id: "hl-h", title: loc.p("What's in v{version}", { version: esc(model.version) }), meta: loc.pn({ one: "{n} module", other: "{n} modules" }, n), body: `<p>${loc.p(`A few of its modules, in the words the addon uses on its own Modules page. <a href="/features/">All {n} are on Features</a>, and each can be turned off under <strong>/vg → {modules}</strong>.`, { n, modules: esc(loc.addon("Modules")) })}</p>
+<ul class="feats">${highlights.map((m) => highlightCard(m, model.version, loc)).join("\n")}</ul>` })}
+${disclosure({ id: "mock-h", title: loc.p("The layout at a glance"), body: layoutShot(loc) })}`,
   };
 }
 
 // ------------------------------------------------------------------ Install
 
-export function installPage(model) {
+// The Install page's opening line under its title.
+function installLede(listed, loc) {
+  if (!listed) return loc.p("Vanguard is going to be on CurseForge. Once it's listed, you'll install and update it through CurseForge. It isn't listed yet, and this site doesn't offer it as a download.");
+  return WAGO_URL ? loc.p("Vanguard is on CurseForge and Wago. Install and update it through CurseForge: the CurseForge app or the CurseForge website.") : loc.p("Vanguard is on CurseForge. Install and update it through CurseForge: the CurseForge app or the CurseForge website.");
+}
+
+// "CurseForge" or "CurseForge or Wago": the stores Vanguard is on.
+const storesOr = (loc) => (WAGO_URL ? loc.p("CurseForge or Wago") : "CurseForge");
+
+// Install through CurseForge (the app, the website, Wago).
+function installStores(listed, loc) {
+  return `<ul>
+  <li>${loc.p("<strong>With the CurseForge app:</strong> find Vanguard in the app and install it. The app puts it in your AddOns folder and can keep it up to date.")}</li>
+  <li>${loc.p("<strong>From the CurseForge website:</strong> Vanguard's page there offers its files.")} ${listed ? loc.p("The button above goes to that page.") : loc.p("When it's listed, the button above turns into a link to that page.")} ${loc.p(`Then follow the steps under <a href="#by-hand">If you install by hand</a>.`)}</li>
+${WAGO_URL ? `  <li>${loc.p(`<strong>From Wago Addons:</strong> <a href="{url}" rel="noopener">Vanguard's Wago page</a> offers the same files, for the Wago app or by hand.`, { url: esc(WAGO_URL) })}</li>
+` : ""}</ul>
+<p>${loc.p(`Then turn it on at character select (<strong>AddOns</strong>, tick <strong>Vanguard</strong>), log in, and type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.`)}</p>
+${listed ? "" : `<p class="small">${loc.p("To be confirmed: the exact steps for the WoW Forever client in the CurseForge app will be written here once Vanguard is listed.")}</p>`}`;
+}
+
+// Installing from the zip by hand.
+function installByHand(where, loc) {
+  return `<p>${loc.p("For when you take the file from Vanguard's {stores} page instead of using an app.", { stores: storesOr(loc) })}</p>
+<ol class="steps">
+  <li>${loc.p("<strong>Unzip the file.</strong> Inside is one folder called <code>Vanguard</code>.")}</li>
+  <li>${loc.p("<strong>Put the <code>Vanguard</code> folder in your AddOns folder.</strong> The addon's README says: unzip the <code>Vanguard</code> folder into <code>{path}</code> ({where}). The exact AddOns folder for the WoW Forever client (on Windows and macOS) is still being confirmed; until then, use the folder of your Forever client that has <code>Interface/AddOns</code> in it.", { path: esc(where ? where[1] : "Interface/AddOns/"), where: where ? esc(where[2]) : loc.p("your Forever client's AddOns folder") })}</li>
+  <li>${loc.p("<strong>Turn it on at character select:</strong> open <strong>AddOns</strong> and tick <strong>Vanguard</strong>, then log in.")}</li>
+  <li>${loc.p(`Type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.`)}</li>
+</ol>
+${sourceNote(loc, ["README.md (Install)", "scripts/package.mjs (zip layout)", "docs/SMOKE-TEST.md (step 1.2)"])}`;
+}
+
+// Updating, and the note for players coming from ForeverUI.
+function installUpdate(rel, loc) {
+  return `<p>${loc.p("<strong>With the {stores} app:</strong> update Vanguard there when a new version is out.", { stores: storesOr(loc) })}</p>
+<p>${loc.p("<strong>By hand:</strong>")}</p>
+<ol class="steps">
+  <li>${loc.p("Log out of the game (or close it).")}</li>
+  <li>${loc.p("Delete the old <code>Vanguard</code> folder from your AddOns folder.")}</li>
+  <li>${loc.p("Unzip the new version and put its <code>Vanguard</code> folder in the same place.")}</li>
+</ol>
+<p>${loc.p("Your settings are kept. Vanguard saves them in the game's SavedVariables (<code>{account}</code> for the account, <code>{character}</code> for each character), not in the addon folder.", { account: esc(rel.meta.SavedVariables), character: esc(rel.meta.SavedVariablesPerCharacter) })}</p>
+<div class="notice" id="renamed"><p>${loc.p("<strong>Coming from ForeverUI?</strong> Vanguard was called ForeverUI up to v0.3.0. It was renamed because another, unrelated addon is published under that name. The settings file is named after the addon, so your settings don't move over by themselves: before you update, type <code>/fui export</code> in game and keep the text; after updating, type <code>/vg import</code> and paste it (text from ForeverUI imports fine). Then delete the old <code>ForeverUI</code> folder from your AddOns folder.")}</p></div>
+<p>${loc.p(`The <a href="/changelog/">Changelog</a> says what changed in each release.`)}</p>
+${sourceNote(loc, ["Vanguard.toc (SavedVariables)"])}`;
+}
+
+// Uninstalling, or keeping the game's version of one part.
+function installRemove(loc) {
+  return `<p>${loc.p("Remove Vanguard in the {stores} app, or delete the <code>Vanguard</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.", { stores: storesOr(loc) })}</p>
+<p>${loc.p(`To go back to the game's own version of just one part (say, its action bars), you don't need to uninstall: turn that module off under <strong>/vg → {modules}</strong> and reload. See <a href="/help/#one-feature">Troubleshooting</a>.`, { modules: esc(loc.addon("Modules")) })}</p>`;
+}
+
+export function installPage(model, loc = EN) {
   const { rel } = model;
-  const readme = rel.readme;
-  const where = readme.match(/unzip the `(?:Vanguard|ForeverUI)` folder into `([^`]+)`\s*\(([^)]+)\)/);
-  const sv = rel.meta.SavedVariables;
-  const svc = rel.meta.SavedVariablesPerCharacter;
+  const where = rel.readme.match(/unzip the `(?:Vanguard|ForeverUI)` folder into `([^`]+)`\s*\(([^)]+)\)/);
   const listed = !!CURSEFORGE_URL;
   return {
     path: "/install/",
     title: "Install & Update",
-    description: listed ? "How to install, update and remove Vanguard: through CurseForge or Wago." : "How to install, update and remove Vanguard: through CurseForge once it's listed.",
-    body: `${pageHero("Install &amp; Update", listed ? `Vanguard is on CurseForge${WAGO_URL ? " and Wago" : ""}. Install and update it through CurseForge: the CurseForge app or the CurseForge website.` : "Vanguard is going to be on CurseForge. Once it's listed, you'll install and update it through CurseForge. It isn't listed yet, and this site doesn't offer it as a download.")}
-${curseforgeBox(model)}
-${disclosure({ id: "curseforge", title: "Install through CurseForge", body: `<ul>
-  <li><strong>With the CurseForge app:</strong> find Vanguard in the app and install it. The app puts it in your AddOns folder and can keep it up to date.</li>
-  <li><strong>From the CurseForge website:</strong> Vanguard's page there offers its files. ${listed ? "The button above goes to that page." : "When it's listed, the button above turns into a link to that page."} Then follow the steps under <a href="#by-hand">If you install by hand</a>.</li>
-${WAGO_URL ? `  <li><strong>From Wago Addons:</strong> <a href="${esc(WAGO_URL)}" rel="noopener">Vanguard's Wago page</a> offers the same files, for the Wago app or by hand.</li>
-` : ""}</ul>
-<p>Then turn it on at character select (<strong>AddOns</strong>, tick <strong>Vanguard</strong>), log in, and type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.</p>
-${listed ? "" : `<p class="small">To be confirmed: the exact steps for the WoW Forever client in the CurseForge app will be written here once Vanguard is listed.</p>`}` })}
-${disclosure({ id: "by-hand", title: "If you install by hand", body: `<p>For when you take the file from Vanguard's CurseForge${WAGO_URL ? " or Wago" : ""} page instead of using an app.</p>
-<ol class="steps">
-  <li><strong>Unzip the file.</strong> Inside is one folder called <code>Vanguard</code>.</li>
-  <li><strong>Put the <code>Vanguard</code> folder in your AddOns folder.</strong> The addon's README says: unzip the <code>Vanguard</code> folder into <code>${esc(where ? where[1] : "Interface/AddOns/")}</code> (${esc(where ? where[2] : "your Forever client's AddOns folder")}). The exact AddOns folder for the WoW Forever client (on Windows and macOS) is still being confirmed; until then, use the folder of your Forever client that has <code>Interface/AddOns</code> in it.</li>
-  <li><strong>Turn it on at character select:</strong> open <strong>AddOns</strong> and tick <strong>Vanguard</strong>, then log in.</li>
-  <li>Type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.</li>
-</ol>
-${src("README.md (Install)", "scripts/package.mjs (zip layout)", "docs/SMOKE-TEST.md (step 1.2)")}` })}
-${disclosure({ id: "update", title: "Update", body: `<p><strong>With the CurseForge${WAGO_URL ? " or Wago" : ""} app:</strong> update Vanguard there when a new version is out.</p>
-<p><strong>By hand:</strong></p>
-<ol class="steps">
-  <li>Log out of the game (or close it).</li>
-  <li>Delete the old <code>Vanguard</code> folder from your AddOns folder.</li>
-  <li>Unzip the new version and put its <code>Vanguard</code> folder in the same place.</li>
-</ol>
-<p>Your settings are kept. Vanguard saves them in the game's SavedVariables (<code>${esc(sv)}</code> for the account, <code>${esc(svc)}</code> for each character), not in the addon folder.</p>
-<div class="notice" id="renamed"><p><strong>Coming from ForeverUI?</strong> Vanguard was called ForeverUI up to v0.3.0. It was renamed because another, unrelated addon is published under that name. The settings file is named after the addon, so your settings don't move over by themselves: before you update, type <code>/fui export</code> in game and keep the text; after updating, type <code>/vg import</code> and paste it (text from ForeverUI imports fine). Then delete the old <code>ForeverUI</code> folder from your AddOns folder.</p></div>
-<p>The <a href="/changelog/">Changelog</a> says what changed in each release.</p>
-${src("Vanguard.toc (SavedVariables)")}` })}
-${disclosure({ id: "uninstall", title: "Uninstall", body: `<p>Remove Vanguard in the CurseForge${WAGO_URL ? " or Wago" : ""} app, or delete the <code>Vanguard</code> folder from your AddOns folder. To turn it off for a while instead, untick it under <strong>AddOns</strong> at character select.</p>
-<p>To go back to the game's own version of just one part (say, its action bars), you don't need to uninstall: turn that module off under <strong>/vg → Modules</strong> and reload. See <a href="/help/#one-feature">Troubleshooting</a>.</p>` })}
-${supportAsk("install", "Vanguard is free and built by one person. If it saved you an evening of setting up your UI,")}`,
+    description: listed ? loc.p("How to install, update and remove Vanguard: through CurseForge or Wago.") : loc.p("How to install, update and remove Vanguard: through CurseForge once it's listed."),
+    translated: true,
+    body: `${pageHero(loc.t("title./install/"), installLede(listed, loc))}
+${curseforgeBox(model, { loc })}
+${disclosure({ id: "curseforge", title: loc.p("Install through CurseForge"), body: installStores(listed, loc) })}
+${disclosure({ id: "by-hand", title: loc.p("If you install by hand"), body: installByHand(where, loc) })}
+${disclosure({ id: "update", title: loc.p("Update"), body: installUpdate(rel, loc) })}
+${disclosure({ id: "uninstall", title: loc.p("Uninstall"), body: installRemove(loc) })}
+${supportAsk("install", loc.p("Vanguard is free and built by one person. If it saved you an evening of setting up your UI,"), undefined, loc.p("Say thanks on Ko-fi"))}`,
   };
 }
 
@@ -240,115 +286,235 @@ function num(text, file, re) {
   return m[1];
 }
 
-// The setup wizard section (from Core/Setup.lua), when the source has one. Plain player
-// language only: every label and message is quoted from the addon and checked by says().
-function wizardSection(setup, inRel, read) {
-  if (!setup) return "";
-  const S = read.next("Core/Setup.lua");
-  const D = read.next("Core/Dialog.lua");
-  const O = read.next("Core/Options.lua");
-  const s = (...p) => says(S, "Core/Setup.lua", ...p);
+// The setup wizard's addon words in the page's language: lab() a button or label (checked
+// by label()), say() a whole message (checked by says()), A() a text the extractor read.
+function setupWords(S, loc) {
+  const A = (text) => esc(loc.addon(text || ""));
+  const lab = (text, file, name) => {
+    label(text, file, name);
+    return A(name);
+  };
+  const say = (text, file, part) => {
+    says(text, file, part);
+    return A(part);
+  };
+  return { A, lab, say, s: (part) => say(S, "Core/Setup.lua", part) };
+}
+
+// A setup text with named slots, in the page's language: the addon's translation of the
+// sentence, filled; the English the extractor made when the source has no named sentence.
+function namedText(named, values, english, loc) {
+  if (!named) return english;
+  return loc.addon(named).replace(/\{(\w+)\}/g, (all, k) => (values[k] !== undefined ? String(values[k]) : all));
+}
+
+// The wizard's first paragraphs: what it is, its steps and buttons, and combat.
+function wizardIntro(setup, inRel, w, loc) {
+  const { A, lab } = w;
+  const S = w.S;
   const n = setup.steps.length;
-  const caption = (i) => setup.caption.replace("%d", i + 1).replace("%d", n).replace("%s", setup.steps[i]);
+  const caption = namedText(setup.named.caption, { step: 1, count: n, name: loc.addon(setup.steps[0]) }, setup.caption.replace("%d", 1).replace("%d", n).replace("%s", setup.steps[0]), loc);
+  const next = lab(S, "Core/Setup.lua", "Next"), done = lab(S, "Core/Setup.lua", "Done"), back = lab(S, "Core/Setup.lua", "Back");
+  return `${inRel ? "" : `<p>${loc.p("<strong>The setup wizard isn't in the current release.</strong> It's ready for the next release, and this is what it will do.")}</p>`}
+<p>${loc.p("The first time you log in on an account, a window called “{title}” opens. It has {n} steps: {steps}. The line under the title says where you are, for example “{caption}”. <strong>{next}</strong> goes on (on the last step it reads <strong>{done}</strong>) and <strong>{back}</strong> goes back a step.", { title: A(setup.title), n, steps: setup.steps.map((x) => A(x)).join(", "), caption: esc(caption), next, done, back })}${setup.later ? ` ${loc.p("On the first step, <strong>{skip}</strong> ends it without changing anything.", { skip: lab(S, "Core/Setup.lua", "Skip setup") })}` : ""}</p>
+<p>${loc.p("It never opens during a fight. If you're in combat it says “{combat}” and waits. If a fight starts while it's open, it gets out of the way and comes back on the same step when the fight is over.", { combat: A(setup.combat) })}</p>`;
+}
+
+// Step 1: the layout question and the layouts table.
+function wizardLayoutStep(setup, w, loc) {
+  const { A, lab } = w;
+  const layoutName = (key) => A(setup.layouts.find((l) => l.key === key)?.text || "");
+  // Keep my current layout (moves nothing), picked when setup runs again; null before it came in.
+  const keepLayout = setup.layouts.some((l) => l.key === "keep") ? layoutName("keep") : null;
+  const picked = keepLayout
+    ? loc.p("The first time, <strong>{healing}</strong> is picked if you're a healer (by your specialization, or else your group role) and <strong>{damage}</strong> otherwise; when you run it again, <strong>{keep}</strong> is picked, so clicking through moves nothing.", { healing: layoutName("healing"), damage: layoutName("damage"), keep: keepLayout })
+    : loc.p("<strong>{layout}</strong> is picked when the window opens.", { layout: layoutName(setup.layouts[0].key) });
+  const head = [loc.p("Layout"), loc.p("What it does")];
+  return `<h3 id="setup-layout">${loc.p("Step 1 · {name}", { name: A(setup.steps[0]) })}</h3>
+<p>${loc.p("It asks: “{question}”", { question: A(setup.questions[0] || "") })} ${picked} ${loc.p("Click a layout to see what it does under the list. Your choice takes effect when you click <strong>{next}</strong>.", { next: lab(w.S, "Core/Setup.lua", "Next") })}</p>
+<div class="table-wrap"><table class="stack"><thead><tr><th scope="col">${head[0]}</th><th scope="col">${head[1]}</th></tr></thead><tbody>
+${setup.layouts.map((l, i) => `<tr><td data-label="${head[0]}"><strong>${A(l.text)}</strong>${i === 0 && !keepLayout ? ` <span class="badge plain">${loc.p("Default")}</span>` : ""}</td><td data-label="${head[1]}">${A(l.hint)}</td></tr>`).join("\n")}
+</tbody></table></div>
+<ul>
+  <li>${loc.p("<strong>{healing}</strong> also turns on the raid frames and click casting if they were off.", { healing: layoutName("healing") })}</li>
+  <li>${loc.p("Each layout first puts back anything another layout moved, so picking <strong>{damage}</strong> later undoes the others.", { damage: layoutName("damage") })}</li>
+</ul>`;
+}
+
+// Step 2: the screen question and the presets table.
+function wizardScreenStep(setup, w, loc) {
+  const { A, lab, s } = w;
+  const S = w.S;
   const wide = num(S, "Core/Setup.lua", /if w \/ h >= ([\d.]+) then return "ultrawide"/);
   const tall4k = num(S, "Core/Setup.lua", /if h >= (\d+) then return "4k"/);
   const tall1440 = num(S, "Core/Setup.lua", /return h >= (\d+) and "1440"/);
-  const reloadAsk = says(D, "Core/Dialog.lua", " Reload the UI now to apply it?");
-  const reloadBtn = label(D, "Core/Dialog.lua", "Reload");
-  const laterBtn = label(D, "Core/Dialog.lua", "Later");
-  const pixel = says(O, "Core/Options.lua", "Pixel-perfect scale");
-  const layoutName = (key) => esc(setup.layouts.find((l) => l.key === key)?.text || "");
-  const scr = (key) => esc(setup.screens.find((p) => p.key === key)?.text || "");
-  const screenRow = (p) => `${esc(p.text)} (${p.w} x ${p.h})`;
-  // Keep my current layout (moves nothing), picked when setup runs again; null before it came in.
-  const keepLayout = setup.layouts.some((l) => l.key === "keep") ? layoutName("keep") : null;
-  const body = `${inRel ? "" : `<p><strong>The setup wizard isn't in the current release.</strong> It's ready for the next release, and this is what it will do.</p>`}
-<p>The first time you log in on an account, a window called “${esc(setup.title)}” opens. It has ${n} steps: ${setup.steps.map((x) => esc(x)).join(", ")}. The line under the title says where you are, for example “${esc(caption(0))}”. <strong>${label(S, "Core/Setup.lua", "Next")}</strong> goes on (on the last step it reads <strong>${label(S, "Core/Setup.lua", "Done")}</strong>) and <strong>${label(S, "Core/Setup.lua", "Back")}</strong> goes back a step.${setup.later ? ` On the first step, <strong>${label(S, "Core/Setup.lua", "Skip setup")}</strong> ends it without changing anything.` : ""}</p>
-<p>It never opens during a fight. If you're in combat it says “${esc(setup.combat)}” and waits. If a fight starts while it's open, it gets out of the way and comes back on the same step when the fight is over.</p>
-
-<h3 id="setup-layout">Step 1 · ${esc(setup.steps[0])}</h3>
-<p>It asks: “${esc(setup.questions[0] || "")}” ${keepLayout ? `The first time, <strong>${layoutName("healing")}</strong> is picked if you're a healer (by your specialization, or else your group role) and <strong>${layoutName("damage")}</strong> otherwise; when you run it again, <strong>${keepLayout}</strong> is picked, so clicking through moves nothing.` : `<strong>${layoutName(setup.layouts[0].key)}</strong> is picked when the window opens.`} Click a layout to see what it does under the list. Your choice takes effect when you click <strong>${label(S, "Core/Setup.lua", "Next")}</strong>.</p>
-<div class="table-wrap"><table class="stack"><thead><tr><th scope="col">Layout</th><th scope="col">What it does</th></tr></thead><tbody>
-${setup.layouts.map((l, i) => `<tr><td data-label="Layout"><strong>${esc(l.text)}</strong>${i === 0 && !keepLayout ? ` <span class="badge plain">Default</span>` : ""}</td><td data-label="What it does">${esc(l.hint)}</td></tr>`).join("\n")}
+  const pixel = w.say(w.O, "Core/Options.lua", "Pixel-perfect scale");
+  const scr = (key) => A(setup.screens.find((p) => p.key === key)?.text || "");
+  const screenRow = (p) => `${A(p.text)} (${p.w} x ${p.h})`;
+  const keepLayout = setup.layouts.some((l) => l.key === "keep");
+  const keepHint = namedText(setup.named.keep, { owner: loc.addon(setup.named.owner || "") }, setup.keepHint, loc);
+  const head = [loc.p("Choice"), loc.p("What it sets")];
+  const row = (choice, sets) => `<tr><td data-label="${head[0]}"><strong>${choice}</strong></td><td data-label="${head[1]}">${sets}</td></tr>`;
+  const presets = loc.p("The wizard picks the preset for your screen when it opens and marks it “{yours}”: <strong>{ultrawide}</strong> for a screen at least {wide} times as wide as it is tall; otherwise by height: <strong>{k4}</strong> from {tall4k} pixels tall, <strong>{q1440}</strong> from {tall1440}, and <strong>{hd}</strong> from {below}.", { yours: s("your screen"), ultrawide: scr("ultrawide"), wide: esc(wide), k4: scr("4k"), tall4k: esc(tall4k), q1440: scr("1440"), tall1440: esc(tall1440), hd: scr("1080"), below: esc(setup.keepBelow) });
+  const small = keepLayout
+    ? loc.p("On a screen under {below} pixels tall, <strong>{keep}</strong> is picked, and so it is whenever you run setup again.", { below: esc(setup.keepBelow), keep: A(setup.keepText) })
+    : loc.p("On a screen under {below} pixels tall, <strong>{keep}</strong> is picked.", { below: esc(setup.keepBelow), keep: A(setup.keepText) });
+  return `<h3 id="setup-screen">${loc.p("Step 2 · {name}", { name: A(setup.steps[1]) })}</h3>
+<p>${loc.p("It asks: “{question}”", { question: A(setup.questions[1] || "") })} ${presets} ${small} ${loc.p("Your choice takes effect when you click <strong>{next}</strong>.", { next: lab(S, "Core/Setup.lua", "Next") })}</p>
+<div class="table-wrap"><table class="stack"><thead><tr><th scope="col">${head[0]}</th><th scope="col">${head[1]}</th></tr></thead><tbody>
+${setup.screens.map((p) => row(screenRow(p), esc(namedText(setup.named.hint, p.values, p.hint, loc)))).join("\n")}
+${setup.pixelText ? `${row(A(setup.pixelText), loc.p("Leaves the game's UI scale alone and turns on <strong>{pixel}</strong> under General → Look instead.", { pixel }))}\n` : ""}${row(A(setup.keepText), esc(keepHint))}
 </tbody></table></div>
-<ul>
-  <li><strong>${layoutName("healing")}</strong> also turns on the raid frames and click casting if they were off.</li>
-  <li>Each layout first puts back anything another layout moved, so picking <strong>${layoutName("damage")}</strong> later undoes the others.</li>
-</ul>
-
-<h3 id="setup-screen">Step 2 · ${esc(setup.steps[1])}</h3>
-<p>It asks: “${esc(setup.questions[1] || "")}” The wizard picks the preset for your screen when it opens and marks it “${s("your screen")}”: <strong>${scr("ultrawide")}</strong> for a screen at least ${esc(wide)} times as wide as it is tall; otherwise by height: <strong>${scr("4k")}</strong> from ${esc(tall4k)} pixels tall, <strong>${scr("1440")}</strong> from ${esc(tall1440)}, and <strong>${scr("1080")}</strong> from ${esc(setup.keepBelow)}. On a screen under ${esc(setup.keepBelow)} pixels tall, <strong>${esc(setup.keepText)}</strong> is picked${keepLayout ? `, and so it is whenever you run setup again` : ""}. Your choice takes effect when you click <strong>${label(S, "Core/Setup.lua", "Next")}</strong>.</p>
-<div class="table-wrap"><table class="stack"><thead><tr><th scope="col">Choice</th><th scope="col">What it sets</th></tr></thead><tbody>
-${setup.screens.map((p) => `<tr><td data-label="Choice"><strong>${screenRow(p)}</strong></td><td data-label="What it sets">${esc(p.hint)}</td></tr>`).join("\n")}
-${setup.pixelText ? `<tr><td data-label="Choice"><strong>${esc(setup.pixelText)}</strong></td><td data-label="What it sets">Leaves the game's UI scale alone and turns on <strong>${pixel}</strong> under General → Look instead.</td></tr>\n` : ""}<tr><td data-label="Choice"><strong>${esc(setup.keepText)}</strong></td><td data-label="What it sets">${esc(setup.keepHint)}</td></tr>
-</tbody></table></div>
-<p>The UI scale a preset sets is the game's own UI scale (the one in the game's graphics settings). It changes once you're out of combat, and choosing a preset turns off <strong>${pixel}</strong> under <strong>General → Look</strong>. ${esc(setup.reloadTile)}</p>
-
-<h3 id="setup-look">Step 3 · ${esc(setup.steps[2])}</h3>
-<ul>
-  <li><strong>${label(S, "Core/Setup.lua", "Accent")}:</strong> click a swatch to change the accent color right away. They're the same colors as in <a href="#accent">Pick an accent color</a> below.</li>
-  <li><strong>${label(S, "Core/Setup.lua", "Raid frame style")}:</strong> three small raid tiles, each drawn in its style. Click one to switch to it right away: ${setup.styles.map((x) => `<strong>${esc(x[2])}</strong> (${esc(x[1])})`).join(", ")}.</li>
-</ul>
-
-<h3 id="setup-move">Step 4 · ${esc(setup.steps[3])}</h3>
-<p>On this step your frames are unlocked, and the wizard says:</p>
-<ul>${setup.moveLines.map((l) => `<li>“${esc(l)}”</li>`).join("")}</ul>
-<p>Arrow keys are <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd>; hold <kbd>Shift</kbd> to move 10 px at a time.</p>
-
-${setup.profileQuestion ? `<h3 id="setup-profile">A new character: the ${esc(setup.profileName)} step</h3>
-<p>Once setup is finished on your account, each new character gets it too, with one more step first. It asks: “${esc(setup.profileQuestion)}” and offers two choices:</p>
-<ul>
-  <li><strong>“${s("Share profile ")}<em>name</em>${s(" with your other characters")}”</strong>: ${s("Changes here change them too.")}</li>
-  <li><strong>“${s("A profile of its own: ")}<em>character</em>”</strong>: a profile named after the character. It ${s("Starts as a copy of ").toLowerCase()}the shared one${s("; changes here stay on this character.")} It then starts on your role's layout, and <strong>${label(S, "Core/Setup.lua", "Back")}</strong> doesn't return to this step.</li>
-</ul>
-<p>Characters that played before this step came in aren't asked.</p>
-
-` : ""}<h3 id="setup-finish">Finishing</h3>
-${setup.later ? `<p>With the defaults it takes four clicks: <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Done")}</strong>. <strong>${label(S, "Core/Setup.lua", "Done")}</strong> finishes it, and so does <strong>${label(S, "Core/Setup.lua", "Skip setup")}</strong>; both lock your frames again, and chat says “${esc(setup.again)}”</p>
-<p>The window's close button and <kbd>Escape</kbd> only close it. Until it's finished, it opens again at your next login, and chat says “${esc(setup.later)}”</p>
-<p>To run it again, type <code>/vg setup</code> or click <strong>${label(O, "Core/Options.lua", "Run setup")}</strong> under <strong>General → Layout</strong> in <code>/vg</code>.</p>` : `<p>With the defaults it takes four clicks: <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Next")}</strong>, <strong>${label(S, "Core/Setup.lua", "Done")}</strong>. <strong>${label(S, "Core/Setup.lua", "Done")}</strong>, the window's close button and <kbd>Escape</kbd> all end the wizard and lock your frames again. It doesn't come back by itself; type <code>/vg setup</code> to run it again.</p>`}
-<p>If setup changed something that needs a reload, it then asks, with <strong>${reloadBtn}</strong> and <strong>${laterBtn}</strong> buttons:</p>
-<ul>
-  <li>“${esc(setup.reloadModule)}${reloadAsk}” (for example after <strong>${layoutName("healing")}</strong> turned the raid frames on)</li>
-  <li>“${esc(setup.reloadTile)}${reloadAsk}”</li>
-</ul>
-${shotFigure(shotByFile("02-setup-wizard"))}`;
-  return disclosure({ id: "setup-wizard", title: "The setup wizard", next: !inRel, meta: inRel ? `${n} steps` : NEXT_BADGE, body });
+<p>${loc.p("The UI scale a preset sets is the game's own UI scale (the one in the game's graphics settings). It changes once you're out of combat, and choosing a preset turns off <strong>{pixel}</strong> under <strong>General → Look</strong>.", { pixel })} ${A(setup.reloadTile)}</p>`;
 }
 
-export function startPage(model, read) {
+// Steps 3 and 4: the look, and moving frames.
+function wizardLookMoveSteps(setup, w, loc) {
+  const { A, lab } = w;
+  return `<h3 id="setup-look">${loc.p("Step 3 · {name}", { name: A(setup.steps[2]) })}</h3>
+<ul>
+  <li>${loc.p(`<strong>{accent}:</strong> click a swatch to change the accent color right away. They're the same colors as in <a href="#accent">Pick an accent color</a> below.`, { accent: lab(w.S, "Core/Setup.lua", "Accent") })}</li>
+  <li>${loc.p("<strong>{style}:</strong> three small raid tiles, each drawn in its style. Click one to switch to it right away: {styles}.", { style: lab(w.S, "Core/Setup.lua", "Raid frame style"), styles: setup.styles.map((x) => `<strong>${A(x[2])}</strong> (${A(x[1])})`).join(", ") })}</li>
+</ul>
+
+<h3 id="setup-move">${loc.p("Step 4 · {name}", { name: A(setup.steps[3]) })}</h3>
+<p>${loc.p("On this step your frames are unlocked, and the wizard says:")}</p>
+<ul>${setup.moveLines.map((l) => `<li>“${A(l)}”</li>`).join("")}</ul>
+<p>${loc.p("Arrow keys are <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd>; hold <kbd>Shift</kbd> to move 10 px at a time.")}</p>
+`;
+}
+
+// The extra step a new character gets (the profile question), when the source has it.
+function wizardProfileStep(setup, w, loc) {
+  if (!setup.profileQuestion) return "";
+  const { A, lab } = w;
+  const S = w.S;
+  // The two choices as the addon writes them, with <name> and <character> where it fills a name.
+  const own = says(S, "Core/Setup.lua", "A profile of its own: ");
+  const shareText = namedText("Share profile {profile} with your other characters", { profile: "<em>name</em>" }, "", loc);
+  const ownText = namedText("A profile of its own: {profile}", { profile: "<em>character</em>" }, own, loc);
+  const copy = namedText("Starts as a copy of {profile}; changes here stay on this character.", { profile: loc.p("the shared one") }, "", loc);
+  return `<h3 id="setup-profile">${loc.p("A new character: the {name} step", { name: A(setup.profileName) })}</h3>
+<p>${loc.p("Once setup is finished on your account, each new character gets it too, with one more step first. It asks: “{question}” and offers two choices:", { question: A(setup.profileQuestion) })}</p>
+<ul>
+  <li><strong>“${loc.english ? `${says(S, "Core/Setup.lua", "Share profile ")}<em>name</em>${says(S, "Core/Setup.lua", " with your other characters")}` : shareText}”</strong>: ${w.s("Changes here change them too.")}</li>
+  <li><strong>“${loc.english ? `${own}<em>character</em>` : ownText}”</strong>: ${loc.english ? `a profile named after the character. It ${says(S, "Core/Setup.lua", "Starts as a copy of ").toLowerCase()}the shared one${says(S, "Core/Setup.lua", "; changes here stay on this character.")}` : `${loc.p("a profile named after the character.")} ${copy}`} ${loc.p("It then starts on your role's layout, and <strong>{back}</strong> doesn't return to this step.", { back: lab(S, "Core/Setup.lua", "Back") })}</li>
+</ul>
+<p>${loc.p("Characters that played before this step came in aren't asked.")}</p>
+
+`;
+}
+
+// Finishing: the clicks, what Done and Skip do, and the reload question.
+function wizardFinish(setup, w, loc) {
+  const { A, lab } = w;
+  const S = w.S;
+  const next = lab(S, "Core/Setup.lua", "Next"), done = lab(S, "Core/Setup.lua", "Done");
+  const clicks = loc.p("With the defaults it takes four clicks: <strong>{next}</strong>, <strong>{next}</strong>, <strong>{next}</strong>, <strong>{done}</strong>.", { next, done });
+  const reloadAsk = (why) => {
+    says(w.D, "Core/Dialog.lua", " Reload the UI now to apply it?");
+    return esc(namedText("{why} Reload the UI now to apply it?", { why: loc.addon(why) }, `${why} Reload the UI now to apply it?`, loc));
+  };
+  const healing = A(setup.layouts.find((l) => l.key === "healing")?.text || "");
+  const ends = setup.later
+    ? `<p>${clicks} ${loc.p("<strong>{done}</strong> finishes it, and so does <strong>{skip}</strong>; both lock your frames again, and chat says “{again}”", { done, skip: lab(S, "Core/Setup.lua", "Skip setup"), again: A(setup.again) })}</p>
+<p>${loc.p("The window's close button and <kbd>Escape</kbd> only close it. Until it's finished, it opens again at your next login, and chat says “{later}”", { later: A(setup.later) })}</p>
+<p>${loc.p("To run it again, type <code>/vg setup</code> or click <strong>{run}</strong> under <strong>General → Layout</strong> in <code>/vg</code>.", { run: lab(w.O, "Core/Options.lua", "Run setup") })}</p>`
+    : `<p>${clicks} ${loc.p("<strong>{done}</strong>, the window's close button and <kbd>Escape</kbd> all end the wizard and lock your frames again. It doesn't come back by itself; type <code>/vg setup</code> to run it again.", { done })}</p>`;
+  return `<h3 id="setup-finish">${loc.p("Finishing")}</h3>
+${ends}
+<p>${loc.p("If setup changed something that needs a reload, it then asks, with <strong>{reload}</strong> and <strong>{later}</strong> buttons:", { reload: lab(w.D, "Core/Dialog.lua", "Reload"), later: lab(w.D, "Core/Dialog.lua", "Later") })}</p>
+<ul>
+  <li>“${reloadAsk(setup.reloadModule)}” ${loc.p("(for example after <strong>{healing}</strong> turned the raid frames on)", { healing })}</li>
+  <li>“${reloadAsk(setup.reloadTile)}”</li>
+</ul>
+${shotFigure(shotByFile("02-setup-wizard"), { loc })}`;
+}
+
+// The setup wizard section (from Core/Setup.lua), when the source has one. Plain player
+// language only: every label and message is quoted from the addon and checked by says().
+function wizardSection(setup, inRel, read, loc) {
+  if (!setup) return "";
+  const S = read.next("Core/Setup.lua");
+  const w = { ...setupWords(S, loc), S, D: read.next("Core/Dialog.lua"), O: read.next("Core/Options.lua") };
+  const body = `${wizardIntro(setup, inRel, w, loc)}
+
+${wizardLayoutStep(setup, w, loc)}
+
+${wizardScreenStep(setup, w, loc)}
+
+${wizardLookMoveSteps(setup, w, loc)}
+${wizardProfileStep(setup, w, loc)}${wizardFinish(setup, w, loc)}`;
+  return disclosure({ id: "setup-wizard", title: loc.p("The setup wizard"), next: !inRel, meta: inRel ? loc.pn({ one: "{n} step", other: "{n} steps" }, setup.steps.length) : nextBadge(loc), body });
+}
+
+// Getting started's glance strip: the four commands to know.
+function startGlance(rel, next, loc) {
+  const setupLine = loc.p("<code>/vg setup</code> runs the wizard");
+  return glance([loc.p("<code>/vg</code> opens the options"), loc.p("<code>/vg unlock</code> moves frames"), loc.p("<code>/vg accent</code> picks a color"), next.setup ? (rel.setup ? setupLine : nextOnly(`${setupLine} ${nextBadge(loc)}`)) : ""]);
+}
+
+// Opening the options window, three ways, and its search.
+function startOptions(model, read, loc) {
   const { rel, next } = model;
-  const presets = next.theme.presetOrder.map((k) => [k, next.theme.presets[k]]).filter((x) => x[1]);
-  const gameMenu = next.has("Core/GameMenu.lua") && !rel.has("Core/GameMenu.lua");
-  const popoverNext = /scale and opacity/.test(JSON.stringify(next.pages)) && !/scale and opacity/.test(JSON.stringify(rel.pages));
   const OW = read.next("Core/OptionsWindow.lua");
-  const O = read.next("Core/Options.lua");
   const GM = read.next("Core/GameMenu.lua");
-  const ow = (...p) => says(OW, "Core/OptionsWindow.lua", ...p);
-  const o = (...p) => says(O, "Core/Options.lua", ...p);
+  const gameMenu = next.has("Core/GameMenu.lua") && !rel.has("Core/GameMenu.lua");
+  const lab = (text, file, name) => (label(text, file, name), esc(loc.addon(name)));
+  const escapeMenu = loc.p("Press <kbd>Escape</kbd> to open the game menu, then click the <strong>{button}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons.", { button: lab(GM, "Core/GameMenu.lua", "Vanguard") });
+  says(OW, "Core/OptionsWindow.lua", "Some changes need a reload");
+  const oldReload = saysIf(read.rel("Core/OptionsWindow.lua") || "", "Core/OptionsWindow.lua", "if ReloadUI then ReloadUI()");
+  return `<ol class="steps">
+  <li>${loc.p("Type <code>/vg</code> (or <code>/vanguard</code>) in chat. Type <code>/vg</code> again to close it.")}</li>
+  <li>${loc.p("Left-click Vanguard on the game's addons button by the minimap. Right-click it instead to turn move mode on or off.")}</li>
+  ${gameMenu ? `<li data-avail="next">${escapeMenu} ${nextBadge(loc)}</li>` : `<li>${escapeMenu}</li>`}
+</ol>
+<p>${loc.p("The options window has a page for each area. To find a setting, type in <strong>{search}</strong> at the top: pages that don't match fade, and <kbd>Enter</kbd> opens the first match. Some changes need a reload; the window then says “{notice}” and shows a <strong>{reload}</strong> button.", { search: lab(OW, "Core/OptionsWindow.lua", "Search settings"), notice: esc(loc.addon("Some changes need a reload")), reload: lab(OW, "Core/OptionsWindow.lua", "Reload now") })}${oldReload ? ` ${loc.p(`In v{version}, type <code>/reload</code> in chat instead: that release's button asks the game to reload directly, and WoW Forever blocks that for addons (see <a href="/help/#reload">Troubleshooting</a>).`, { version: esc(model.version) })}` : ""} ${loc.p(`Every page and setting is listed on <a href="/settings/">Settings</a>.`)}</p>`;
+}
+
+// Moving frames: unlock, drag or nudge, anchors, lock; the grid and snapping.
+function startMove(model, read, loc) {
+  const { rel, next } = model;
+  const O = read.next("Core/Options.lua");
+  const popoverNext = /scale and opacity/.test(JSON.stringify(next.pages)) && !/scale and opacity/.test(JSON.stringify(rel.pages));
+  label(O, "Core/Options.lua", "Move frames");
+  return `<ol class="steps">
+  <li>${loc.p("Type <code>/vg unlock</code> (or <code>/vg move</code>), or click <strong>{button}</strong> under <strong>General → Layout</strong>. Every Vanguard frame gets a drag handle.", { button: esc(loc.addon("Move frames")) })}</li>
+  <li>${loc.p("Drag a handle to move that frame. Or click a handle, then use the arrow keys to nudge it (hold <kbd>Shift</kbd> to move 10 px).")}</li>
+  <li>${loc.p("Right-click a handle for its exact anchor and offsets")}${popoverNext ? nextOnly(`${loc.p("; the next release adds its scale (50% to 200%) and opacity (10% to 100%) there too")} ${nextBadge(loc)}`) : ""}.</li>
+  <li>${loc.p("Type <code>/vg lock</code> when you're done.")}</li>
+</ol>
+<p>${loc.p("While you're moving frames, <code>/vg grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/vg snap on|off</code> makes frames snap to each other. <code>/vg frames</code> lists the frames you can move, and <code>/vg reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.")}</p>`;
+}
+
+// The accent swatches, and keeping the game's version of a part.
+function startAccentModules(model, read, loc) {
+  const { next } = model;
+  const presets = next.theme.presetOrder.map((k) => [k, next.theme.presets[k]]).filter((x) => x[1]);
+  const O = read.next("Core/Options.lua");
+  const offLine = "A module that's off builds nothing and costs nothing.";
+  says(O, "Core/Options.lua", offLine);
+  const accent = `<p>${loc.p("Click a swatch under <strong>/vg → General → Look</strong>, or type <code>/vg accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/vg accent reset</code> puts the default back.")}</p>
+<ul class="swatches">${presets.map(([k, hex], i) => `<li class="swatch"><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? ` ${loc.p("(default)")}` : ""} <span class="small">${esc(hex)}</span></span></li>`).join("")}</ul>`;
+  const modules = `<p>${loc.p(`Every part of Vanguard is a module you can turn off under <strong>/vg → {modules}</strong> (or type <code>/vg disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “{line}” The list is on <a href="/features/">Features</a>.`, { modules: esc(loc.addon("Modules")), line: esc(loc.addon(offLine)) })}</p>`;
+  return { accent, modules };
+}
+
+export function startPage(model, read, loc = EN) {
+  const { rel, next } = model;
+  const { accent, modules } = startAccentModules(model, read, loc);
   return {
     path: "/start/",
     title: "Getting started",
-    description: "Open the Vanguard options, run the setup wizard, move your frames and pick an accent.",
-    body: `${pageHero("Getting started", `After you <a href="/install/">install</a> Vanguard and log in, its frames replace the game's. Here's how to find the options and put things where you want them.`)}
-${glance([`<code>/vg</code> opens the options`, `<code>/vg unlock</code> moves frames`, `<code>/vg accent</code> picks a color`, next.setup ? (rel.setup ? `<code>/vg setup</code> runs the wizard` : nextOnly(`<code>/vg setup</code> runs the wizard ${NEXT_BADGE}`)) : ""])}
-${disclosure({ id: "options", title: "Open the options", open: true, body: `<ol class="steps">
-  <li>Type <code>/vg</code> (or <code>/vanguard</code>) in chat. Type <code>/vg</code> again to close it.</li>
-  <li>Left-click Vanguard on the game's addons button by the minimap. Right-click it instead to turn move mode on or off.</li>
-  ${gameMenu ? `<li data-avail="next">Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "Vanguard")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons. ${NEXT_BADGE}</li>` : `<li>Press <kbd>Escape</kbd> to open the game menu, then click the <strong>${label(GM, "Core/GameMenu.lua", "Vanguard")}</strong> button at the top of the Escape menu, or just under it where your client's menu can't take new buttons.</li>`}
-</ol>
-<p>The options window has a page for each area. To find a setting, type in <strong>${label(OW, "Core/OptionsWindow.lua", "Search settings")}</strong> at the top: pages that don't match fade, and <kbd>Enter</kbd> opens the first match. Some changes need a reload; the window then says “${ow("Some changes need a reload")}” and shows a <strong>${label(OW, "Core/OptionsWindow.lua", "Reload now")}</strong> button.${saysIf(read.rel("Core/OptionsWindow.lua") || "", "Core/OptionsWindow.lua", "if ReloadUI then ReloadUI()") ? ` In v${esc(model.version)}, type <code>/reload</code> in chat instead: that release's button asks the game to reload directly, and WoW Forever blocks that for addons (see <a href="/help/#reload">Troubleshooting</a>).` : ""} Every page and setting is listed on <a href="/settings/">Settings</a>.</p>` })}
-${wizardSection(next.setup, !!rel.setup, read)}
-${disclosure({ id: "move", title: "Move your frames", body: `<ol class="steps">
-  <li>Type <code>/vg unlock</code> (or <code>/vg move</code>), or click <strong>${label(O, "Core/Options.lua", "Move frames")}</strong> under <strong>General → Layout</strong>. Every Vanguard frame gets a drag handle.</li>
-  <li>Drag a handle to move that frame. Or click a handle, then use the arrow keys to nudge it (hold <kbd>Shift</kbd> to move 10 px).</li>
-  <li>Right-click a handle for its exact anchor and offsets${popoverNext ? nextOnly(`; the next release adds its scale (50% to 200%) and opacity (10% to 100%) there too ${NEXT_BADGE}`) : ""}.</li>
-  <li>Type <code>/vg lock</code> when you're done.</li>
-</ol>
-<p>While you're moving frames, <code>/vg grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/vg snap on|off</code> makes frames snap to each other. <code>/vg frames</code> lists the frames you can move, and <code>/vg reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.</p>` })}
-${disclosure({ id: "accent", title: "Pick an accent color", body: `<p>Click a swatch under <strong>/vg → General → Look</strong>, or type <code>/vg accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/vg accent reset</code> puts the default back.</p>
-<ul class="swatches">${presets.map(([k, hex], i) => `<li class="swatch"><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? " (default)" : ""} <span class="small">${esc(hex)}</span></span></li>`).join("")}</ul>` })}
-${disclosure({ id: "modules", title: "Keep the game's version of something", body: `<p>Every part of Vanguard is a module you can turn off under <strong>/vg → Modules</strong> (or type <code>/vg disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “${o("A module that's off builds nothing and costs nothing.")}” The list is on <a href="/features/">Features</a>.</p>` })}`,
+    description: loc.p("Open the Vanguard options, run the setup wizard, move your frames and pick an accent."),
+    translated: true,
+    body: `${pageHero(loc.t("title./start/"), loc.p(`After you <a href="/install/">install</a> Vanguard and log in, its frames replace the game's. Here's how to find the options and put things where you want them.`))}
+${startGlance(rel, next, loc)}
+${disclosure({ id: "options", title: loc.p("Open the options"), open: true, body: startOptions(model, read, loc) })}
+${wizardSection(next.setup, !!rel.setup, read, loc)}
+${disclosure({ id: "move", title: loc.p("Move your frames"), body: startMove(model, read, loc) })}
+${disclosure({ id: "accent", title: loc.p("Pick an accent color"), body: accent })}
+${disclosure({ id: "modules", title: loc.p("Keep the game's version of something"), body: modules })}`,
   };
 }
 
@@ -370,29 +536,35 @@ function moreOf(m, model) {
   return entry && entry.check.every((c) => readmeSays(model.next.readme, c)) ? entry.more : null;
 }
 
-// A command's help text as the addon prints it (newest source first).
-function helpText(model, id) {
+// One help line's text in the page's language: the addon translates either the whole line
+// (older sources, "frames   list the movable frames") or only its text (newer, with the syntax apart).
+function ownHelp(l, loc) {
+  if (loc.english || !l.line) return l.text || "";
+  const whole = loc.addon(l.line);
+  return (whole !== l.line && splitHelp(whole).text) || loc.addon(l.text || "");
+}
+
+// A command's help text as the addon prints it (newest source first), in the page's language.
+function helpText(model, id, loc) {
   const e = model.commands.entries.find((x) => x.id === id);
-  return ((e?.nextLines || e?.relLines || [])[0] || {}).text || "";
+  return ownHelp((e?.nextLines || e?.relLines || [])[0] || {}, loc);
 }
 
 // The "Settings / Commands / Turn it off" lines under a module.
-function featureFacts(m, model) {
+function featureFacts(m, model, loc) {
   const rows = [];
-  if (m.pages.length) rows.push(["Settings", m.pages.map((p) => `<a href="/settings/#${p.id}">${esc(p.title)}</a>`).join(", ")]);
-  for (const c of m.commands) rows.push(["Command", `<a href="/commands/#cmd-${esc(c)}"><code>/vg ${esc(c)}</code></a> ${esc(helpText(model, c))}`]);
-  rows.push(["Turn it off", `<strong>/vg → Modules</strong>, then reload`]);
+  if (m.pages.length) rows.push([loc.p("Settings"), m.pages.map((p) => `<a href="/settings/#${p.id}">${esc(loc.addon(p.title))}</a>`).join(", ")]);
+  for (const c of m.commands) rows.push([loc.p("Command"), `<a href="/commands/#cmd-${esc(c)}"><code>/vg ${esc(c)}</code></a> ${esc(helpText(model, c, loc))}`]);
+  rows.push([loc.p("Turn it off"), loc.p("<strong>/vg → {modules}</strong>, then reload", { modules: esc(loc.addon("Modules")) })]);
   return `<dl class="facts">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
 }
 
 // Where a card's words come from, in plain words (no file names).
-function featureSource(m, more) {
-  const parts = ["Vanguard's own Modules page", m.pages.length && "its options", m.commands.length && "its commands", more && "the addon's own feature list"].filter(Boolean);
-  const list = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}` : parts[0];
-  return `<p class="small mod-src">Source: ${list}.</p>`;
+function featureSource(m, more, loc) {
+  const parts = [loc.p("Vanguard's own Modules page"), m.pages.length && loc.p("its options"), m.commands.length && loc.p("its commands"), more && loc.p("the addon's own feature list")].filter(Boolean);
+  return `<p class="small mod-src">${loc.p("Source: {list}.", { list: loc.list(parts) })}</p>`;
 }
 
-// The screenshots that show a module, by module key (files in src/assets/shots/).
 const FEATURE_SHOTS = {
   UnitFrames: ["01-hud-overview"], Bags: ["10-bags"], MenuStrip: ["11-bag-menu-bar"], Windows: ["12-game-windows"],
   Merchant: ["14-merchant"], QuestDialog: ["15-quest-dialog"], QuestLog: ["16-quest-log"], QuestTracker: ["17-quest-tracker"],
@@ -402,18 +574,19 @@ const FEATURE_SHOTS = {
 };
 
 // One module as a card: name, badges, the addon's one-liner, more, and its facts.
-function featureCard(m, model) {
-  const off = startsOff(m, model) ? ` <span class="badge plain">Off until you switch it on</span>` : "";
+function featureCard(m, model, loc) {
+  const off = startsOff(m, model) ? ` <span class="badge plain">${loc.t("feat.offBadge")}</span>` : "";
   const more = moreOf(m, model);
-  const longer = longerOf(m.key);
+  const longer = longerOf(m.key).map((s) => loc.p(s));
+  const name = esc(loc.addon(m.name));
   return `<article class="card mod" id="${m.id}" data-module="${esc(m.key)}" data-count${m.inRel ? "" : ' data-avail="next"'}>
-  <h3>${esc(m.name)} ${badge(m.inRel, m.inNext, model.version)}${off}</h3>
-  ${m.desc ? `<p>${esc(m.desc)}</p>` : ""}
-  <details class="mod-details"><summary>More<span class="visually-hidden"> about ${esc(m.name)}</span></summary>
-  ${(FEATURE_SHOTS[m.key] || []).map((f) => shotFigure(shotByFile(f))).join("")}
-  ${more ? `<p class="mod-more">${esc(more)}</p>` : ""}${longer.length ? `\n  <p class="mod-longer">${esc(longer.join(" "))}</p>` : ""}
-  ${featureFacts(m, model)}
-  ${featureSource(m, more)}
+  <h3>${name} ${badge(m.inRel, m.inNext, model.version, loc)}${off}</h3>
+  ${m.desc ? `<p>${esc(loc.addon(m.desc))}</p>` : ""}
+  <details class="mod-details"><summary>${loc.p("More<span class=\"visually-hidden\"> about {name}</span>", { name })}</summary>
+  ${(FEATURE_SHOTS[m.key] || []).map((f) => shotFigure(shotByFile(f), { loc })).join("")}
+  ${more ? `<p class="mod-more">${esc(loc.p(more))}</p>` : ""}${longer.length ? `\n  <p class="mod-longer">${esc(longer.join(" "))}</p>` : ""}
+  ${featureFacts(m, model, loc)}
+  ${featureSource(m, more, loc)}
   </details>
 </article>`;
 }
@@ -425,20 +598,17 @@ function featureAreas(model) {
 }
 
 // One area: its heading and its module cards.
-function areaSection([area, list], model) {
+function areaSection([area, list], model, loc) {
   const rel = list.filter((m) => m.inRel).length;
-  const mods = (n) => `${n} module${n === 1 ? "" : "s"}`;
-  const meta = rel === list.length ? mods(rel) : `${mods(rel)}${nextOnly(` + ${list.length - rel} next release`)}`;
-  return disclosure({ id: `area-${slug(area)}`, title: esc(area), meta, next: rel === 0, cls: "area", body: `<div class="mods">${list.map((m) => featureCard(m, model)).join("\n")}</div>` });
+  const mods = (n) => loc.pn({ one: "{n} module", other: "{n} modules" }, n);
+  const meta = rel === list.length ? mods(rel) : `${mods(rel)}${nextOnly(` ${loc.p("+ {n} next release", { n: list.length - rel })}`)}`;
+  return disclosure({ id: `area-${slug(area)}`, title: esc(loc.p(area)), meta, next: rel === 0, cls: "area", body: `<div class="mods">${list.map((m) => featureCard(m, model, loc)).join("\n")}</div>` });
 }
 
-// The Features lede, shown in the page hero. In another language it ends by
-// saying the module descriptions below are in English (plan D8).
+// The Features lede, shown in the page hero.
 function featuresLede(loc) {
-  const lede = loc.t("feat.lede", { modules: esc(loc.addon("Modules")) });
-  return loc.english ? lede : `${lede} ${loc.t("feat.englishNote")}`;
+  return loc.t("feat.lede", { modules: esc(loc.addon("Modules")) });
 }
-
 // The facts strip under the page hero: the counts, and what the tags mean.
 function featuresIntro(model, loc) {
   const count = (f) => model.modules.filter(f).length;
@@ -458,13 +628,15 @@ function featureSearchBox(model, loc) {
 </div>`;
 }
 
-// The Features page: one card per module, grouped by area. In another language
-// only the intro and the search are translated; the cards stay English (lang="en").
+// The Features page: one card per module, grouped by area, in the page's language
+// (the names and first lines are the addon's own, from its Modules page).
 export function featuresPage(model, loc = EN) {
   const groups = featureAreas(model);
-  const lang = loc.english ? "" : ' lang="en"';
-  const body = [pageHero(loc.t("title./features/"), featuresLede(loc)), featuresIntro(model, loc), featureSearchBox(model, loc), `<div id="mod-list" class="dis-grid"${lang}>${groups.map((g) => areaSection(g, model)).join("\n")}</div>`,
-    `<p class="small"${lang}>The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version${model.same ? "" : `, so v${esc(model.version)} may not have every detail yet`}; <a href="/settings/">Settings</a> shows exactly which options each release has.</p>`];
+  const tail = model.same
+    ? loc.p(`The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version; <a href="/settings/">Settings</a> shows exactly which options each release has.`)
+    : loc.p(`The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version, so v{version} may not have every detail yet; <a href="/settings/">Settings</a> shows exactly which options each release has.`, { version: esc(model.version) });
+  const body = [pageHero(loc.t("title./features/"), featuresLede(loc)), featuresIntro(model, loc), featureSearchBox(model, loc), `<div id="mod-list" class="dis-grid">${groups.map((g) => areaSection(g, model, loc)).join("\n")}</div>`,
+    `<p class="small">${tail}</p>`];
   return { path: "/features/", title: "Features", description: loc.text("feat.description"), body: body.join("\n"), translated: true };
 }
 
@@ -473,8 +645,7 @@ export function featuresPage(model, loc = EN) {
 // The visible lines of one command entry. A help line's text is the addon's,
 // in the page's language; its syntax stays as typed.
 function cmdLines(e, loc) {
-  const text = (l) => (loc.english ? l.text : splitHelp(loc.addon(l.line)).text || l.text);
-  const show = (lines) => lines.map((l) => `<p class="cmd-text"><span class="cmd-line">/vg ${esc(l.syntax)}</span><br>${esc(text(l))}</p>`).join("");
+  const show = (lines) => lines.map((l) => `<p class="cmd-text"><span class="cmd-line">/vg ${esc(l.syntax)}</span><br>${esc(ownHelp(l, loc))}</p>`).join("");
   if (e.relLines && !e.changed) return show(e.relLines);
   if (e.relLines && e.changed) return `${show(e.relLines)}${nextOnly(`<p class="cmd-meta">${loc.t("cmd.nextReads")}</p>${show(e.nextLines)}`, "div")}`;
   if (e.nextLines) return show(e.nextLines);
@@ -519,8 +690,9 @@ function cmdModules(e, model, loc) {
 // The words the search box matches for a command: its words and help lines,
 // in English and in the page's language.
 function cmdSearch(e, loc) {
-  const lines = [...(e.relLines || []), ...(e.nextLines || [])].map((l) => l.line);
-  const own = loc.english ? [] : lines.map((l) => loc.addon(l)).filter((l) => !lines.includes(l));
+  const all = [...(e.relLines || []), ...(e.nextLines || [])];
+  const lines = all.map((l) => l.line);
+  const own = loc.english ? [] : all.map((l) => ownHelp(l, loc)).filter((t) => !all.some((l) => l.text === t));
   return [e.keys.join(" "), ...lines, ...own, e.special || ""].join(" ");
 }
 

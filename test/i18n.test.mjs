@@ -13,7 +13,8 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { NAV } from "../scripts/lib/html.mjs";
-import { ENGLISH, ENGLISH_STRINGS, LOCALES, publishedLocales, parseLocaleLua, parseCsv, parseDraftCsv, addonTranslations, siteLocale, localiseLinks } from "../scripts/lib/i18n-site.mjs";
+import { ENGLISH, ENGLISH_STRINGS, LOCALES, publishedLocales, parseLocaleLua, parseCsv, parseDraftCsv, addonTranslations, siteLocale, localiseLinks, proseOf, proseProblems } from "../scripts/lib/i18n-site.mjs";
+import { commandWords, commandsIn } from "../scripts/lib/commands.mjs";
 import { ENGLISH_HELP } from "../scripts/lib/help-content.mjs";
 import { helpPage, supportPage, SUPPORT_PAGE } from "../scripts/lib/pages-more.mjs";
 import { gitReader } from "../scripts/lib/source.mjs";
@@ -192,6 +193,45 @@ test("Support speaks the language and keeps its Ko-fi link", () => {
   assert.deepEqual(de.match(/href="[^"]+"/g), en.match(/href="[^"]+"/g));
 });
 
+// ------------------------------------------------------------------ /vg commands stay as typed
+
+const words = commandWords(nextReader.read("Core/Slash.lua"));
+
+test("a command is read with its own words, placeholders and groups, and stops at prose", () => {
+  assert.deepEqual(commandsIn("Type /vg move, then /vg reset <frame|all> and /vg opens the window.", words), ["/vg", "/vg move", "/vg reset <frame|all>"]);
+  assert.deepEqual(commandsIn("<code>/vg profile new &lt;name&gt;</code>", words), ["/vg profile new <name>"]);
+  assert.notDeepEqual(commandsIn("/vg zurücksetzen <Rahmen|jeden>", words), commandsIn("/vg reset <frame|all>", words));
+});
+
+// Every translated text in a language with the English it translates: site strings (each plural
+// form), Troubleshooting and Support texts, and the page prose.
+function translatedPairs(loc) {
+  const strings = Object.entries(ENGLISH_STRINGS).flatMap(([k, en]) => forms(loc.strings[k]).map((t) => [k, forms(en)[0], t]));
+  const own = new Map(pageTexts(loc.pages));
+  const pages = pageTexts(ENGLISH_PAGES).map(([k, en]) => [k, en, own.get(k)]);
+  const prose = [...proseOf(loc.code)].flatMap(([en, t]) => forms(t).map((f) => [en, en, f]));
+  return [...strings, ...pages, ...prose];
+}
+
+for (const loc of LOCALES) {
+  test(`${loc.code} types every /vg command as English does`, () => {
+    for (const [key, en, t] of translatedPairs(loc)) assert.deepEqual(commandsIn(t, words), commandsIn(en, words), `${key}: “${t}”`);
+  });
+}
+
+// Every page line the build looked up (.cache/prose.json), translated in each published language,
+// keeping its slots, tags and commands; a translation no page uses any more is removed.
+const used = new Map(Object.entries(JSON.parse(fs.readFileSync(path.join(cfg.cacheDir, "prose.json"), "utf8"))));
+
+for (const loc of publishedLocales(cfg.locales).slice(1)) {
+  test(`${loc.code} translates every page line, keeping its slots, tags and commands`, () => {
+    const own = proseOf(loc.code);
+    assert.deepEqual([...used.keys()].filter((k) => !own.has(k)), [], "untranslated (node scripts/prose.mjs lists them)");
+    assert.deepEqual([...own.keys()].filter((k) => !used.has(k)), [], "no page uses these any more");
+    for (const [k, t] of own) assert.deepEqual(proseProblems(used.get(k), t, loc.lang, words), [], k);
+  });
+}
+
 // ------------------------------------------------------------------ the addon's unreviewed drafts (previews)
 
 test("a CSV's quoted fields keep their commas, quotes and line breaks", () => {
@@ -294,15 +334,10 @@ test("a language's sidebar, header and footer are in that language, with no Engl
   }
 });
 
-test("Settings, Commands, Features, Troubleshooting and Support are translated; every other page keeps an English body marked lang=en", () => {
-  const own = ["/settings/", "/commands/", "/features/", "/help/", "/support/"];
+test("every page is translated: no main or Features card list is marked lang=en", () => {
   for (const l of LOCALES) {
-    for (const n of NAV) {
-      const h = html(l.code, n.path);
-      const lang = /<main id="main" tabindex="-1" lang="en">/.test(h);
-      assert.equal(lang, !own.includes(n.path), `/${l.code}${n.path} main lang=en`);
-    }
-    assert.ok(html(l.code, "/features/").includes('<div id="mod-list" class="dis-grid" lang="en">'), `/${l.code}/features/ cards marked English`);
+    for (const n of NAV) assert.ok(!/<main id="main" tabindex="-1" lang="en">/.test(html(l.code, n.path)), `/${l.code}${n.path} main lang=en`);
+    assert.ok(html(l.code, "/features/").includes('<div id="mod-list" class="dis-grid">'), `/${l.code}/features/ cards in the language`);
   }
 });
 

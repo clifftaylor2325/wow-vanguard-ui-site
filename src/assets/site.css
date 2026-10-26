@@ -393,20 +393,20 @@ table.stack { margin: 0 0 1em; }
 .fr-bl { left: -2px; bottom: -2px; transform: scaleY(-1); }
 .fr-br { right: -2px; bottom: -2px; transform: scale(-1, -1); }
 
-.hero-inner { position: relative; max-width: 760px; min-width: 0; }
+.hero-inner { position: relative; max-width: 900px; min-width: 0; }
 /* The crest above the title: sized by the viewport so the hero still opens on one screen. */
-.hero-crest { display: block; width: auto; height: clamp(64px, 9vh, 92px); margin: 0 auto 6px; filter: drop-shadow(0 6px 18px color-mix(in oklab, var(--bg) 70%, transparent)); }
+.hero-crest { display: block; width: auto; height: clamp(64px, 9vh, 92px); margin: 0 auto 2px; filter: drop-shadow(0 6px 18px color-mix(in oklab, var(--bg) 70%, transparent)); }
 .hero-kicker { margin: 0 0 6px; font-size: 0.85rem; letter-spacing: 0.3em; text-transform: uppercase; color: color-mix(in oklab, var(--accent) 70%, var(--text)); }
 .hero-title { margin: 0; font-weight: 600; font-size: clamp(2.8rem, 10vw, 5.5rem); line-height: 0.95; letter-spacing: 0.015em; color: var(--accent); text-shadow: 0 2px 30px color-mix(in oklab, var(--accent) 35%, transparent); }
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
   .hero-title, .page-title { background: linear-gradient(180deg, color-mix(in oklab, var(--text) 80%, var(--accent)) 8%, var(--accent) 52%, color-mix(in oklab, var(--accent) 72%, var(--glow)) 92%); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 4px 24px color-mix(in oklab, var(--accent) 38%, transparent)); }
 }
 .hero-orn { width: 260px; margin: 6px auto 6px; }
-.hero-tagline { margin: 0 auto 10px; max-width: 34ch; text-wrap: balance; font-size: clamp(1.25rem, 3.6vw, 1.7rem); line-height: 1.25; color: var(--text); text-shadow: 0 1px 12px var(--bg); }
-.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 12px; }
+.hero-tagline { margin: 0 auto 10px; max-width: 60ch; text-wrap: balance; font-size: clamp(1.25rem, 3.6vw, 1.7rem); line-height: 1.25; color: var(--text); text-shadow: 0 1px 12px var(--bg); }
+.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 8px; }
 .hero-actions .cf-cta.is-soon { background: color-mix(in oklab, var(--bg) 70%, transparent); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 .hero-actions .button { padding: 11px 20px; font-size: 1.05rem; }
-.hero-meta { margin: 12px 0 0; font-size: var(--fs-sm); color: var(--text); text-shadow: 0 1px 8px var(--bg), 0 0 2px var(--bg); }
+.hero-meta { margin: 8px 0 0; font-size: var(--fs-sm); color: var(--text); text-shadow: 0 1px 8px var(--bg), 0 0 2px var(--bg); }
 
 @media (max-width: 559px) { .hero { min-height: 280px; padding: 26px 16px 40px; } .hero-orn { margin: 6px auto 8px; } .hero-actions { margin-top: 12px; } }
 
@@ -434,7 +434,7 @@ table.stack { margin: 0 0 1em; }
 /* ------------------------------------------------------------------ Inner-page hero
    A slim band at the top of every page but Home: the Home hero's sky, brass
    frame and ornament around the h1 and a one-line lede (pageHero() in html.mjs). */
-.page-hero { position: relative; isolation: isolate; overflow: hidden; margin: 0 0 var(--sp-3); padding: 14px 22px 12px; border-radius: var(--r-4); text-align: center; border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--divider)); box-shadow: 0 24px 48px -36px #000, 0 0 0 1px color-mix(in oklab, var(--bg) 60%, transparent); }
+.page-hero { position: relative; isolation: isolate; overflow: hidden; margin: 0 0 var(--sp-3); padding: 10px 22px 8px; border-radius: var(--r-4); text-align: center; border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--divider)); box-shadow: 0 24px 48px -36px #000, 0 0 0 1px color-mix(in oklab, var(--bg) 60%, transparent); }
 .page-hero .hero-sky { background:
   radial-gradient(ellipse 70% 30% at 50% 104%, color-mix(in oklab, var(--accent) 34%, transparent), transparent 72%),
   radial-gradient(ellipse 40% 20% at 50% 106%, color-mix(in oklab, var(--glow) 26%, transparent), transparent 72%),
@@ -450,11 +450,11 @@ table.stack { margin: 0 0 1em; }
 @media (min-width: 560px) { .expand-all { display: inline-flex; align-items: center; } }
 .page-hero .hero-frame { inset: 8px; }
 .page-hero .hero-frame .fr { width: 32px; height: 32px; }
-.page-hero-inner { position: relative; max-width: 780px; margin: 0 auto; min-width: 0; }
+.page-hero-inner { position: relative; max-width: 900px; margin: 0 auto; min-width: 0; }
 .page-title { margin: 0; font-size: clamp(1.5rem, 3.5vw, 1.9rem); line-height: 1.1; letter-spacing: 0.015em; text-wrap: balance; }
-.page-orn { width: 120px; height: 12px; margin: 3px auto 5px; }
-.page-hero .lede { margin: 0 auto; max-width: 70ch; font-size: 0.98rem; line-height: 1.4; text-wrap: pretty; text-shadow: 0 1px 12px var(--bg), 0 0 2px var(--bg); }
-@media (max-width: 559px) { .page-hero { padding: 10px 12px 10px; } .page-hero .lede { font-size: 0.9rem; } .page-hero .hero-frame { inset: 5px; } .page-hero .hero-frame .fr { width: 22px; height: 22px; } }
+.page-orn { width: 120px; height: 12px; margin: 2px auto 3px; }
+.page-hero .lede { margin: 0 auto; max-width: 90ch; font-size: 0.98rem; line-height: 1.4; text-wrap: pretty; text-shadow: 0 1px 12px var(--bg), 0 0 2px var(--bg); }
+@media (max-width: 559px) { .page-hero { padding: 8px 12px 6px; } .page-hero .lede { font-size: 0.9rem; line-height: 1.33; } .page-hero .hero-frame { inset: 5px; } .page-hero .hero-frame .fr { width: 22px; height: 22px; } }
 
 /* ------------------------------------------------------------------ Feedback form (/feedback/)
    The form needs JS; without it the steps and templates below still work. */

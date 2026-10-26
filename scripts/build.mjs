@@ -19,7 +19,7 @@ import { homePage, installPage, startPage, featuresPage, commandsPage, settingsP
 import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage, supportPage, screenshotsPage } from "./lib/pages-more.mjs";
 import { longerGaps } from "./lib/features-content.mjs";
 import { faviconSvg } from "./lib/brand.mjs";
-import { publishedLocales, siteLocale, addonTranslations, alternates } from "./lib/i18n-site.mjs";
+import { publishedLocales, siteLocale, addonTranslations, alternates, PROSE_USED, proseOf } from "./lib/i18n-site.mjs";
 
 const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js", "fill.js"];
 
@@ -118,6 +118,18 @@ function notFoundPage(site, loc) {
   return layout({ path: "/404", title: loc.english ? "Not found" : loc.text("notFound.title"), description: loc.text("notFound.title"), site, loc, translated: true, body: pageHero(loc.t("notFound.title"), loc.t("notFound.lede", { home })) });
 }
 
+// The page prose the build looked up (.cache/prose.json, for scripts/prose.mjs and the tests),
+// and a warning for each published language that lacks some of it (those lines show in English).
+function writeProse(locales) {
+  fs.mkdirSync(cfg.cacheDir, { recursive: true });
+  fs.writeFileSync(path.join(cfg.cacheDir, "prose.json"), JSON.stringify(Object.fromEntries(PROSE_USED), null, 1) + "\n");
+  for (const l of locales.slice(1)) {
+    const own = proseOf(l.code);
+    const missing = [...PROSE_USED.keys()].filter((k) => !own.has(k)).length;
+    if (missing) console.warn(`${l.code}: ${missing} of ${PROSE_USED.size} prose lines untranslated (shown in English); see \`node scripts/prose.mjs\``);
+  }
+}
+
 // Entry point.
 function main() {
   need(fs.existsSync(path.join(cfg.sourcePath, ".git")), `no addon clone at ${cfg.sourcePath}; run \`npm run fetch\` or set FUI_SRC`);
@@ -168,13 +180,14 @@ function main() {
   for (const locale of locales) {
     const loc = siteLocale(locale, addonTranslations(readers, locale.addon, cfg.addonDrafts));
     pages = [
-      homePage(model), installPage(model), startPage(model, read), featuresPage(model, loc), screenshotsPage(model), commandsPage(model, loc), settingsPage(model, read, loc),
-      profilesPage(model, read), helpPage(model, read, loc), feedbackPage(model, read), changelogPage(model), creditsPage(model, site), supportPage(loc),
+      homePage(model, loc), installPage(model, loc), startPage(model, read, loc), featuresPage(model, loc), screenshotsPage(model, loc), commandsPage(model, loc), settingsPage(model, read, loc),
+      profilesPage(model, read, loc), helpPage(model, read, loc), feedbackPage(model, read, loc), changelogPage(model, loc), creditsPage(model, site, loc), supportPage(loc),
     ];
     for (const p of pages) write(path.join(loc.prefix, p.path, "index.html"), layout({ ...p, site, loc, alts: alternates(locales, p.path, base) }));
     write(path.join(loc.prefix, "404.html"), notFoundPage(site, loc));
   }
 
+  writeProse(locales);
   const data = {
     source: { release: release.tag, releaseCommit: rel.commit, nextCommit: next.commit },
     release: { tag: release.tag, publishedAt: release.publishedAt },

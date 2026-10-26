@@ -25,6 +25,8 @@
 // The translations below are machine drafts; a player's correction goes straight into them.
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { commandsIn } from "./commands.mjs";
 import { md } from "./html.mjs";
 import { STRINGS_DE, STRINGS_FR, STRINGS_ES, STRINGS_ES_MX, STRINGS_IT, STRINGS_PT_BR } from "./i18n-strings-latin.mjs";
 import { STRINGS_RU, STRINGS_KO, STRINGS_ZH_CN, STRINGS_ZH_TW } from "./i18n-strings-other.mjs";
@@ -157,7 +159,6 @@ export const ENGLISH_STRINGS = {
   "set.aboutClients": "Some rows only appear on some clients (for example the Specialization card on the Profiles page needs a client with specializations; the game's own click bindings need a client that has them). Lists that you fill in yourself (your profiles, your chat watch phrases, the bindings grid) aren't listed row by row.",
   "feat.description": "Every Vanguard module: what it does, where its settings are, and its commands.",
   "feat.lede": "Vanguard is built from modules. Each one replaces or adds one piece of the game's interface, and each can be turned off on its own under **/vg → {modules}**.",
-  "feat.englishNote": "",
   "feat.inRelease": { one: "**{n}** module in v{version}", other: "**{n}** modules in v{version}" },
   "feat.offBadge": "Off until you switch it on",
   "feat.everyOn": "Every module is on unless marked {badge}",
@@ -264,6 +265,27 @@ export function addonTranslations(readers, addonLocale, drafts = null) {
   return out;
 }
 
+// ------------------------------------------------------------------ the pages' prose
+
+// The pages' own sentences (Home, Install, Getting started, the Features cards,
+// Profiles, Feedback, Changelog, Credits, Screenshots): each is keyed by its
+// English HTML, with {name} slots for the values a page fills in, the way the
+// addon keys L["…"]. scripts/lib/i18n-prose/<code>.json holds a language's
+// translations ({ "English": "translation" }); a sentence without one shows in
+// English. `node scripts/prose.mjs` lists the keys and what each language lacks.
+export const PROSE_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "i18n-prose");
+
+// Every prose key a build looked up, in the order the pages use them, with its English (a
+// template, or a plural's {one, other}); the build writes them to .cache/prose.json for
+// scripts/prose.mjs. A plural's translation is an object with one template per plural category.
+export const PROSE_USED = new Map();
+
+// One language's prose translations (an empty map when it has no file yet).
+export function proseOf(code) {
+  const file = path.join(PROSE_DIR, `${code}.json`);
+  return new Map(fs.existsSync(file) ? Object.entries(JSON.parse(fs.readFileSync(file, "utf8"))) : []);
+}
+
 // ------------------------------------------------------------------ the page context
 
 // A template with each {name} replaced by values[name] (a name values lacks stays as written).
@@ -283,9 +305,11 @@ function englishList(items) {
 //   text(key, values)  the site string as plain text (attributes; escape it)
 //   n(key, count, v)   the plural site string for count, as HTML
 //   addon(text)        the addon's own text in this language, English when untranslated
+//   p(english, values) a page's own sentence (HTML) in this language, English when untranslated
+//   pn(forms, count, v) the same for a count: forms is { one, other } in English, keyed by other
 //   href(path)         a site path in this language's folder
 //   list(items)        "a, b and c" in this language
-export function siteLocale(locale = ENGLISH, translations = new Map()) {
+export function siteLocale(locale = ENGLISH, translations = new Map(), prose = locale === ENGLISH ? new Map() : proseOf(locale.code)) {
   const strings = locale.strings;
   const rules = new Intl.PluralRules(locale.lang);
   const raw = (key) => {
@@ -297,6 +321,7 @@ export function siteLocale(locale = ENGLISH, translations = new Map()) {
   return {
     ...locale,
     english: locale === ENGLISH,
+    addonLocale: locale.addon,
     prefix,
     t: (key, values = {}) => fill(md(raw(key)), values),
     text: (key, values = {}) => fill(raw(key), values),
@@ -305,6 +330,15 @@ export function siteLocale(locale = ENGLISH, translations = new Map()) {
       return fill(md(forms[rules.select(count)] ?? forms.other), { ...values, n: count });
     },
     addon: (text) => translations.get(text) ?? text,
+    p: (english, values = {}) => {
+      PROSE_USED.set(english, english);
+      return fill(prose.get(english) ?? english, values);
+    },
+    pn: (forms, count, values = {}) => {
+      PROSE_USED.set(forms.other, forms);
+      const own = prose.get(forms.other) ?? forms;
+      return fill(own[rules.select(count)] ?? own.other, { ...values, n: count });
+    },
     href: (path) => `${prefix}${path}`,
     list: (items) => (locale === ENGLISH ? englishList(items) : conj.format(items)),
   };
@@ -337,4 +371,24 @@ export function alternates(locales, path, base = "") {
     const href = `${l === ENGLISH ? "" : `/${l.code}`}${path}`;
     return { ...l, href, url: `${base}${href}` };
   });
+}
+
+// What is wrong with one prose translation against its English (a template or a plural's
+// {one, other}): [message]. A translation keeps every {slot}, every tag with its attributes and
+// every /vg command as typed (commandsIn with the addon's commandWords), and a plural gives one
+// template per plural category of the language.
+export function proseProblems(english, translation, lang, words) {
+  const forms = (v) => (typeof v === "string" ? [v] : Object.values(v ?? {}));
+  const en = forms(english).at(-1);
+  const sorted = (s, re) => (s.match(re) || []).sort().join(" ");
+  const out = [];
+  if (typeof english !== typeof translation) out.push(typeof english === "string" ? "a plain text, not plural forms" : "plural forms, one per category");
+  else if (typeof english !== "string" && Object.keys(translation).sort().join() !== new Intl.PluralRules(lang).resolvedOptions().pluralCategories.sort().join()) out.push(`one form per ${lang} plural category`);
+  for (const t of forms(translation)) {
+    if (!t.trim()) out.push("empty");
+    else if (sorted(t, /\{\w+\}/g) !== sorted(en, /\{\w+\}/g) && typeof english === "string") out.push(`{slots} differ: ${t}`);
+    else if (sorted(t, /<[^>]+>/g) !== sorted(en, /<[^>]+>/g)) out.push(`tags differ: ${t}`);
+    else if (commandsIn(t, words).join("\n") !== commandsIn(en, words).join("\n")) out.push(`/vg commands differ: ${t}`);
+  }
+  return out;
 }
