@@ -10,14 +10,14 @@ import os from "node:os";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
-import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton, followLine } from "../scripts/lib/html.mjs";
+import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton, navCommunity, followLine } from "../scripts/lib/html.mjs";
 import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 import { featuresPage, startsOff } from "../scripts/lib/pages-main.mjs";
 import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
-import { publishedLocales } from "../scripts/lib/i18n-site.mjs";
+import { publishedLocales, EN } from "../scripts/lib/i18n-site.mjs";
 import { extractAddon, extractPages } from "../scripts/lib/extract.mjs";
 import { buildModel } from "../scripts/lib/model.mjs";
 import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
@@ -622,11 +622,13 @@ test("every page, Home included, has the grouped sidebar with all 13 pages, and 
     for (const n of NAV) assert.ok(nav.includes(`href="${n.path}"`), `/${d} sidebar links ${n.path}`);
     assert.equal((nav.match(/class="nav-group-h"/g) || []).length, 5, `/${d} sidebar has five groups`);
     assert.equal((html.match(/<nav\b/g) || []).length, 1, `/${d} has one nav`);
-    // The header links only Home (the brand), Discord and Support, besides the language
-    // button's copies of this page; the footer links no pages.
+    // The header links only Home (the brand), besides the language button's copies of this
+    // page; Discord and Support sit in the sidebar; the footer links no pages.
     const header = (html.match(/<header class="site-header">[\s\S]*?<\/header>/) || [""])[0].replace(/<details class="lang-menu"[\s\S]*?<\/details>/, "");
-    const want = ["/", ...(DISCORD_URL ? [DISCORD_URL] : []), ...(supportOn().length ? ["/support/"] : [])];
-    assert.deepEqual([...header.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((m) => m[1]), want, `/${d}: the header links only the brand, Discord and the Support page`);
+    assert.deepEqual([...header.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((m) => m[1]), ["/"], `/${d}: the header links only the brand`);
+    const community = (nav.match(/<div class="nav-community">[\s\S]*?<\/div>/) || [""])[0];
+    const want = [...(DISCORD_URL ? [DISCORD_URL] : []), ...(supportOn().length ? ["/support/"] : [])];
+    assert.deepEqual([...community.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((m) => m[1]), want, `/${d}: the sidebar's community row links Discord and the Support page`);
     const footer = (html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
     assert.ok(!/class="footer-links"/.test(footer), `/${d}: the footer has no page links`);
   }
@@ -701,18 +703,20 @@ test("support links render only once a URL is set, and only https ones", () => {
   for (const d of PAGE_DIRS) {
     const html = pageHtml(d);
     const footer = (html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
-    assert.equal(/class="support-btn"/.test(html), on, `/${d}: the header's Support button shows exactly when a support URL is set`);
-    assert.ok(!/patreon\.com|ko-fi\.com/i.test(footer), `/${d}: the footer leaves support to the header button`);
+    assert.equal(/class="support-btn"/.test(html), on, `/${d}: the sidebar's Support button shows exactly when a support URL is set`);
+    assert.ok(!/patreon\.com|ko-fi\.com/i.test(footer), `/${d}: the footer leaves support to the sidebar button`);
     if (!on) assert.ok(!/patreon\.com|ko-fi\.com/i.test(html), `/${d} links to a donation site before its URL is set`);
   }
   assert.equal(/id="support"/.test(page("credits")), on, "Credits has a Support section exactly when a support URL is set");
 });
 
-test("the header's Discord button: a link while DISCORD_URL is set, named for screen readers", () => {
+test("the sidebar's Discord button: a link while DISCORD_URL is set, named for screen readers", () => {
   assert.equal(discordButton(null), "", "no button without a URL");
   const btn = discordButton('https://discord.gg/a"b');
   assert.ok(btn.includes('href="https://discord.gg/a&quot;b"') && btn.includes('aria-label="Discord"'), "escaped URL and an accessible name");
-  assert.equal(/class="discord-btn"/.test(page("")), Boolean(DISCORD_URL), "Home's header has the button exactly while the URL is set");
+  assert.equal(/class="discord-btn"/.test(page("")), Boolean(DISCORD_URL), "Home's sidebar has the button exactly while the URL is set");
+  assert.equal(navCommunity(EN, { discord: null, links: [] }), "", "no community row with neither switched on");
+  assert.ok(!/discord-btn|support-btn/.test(page("").match(/<header class="site-header">[\s\S]*?<\/header>/)[0]), "the header leaves Discord and Support to the sidebar");
 });
 
 test("the footer's links line: release, stores, Discord while its URL is set, copyright", () => {
@@ -765,7 +769,7 @@ test("every page has its own search title and description, and Home carries Soft
   assert.equal(app.operatingSystem, "Windows, macOS");
 });
 
-test("Support: a page, a header button, and one UTM-tagged Ko-fi ask each on Install, Changelog and Troubleshooting", () => {
+test("Support: a page, a sidebar button, and one UTM-tagged Ko-fi ask each on Install, Changelog and Troubleshooting", () => {
   const on = supportOn(SUPPORT).length > 0;
   const kofi = (h) => [...h.matchAll(/href="(https:\/\/ko-fi\.com\/[^"]+)"/g)].map((m) => m[1]);
   for (const [d, campaign] of [["install", "install"], ["changelog", "changelog"], ["help", "help"], ["support", "support-page"]]) {
@@ -775,8 +779,8 @@ test("Support: a page, a header button, and one UTM-tagged Ko-fi ask each on Ins
   }
   assert.ok(!/storage\.ko-fi\.com/.test(page("support")), "no Ko-fi script on the Support page");
   for (const d of ["start", "features", "commands", "settings", "profiles", "feedback", "credits"]) assert.ok(!/utm_campaign=/.test(page(d)), `/${d} carries no ask`);
-  assert.equal(on, /class="support-btn" href="\/support\/"/.test(page("")), "the header button shows exactly when Ko-fi is on");
-  // A phone shows the heart alone, so the button's name stays in aria-label.
+  assert.equal(on, /class="support-btn" href="\/support\/"/.test(page("")), "the sidebar button shows exactly when Ko-fi is on");
+  // The heart is decoration, so the button's name stays in aria-label.
   if (on) assert.ok(page("").includes('<a class="support-btn" href="/support/" aria-label="Support"><span aria-hidden="true">♥</span> <span class="btn-label">Support</span></a>'), "the Support button's heart and word");
 });
 

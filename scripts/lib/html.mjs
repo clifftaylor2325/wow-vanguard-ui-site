@@ -57,8 +57,8 @@ export const CURSEFORGE_URL = "https://www.curseforge.com/wow/addons/vanguard-ui
 // link next to each CurseForge call to action and in the footer; null hides it.
 export const WAGO_URL = "https://addons.wago.io/addons/wow-vanguard-ui";
 
-// Vanguard's Discord server: a permanent invite, linked from a button in every
-// page's header and from the footer. null takes both off the site.
+// Vanguard's Discord server: a permanent invite, linked from a button in the sidebar
+// (the Menu drawer on a phone) and from the footer. null takes both off the site.
 export const DISCORD_URL = "https://discord.gg/8ChnJfyww";
 
 // Vanguard's X account: linked from the footer and the Support page, and named as the site's
@@ -75,7 +75,7 @@ export function followLine(text, { x = X_URL, discord = DISCORD_URL } = {}) {
 }
 
 // Ways to support Vanguard's development, in the order shown. Each stays off the site until its
-// url is set (an https:// address): then the header gets a Support button (to the Support page)
+// url is set (an https:// address): then the sidebar gets a Support button (to the Support page)
 // and the Credits page a Support section. Donations stay on the website, never in the addon itself.
 export const SUPPORT = [
   { name: "Ko-fi", url: "https://ko-fi.com/cliftontaylor", what: "a one-off tip" },
@@ -96,20 +96,28 @@ export function supportAsk(campaign, lead, links = SUPPORT, thanks = "Say thanks
   return `<p class="ask small">${lead} <a href="${esc(url)}" rel="noopener">${thanks}</a>.</p>`;
 }
 
-// The header's Support button: a link to the Support page, not straight to Ko-fi. On a phone
-// only the heart shows (room for the language button), so aria-label keeps the word.
+// The sidebar's Support button: a link to the Support page, not straight to Ko-fi. The heart
+// is decoration, so aria-label keeps the word alone.
 export function supportButton(links = SUPPORT, loc = EN) {
   if (!supportOn(links).length) return "";
   const [, heart, word] = loc.t("supportButton").match(/^(♥)\s*(.*)$/) || [null, "", loc.t("supportButton")];
   return `<a class="support-btn" href="/support/" aria-label="${esc(word)}"><span aria-hidden="true">${heart}</span> <span class="btn-label">${word}</span></a>`;
 }
 
-// The header's Discord button: a speech bubble and the name, which stays "Discord" in every
-// language. On a phone only the bubble shows, so aria-label keeps the name. "" while the URL is null.
+// The sidebar's Discord button: a speech bubble and the name, which stays "Discord" in every
+// language. "" while the URL is null.
 export function discordButton(url = DISCORD_URL) {
   if (!url) return "";
   const bubble = `<svg class="discord-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 3.5 Q2 2 3.5 2 H12.5 Q14 2 14 3.5 V9.5 Q14 11 12.5 11 H7 L4 14 V11 H3.5 Q2 11 2 9.5 Z"/></svg>`;
   return `<a class="discord-btn" href="${esc(url)}" rel="noopener" aria-label="Discord">${bubble}<span class="btn-label">Discord</span></a>`;
+}
+
+// The sidebar's community row above the page list: the Discord and Support buttons, so both
+// are in view beside every page on a wide screen and first in the Menu drawer on a phone,
+// leaving the header to the brand, the language button and Menu. "" while neither is switched on.
+export function navCommunity(loc = EN, { discord = DISCORD_URL, links = SUPPORT } = {}) {
+  const buttons = `${discordButton(discord)}${localiseLinks(supportButton(links, loc), loc)}`;
+  return buttons ? `<div class="nav-community">${buttons}</div>` : "";
 }
 
 // The CurseForge call to action: a link once CURSEFORGE_URL is set, until then
@@ -325,7 +333,7 @@ function footerLines(site, loc) {
 
 // A full HTML page with the shared header, sidebar and footer. Every page, Home
 // included, has the same grouped sidebar; it's the only nav (the header holds
-// the brand, Discord, Support, the language button and the Menu button, the footer no links).
+// the brand, the language button and the Menu button, the footer no page links).
 // `loc` is the language (scripts/lib/i18n-site.mjs) and `alts` every published
 // language's copy of the page. A page that isn't `translated` keeps its English
 // body, marked lang="en", inside the translated shell.
@@ -340,7 +348,7 @@ export function layout({ path, title, description, body, site, scripts = [], loc
   const fullTitle = pageTitle(path, title, loc);
   if (loc.english || !translated) description = SEO[path]?.description || description;
   const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">${loc.t("menu")}</button>`;
-  const nav = `<nav class="nav sidebar" aria-label="Main" id="site-nav">${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
+  const nav = `<nav class="nav sidebar" aria-label="Main" id="site-nav">${navCommunity(loc)}${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
   const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${menuPaths(localiseLinks(body, loc))}\n</main>`;
   // An asset's URL with the build's version query (the plain path if it has none).
   const asset = (p) => site.assets?.[p] || p;
@@ -366,8 +374,6 @@ ${path === "/" && loc.english && site.url ? homeJsonLd(site, description) : ""}<
 <header class="site-header">
   <div class="header-inner">
     <a class="brand" href="${loc.href("/")}">${MARK}<span>Vanguard</span></a>
-    ${discordButton()}
-    ${localiseLinks(supportButton(SUPPORT, loc), loc)}
     ${langMenu(alts, loc)}
     ${toggle}
   </div>

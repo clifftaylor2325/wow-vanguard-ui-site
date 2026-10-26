@@ -80,20 +80,13 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 .skip:focus-visible { outline-color: var(--text); }
 
 /* ------------------------------------------------------------------ Header
-   A slim sticky bar: the brand and the Menu button (narrow screens). */
+   A slim sticky bar: the brand, and under 900px the language button and Menu. */
 .site-header { position: sticky; top: 0; z-index: 20; background: var(--raised); border-bottom: 1px solid var(--divider); }
 .site-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 70%, transparent) 30%, var(--accent) 50%, color-mix(in oklab, var(--accent) 70%, transparent) 70%, transparent); opacity: 0.7; pointer-events: none; }
 .header-inner { max-width: var(--shell-max); margin: 0 auto; min-height: var(--header-h); padding: 0 var(--sp-4); display: flex; align-items: center; gap: var(--sp-4); }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 600; font-size: 1.25rem; }
 .brand-mark { width: 22px; height: 32px; flex: none; }
-.support-btn { margin-left: auto; padding: 5px 12px; border: 1px solid var(--accent); border-radius: var(--r-2); color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
-.support-btn:hover, .support-btn:focus-visible { background: color-mix(in oklab, var(--accent) 16%, transparent); }
-.support-btn + .nav-toggle { margin-left: 0; }
-.discord-btn { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1px solid var(--accent); border-radius: var(--r-2); background: var(--accent); color: var(--bg); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
-.discord-btn:hover, .discord-btn:focus-visible { background: color-mix(in oklab, var(--accent) 82%, var(--text)); }
-.discord-icon { width: 16px; height: 16px; fill: currentColor; flex: none; }
-.discord-btn + .support-btn, .discord-btn + .nav-toggle { margin-left: 0; }
-.discord-btn + .lang-menu, .support-btn + .lang-menu, .lang-menu + .nav-toggle { margin-left: 0; }
+.lang-menu + .nav-toggle { margin-left: 0; }
 /* The language button: a globe and the code, opening this page's languages under it. Under
    900px only; wider, the select at the sidebar's foot is always in view. */
 .lang-menu { position: relative; flex: none; margin-left: auto; }
@@ -106,10 +99,8 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 .lang-menu-list a:hover, .lang-menu-list a:focus-visible { background: var(--panel); }
 .lang-menu-list a[aria-current] { color: var(--accent); font-weight: 600; }
 @media (min-width: 900px) { .lang-menu { display: none; } }
-/* A phone: Discord and Support show their icon alone (aria-label keeps the name), and under
-   380px the brand keeps its crest alone, so the row fits in every language. */
-@media (max-width: 479px) { .header-inner { gap: var(--sp-2); } .discord-btn, .support-btn { padding: 5px 9px; } .discord-btn .btn-label, .support-btn .btn-label { display: none; } .nav-toggle { white-space: nowrap; padding-left: 10px; padding-right: 10px; } }
-@media (max-width: 379px) { .brand > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+/* A phone: a tighter row, so the brand's name, the language button and Menu fit in every language. */
+@media (max-width: 479px) { .header-inner { gap: var(--sp-2); } .nav-toggle { white-space: nowrap; padding-left: 10px; padding-right: 10px; } }
 .ask { margin-top: var(--sp-4); }
 .nav-toggle { margin-left: auto; font: inherit; cursor: pointer; padding: 6px 12px; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); font-weight: 600; }
 .nav-toggle::after { content: " ▾"; color: var(--text2); }
@@ -125,6 +116,14 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 .nav-group { margin-top: var(--sp-3); }
 .nav-group-h { display: block; padding: 6px 12px 2px; font-size: var(--fs-xs); letter-spacing: 0.16em; text-transform: uppercase; color: color-mix(in oklab, var(--accent) 70%, var(--text2)); }
 .nav-foot { margin-top: var(--sp-5); padding: var(--sp-3) 10px 0; border-top: 1px solid var(--divider); }
+/* Discord and Support above the page list: the filled brass Discord button and the outlined Support one. */
+.nav-community { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: var(--sp-2); padding: 0 10px var(--sp-3); border-bottom: 1px solid var(--divider); }
+.nav .discord-btn, .nav .support-btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1px solid var(--accent); border-radius: var(--r-2); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+.nav .discord-btn { background: var(--accent); color: var(--bg); }
+.nav .discord-btn:hover, .nav .discord-btn:focus-visible { background: color-mix(in oklab, var(--accent) 82%, var(--text)); }
+.nav .support-btn { color: var(--accent); }
+.nav .support-btn:hover, .nav .support-btn:focus-visible { background: color-mix(in oklab, var(--accent) 16%, transparent); }
+.discord-icon { width: 16px; height: 16px; fill: currentColor; flex: none; }
 .nav-backdrop { position: fixed; inset: 0; z-index: 25; background: color-mix(in oklab, var(--bg) 72%, transparent); }
 @media (max-width: 899px) {
   .js .nav { position: fixed; top: 0; bottom: 0; left: 0; z-index: 30; width: min(300px, 86vw); overflow-y: auto; padding: var(--sp-4); background: var(--raised); border-right: 1px solid var(--divider); transform: translateX(-100%); visibility: hidden; transition: transform var(--dur) var(--ease), visibility 0s linear var(--dur); }
