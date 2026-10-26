@@ -1,8 +1,7 @@
 // The site's own strings in German, French, Spanish (Spain and Mexico), Italian
 // and Brazilian Portuguese. Keys, placeholders and plural categories follow
 // ENGLISH_STRINGS in scripts/lib/i18n-site.mjs (test/i18n.test.mjs checks).
-// First drafts, not reviewed by a native speaker: a language goes live only
-// once it is reviewed and listed in `locales` in site.config.json (plan D6).
+// Machine drafts, published as they are (Cliff, 2026-10-26): players' feedback corrects them.
 
 // A plural for a language whose rules add "many" (French, Spanish, Italian,
 // Portuguese: for millions), where it reads like "other".
@@ -630,7 +629,7 @@ export const STRINGS_PT_BR = {
   "js.count.commands": romance("{n} comando exibido", "{n} comandos exibidos"),
   "js.count.modules": romance("{n} módulo exibido", "{n} módulos exibidos"),
   "cmd.description": "Todos os comandos /vg com o texto de ajuda, palavra por palavra do addon.",
-  "cmd.lede": "Um só comando de bate-papo, `/vg` (ou `/vanguard`), seguido de uma palavra. A ajuda aparece tal como `/vg help` a mostra.",
+  "cmd.lede": "Um comando de chat, `/vg` (ou `/vanguard`), e uma palavra. A ajuda aparece como `/vg help` a mostra.",
   "cmd.words": romance("**{n}** palavra de comando na v{version}", "**{n}** palavras de comando na v{version}"),
   "cmd.unknown": "Palavra desconhecida: “{text}”",
   "cmd.search": "Buscar comandos",

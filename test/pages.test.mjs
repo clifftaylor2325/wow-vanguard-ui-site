@@ -78,7 +78,7 @@ test("/start/: the setup wizard's title, steps in order, caption, questions and 
   const title = (setup.match(/"title",\s*"text",\s*"([^"]+)"/) || setup.match(/ns\.WindowTitle\(f,\s*"([^"]+)"/) || [])[1];
   assert.ok(title && t.includes(`“${title}”`), `wizard title "${title}"`);
   for (const [, q] of setup.matchAll(/choicePage\(page,\s*"([^"]+)"/g)) assert.ok(t.includes(`“${q}”`), `step question "${q}"`);
-  for (const line of literals(inline(setup, "local lines"))) assert.ok(t.includes(`“${line}”`), `move-step line "${line}"`);
+  for (const line of literals(inline(setup, /local texts\s*=/.test(setup) ? "local texts" : "local lines"))) assert.ok(t.includes(`“${line}”`), `move-step line "${line}"`);
   for (const b of ["Next", "Back", "Done"]) assert.ok(setup.includes(`"${b}"`) && t.includes(b), `button ${b}`);
 });
 

@@ -1,8 +1,7 @@
 // The site's own strings in Russian, Korean and Chinese (Simplified and
 // Traditional). Keys, placeholders and plural categories follow
 // ENGLISH_STRINGS in scripts/lib/i18n-site.mjs (test/i18n.test.mjs checks).
-// First drafts, not reviewed by a native speaker: a language goes live only
-// once it is reviewed and listed in `locales` in site.config.json (plan D6).
+// Machine drafts, published as they are (Cliff, 2026-10-26): players' feedback corrects them.
 
 // A Russian plural: 1 and 21 (one), 2 to 4 and 22 to 24 (few), 0 and 5 to 20
 // (many); "other" is for fractions and reads like few.

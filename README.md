@@ -55,7 +55,7 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
 
 ## Languages
 
-English is at the site root. Each other language has a folder with the same paths below it (`/de/settings/`), and its own `404.html`. `locales` in `site.config.json` lists the languages published besides English, by folder code: `de`, `fr`, `es`, `es-mx`, `it`, `pt-br`, `ru`, `ko`, `zh-cn`, `zh-tw`. It is empty until a language's strings have been reviewed by a native speaker, so the live site is English only and has no switcher or `hreflang` yet.
+English is at the site root. Each other language has a folder with the same paths below it (`/de/settings/`), and its own `404.html`. `locales` in `site.config.json` lists the languages published besides English, by folder code: `de`, `fr`, `es`, `es-mx`, `it`, `pt-br`, `ru`, `ko`, `zh-cn`, `zh-tw`. All ten are listed. The translations are machine drafts, published as they are (Cliff, 2026-10-26): players' feedback corrects them, and the Troubleshooting page asks for it.
 
 - `scripts/lib/i18n-site.mjs` holds the languages and the English site strings (the sidebar, header, footer, buttons, search texts, and the Settings, Commands and Features text around the addon's own); `scripts/lib/i18n-strings-*.mjs` hold the other languages' drafts. Every language has every key, the same placeholders, and one form per plural category of its language (`test/i18n.test.mjs`).
 - The addon's own words (option captions, page titles, choices, help lines, module names) come from the addon's `Locales/<locale>.lua` at both refs; a text with no translation shows in English, as in the game.

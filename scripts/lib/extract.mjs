@@ -445,7 +445,7 @@ export function extractSetup(reader) {
   // In chat when setup ends: finished (AGAIN), or closed while still owed (LATER).
   const again = (m.code.match(/local AGAIN\s*=\s*"([^"]+)"/) || [])[1] || null;
   const later = (m.code.match(/local LATER\s*=\s*"([^"]+)"/) || [])[1] || null;
-  const moveLines = plain(findTable(m, "local lines")) || [];
+  const moveLines = plain(findTable(m, "local texts") || findTable(m, "local lines")) || [];
   const combat = (m.code.match(/ns\.Chat\("(Setup opens[^"]*)"\)/) || [])[1];
   const reloadModule = (m.code.match(/if state\.reload then return "([^"]+)"/) || [])[1];
   const reloadTile = (m.code.match(/if state\.retile then return "([^"]+)"/) || [])[1];
