@@ -61,6 +61,19 @@ export const WAGO_URL = "https://addons.wago.io/addons/wow-vanguard-ui";
 // page's header and from the footer. null takes both off the site.
 export const DISCORD_URL = "https://discord.gg/8ChnJfyww";
 
+// Vanguard's X account: linked from the footer and the Support page, and named as the site's
+// account in link previews (twitter:site). A null URL takes it off the site.
+export const X_URL = "https://x.com/WowVanguardUI";
+export const X_HANDLE = "@WowVanguardUI";
+
+// The Support page's community line: `text` with {x} and {discord} as links to the X account and
+// the Discord server. "" while either URL is null.
+export function followLine(text, { x = X_URL, discord = DISCORD_URL } = {}) {
+  if (!x || !discord) return "";
+  const link = (url, name) => `<a href="${esc(url)}" rel="noopener">${name}</a>`;
+  return text.replace("{x}", link(x, X_HANDLE)).replace("{discord}", link(discord, "Discord"));
+}
+
 // Ways to support Vanguard's development, in the order shown. Each stays off the site until its
 // url is set (an https:// address): then the header gets a Support button (to the Support page)
 // and the Credits page a Support section. Donations stay on the website, never in the addon itself.
@@ -250,6 +263,7 @@ export function socialTags({ path, title, description, site }) {
     `<meta property="og:image:height" content="630">`,
     `<meta property="og:image:alt" content="Vanguard's crest, two swords crossed behind a shield bearing a V, beside the name">`,
     `<meta name="twitter:card" content="summary_large_image">`,
+    ...(X_URL ? [`<meta name="twitter:site" content="${esc(X_HANDLE)}">`] : []),
   ].join("\n") + "\n";
 }
 
@@ -292,13 +306,14 @@ function pageTitle(path, title, loc) {
   return `${key in loc.strings ? loc.text(key) : title} · Vanguard`;
 }
 
-// The footer's links line: the current release, the two stores, Discord and the copyright.
-// A store without a URL says it's coming soon; Discord drops out while DISCORD_URL is null.
-export function footerLinks(site, loc = EN, { curseforge = CURSEFORGE_URL, wago = WAGO_URL, discord = DISCORD_URL } = {}) {
+// The footer's links line: the current release, the two stores, Discord, X and the copyright.
+// A store without a URL says it's coming soon; Discord and X drop out while their URL is null.
+export function footerLinks(site, loc = EN, { curseforge = CURSEFORGE_URL, wago = WAGO_URL, discord = DISCORD_URL, x = X_URL } = {}) {
   const link = (url, name) => `<a href="${esc(url)}" rel="noopener">${name}</a>`;
   const store = (url, name) => (url ? link(url, name) : loc.t("footer.soon", { store: name }));
   const items = [loc.t("footer.release", { version: esc(site.version) }), store(curseforge, "CurseForge"), store(wago, "Wago")];
   if (discord) items.push(link(discord, "Discord"));
+  if (x) items.push(link(x, `X (${X_HANDLE})`));
   return `<p class="footer-meta">${[...items, COPYRIGHT].join(" · ")}</p>`;
 }
 
