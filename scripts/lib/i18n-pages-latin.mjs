@@ -79,6 +79,7 @@ export const PAGES_DE = {
   <li>Schick einen Fehlerbericht oder eine Idee über die <a href="/feedback/">Feedback-Seite</a>.</li>
   <li>Füge die Zeilen von <code>/vg status</code> bei, wenn etwas schiefgeht, damit es schneller behoben werden kann.</li>
 </ul>`,
+    follow: "Folge {x} auf X für Neuigkeiten, und sprich mit anderen Spielern auf {discord}.",
   },
 };
 
@@ -154,6 +155,7 @@ export const PAGES_FR = {
   <li>Envoyez un rapport de bug ou une idée sur la <a href="/feedback/">page Feedback</a>.</li>
   <li>Joignez les lignes de <code>/vg status</code> quand quelque chose ne va pas, pour que ce soit corrigé plus vite.</li>
 </ul>`,
+    follow: "Suivez {x} sur X pour les actualités, et discutez avec d’autres joueurs sur {discord}.",
   },
 };
 
@@ -229,6 +231,7 @@ export const PAGES_ES = {
   <li>Envía un informe de error o una idea en la <a href="/feedback/">página de Feedback</a>.</li>
   <li>Incluye las líneas de <code>/vg status</code> cuando algo falle, para que se pueda arreglar antes.</li>
 </ul>`,
+    follow: "Sigue a {x} en X para estar al día y habla con otros jugadores en {discord}.",
   },
 };
 
@@ -318,6 +321,7 @@ export const PAGES_IT = {
   <li>Invia una segnalazione di bug o un’idea nella <a href="/feedback/">pagina Feedback</a>.</li>
   <li>Includi le righe di <code>/vg status</code> quando qualcosa va storto, così si può correggere prima.</li>
 </ul>`,
+    follow: "Segui {x} su X per le novità, e parla con altri giocatori su {discord}.",
   },
 };
 
@@ -393,5 +397,6 @@ export const PAGES_PT_BR = {
   <li>Envie um relatório de bug ou uma ideia na <a href="/feedback/">página de Feedback</a>.</li>
   <li>Inclua as linhas de <code>/vg status</code> quando algo der errado, para que seja corrigido mais rápido.</li>
 </ul>`,
+    follow: "Siga {x} no X para novidades e converse com outros jogadores no {discord}.",
   },
 };

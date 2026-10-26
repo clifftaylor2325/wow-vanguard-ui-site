@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { root } from "./config.mjs";
 import { SHOT_GROUPS } from "./shots-content.mjs";
-import { shotFigure, esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, nextBadge, reloadBadge, supportOn, supportAsk } from "./html.mjs";
+import { shotFigure, esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, nextBadge, reloadBadge, supportOn, supportAsk, followLine } from "./html.mjs";
 import { src, sourceNote, dateET, says, saysIf, label } from "./pages-main.mjs";
 import { FACTS, SECTIONS, ENGLISH_HELP } from "./help-content.mjs";
 import { EN } from "./i18n-site.mjs";
@@ -806,7 +806,13 @@ export const SUPPORT_PAGE = {
   <li>Send a bug report or an idea on the <a href="/feedback/">Feedback page</a>.</li>
   <li>Include the lines of <code>/vg status</code> when something goes wrong, so it can be fixed faster.</li>
 </ul>`,
+  follow: "Follow {x} on X for news, and talk with other players on {discord}.",
 };
+
+// The "other ways to help" list with the community line (X and Discord) as its last item, when there is one.
+function withFollow(list, follow) {
+  return follow ? list.replace("</ul>", `  <li>${follow}</li>\n</ul>`) : list;
+}
 
 // The Support page: what support pays for, the Ko-fi link, and other ways to help. The only page
 // that asks at length; Ko-fi's own script is not loaded here (no third-party code on the site).
@@ -823,7 +829,7 @@ export function supportPage(loc = EN) {
 ${disclosure({ id: "pays-for", title: esc(w.paysTitle), open: true, body: w.pays })}
 ${kofi ? disclosure({ id: "give", title: esc(w.giveTitle), open: true, body: `<p><a class="button" href="${esc(url)}" rel="noopener">${esc(w.giveButton)}</a></p>
 <p class="small">${esc(w.giveNote)}</p>` }) : ""}
-${disclosure({ id: "other-ways", title: esc(w.otherTitle), body: w.other })}`,
+${disclosure({ id: "other-ways", title: esc(w.otherTitle), body: withFollow(w.other, followLine(w.follow)) })}`,
   };
 }
 

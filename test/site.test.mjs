@@ -10,7 +10,7 @@ import os from "node:os";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
-import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton } from "../scripts/lib/html.mjs";
+import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton, followLine } from "../scripts/lib/html.mjs";
 import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
@@ -717,7 +717,7 @@ test("the header's Discord button: a link while DISCORD_URL is set, named for sc
 
 test("the footer's links line: release, stores, Discord while its URL is set, copyright", () => {
   const site = { version: "9.9.9" };
-  const none = footerLinks(site, undefined, { curseforge: null, wago: null, discord: null });
+  const none = footerLinks(site, undefined, { curseforge: null, wago: null, discord: null, x: null });
   assert.ok(none.includes("coming soon on CurseForge") && none.includes("coming soon on Wago"), "a store without a URL is coming soon");
   assert.ok(!/Discord|href=/.test(none), "no Discord and no links without URLs");
   const all = footerLinks(site, undefined, { curseforge: "https://cf.example/a", wago: "https://wago.example/b", discord: 'https://discord.gg/a"b' });
@@ -726,7 +726,22 @@ test("the footer's links line: release, stores, Discord while its URL is set, co
   for (const d of PAGE_DIRS) {
     const footer = (pageHtml(d).match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
     assert.equal(footer.includes(`href="${DISCORD_URL}"`), Boolean(DISCORD_URL), `/${d}: the footer's Discord link`);
+    assert.equal(footer.includes(`href="${X_URL}"`), Boolean(X_URL), `/${d}: the footer's X link`);
     assert.equal((footer.match(/<p[ >]/g) || []).length, 2, `/${d}: the footer stays at two lines`);
+  }
+});
+
+test("the X account: in the footer with its handle, named in link previews, and on Support with Discord", () => {
+  const x = footerLinks({ version: "1" }, undefined, { x: 'https://x.com/a"b' });
+  assert.ok(x.includes(`href="https://x.com/a&quot;b" rel="noopener">X (${X_HANDLE})</a>`), "an escaped link that shows the handle");
+  assert.ok(!footerLinks({ version: "1" }, undefined, { x: null }).includes("X ("), "no X without its URL");
+  assert.equal(followLine("{x} · {discord}", { x: null }), "", "no community line without the X URL");
+  assert.equal(followLine("{x} · {discord}", { discord: null }), "", "nor without Discord's");
+  assert.equal(page("").includes(`<meta name="twitter:site" content="${X_HANDLE}">`), Boolean(X_URL), "link previews name the site's X account");
+  for (const d of ["support", "de/support", "zh-tw/support"]) {
+    const other = (page(d).match(/id="other-ways"[\s\S]*?<\/ul>/) || [""])[0];
+    assert.equal(other.includes(`href="${X_URL}" rel="noopener">${X_HANDLE}</a>`) && other.includes(`href="${DISCORD_URL}" rel="noopener">Discord</a>`), Boolean(X_URL && DISCORD_URL), `/${d}: the last way to help links X and Discord`);
+    assert.ok(!/\{(x|discord)\}/.test(other), `/${d}: no placeholder left`);
   }
 });
 

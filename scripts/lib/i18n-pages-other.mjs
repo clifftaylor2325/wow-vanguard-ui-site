@@ -79,6 +79,7 @@ export const PAGES_RU = {
   <li>Отправьте отчёт об ошибке или идею на <a href="/feedback/">странице отзывов</a>.</li>
   <li>Прикладывайте строки <code>/vg status</code>, когда что-то идёт не так, чтобы это исправили быстрее.</li>
 </ul>`,
+    follow: "Следите за {x} в X, чтобы узнавать новости, и общайтесь с другими игроками в {discord}.",
   },
 };
 
@@ -154,6 +155,7 @@ export const PAGES_KO = {
   <li><a href="/feedback/">피드백 페이지</a>에서 버그 보고나 아이디어를 보내 주세요.</li>
   <li>문제가 생기면 <code>/vg status</code>의 줄을 함께 보내 주세요. 더 빨리 고칠 수 있습니다.</li>
 </ul>`,
+    follow: "X에서 {x}를 팔로우해 소식을 받고, {discord}에서 다른 플레이어와 이야기하세요.",
   },
 };
 
@@ -229,6 +231,7 @@ export const PAGES_ZH_CN = {
   <li>在<a href="/feedback/">反馈页面</a>发送错误报告或想法。</li>
   <li>出问题时附上 <code>/vg status</code> 的各行，这样能更快修好。</li>
 </ul>`,
+    follow: "在X上关注{x}获取新闻，并在{discord}上与其他玩家交流。",
   },
 };
 
@@ -304,5 +307,6 @@ export const PAGES_ZH_TW = {
   <li>在<a href="/feedback/">意見回饋頁面</a>送出錯誤回報或點子。</li>
   <li>出問題時附上 <code>/vg status</code> 的每一行，這樣能更快修好。</li>
 </ul>`,
+    follow: "在X上追蹤{x}取得新聞，並在{discord}上與其他玩家交流。",
   },
 };
