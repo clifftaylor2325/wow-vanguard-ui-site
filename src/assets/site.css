@@ -93,7 +93,23 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 .discord-btn:hover, .discord-btn:focus-visible { background: color-mix(in oklab, var(--accent) 82%, var(--text)); }
 .discord-icon { width: 16px; height: 16px; fill: currentColor; flex: none; }
 .discord-btn + .support-btn, .discord-btn + .nav-toggle { margin-left: 0; }
-@media (max-width: 479px) { .header-inner { gap: var(--sp-2); } .discord-btn { padding: 5px 9px; } .discord-btn .btn-label { display: none; } .support-btn, .nav-toggle { white-space: nowrap; padding-left: 10px; padding-right: 10px; } }
+.discord-btn + .lang-menu, .support-btn + .lang-menu, .lang-menu + .nav-toggle { margin-left: 0; }
+/* The language button: a globe and the code, opening this page's languages under it. Under
+   900px only; wider, the select at the sidebar's foot is always in view. */
+.lang-menu { position: relative; flex: none; margin-left: auto; }
+.lang-menu > summary { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; list-style: none; cursor: pointer; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); font-weight: 600; font-size: 0.95rem; white-space: nowrap; }
+.lang-menu > summary::-webkit-details-marker { display: none; }
+.lang-menu[open] > summary { border-color: var(--accent); }
+.lang-icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+.lang-menu-list { position: absolute; z-index: 30; top: calc(100% + 8px); right: 0; min-width: 12rem; max-height: calc(100vh - var(--header-h) - 16px); overflow-y: auto; margin: 0; padding: 6px; list-style: none; background: var(--raised); border: 1px solid var(--ui-line); border-radius: var(--r-2); box-shadow: 0 12px 32px -12px #000; }
+.lang-menu-list a { display: block; padding: 8px 10px; color: var(--text); text-decoration: none; border-radius: var(--r-2); }
+.lang-menu-list a:hover, .lang-menu-list a:focus-visible { background: var(--panel); }
+.lang-menu-list a[aria-current] { color: var(--accent); font-weight: 600; }
+@media (min-width: 900px) { .lang-menu { display: none; } }
+/* A phone: Discord and Support show their icon alone (aria-label keeps the name), and under
+   380px the brand keeps its crest alone, so the row fits in every language. */
+@media (max-width: 479px) { .header-inner { gap: var(--sp-2); } .discord-btn, .support-btn { padding: 5px 9px; } .discord-btn .btn-label, .support-btn .btn-label { display: none; } .nav-toggle { white-space: nowrap; padding-left: 10px; padding-right: 10px; } }
+@media (max-width: 379px) { .brand > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
 .ask { margin-top: var(--sp-4); }
 .nav-toggle { margin-left: auto; font: inherit; cursor: pointer; padding: 6px 12px; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); font-weight: 600; }
 .nav-toggle::after { content: " ▾"; color: var(--text2); }

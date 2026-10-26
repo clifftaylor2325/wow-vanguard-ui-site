@@ -622,8 +622,9 @@ test("every page, Home included, has the grouped sidebar with all 13 pages, and 
     for (const n of NAV) assert.ok(nav.includes(`href="${n.path}"`), `/${d} sidebar links ${n.path}`);
     assert.equal((nav.match(/class="nav-group-h"/g) || []).length, 5, `/${d} sidebar has five groups`);
     assert.equal((html.match(/<nav\b/g) || []).length, 1, `/${d} has one nav`);
-    // The header links only Home (the brand), Discord and Support; the footer links no pages.
-    const header = (html.match(/<header class="site-header">[\s\S]*?<\/header>/) || [""])[0];
+    // The header links only Home (the brand), Discord and Support, besides the language
+    // button's copies of this page; the footer links no pages.
+    const header = (html.match(/<header class="site-header">[\s\S]*?<\/header>/) || [""])[0].replace(/<details class="lang-menu"[\s\S]*?<\/details>/, "");
     const want = ["/", ...(DISCORD_URL ? [DISCORD_URL] : []), ...(supportOn().length ? ["/support/"] : [])];
     assert.deepEqual([...header.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((m) => m[1]), want, `/${d}: the header links only the brand, Discord and the Support page`);
     const footer = (html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [""])[0];
@@ -760,6 +761,8 @@ test("Support: a page, a header button, and one UTM-tagged Ko-fi ask each on Ins
   assert.ok(!/storage\.ko-fi\.com/.test(page("support")), "no Ko-fi script on the Support page");
   for (const d of ["start", "features", "commands", "settings", "profiles", "feedback", "credits"]) assert.ok(!/utm_campaign=/.test(page(d)), `/${d} carries no ask`);
   assert.equal(on, /class="support-btn" href="\/support\/"/.test(page("")), "the header button shows exactly when Ko-fi is on");
+  // A phone shows the heart alone, so the button's name stays in aria-label.
+  if (on) assert.ok(page("").includes('<a class="support-btn" href="/support/" aria-label="Support"><span aria-hidden="true">♥</span> <span class="btn-label">Support</span></a>'), "the Support button's heart and word");
 });
 
 test("/feedback/: the copyable bug template only sends players to chat for errors when /vg errors does not exist", () => {

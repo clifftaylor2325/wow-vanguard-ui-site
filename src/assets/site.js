@@ -1,6 +1,6 @@
 // Vanguard site: the sidebar drawer, the "show what's coming" switch, list
 // filtering (Commands, Settings), collapsed sections, copy buttons and the
-// language switcher.
+// language switchers.
 // Everything is in the HTML already; without JS every section and the full
 // lists still show.
 (function () {
@@ -385,10 +385,26 @@
     offerLang(sel);
   }
 
+  // The header's language button: a pick is remembered and keeps the section link; a tap
+  // outside the list or Escape closes it.
+  function wireLangMenu() {
+    var menu = document.querySelector("details[data-lang-menu]");
+    if (!menu) return;
+    menu.querySelectorAll("a[lang]").forEach(function (a) {
+      var page = a.getAttribute("href");
+      a.addEventListener("click", function () { remember(a.lang); a.href = page + location.hash; });
+    });
+    document.addEventListener("click", function (e) { if (menu.open && !menu.contains(e.target)) menu.open = false; });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && menu.open) { menu.open = false; menu.querySelector("summary").focus(); }
+    });
+  }
+
   document.documentElement.classList.add("js");
   foldForSmall();
   wireNav();
   wireLang();
+  wireLangMenu();
   wirePref();
   document.querySelectorAll(".search[data-target]").forEach(wireSearch);
   wireGroups();
