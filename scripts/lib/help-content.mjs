@@ -43,20 +43,39 @@ export const FACTS = [
   ["reportTitle", "rel", "Core/Slash.lua", /ns\.ShowText\("(Vanguard report: Ctrl\+C, then paste at [^"]+)"/],
 ];
 
+// The page's own words around the entries: the hero, the facts strip, the
+// question count, the closing part and the Ko-fi line. HTML, like the answers.
+// Other languages: scripts/lib/i18n-pages-*.mjs, the same keys.
+export const HELP_PAGE = {
+  description: "Fixes for common Vanguard problems, using the addon's own commands and messages.",
+  lede: "Each answer uses Vanguard's own commands and quotes its real messages. Open a question to see the fix.",
+  glanceStatus: "Start with <code>/vg status</code>: its lines say what's loaded",
+  glanceReport: `Nothing here helps? <a href="/feedback/">Send a report</a>`,
+  questions: { one: "{n} question", other: "{n} questions" },
+  knownTitle: "Known issues",
+  known: `<p>No known issues have been confirmed yet. Vanguard is an early release: not everything has been checked in the game yet, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p>
+<div class="notice info"><p><strong>Not covered here?</strong> Or the fix didn't help? Report it there as well, and include every line of <code>/vg status</code>.</p></div>`,
+  ask: "Problem solved?",
+  thanks: "Say thanks on Ko-fi",
+  quote: "“{text}”",
+};
+
 // The page's entries, in order, by section. {key} is replaced by that fact
-// (escaped); a list fact becomes a bulleted list, and {NEXT} the Next release
-// badge. badge: "next" marks an entry that only applies to the next release
-// (none today: the page describes the current release).
+// (escaped); a list fact becomes a bulleted list, {NEXT} the Next release
+// badge and {RELOAD} the Needs reload one. {ui:Text} is a button or page name
+// of the addon's, in the page's language once the addon translates it.
+// badge: "next" marks an entry that only applies to the next release (none
+// today: the page describes the current release).
 export const SECTIONS = [
   { id: "fixes", title: "Quick fixes", entries: [
     { id: "frame-moved", q: "A frame is off-screen or in the wrong place",
-      a: `<p><code>/vg frames</code> lists the frames you can move. <code>/vg reset &lt;frame&gt;</code> puts one back in its default spot, and <code>/vg reset all</code> (or <strong>{resetAll}</strong> under <strong>General → Layout</strong> in <code>/vg</code>) puts every frame back.</p><p>To place frames yourself, type <code>/vg unlock</code> (“{unlockMsg}”), drag the handles, then <code>/vg lock</code>.</p>`,
+      a: `<p><code>/vg frames</code> lists the frames you can move. <code>/vg reset &lt;frame&gt;</code> puts one back in its default spot, and <code>/vg reset all</code> (or <strong>{resetAll}</strong> under <strong>{ui:General} → {ui:Layout}</strong> in <code>/vg</code>) puts every frame back.</p><p>To place frames yourself, type <code>/vg unlock</code> (“{unlockMsg}”), drag the handles, then <code>/vg lock</code>.</p>`,
       src: ["Core/Slash.lua (frames, reset, unlock)", "Core/Options.lua (General: Layout)"] },
     { id: "look", q: "Colors or fonts look wrong",
-      a: `<p><code>/vg theme reset</code> puts {themeHelp} (it's also the <strong>{resetTheme}</strong> button under <strong>General → Look</strong>). <code>/vg accent reset</code> resets only the accent color.</p>`,
+      a: `<p><code>/vg theme reset</code> puts {themeHelp} (it's also the <strong>{resetTheme}</strong> button under <strong>{ui:General} → {ui:Look}</strong>). <code>/vg accent reset</code> resets only the accent color.</p>`,
       src: ["Core/Slash.lua (theme, accent)", "Core/Options.lua (General: Look)"] },
     { id: "one-feature", q: "One part of Vanguard misbehaves",
-      a: `<p>Type <code>/vg modules</code> to see the parts (modules), then <code>/vg disable &lt;module&gt;</code> and <code>/reload</code>. The README says: “{keepDefault}” The options window's Modules page adds: “{modOff}”</p><p><code>/vg enable &lt;module&gt;</code> and <code>/reload</code> bring it back. Please <a href="/feedback/">report</a> what went wrong.</p>`,
+      a: `<p>Type <code>/vg modules</code> to see the parts (modules), then <code>/vg disable &lt;module&gt;</code> and <code>/reload</code>. The README says: “{keepDefault}” The options window's {ui:Modules} page adds: “{modOff}”</p><p><code>/vg enable &lt;module&gt;</code> and <code>/reload</code> bring it back. Please <a href="/feedback/">report</a> what went wrong.</p>`,
       src: ["Core/Slash.lua (modules, enable, disable)", "Core/Options.lua (Modules page)", "README.md (Options)"] },
     { id: "errors", q: "Chat shows an error from Vanguard",
       a: `<p>An error in one part doesn't stop the others: Vanguard keeps it, and <code>/vg errors</code> lists it. In the command's own words, it “{errorsHelp}”.</p><p>Turn that part off (see above), then send a <a href="/feedback/">report</a> with <code>/vg report</code> in it.</p>`,
@@ -74,7 +93,7 @@ export const SECTIONS = [
       a: `<p>The game client hides some values from addons, for example in instanced combat. The README says those values “{unread}”: the bars still fill, but Vanguard can't print a number it isn't allowed to read. This is expected. <code>/vg status</code> says when aura values are “{auraHidden}”.</p>`,
       src: ["README.md (what the client hides)", "Core/Slash.lua (status)"] },
     { id: "reload", q: "A setting didn't change anything",
-      a: `<p>Settings marked <span class="badge reload">Needs reload</span> on the <a href="/settings/">Settings</a> page apply after a reload: the options window offers a <strong>Reload now</strong> button. The Reload buttons are made the way WoW Forever allows. One made during a fight works once the fight ends; until then it says “{typeReload}”</p>`,
+      a: `<p>Settings marked {RELOAD} on the <a href="/settings/">Settings</a> page apply after a reload: the options window offers a <strong>{ui:Reload now}</strong> button. The Reload buttons are made the way WoW Forever allows. One made during a fight works once the fight ends; until then it says “{typeReload}”</p>`,
       src: ["Core/Dialog.lua", "README.md (Options: reloads on WoW Forever)"] },
     { id: "combat", q: "Something won't change during a fight",
       a: `<p>Some changes can't be made while you're in combat. Vanguard holds them and makes them when the fight ends. The second line of <code>/vg status</code> counts them: “&lt;n&gt; {waiting}”.</p>`,
@@ -88,13 +107,13 @@ export const SECTIONS = [
       a: `<p>The addon's code notes that WoW Forever beta builds older than {fixedBuild} lose addon settings at every launch, and break the raid frames, click casting and bar paging. Update the game. On an older build, <code>/vg status</code> says: “{buildWarn}”.</p>`,
       src: ["Core/Slash.lua (FIXED_BUILD, status)"] },
     { id: "hover-keys", q: "Hover keys don't work",
-      a: `<p>Some WoW Forever beta clients can't run the code hover keys need. Vanguard then says at login: “{snipChat}”, and <code>/vg status</code> shows “{noSnip}”. The Click casting page says: “{ccNote}”</p><p>Mouse click casting still works, bar 1 still changes with stances, forms and Shift+number, and the raid frames still work.</p>`,
+      a: `<p>Some WoW Forever beta clients can't run the code hover keys need. Vanguard then says at login: “{snipChat}”, and <code>/vg status</code> shows “{noSnip}”. The {ui:Click casting} page says: “{ccNote}”</p><p>Mouse click casting still works, bar 1 still changes with stances, forms and Shift+number, and the raid frames still work.</p>`,
       src: ["Core/Client.lua", "Core/Slash.lua (status)", "Modules/ClickCastOptions.lua (hover keys)", "README.md (secure snippets)"] },
     { id: "setup", q: "The setup wizard didn't open",
-      a: `<p>The setup wizard opens the first time you log in on an account. If you're in a fight it waits: “{setupCombat}” Once you've finished or closed it, open it again with <code>/vg setup</code> or <strong>Run setup</strong> under <strong>General → Layout</strong> in <code>/vg</code>.</p>`,
+      a: `<p>The setup wizard opens the first time you log in on an account. If you're in a fight it waits: “{setupCombat}” Once you've finished or closed it, open it again with <code>/vg setup</code> or <strong>{ui:Run setup}</strong> under <strong>{ui:General} → {ui:Layout}</strong> in <code>/vg</code>.</p>`,
       src: ["Core/Setup.lua", "README.md (First-run setup)"] },
     { id: "edit-mode", q: "Vanguard's frames don't show in Edit Mode",
-      a: `<p>When you open the game's Edit Mode, Vanguard's handles show too, with a note: “{editNote}” If they don't, tick <strong>{editOpt}</strong> under <strong>General → Layout</strong> in <code>/vg</code>.</p><p>The game frames that Vanguard hides or replaces (its action bars, XP and reputation bars, unit frames and so on) get no Edit Mode handle on purpose. Move Vanguard's frames instead.</p>`,
+      a: `<p>When you open the game's Edit Mode, Vanguard's handles show too, with a note: “{editNote}” If they don't, tick <strong>{editOpt}</strong> under <strong>{ui:General} → {ui:Layout}</strong> in <code>/vg</code>.</p><p>The game frames that Vanguard hides or replaces (its action bars, XP and reputation bars, unit frames and so on) get no Edit Mode handle on purpose. Move Vanguard's frames instead.</p>`,
       src: ["Core/Movers.lua (Edit Mode)", "Core/Options.lua (General: Layout)", "README.md (Look and layout)"] },
     { id: "edit-layout", q: "Chat says my profile uses an Edit Mode layout this account doesn't have",
       a: `<p>A profile remembers which of the game's Edit Mode layouts you use with it. When a character loads that profile, Vanguard switches Edit Mode to the layout of that name, if your account has one. If it doesn't, Vanguard says “{editMissing}” and leaves Edit Mode as it is.</p>`,
@@ -110,3 +129,12 @@ export const SECTIONS = [
       src: ["README.md (Commands: /vg perf)", "Core/Perf.lua"] },
   ] },
 ];
+
+// The page's words in English, in the shape every language's table has
+// (scripts/lib/i18n-pages-*.mjs): the page's own words, each section's
+// title and each entry's question and answer, by id.
+export const ENGLISH_HELP = {
+  page: HELP_PAGE,
+  sections: Object.fromEntries(SECTIONS.map((s) => [s.id, s.title])),
+  entries: Object.fromEntries(SECTIONS.flatMap((s) => s.entries.map((e) => [e.id, { q: e.q, a: e.a }]))),
+};

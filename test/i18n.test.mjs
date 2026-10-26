@@ -1,6 +1,6 @@
 // The site in other languages (scripts/lib/i18n-site.mjs): every language has
-// every string, the addon's own translations reach the Settings and Commands
-// pages, and a build with every language switched on gives each page its lang,
+// every string and every Troubleshooting and Support text, the addon's own
+// translations reach the Settings, Commands and Troubleshooting pages, and a build with every language switched on gives each page its lang,
 // hreflang, sitemap entry and translated shell, with no English left in it.
 // The live site publishes only the languages in `locales` (site.config.json);
 // this test builds them all into a temporary folder. Run after a build, with
@@ -13,7 +13,9 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { NAV } from "../scripts/lib/html.mjs";
-import { ENGLISH, ENGLISH_STRINGS, LOCALES, publishedLocales, parseLocaleLua, addonTranslations, siteLocale, localiseLinks } from "../scripts/lib/i18n-site.mjs";
+import { ENGLISH, ENGLISH_STRINGS, LOCALES, publishedLocales, parseLocaleLua, parseCsv, parseDraftCsv, addonTranslations, siteLocale, localiseLinks } from "../scripts/lib/i18n-site.mjs";
+import { ENGLISH_HELP } from "../scripts/lib/help-content.mjs";
+import { helpPage, supportPage, SUPPORT_PAGE } from "../scripts/lib/pages-more.mjs";
 import { gitReader } from "../scripts/lib/source.mjs";
 import { extractAddon, specReader } from "../scripts/lib/extract.mjs";
 import { buildModel } from "../scripts/lib/model.mjs";
@@ -43,6 +45,45 @@ for (const loc of LOCALES) {
         assert.deepEqual(marks(f), marks(forms(en)[0]), `${key}: the same \`code\` and **strong** marks as English`);
       }
     }
+  });
+}
+
+// ------------------------------------------------------------------ Troubleshooting and Support
+
+const ENGLISH_PAGES = { help: ENGLISH_HELP, support: SUPPORT_PAGE };
+// Every text of a page table by its path ("help.entries.look.a"); the question count's forms aside.
+function pageTexts(table, at = "") {
+  return Object.entries(table).flatMap(([k, v]) => {
+    if (`${at}${k}` === "help.page.questions") return [];
+    return typeof v === "string" ? [[`${at}${k}`, v]] : pageTexts(v, `${at}${k}.`);
+  });
+}
+// What a Help or Support text must keep from English, sorted: its {fact}s, {ui:Text}s and
+// badges; its tags with their attributes; and what each <code> holds (commands are typed as in English).
+const slots = (s) => (s.match(/\{[^}]+\}/g) || []).sort();
+const tags = (s) => (s.match(/<[^>]+>/g) || []).sort();
+const codes = (s) => (s.match(/<code>[\s\S]*?<\/code>/g) || []).sort();
+
+for (const loc of LOCALES) {
+  test(`${loc.code} has every Troubleshooting and Support text, and only those`, () => {
+    assert.deepEqual(pageTexts(loc.pages).map(([k]) => k).sort(), pageTexts(ENGLISH_PAGES).map(([k]) => k).sort());
+  });
+
+  test(`${loc.code} Troubleshooting and Support texts keep English's quotes, names, tags and commands`, () => {
+    const own = new Map(pageTexts(loc.pages));
+    for (const [key, en] of pageTexts(ENGLISH_PAGES)) {
+      const t = own.get(key);
+      assert.ok(t.trim() !== "" && (t !== en || key === "help.page.quote"), `${key}: translated`);
+      assert.deepEqual(slots(t), slots(en), `${key}: the same {fact}s and {ui:...} names`);
+      assert.deepEqual(tags(t), tags(en), `${key}: the same tags and links`);
+      assert.deepEqual(codes(t), codes(en), `${key}: commands as typed in English`);
+    }
+  });
+
+  test(`${loc.code} counts questions in each of its plural categories`, () => {
+    const forms = loc.pages.help.page.questions;
+    assert.deepEqual(Object.keys(forms).sort(), new Intl.PluralRules(loc.lang).resolvedOptions().pluralCategories.sort());
+    for (const f of Object.values(forms)) assert.ok(f.includes("{n}"), f);
   });
 }
 
@@ -128,6 +169,54 @@ test("Commands shows the addon's translation of a help line, with the command ty
   assert.ok(html.includes(`/vg ${l.syntax.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span><br>TEST-ONLY Hilfe`), "the help text, after the English syntax");
 });
 
+test("Troubleshooting quotes the addon's translation of a message and a button name, English where it has none", () => {
+  const t = new Map([["Setup opens when combat ends.", "TEST-ONLY Kampf"], ["Run setup", "TEST-ONLY Einrichten"]]);
+  const html = helpPage(model, read, siteLocale(DE, t)).body;
+  assert.ok(html.includes("„TEST-ONLY Kampf“"), "the quoted message, in the language's quotation marks");
+  assert.ok(html.includes("<strong>TEST-ONLY Einrichten</strong>"), "the button's name");
+  assert.ok(html.includes("„Unlocked: drag the handles. /vg lock when done.“"), "an untranslated message stays English");
+  assert.ok(html.includes(DE.pages.help.entries.setup.q), "the German question");
+});
+
+test("every language's Troubleshooting page shows the entries English shows", () => {
+  const ids = (h) => [...h.matchAll(/<section class="card help-entry" id="([^"]+)"/g)].map((m) => m[1]);
+  const en = ids(helpPage(model, read).body);
+  assert.ok(en.length > 10);
+  for (const l of LOCALES) assert.deepEqual(ids(helpPage(model, read, siteLocale(l)).body), en, l.code);
+});
+
+test("Support speaks the language and keeps its Ko-fi link", () => {
+  const de = supportPage(siteLocale(DE)).body;
+  const en = supportPage().body;
+  assert.ok(de.includes(DE.pages.support.paysTitle) && !de.includes(SUPPORT_PAGE.paysTitle));
+  assert.deepEqual(de.match(/href="[^"]+"/g), en.match(/href="[^"]+"/g));
+});
+
+// ------------------------------------------------------------------ the addon's unreviewed drafts (previews)
+
+test("a CSV's quoted fields keep their commas, quotes and line breaks", () => {
+  assert.deepEqual(parseCsv('a,b\n"x, y","say ""hi""\nnow"\r\nlast,\n'), [["a", "b"], ["x, y", 'say "hi"\nnow'], ["last", ""]]);
+  assert.deepEqual(parseCsv("no,newline"), [["no", "newline"]]);
+});
+
+test("a draft CSV gives its filled translations, by English key", () => {
+  const t = parseDraftCsv("\uFEFFkey,english,translation,context,note\nBags,Bags,Taschen,Core/X.lua:1,machine\nChat,Chat,,Core/X.lua:2,\n");
+  assert.deepEqual([...t], [["Bags", "Taschen"]]);
+  assert.equal(parseDraftCsv("").size, 0);
+});
+
+test("SITE_ADDON_DRAFTS lays a locale's draft under the addon's own rows, which win", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vg-drafts-"));
+  fs.writeFileSync(path.join(dir, "deDE.csv"), "key,english,translation,context,note\nBags,Bags,Beutel (draft),x,machine\nChat,Chat,Plaudern (draft),x,machine\n");
+  const reader = fakeReader({ "deDE.lua": 'L["Bags"] = "Taschen"\n' });
+  const t = addonTranslations([reader], "deDE", dir);
+  assert.equal(t.get("Bags"), "Taschen", "a reviewed row in Locales/ wins");
+  assert.equal(t.get("Chat"), "Plaudern (draft)", "the draft fills the gap");
+  assert.equal(addonTranslations([reader], "frFR", dir).size, 0, "no draft for that locale");
+  assert.equal(addonTranslations([reader], "deDE").get("Chat"), undefined, "no drafts without the folder");
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
 // ------------------------------------------------------------------ a build in every language
 
 const out = fs.mkdtempSync(path.join(os.tmpdir(), "vg-site-i18n-"));
@@ -205,8 +294,8 @@ test("a language's sidebar, header and footer are in that language, with no Engl
   }
 });
 
-test("Settings, Commands and Features are translated; every other page keeps an English body marked lang=en", () => {
-  const own = ["/settings/", "/commands/", "/features/"];
+test("Settings, Commands, Features, Troubleshooting and Support are translated; every other page keeps an English body marked lang=en", () => {
+  const own = ["/settings/", "/commands/", "/features/", "/help/", "/support/"];
   for (const l of LOCALES) {
     for (const n of NAV) {
       const h = html(l.code, n.path);
@@ -230,6 +319,15 @@ test("no English site string is left on a translated Settings or Commands page",
         assert.ok(!hasPhrase(t, en), `/${l.code}${p}: English “${en}” (${k})`);
       }
     }
+  }
+});
+
+test("no English question or section title is left on a translated Troubleshooting page", () => {
+  for (const l of LOCALES) {
+    const headings = [...html(l.code, "/help/").matchAll(/<h[23] id="[^"]+">([^<]+)<\/h[23]>/g)].map((m) => text(m[1]));
+    assert.ok(headings.length > 10, l.code);
+    const english = [...Object.values(ENGLISH_HELP.entries).map((e) => e.q), ...Object.values(ENGLISH_HELP.sections), ENGLISH_HELP.page.knownTitle];
+    for (const h of headings) assert.ok(!english.includes(h), `/${l.code}/help/: “${h}”`);
   }
 });
 

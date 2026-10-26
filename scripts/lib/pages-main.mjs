@@ -20,7 +20,7 @@ export function src(...files) {
 }
 
 // The "Source: ..." footnote in a language (file names stay as they are).
-function sourceNote(loc, files) {
+export function sourceNote(loc, files) {
   return `<details class="src"><summary>${loc.t("source")}</summary><p class="small">${loc.t("source.line", { files: files.map((f) => `<code>${esc(f)}</code>`).join(", ") })}</p></details>`;
 }
 
