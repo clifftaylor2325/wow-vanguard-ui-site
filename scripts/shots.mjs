@@ -13,8 +13,8 @@
 // When the build publishes other languages (SITE_LOCALES, or `locales` in
 // site.config.json), it checks each of them too: every page fits one screen,
 // nothing scrolls sideways, the search speaks that language, the language
-// select opens the same page in it, and a browser that asks for the language
-// is offered it once.
+// select (and at 390px the header's language button) opens the same page in it,
+// and a browser that asks for the language is offered it once.
 // The local server listens on SHOTS_PORT (default: any free port).
 //   npm run shots
 // It also walks the feedback form (field errors, the feature fields, the
@@ -236,6 +236,18 @@ async function checkLangSelect(page, base, loc, failures) {
   report(failures, `language select on /settings/#general opens ${r[0]} (lang ${r[1]})`, r[0] === `/${loc.code}/settings/#general` && r[1] === loc.lang);
 }
 
+// At 390px the header's language button opens its list without sideways scroll, and a
+// pick opens the same page in that language, keeping the section link.
+async function checkLangMenu(page, base, loc, failures) {
+  await page.goto(`${base}/settings/#general`, { waitUntil: "load" });
+  await page.click(".lang-menu summary");
+  await noSideScroll(page, `/settings/ language list open at 390px`, failures);
+  await page.click(`.lang-menu-list a[lang="${loc.lang}"]`);
+  await page.waitForURL(`**/${loc.code}/settings/**`, { timeout: 5000 }).catch(() => {});
+  const r = await page.evaluate(() => [location.pathname + location.hash, document.documentElement.lang]);
+  report(failures, `language button on /settings/#general opens ${r[0]} (lang ${r[1]})`, r[0] === `/${loc.code}/settings/#general` && r[1] === loc.lang);
+}
+
 // A browser asking for the language gets one offer on an English page, and none once it is turned down.
 async function checkLangOffer(browser, base, loc, failures) {
   const context = await browser.newContext({ locale: loc.lang, viewport: { width: 390, height: 844 } });
@@ -267,8 +279,10 @@ async function checkLanguage(browser, base, loc, failures) {
       await page.screenshot({ path: file, fullPage: true });
       console.log(`shot ${path.relative(process.cwd(), file)}`);
     }
-    if (width === 390) await checkLocaleSearch(page, base, loc, failures);
-    else await checkLangSelect(page, base, loc, failures);
+    if (width === 390) {
+      await checkLocaleSearch(page, base, loc, failures);
+      await checkLangMenu(page, base, loc, failures);
+    } else await checkLangSelect(page, base, loc, failures);
     await page.close();
   }
   await checkLangOffer(browser, base, loc, failures);

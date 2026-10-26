@@ -277,9 +277,14 @@ function text(h) {
     .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 }
 
-// A page without its <main> and its language switcher: the shell the language owns.
+// A page without its language switchers: their names are each in its own language.
+function noSwitchers(h) {
+  return h.replace(/<div class="nav-lang">[\s\S]*?<\/div>/, "").replace(/<details class="lang-menu"[\s\S]*?<\/details>/, "");
+}
+
+// A page without its <main> and its language switchers: the shell the language owns.
 function shell(h) {
-  return h.replace(/<main[\s\S]*<\/main>/, "").replace(/<div class="nav-lang">[\s\S]*?<\/div>/, "").replace(/<head>[\s\S]*<\/head>/, "");
+  return noSwitchers(h).replace(/<main[\s\S]*<\/main>/, "").replace(/<head>[\s\S]*<\/head>/, "");
 }
 
 // True when the text holds the phrase as whole words.
@@ -321,6 +326,20 @@ test("the language switcher sits at the sidebar's foot, with this page in every 
     for (const a of ALL) assert.ok(nav.includes(`<option value="${a === ENGLISH ? "" : `/${a.code}`}/settings/" lang="${a.lang}"`), `${l.code} option ${a.code}`);
     assert.ok(nav.includes(`lang="${l.lang}" data-offer="${l.strings["lang.offer"]}"`), `${l.code} offer line`);
     assert.ok(new RegExp(`<option [^>]*lang="${l.lang}"[^>]* selected>`).test(nav), `${l.code} is selected`);
+  }
+});
+
+test("the header's language button names this language and opens this page in every language", () => {
+  for (const l of ALL) {
+    const h = html(folder(l), "/settings/");
+    const header = h.slice(h.indexOf('<header class="site-header">'), h.indexOf("</header>"));
+    const menu = (header.match(/<details class="lang-menu" data-lang-menu>[\s\S]*?<\/details>/) || [""])[0];
+    const label = `${siteLocale(l).t("lang.label")}: ${l.name}`;
+    assert.ok(menu.includes(`<summary aria-label="${label}" title="${label}">`), `${l.code} button label`);
+    assert.ok(menu.includes(`<span class="lang-code" aria-hidden="true">${l.code.split("-")[0].toUpperCase()}</span>`), `${l.code} button code`);
+    for (const a of ALL) assert.ok(menu.includes(`<a href="${a === ENGLISH ? "" : `/${a.code}`}/settings/" lang="${a.lang}" hreflang="${a.lang}"`), `${l.code} link ${a.code}`);
+    assert.equal((menu.match(/aria-current="true"/g) || []).length, 1, `${l.code} one current`);
+    assert.ok(new RegExp(`lang="${l.lang}" hreflang="${l.lang}" aria-current="true"`).test(menu), `${l.code} is current`);
   }
 });
 
@@ -382,7 +401,7 @@ test("the Commands groups are named in the page's language", () => {
 test("links on a language's pages stay in its folder", () => {
   for (const l of LOCALES) {
     for (const n of NAV) {
-      const h = html(l.code, n.path).replace(/<div class="nav-lang">[\s\S]*?<\/div>/, "");
+      const h = noSwitchers(html(l.code, n.path));
       const stray = [...h.matchAll(/href="(\/[^"]*)"/g)].map((m) => m[1]).filter((u) => !u.startsWith(`/${l.code}/`) && !/^\/(assets|fonts|api)\//.test(u));
       assert.deepEqual(stray, [], `/${l.code}${n.path}`);
     }
@@ -410,6 +429,6 @@ test("the not-found page speaks each language and links that language's home", (
 test("the site as published today (no `locales` listed) has no language switcher or hreflang", () => {
   if (cfg.locales.length) return;
   const h = fs.readFileSync(path.join(cfg.outDir, "settings", "index.html"), "utf8");
-  assert.ok(!h.includes("hreflang") && !h.includes("lang-select") && !h.includes("vg-strings"));
+  assert.ok(!h.includes("hreflang") && !h.includes("lang-select") && !h.includes("lang-menu") && !h.includes("vg-strings"));
   assert.ok(!fs.existsSync(path.join(cfg.outDir, "de")));
 });

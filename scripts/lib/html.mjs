@@ -83,9 +83,12 @@ export function supportAsk(campaign, lead, links = SUPPORT, thanks = "Say thanks
   return `<p class="ask small">${lead} <a href="${esc(url)}" rel="noopener">${thanks}</a>.</p>`;
 }
 
-// The header's Support button: a link to the Support page, not straight to Ko-fi.
+// The header's Support button: a link to the Support page, not straight to Ko-fi. On a phone
+// only the heart shows (room for the language button), so aria-label keeps the word.
 export function supportButton(links = SUPPORT, loc = EN) {
-  return supportOn(links).length ? `<a class="support-btn" href="/support/">${loc.t("supportButton")}</a>` : "";
+  if (!supportOn(links).length) return "";
+  const [, heart, word] = loc.t("supportButton").match(/^(♥)\s*(.*)$/) || [null, "", loc.t("supportButton")];
+  return `<a class="support-btn" href="/support/" aria-label="${esc(word)}"><span aria-hidden="true">${heart}</span> <span class="btn-label">${word}</span></a>`;
 }
 
 // The header's Discord button: a speech bubble and the name, which stays "Discord" in every
@@ -193,10 +196,27 @@ export function langSwitch(alts, loc) {
   if (alts.length < 2) return "";
   const own = (a) => `lang="${esc(a.lang)}" data-offer="${esc(a.strings["lang.offer"])}" data-dismiss="${esc(a.strings["lang.dismiss"])}"`;
   const option = (a) => `<option value="${esc(a.href)}" ${own(a)}${a.code === loc.code ? " selected" : ""}>${esc(a.name)}</option>`;
-  const link = (a) => `<li><a href="${esc(a.href)}" lang="${esc(a.lang)}" hreflang="${esc(a.lang)}"${a.code === loc.code ? ' aria-current="true"' : ""}>${esc(a.name)}</a></li>`;
   return `<div class="nav-lang"><label for="lang-select">${loc.t("lang.label")}</label>
 <select id="lang-select" data-lang-switch>${alts.map(option).join("")}</select>
-<noscript><ul class="lang-links">${alts.map(link).join("")}</ul></noscript></div>`;
+<noscript><ul class="lang-links">${langLinks(alts, loc)}</ul></noscript></div>`;
+}
+
+// This page in every published language, as list items, each name in its own language.
+function langLinks(alts, loc) {
+  const link = (a) => `<li><a href="${esc(a.href)}" lang="${esc(a.lang)}" hreflang="${esc(a.lang)}"${a.code === loc.code ? ' aria-current="true"' : ""}>${esc(a.name)}</a></li>`;
+  return alts.map(link).join("");
+}
+
+// The header's language button, shown under 900px where the sidebar is a drawer: a globe and
+// the language's code ("ES") that opens this page in every language. Plain links in a
+// <details>, so it works without scripts; site.js closes it and keeps the section link.
+export function langMenu(alts, loc) {
+  if (alts.length < 2) return "";
+  const here = alts.find((a) => a.code === loc.code) || alts[0];
+  const globe = `<svg class="lang-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.25"/><path d="M1.75 8 H14.25 M8 1.75 C5.6 4.2 5.6 11.8 8 14.25 M8 1.75 C10.4 4.2 10.4 11.8 8 14.25"/></svg>`;
+  const label = `${loc.t("lang.label")}: ${here.name}`;
+  return `<details class="lang-menu" data-lang-menu><summary aria-label="${esc(label)}" title="${esc(label)}">${globe}<span class="lang-code" aria-hidden="true">${esc(here.code.split("-")[0].toUpperCase())}</span></summary>
+<ul class="lang-menu-list">${langLinks(alts, loc)}</ul></details>`;
 }
 
 // The sidebar's foot: the next-release switch and the language switcher, whichever apply.
@@ -290,7 +310,7 @@ function footerLines(site, loc) {
 
 // A full HTML page with the shared header, sidebar and footer. Every page, Home
 // included, has the same grouped sidebar; it's the only nav (the header holds
-// the brand and the Menu button, the footer no links).
+// the brand, Discord, Support, the language button and the Menu button, the footer no links).
 // `loc` is the language (scripts/lib/i18n-site.mjs) and `alts` every published
 // language's copy of the page. A page that isn't `translated` keeps its English
 // body, marked lang="en", inside the translated shell.
@@ -333,6 +353,7 @@ ${path === "/" && loc.english && site.url ? homeJsonLd(site, description) : ""}<
     <a class="brand" href="${loc.href("/")}">${MARK}<span>Vanguard</span></a>
     ${discordButton()}
     ${localiseLinks(supportButton(SUPPORT, loc), loc)}
+    ${langMenu(alts, loc)}
     ${toggle}
   </div>
 </header>
