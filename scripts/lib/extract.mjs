@@ -43,10 +43,23 @@ function syntaxWords(syntax) {
   return head.split(/\s\|\s/).map((w) => w.trim().split(/\s+/)[0]).filter((w) => /^[a-z]+$/.test(w));
 }
 
+// The /vg help lines as the game prints them, each split into its syntax column and description:
+// the intro, then one line per command. Since the string table came in, HELP holds { syntax, text }
+// pairs after a separate HELP_INTRO, and the game pads the syntax to a column of 20 ("%-20s %s");
+// before, each line was one string, split here at its spaces (splitHelp).
+function helpLines(m) {
+  const help = plain(findTable(m, "local HELP"));
+  const intro = (m.code.match(/local HELP_INTRO\s*=\s*"([^"]+)"/) || [])[1];
+  if (intro == null) return help.map((line) => ({ line, ...splitHelp(line) }));
+  const pairs = help.map(([syntax, text]) => ({ line: `${syntax.padEnd(20)} ${text}`, syntax, text }));
+  return [{ line: intro, ...splitHelp(intro) }, ...pairs];
+}
+
 // Slash registrations, help lines and the COMMANDS table, with the module each command reaches.
 export function extractCommands(reader) {
   const m = luaFile(reader, "Core/Slash.lua");
-  const help = plain(findTable(m, "local HELP"));
+  const parsed = helpLines(m);
+  const help = parsed.map((h) => h.line);
   const table = findTable(m, "local COMMANDS");
   const defs = blocks(m);
   const slashes = [...m.code.matchAll(/SLASH_(\w+?)(\d+)\s*=\s*"([^"]+)"/g)].map((x) => x[3]);
@@ -56,7 +69,7 @@ export function extractCommands(reader) {
     const mod = body.match(/GetModule\("(\w+)"\)/);
     return { key, handler: handler.replace(/\s+/g, " "), module: mod ? mod[1] : null };
   });
-  const lines = help.map((line, i) => ({ index: i, line, ...splitHelp(line) }));
+  const lines = parsed.map((h, i) => ({ index: i, ...h }));
   for (const c of commands) c.helpIndex = helpFor(c, commands, lines);
   const unknown = (m.code.match(/chat\("(Unknown command[^"]*)"\)/) || [])[1] || null;
   return { slashes, help, lines, commands, unknown };
@@ -386,6 +399,21 @@ function luaFormat(fmt, args) {
   return fmt.replace(/%(%|d|s)/g, (_, k) => (k === "%" ? "%" : String(k === "d" ? Math.floor(args[i++]) : args[i++])));
 }
 
+// A setup text with named slots ({scale}%, {button}, ...) as the %d pattern it was before the string table:
+// the slots in the order luaFormat fills them.
+function positional(text) {
+  return text.replace(/\{(?:scale|text)\}%/g, "%d%%").replace(/\{(?:step|count|button|width|height)\}/g, "%d").replace(/\{name\}/g, "%s");
+}
+
+// The Screen step's Keep hint: since the string table came in, one sentence naming who sets the UI scale
+// ({owner}), filled with the game's slider (the owner unless Vanguard's pixel-perfect scale is on).
+function keepScreenHint(m) {
+  const named = (m.code.match(/if not p then return ns\.Format\("([^"]+)"/) || [])[1];
+  if (!named) return (m.code.match(/if not p then return "([^"]+)"/) || [])[1];
+  const owner = (m.code.match(/return "(the game's UI Scale slider[^"]*)"/) || [])[1];
+  return owner ? named.replace("{owner}", owner) : undefined;
+}
+
 // Core/Setup.lua: steps, layouts, screen presets (with the hint each shows), styles and texts. Null before it existed.
 export function extractSetup(reader) {
   const m = luaFile(reader, "Core/Setup.lua");
@@ -400,13 +428,15 @@ export function extractSetup(reader) {
   const oldFmt = (m.code.match(/string\.format\("(UI scale %d%%[^"]*)"/) || [])[1];
   const moves = (m.code.match(/or "(Moves the game's UI Scale slider to %d%%[^"]*)"/) || [])[1];
   const tail = (m.code.match(/scale \.\. "([^"]+)"/) || [])[1];
-  const fmt = oldFmt || `${moves}${tail}`;
+  // Since the string table came in, one whole sentence with named slots, in the same order.
+  const named = (m.code.match(/"(Moves the game's UI Scale slider to \{scale\}%[^"]*)"/) || [])[1];
+  const fmt = oldFmt || (named ? positional(named) : `${moves}${tail}`);
   const pct = (v) => Math.floor(v * 100 + 0.5);
   for (const s of screens) s.hint = luaFormat(fmt, [pct(s.ui), s.button, s.tile[0], s.tile[1], pct(s.textScale)]);
   // The Screen step's own Keep button ("Keep my current sizes"); the first "keep" in the file is the Layout step's.
   const keepText = (m.code.match(/out\[#out \+ 1\]\s*=\s*\{\s*key\s*=\s*"keep"\s*,\s*text\s*=\s*"([^"]+)"/) || m.code.match(/key\s*=\s*"keep"\s*,\s*text\s*=\s*"([^"]+)"/) || [])[1];
   const pixelText = (m.code.match(/S\.PIXEL\s*=\s*\{\s*key\s*=\s*"pixel"\s*,\s*text\s*=\s*"([^"]+)"/) || [])[1] || null;
-  const keepHint = (m.code.match(/if not p then return "([^"]+)"/) || [])[1];
+  const keepHint = keepScreenHint(m);
   // Each step's question, found by the list it offers: [layout, screen]; the profile step's apart.
   const question = (list) => (m.code.match(new RegExp(`choicePage\\(page,\\s*"([^"]+)",\\s*${list}`)) || [])[1];
   const questions = [question("(?:S\\.LAYOUTS|layoutChoices\\(\\))"), question("screenChoices\\(\\)")];
@@ -420,8 +450,10 @@ export function extractSetup(reader) {
   const reloadModule = (m.code.match(/if state\.reload then return "([^"]+)"/) || [])[1];
   const reloadTile = (m.code.match(/if state\.retile then return "([^"]+)"/) || [])[1];
   const keepBelow = Number((m.code.match(/if h < (\d+) then return "keep"/) || [])[1]);
-  const yourScreen = (m.code.match(/"\s*·\s*(your screen)"/) || [])[1];
-  const caption = (m.code.match(/string\.format\("(Step %d of %d · %s)"/) || [])[1];
+  const yourScreen = (m.code.match(/·\s*(your screen)"/) || [])[1];
+  const oldCaption = (m.code.match(/string\.format\("(Step %d of %d · %s)"/) || [])[1];
+  const namedCaption = (m.code.match(/"(Step \{step\} of \{count\} · \{name\})"/) || [])[1];
+  const caption = oldCaption || (namedCaption && positional(namedCaption));
   const title = (m.code.match(/"title",\s*"text",\s*"([^"]+)"/) || m.code.match(/ns\.WindowTitle\(f,\s*"([^"]+)"/) || [])[1];
   return { steps, layouts, screens, styles, keepText, pixelText, keepHint, questions, profileQuestion, profileName, again, later, moveLines, combat, reloadModule, reloadTile, keepBelow, yourScreen, caption, title };
 }
