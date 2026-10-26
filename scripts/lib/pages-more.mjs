@@ -3,9 +3,10 @@
 // source file. Where the current release and the next release differ, the
 // page says which is which.
 import { SHOT_GROUPS } from "./shots-content.mjs";
-import { shotFigure, esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, supportOn, supportAsk } from "./html.mjs";
-import { src, dateET, says, saysIf, label } from "./pages-main.mjs";
-import { FACTS, SECTIONS } from "./help-content.mjs";
+import { shotFigure, esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, nextBadge, reloadBadge, supportOn, supportAsk } from "./html.mjs";
+import { src, sourceNote, dateET, says, saysIf, label } from "./pages-main.mjs";
+import { FACTS, SECTIONS, ENGLISH_HELP } from "./help-content.mjs";
+import { EN } from "./i18n-site.mjs";
 import { RELEASE_NOTES, NEXT_RELEASE } from "./changelog-content.mjs";
 import { AREAS } from "./model.mjs";
 import { LIMITS, FALLBACK_AREAS } from "../../src/feedback/fields.js";
@@ -162,37 +163,40 @@ function luaText(text, names = []) {
 }
 
 // One fact from FACTS: the captured text, or null when it isn't in the code
-// ("both" needs the same text in the current release and the next).
-function readFact(read, [, where, file, re, names]) {
-  const one = (ref) => { const t = grab(read[ref](file), re); return t === null ? null : luaText(t, names); };
-  if (where !== "both") return one(where);
-  const rel = one("rel");
-  return rel !== null && rel === one("next") ? rel : null;
+// ("both" needs the same text in the current release and the next), in the
+// page's language when the addon translates that text (English otherwise).
+function readFact(read, [, where, file, re, names], loc) {
+  const one = (ref) => grab(read[ref](file), re);
+  const raw = where === "both" ? (one("rel") === one("next") ? one("rel") : null) : one(where);
+  return raw === null ? null : luaText(loc.addon(raw), names);
 }
 
 // Every fact the help page quotes, plus the version and the import reasons.
-function helpFacts(model, read) {
+function helpFacts(model, read, loc) {
   const facts = { v: model.version };
-  for (const f of FACTS) facts[f[0]] = readFact(read, f);
+  for (const f of FACTS) facts[f[0]] = readFact(read, f, loc);
   // Releases before 0.4.0 name the addon ForeverUI in these reasons; read as Vanguard, they're the same.
-  const reasons = (ref) => [...(read[ref]("Core/Serialize.lua") || "").matchAll(/return nil, "([^"]+)"/g)].map((m) => m[1].replace("ForeverUI", "Vanguard"));
+  const reasons = (ref) => [...(read[ref]("Core/Serialize.lua") || "").matchAll(/return nil, "([^"]+)"/g)].map((m) => loc.addon(m[1].replace("ForeverUI", "Vanguard")));
   const rel = reasons("rel");
   // The current release's reasons: a newer release may add some, and the page describes the current one.
   facts.reasons = rel.length ? rel : null;
   return facts;
 }
 
-// The {key} names a text uses.
+// The {key} names a text uses (the badges and the addon's {ui:...} words aside).
 function keysOf(text) {
-  return [...text.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).filter((k) => k !== "NEXT");
+  return [...text.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).filter((k) => k !== "NEXT" && k !== "RELOAD");
 }
 
-// A text with its {key}s filled in: escaped text, a list for a list, the badge for {NEXT}.
-function fill(text, facts) {
-  return text.replace(/\{(\w+)\}/g, (_, k) => {
-    if (k === "NEXT") return NEXT;
+// A text with its {key}s filled in: escaped text, a list for a list, the badges for {NEXT} and
+// {RELOAD}, and {ui:Text} the addon's own word for a button or page, in the page's language.
+function fill(text, facts, loc, words) {
+  const quote = (t) => words.page.quote.replace("{text}", esc(t));
+  return text.replace(/\{ui:([^}]+)\}/g, (_, w) => esc(loc.addon(w))).replace(/\{(\w+)\}/g, (_, k) => {
+    if (k === "NEXT") return nextBadge(loc);
+    if (k === "RELOAD") return reloadBadge(loc);
     const v = facts[k];
-    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>“${esc(r)}”</li>`).join("")}</ul>` : esc(v);
+    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>${quote(r)}</li>`).join("")}</ul>` : esc(v);
   });
 }
 
@@ -201,42 +205,51 @@ function sourcedEntries(section, facts) {
   return section.entries.filter((e) => [e.a, ...e.src].flatMap(keysOf).every((k) => facts[k] != null));
 }
 
-// One question and answer as a card, with where it comes from.
-function helpEntry(e, facts) {
+// One question and answer as a card, with where it comes from (file names stay English).
+function helpEntry(e, facts, loc, words) {
   const next = e.badge === "next";
+  const { q, a } = words.entries[e.id];
   return `<section class="card help-entry" id="${e.id}" aria-labelledby="${e.id}-q"${next ? ' data-avail="next"' : ""}>
 <details class="disclosure">
-<summary><h3 id="${e.id}-q">${esc(e.q)}</h3>${next ? `<span class="dis-meta">${NEXT}</span>` : ""}</summary>
+<summary><h3 id="${e.id}-q">${esc(q)}</h3>${next ? `<span class="dis-meta">${nextBadge(loc)}</span>` : ""}</summary>
 <div class="dis-body">
-${fill(e.a, facts)}
-${src(...e.src.map((s) => s.replace(/\{(\w+)\}/g, (_, k) => String(facts[k]))))}
+${fill(a, facts, loc, words)}
+${sourceNote(loc, e.src.map((s) => s.replace(/\{(\w+)\}/g, (_, k) => String(facts[k]))))}
 </div>
 </details>
 </section>`;
 }
 
+// "19 questions" in the page's language.
+function questionCount(n, loc, words) {
+  const forms = words.page.questions;
+  return (forms[new Intl.PluralRules(loc.lang).select(n)] ?? forms.other).replace("{n}", n);
+}
+
 // One section, folded: its heading opens its sourced entries (nothing when none are left).
-function helpSection(s, facts, open) {
+function helpSection(s, facts, open, loc, words) {
   if (!s.shown.length) return "";
-  const n = s.shown.length;
-  return disclosure({ id: s.id, title: esc(s.title), open, meta: `${n} question${n === 1 ? "" : "s"}`, body: `<div class="dis-grid">${s.shown.map((e) => helpEntry(e, facts)).join("\n")}</div>` });
+  const body = `<div class="dis-grid">${s.shown.map((e) => helpEntry(e, facts, loc, words)).join("\n")}</div>`;
+  return disclosure({ id: s.id, title: esc(words.sections[s.id]), open, meta: questionCount(s.shown.length, loc, words), body });
 }
 
 // The closing part: known issues, then what to do when the page doesn't help.
-function helpFooter() {
-  return disclosure({ id: "known-issues", title: "Known issues", body: `<p>No known issues have been confirmed yet. Vanguard is an early release: not everything has been checked in the game yet, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p>
-<div class="notice info"><p><strong>Not covered here?</strong> Or the fix didn't help? Report it there as well, and include every line of <code>/vg status</code>.</p></div>` });
+function helpFooter(words) {
+  return disclosure({ id: "known-issues", title: esc(words.page.knownTitle), body: words.page.known });
 }
 
-// The Troubleshooting & FAQ page (help-content.mjs holds its words and sources).
-export function helpPage(model, read) {
-  const facts = helpFacts(model, read);
+// The Troubleshooting & FAQ page in a language (help-content.mjs holds its English words and
+// sources, scripts/lib/i18n-pages-*.mjs the other languages'). Which entries show is decided by
+// the English facts, so every language shows the same ones.
+export function helpPage(model, read, loc = EN) {
+  const words = loc.pages?.help ?? ENGLISH_HELP;
+  const facts = helpFacts(model, read, loc);
   const sections = SECTIONS.map((s) => ({ ...s, shown: sourcedEntries(s, facts) }));
-  for (const s of sections) for (const e of s.entries) if (!s.shown.includes(e)) console.warn(`help: left off "${e.q}" (a quoted fact is not in the addon at this ref)`);
-  const body = [pageHero("Troubleshooting &amp; FAQ", "Each answer uses Vanguard's own commands and quotes its real messages. Open a question to see the fix."),
-    glance([`Start with <code>/vg status</code>: its lines say what's loaded`, `Nothing here helps? <a href="/feedback/">Send a report</a>`]),
-    ...sections.map((s, i) => helpSection(s, facts, i === 0)), helpFooter(), supportAsk("help", "Problem solved?")];
-  return { path: "/help/", title: "Troubleshooting & FAQ", description: "Fixes for common Vanguard problems, using the addon's own commands and messages.", body: body.join("\n") };
+  if (loc.english) for (const s of sections) for (const e of s.entries) if (!s.shown.includes(e)) console.warn(`help: left off "${e.q}" (a quoted fact is not in the addon at this ref)`);
+  const body = [pageHero(esc(loc.text("title./help/")), words.page.lede),
+    glance([words.page.glanceStatus, words.page.glanceReport]),
+    ...sections.map((s, i) => helpSection(s, facts, i === 0, loc, words)), helpFooter(words), supportAsk("help", words.page.ask, undefined, words.page.thanks)];
+  return { path: "/help/", title: "Troubleshooting & FAQ", description: words.page.description, body: body.join("\n"), translated: true };
 }
 
 // ------------------------------------------------------------------ Feedback
@@ -579,25 +592,41 @@ ${src("LICENSE", "README.md (License, Credits)", "Media/Fonts/OFL.txt")}` })}`,
 
 // ------------------------------------------------------------------ Support
 
+// The Support page's words in English (HTML). Other languages: scripts/lib/i18n-pages-*.mjs,
+// the same keys. It makes no claim about Vanguard's features.
+export const SUPPORT_PAGE = {
+  description: "Vanguard is free and built by one person. Here is what support pays for, how to give it, and other ways to help.",
+  lede: "Vanguard is free to use, and always will be. Support is a thank-you, never a requirement.",
+  paysTitle: "What support pays for",
+  pays: `<p>Vanguard is built by one person. Support pays for the time to keep it working as WoW Forever patches change, and to fix what players report.</p>
+<p>It never unlocks anything: every part of Vanguard works the same for everyone.</p>`,
+  giveTitle: "Give on Ko-fi",
+  giveButton: "Support Vanguard on Ko-fi",
+  giveNote: "Ko-fi takes the payment and shows its own options. Nothing is sent to Vanguard or this site.",
+  otherTitle: "Can't chip in? These help too",
+  other: `<ul>
+  <li>Tell other players about Vanguard.</li>
+  <li>Send a bug report or an idea on the <a href="/feedback/">Feedback page</a>.</li>
+  <li>Include the lines of <code>/vg status</code> when something goes wrong, so it can be fixed faster.</li>
+</ul>`,
+};
+
 // The Support page: what support pays for, the Ko-fi link, and other ways to help. The only page
 // that asks at length; Ko-fi's own script is not loaded here (no third-party code on the site).
-export function supportPage() {
+export function supportPage(loc = EN) {
+  const w = loc.pages?.support ?? SUPPORT_PAGE;
   const kofi = supportOn().find((l) => l.name === "Ko-fi");
   const url = kofi ? `${kofi.url}?utm_source=vanguardui&utm_medium=site&utm_campaign=support-page` : "";
   return {
     path: "/support/",
     title: "Support Vanguard",
-    description: "Vanguard is free and built by one person. Here is what support pays for, how to give it, and other ways to help.",
-    body: `${pageHero("Support Vanguard", "Vanguard is free to use, and always will be. Support is a thank-you, never a requirement.")}
-${disclosure({ id: "pays-for", title: "What support pays for", open: true, body: `<p>Vanguard is built by one person. Support pays for the time to keep it working as WoW Forever patches change, and to fix what players report.</p>
-<p>It never unlocks anything: every part of Vanguard works the same for everyone.</p>` })}
-${kofi ? disclosure({ id: "give", title: "Give on Ko-fi", open: true, body: `<p><a class="button" href="${esc(url)}" rel="noopener">Support Vanguard on Ko-fi</a></p>
-<p class="small">Ko-fi takes the payment and shows its own options. Nothing is sent to Vanguard or this site.</p>` }) : ""}
-${disclosure({ id: "other-ways", title: "Can't chip in? These help too", body: `<ul>
-  <li>Tell other players about Vanguard.</li>
-  <li>Send a bug report or an idea on the <a href="/feedback/">Feedback page</a>.</li>
-  <li>Include the lines of <code>/vg status</code> when something goes wrong, so it can be fixed faster.</li>
-</ul>` })}`,
+    description: w.description,
+    translated: true,
+    body: `${pageHero(esc(loc.text("title./support/")), w.lede)}
+${disclosure({ id: "pays-for", title: esc(w.paysTitle), open: true, body: w.pays })}
+${kofi ? disclosure({ id: "give", title: esc(w.giveTitle), open: true, body: `<p><a class="button" href="${esc(url)}" rel="noopener">${esc(w.giveButton)}</a></p>
+<p class="small">${esc(w.giveNote)}</p>` }) : ""}
+${disclosure({ id: "other-ways", title: esc(w.otherTitle), body: w.other })}`,
   };
 }
 

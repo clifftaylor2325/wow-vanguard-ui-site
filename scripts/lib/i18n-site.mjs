@@ -6,22 +6,30 @@
 // tests and previews): until a native speaker has reviewed its strings, the
 // list leaves it out and the live site doesn't change.
 //
-// Two kinds of words:
+// Three kinds of words:
 //   - the site's own (the sidebar, header, footer, buttons, the Settings,
 //     Commands and Features page text around the addon's): STRINGS below, one
 //     table per language, every table holding every key (test/i18n.test.mjs).
+//   - the Troubleshooting and Support pages' hand-written words (HTML, with the
+//     addon's quoted messages as {fact}s): PAGES_* in scripts/lib/i18n-pages-*.mjs,
+//     the same keys as the English in help-content.mjs and pages-more.mjs.
 //   - the addon's (option captions, page titles, help lines, module names):
 //     read from the addon's Locales/<locale>.lua at build time, English when a
-//     text has no translation, the same fallback as the game.
+//     text has no translation, the same fallback as the game. SITE_ADDON_DRAFTS
+//     lays the addon's unreviewed draft CSVs under them, for previews only.
 //
 // A string is a template: `code` and **strong** become markup (md()), and
 // {name} is filled with the value given, which the caller has made HTML.
 // A plural string is an object with one template per plural category of its
 // language (Intl.PluralRules), each with {n}.
 // The translations below are first drafts, not reviewed (plan D6).
+import fs from "node:fs";
+import path from "node:path";
 import { md } from "./html.mjs";
 import { STRINGS_DE, STRINGS_FR, STRINGS_ES, STRINGS_ES_MX, STRINGS_IT, STRINGS_PT_BR } from "./i18n-strings-latin.mjs";
 import { STRINGS_RU, STRINGS_KO, STRINGS_ZH_CN, STRINGS_ZH_TW } from "./i18n-strings-other.mjs";
+import { PAGES_DE, PAGES_FR, PAGES_ES, PAGES_ES_MX, PAGES_IT, PAGES_PT_BR } from "./i18n-pages-latin.mjs";
+import { PAGES_RU, PAGES_KO, PAGES_ZH_CN, PAGES_ZH_TW } from "./i18n-pages-other.mjs";
 
 // The English strings: what the site says today, and every key a language must have.
 export const ENGLISH_STRINGS = {
@@ -159,18 +167,19 @@ export const ENGLISH_STRINGS = {
 
 // The languages the site can be built in besides English: the folder each is
 // under, its HTML lang (also its hreflang), the addon locale whose Locales/
-// file translates the addon's words, its own name, and its strings.
+// file translates the addon's words, its own name, its strings, and its
+// Troubleshooting and Support pages (scripts/lib/i18n-pages-*.mjs).
 export const LOCALES = [
-  { code: "de", lang: "de", addon: "deDE", name: "Deutsch", strings: STRINGS_DE },
-  { code: "fr", lang: "fr", addon: "frFR", name: "Français", strings: STRINGS_FR },
-  { code: "es", lang: "es", addon: "esES", name: "Español (España)", strings: STRINGS_ES },
-  { code: "es-mx", lang: "es-MX", addon: "esMX", name: "Español (México)", strings: STRINGS_ES_MX },
-  { code: "it", lang: "it", addon: "itIT", name: "Italiano", strings: STRINGS_IT },
-  { code: "pt-br", lang: "pt-BR", addon: "ptBR", name: "Português (Brasil)", strings: STRINGS_PT_BR },
-  { code: "ru", lang: "ru", addon: "ruRU", name: "Русский", strings: STRINGS_RU },
-  { code: "ko", lang: "ko", addon: "koKR", name: "한국어", strings: STRINGS_KO },
-  { code: "zh-cn", lang: "zh-CN", addon: "zhCN", name: "简体中文", strings: STRINGS_ZH_CN },
-  { code: "zh-tw", lang: "zh-TW", addon: "zhTW", name: "繁體中文", strings: STRINGS_ZH_TW },
+  { code: "de", lang: "de", addon: "deDE", name: "Deutsch", strings: STRINGS_DE, pages: PAGES_DE },
+  { code: "fr", lang: "fr", addon: "frFR", name: "Français", strings: STRINGS_FR, pages: PAGES_FR },
+  { code: "es", lang: "es", addon: "esES", name: "Español (España)", strings: STRINGS_ES, pages: PAGES_ES },
+  { code: "es-mx", lang: "es-MX", addon: "esMX", name: "Español (México)", strings: STRINGS_ES_MX, pages: PAGES_ES_MX },
+  { code: "it", lang: "it", addon: "itIT", name: "Italiano", strings: STRINGS_IT, pages: PAGES_IT },
+  { code: "pt-br", lang: "pt-BR", addon: "ptBR", name: "Português (Brasil)", strings: STRINGS_PT_BR, pages: PAGES_PT_BR },
+  { code: "ru", lang: "ru", addon: "ruRU", name: "Русский", strings: STRINGS_RU, pages: PAGES_RU },
+  { code: "ko", lang: "ko", addon: "koKR", name: "한국어", strings: STRINGS_KO, pages: PAGES_KO },
+  { code: "zh-cn", lang: "zh-CN", addon: "zhCN", name: "简体中文", strings: STRINGS_ZH_CN, pages: PAGES_ZH_CN },
+  { code: "zh-tw", lang: "zh-TW", addon: "zhTW", name: "繁體中文", strings: STRINGS_ZH_TW, pages: PAGES_ZH_TW },
 ];
 
 // English, at the site root.
@@ -205,11 +214,48 @@ export function parseLocaleLua(text) {
   return entries;
 }
 
+// The rows of a CSV text: quoted fields may hold commas, doubled quotes and line breaks.
+export function parseCsv(text) {
+  const rows = [];
+  let row = [], field = "", quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted && c === '"' && text[i + 1] === '"') {
+      field += '"';
+      i++;
+    } else if (c === '"') {
+      quoted = !quoted;
+    } else if (!quoted && c === ",") {
+      row.push(field);
+      field = "";
+    } else if (!quoted && c === "\n") {
+      rows.push([...row, field.replace(/\r$/, "")]);
+      row = [];
+      field = "";
+    } else {
+      field += c;
+    }
+  }
+  if (field !== "" || row.length) rows.push([...row, field]);
+  return rows;
+}
+
+// The translations in one of the addon's draft CSVs (key, english, translation, context, note,
+// as `node scripts/i18n.mjs export` writes them): Map English -> translation, filled rows only.
+export function parseDraftCsv(text) {
+  const [head = [], ...rows] = parseCsv(String(text || "").replace(/^\uFEFF/, ""));
+  const key = head.indexOf("key"), tr = head.indexOf("translation");
+  return new Map(rows.filter((r) => r[tr]).map((r) => [r[key], r[tr]]));
+}
+
 // The addon's translations for one locale, from each reader's Locales/<addon>.lua
 // (the current release first, then the newer source, whose rows win). Empty for English.
-export function addonTranslations(readers, addonLocale) {
+// `drafts` (SITE_ADDON_DRAFTS, previews only) is a folder whose <addon>.csv rows go under them.
+export function addonTranslations(readers, addonLocale, drafts = null) {
   const out = new Map();
   if (addonLocale === ENGLISH.addon) return out;
+  const csv = drafts && path.join(drafts, `${addonLocale}.csv`);
+  if (csv && fs.existsSync(csv)) for (const [k, v] of parseDraftCsv(fs.readFileSync(csv, "utf8"))) out.set(k, v);
   const file = `Locales/${addonLocale}.lua`;
   for (const reader of readers) {
     if (!reader.list("Locales").includes(`${addonLocale}.lua`)) continue;

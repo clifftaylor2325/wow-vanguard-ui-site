@@ -75,12 +75,12 @@ export function supportOn(links = SUPPORT) {
 
 // A short, one-sentence ask on a page where a player has just been helped, linking Ko-fi with a
 // `utm_campaign` naming the page so Ko-fi's analytics say which placement brings people. "" while
-// Ko-fi is off. Never in the addon itself, and never a popup.
-export function supportAsk(campaign, lead, links = SUPPORT) {
+// Ko-fi is off. Never in the addon itself, and never a popup. `thanks` is the link's words.
+export function supportAsk(campaign, lead, links = SUPPORT, thanks = "Say thanks on Ko-fi") {
   const kofi = supportOn(links).find((l) => l.name === "Ko-fi");
   if (!kofi) return "";
   const url = `${kofi.url}?utm_source=vanguardui&utm_medium=site&utm_campaign=${encodeURIComponent(campaign)}`;
-  return `<p class="ask small">${lead} <a href="${esc(url)}" rel="noopener">Say thanks on Ko-fi</a>.</p>`;
+  return `<p class="ask small">${lead} <a href="${esc(url)}" rel="noopener">${thanks}</a>.</p>`;
 }
 
 // The header's Support button: a link to the Support page, not straight to Ko-fi.

@@ -163,12 +163,13 @@ function main() {
   write("_headers", headersFile(Object.keys(site.assets)));
 
   const readers = [relReader, nextReader];
+  if (cfg.addonDrafts) console.warn(`preview: the addon's unreviewed drafts from ${cfg.addonDrafts} fill in its untranslated text (never for the live site)`);
   let pages = [];
   for (const locale of locales) {
-    const loc = siteLocale(locale, addonTranslations(readers, locale.addon));
+    const loc = siteLocale(locale, addonTranslations(readers, locale.addon, cfg.addonDrafts));
     pages = [
       homePage(model), installPage(model), startPage(model, read), featuresPage(model, loc), screenshotsPage(model), commandsPage(model, loc), settingsPage(model, read, loc),
-      profilesPage(model, read), helpPage(model, read), feedbackPage(model, read), changelogPage(model), creditsPage(model, site), supportPage(),
+      profilesPage(model, read), helpPage(model, read, loc), feedbackPage(model, read), changelogPage(model), creditsPage(model, site), supportPage(loc),
     ];
     for (const p of pages) write(path.join(loc.prefix, p.path, "index.html"), layout({ ...p, site, loc, alts: alternates(locales, p.path, base) }));
     write(path.join(loc.prefix, "404.html"), notFoundPage(site, loc));

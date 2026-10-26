@@ -1,0 +1,309 @@
+// The Troubleshooting & FAQ and Support pages in Russian, Korean and Chinese
+// (Simplified and Traditional). Keys follow ENGLISH_HELP
+// (scripts/lib/help-content.mjs) and SUPPORT_PAGE (scripts/lib/pages-more.mjs);
+// every {fact}, {ui:Text}, tag and command is the English one
+// (test/i18n.test.mjs checks). A quoted message is a {fact}: the build reads
+// it from the addon, in this language once the addon's Locales/ file
+// translates it, so nothing quoted is translated here.
+// First drafts, not reviewed by a native speaker: a language goes live only
+// once it is reviewed and listed in `locales` in site.config.json (plan D6).
+
+export const PAGES_RU = {
+  help: {
+    page: {
+      description: "Решения частых проблем с Vanguard с помощью собственных команд и сообщений аддона.",
+      lede: "Каждый ответ использует команды Vanguard и цитирует его настоящие сообщения. Откройте вопрос, чтобы увидеть решение.",
+      glanceStatus: "Начните с <code>/vg status</code>: его строки показывают, что загружено",
+      glanceReport: `Ничего не помогло? <a href="/feedback/">Отправьте отчёт</a>`,
+      questions: { one: "{n} вопрос", few: "{n} вопроса", many: "{n} вопросов", other: "{n} вопроса" },
+      knownTitle: "Известные проблемы",
+      known: `<p>Пока ни одна известная проблема не подтверждена. Vanguard — ранняя версия: ещё не всё проверено в игре, и некоторые функции дорабатываются, поэтому, если что-то выглядит не так, сообщите нам на <a href="/feedback/">странице отзывов</a>.</p>
+<div class="notice info"><p><strong>Здесь нет вашего случая?</strong> Или решение не помогло? Сообщите об этом там же и приложите все строки <code>/vg status</code>.</p></div>`,
+      ask: "Проблема решена?",
+      thanks: "Скажите спасибо на Ko-fi",
+      quote: "«{text}»",
+    },
+    sections: { fixes: "Быстрые решения", forever: "WoW Forever, настройка и ошибки" },
+    entries: {
+      "frame-moved": { q: "Рамка ушла за край экрана или стоит не на месте",
+        a: `<p><code>/vg frames</code> показывает рамки, которые можно двигать. <code>/vg reset &lt;frame&gt;</code> возвращает одну на место по умолчанию, а <code>/vg reset all</code> (или <strong>{resetAll}</strong> в разделе <strong>{ui:General} → {ui:Layout}</strong> окна <code>/vg</code>) возвращает все.</p><p>Чтобы расставить рамки самому, введите <code>/vg unlock</code> («{unlockMsg}»), перетащите маркеры, затем введите <code>/vg lock</code>.</p>` },
+      "look": { q: "Цвета или шрифты выглядят неправильно",
+        a: `<p><code>/vg theme reset</code> сбрасывает тему; его строка справки гласит: «{themeHelp}» (это также кнопка <strong>{resetTheme}</strong> в разделе <strong>{ui:General} → {ui:Look}</strong>). <code>/vg accent reset</code> сбрасывает только акцентный цвет.</p>` },
+      "one-feature": { q: "Одна часть Vanguard работает неправильно",
+        a: `<p>Введите <code>/vg modules</code>, чтобы увидеть части (модули), затем <code>/vg disable &lt;module&gt;</code> и <code>/reload</code>. В README сказано: «{keepDefault}» Страница {ui:Modules} окна настроек добавляет: «{modOff}»</p><p><code>/vg enable &lt;module&gt;</code> и <code>/reload</code> возвращают её. Пожалуйста, <a href="/feedback/">сообщите</a>, что пошло не так.</p>` },
+      "errors": { q: "В чате ошибка от Vanguard",
+        a: `<p>Ошибка в одной части не останавливает остальные: Vanguard сохраняет её, а <code>/vg errors</code> показывает список. Строка справки команды гласит: «{errorsHelp}».</p><p>Отключите эту часть (см. выше), затем отправьте <a href="/feedback/">отчёт</a> с выводом <code>/vg report</code>.</p>` },
+      "report": { q: "Что написать в отчёте об ошибке?",
+        a: `<p>Введите <code>/vg report</code>. Его строка справки гласит: «{reportHelp}». Текст откроется в окне, уже выделенным; заголовок окна: «{reportTitle}». Вставьте его целиком в форму <a href="/feedback/">отзывов</a> вместе с тем, что вы делали и что произошло.</p>` },
+      "broken": { q: "Всё сломалось",
+        a: `<p><code>/vg profile reset</code> сначала спрашивает («{profResetAsk}»), сохраняет копию текущего профиля и возвращает его к настройкам по умолчанию («{profReset}»); затем перезагрузите интерфейс.</p><p>Чтобы проверить, не теряя настроек, лучше переключите этого персонажа на новый пустой профиль: <code>/vg profile Test</code>. Это произойдёт при следующей перезагрузке: «{nextSwitch}» См. <a href="/profiles/">Профили</a>.</p>` },
+      "import": { q: "Импорт не удался",
+        a: `<p>Если строку импорта нельзя использовать, Vanguard пишет «{importFailed}» и одну из этих причин:</p>{reasons}<p>Чаще всего строка обрезалась при копировании или вставке: экспортируйте её ещё раз и скопируйте целиком.</p>` },
+      "health-hidden": { q: "Некоторые числа не видны в подземельях",
+        a: `<p>Игровой клиент скрывает от аддонов некоторые значения, например в бою в подземельях. В README об этих значениях сказано: «{unread}». Полосы всё равно заполняются, но Vanguard не может показать число, которое ему не разрешено читать. Так и задумано. <code>/vg status</code> пишет «{auraHidden}», когда значения эффектов скрыты.</p>` },
+      "reload": { q: "Настройка ничего не изменила",
+        a: `<p>Настройки с пометкой {RELOAD} на странице <a href="/settings/">Настройки</a> вступают в силу после перезагрузки: окно настроек предлагает кнопку <strong>{ui:Reload now}</strong>. Кнопки перезагрузки сделаны так, как позволяет WoW Forever. Кнопка, созданная во время боя, заработает после его окончания; до тех пор она пишет «{typeReload}»</p>` },
+      "combat": { q: "Во время боя что-то не меняется",
+        a: `<p>Некоторые изменения нельзя сделать в бою. Vanguard откладывает их и выполняет, когда бой закончится. Вторая строка <code>/vg status</code> показывает их число: «&lt;n&gt; {waiting}».</p>` },
+      "renamed": { q: "Куда делся ForeverUI?",
+        a: `<p>Теперь это Vanguard: тот же аддон, переименованный, потому что другой, не связанный с ним аддон опубликован под именем ForeverUI. Команды: <code>/vg</code> и <code>/vanguard</code> вместо <code>/fui</code>. Настройки сами не переносятся: перед обновлением введите <code>/fui export</code> и сохраните текст; после обновления импортируйте его через <code>/vg import</code>. См. <a href="/install/#renamed">Установка и обновление</a>.</p>` },
+      "settings-lost": { q: "Мои настройки сбрасываются при каждом запуске игры",
+        a: `<p>В коде аддона отмечено, что бета-сборки WoW Forever старше {fixedBuild} теряют настройки аддонов при каждом запуске и ломают рейдовые рамки, применение заклинаний щелчком и смену страниц панелей. Обновите игру. На старой сборке <code>/vg status</code> пишет: «{buildWarn}».</p>` },
+      "hover-keys": { q: "Клавиши при наведении не работают",
+        a: `<p>Некоторые бета-клиенты WoW Forever не могут выполнять код, нужный клавишам при наведении. Тогда Vanguard пишет при входе: «{snipChat}», а <code>/vg status</code> показывает «{noSnip}». На странице {ui:Click casting} сказано: «{ccNote}»</p><p>Применение заклинаний щелчком мыши по-прежнему работает, панель 1 по-прежнему меняется со стойками, формами и Shift+цифра, и рейдовые рамки тоже работают.</p>` },
+      "setup": { q: "Мастер настройки не открылся",
+        a: `<p>Мастер настройки открывается при первом входе на учётную запись. Если вы в бою, он ждёт: «{setupCombat}» Когда вы его прошли или закрыли, откройте его снова через <code>/vg setup</code> или <strong>{ui:Run setup}</strong> в разделе <strong>{ui:General} → {ui:Layout}</strong> окна <code>/vg</code>.</p>` },
+      "edit-mode": { q: "Рамки Vanguard не видны в режиме редактирования",
+        a: `<p>Когда вы открываете режим редактирования игры, маркеры Vanguard тоже появляются, с пометкой: «{editNote}» Если их нет, включите <strong>{editOpt}</strong> в разделе <strong>{ui:General} → {ui:Layout}</strong> окна <code>/vg</code>.</p><p>Игровые рамки, которые Vanguard скрывает или заменяет (панели команд, полосы опыта и репутации, рамки юнитов и так далее), намеренно не получают маркера в режиме редактирования. Двигайте вместо них рамки Vanguard.</p>` },
+      "edit-layout": { q: "Чат пишет, что мой профиль использует макет режима редактирования, которого нет на этой учётной записи",
+        a: `<p>Профиль запоминает, какой макет режима редактирования вы с ним используете. Когда персонаж загружает этот профиль, Vanguard переключает режим редактирования на макет с этим именем, если он есть на вашей учётной записи. Если нет, Vanguard пишет «{editMissing}» и оставляет режим редактирования как есть.</p>` },
+      "errors-badge": { q: "На кнопке аддонов красное число",
+        a: `<p>Это число ошибок, которые Vanguard перехватил за этот сеанс. Нижняя строка окна настроек говорит то же («&lt;n&gt; errors{footerLine}»). Щёлкните эту строку или введите <code>/vg errors</code>, чтобы увидеть список; кнопка <strong>{errorsReport}</strong> в списке открывает форму отзывов Vanguard об ошибке с приложенным списком, или вы можете вставить его здесь в <a href="/feedback/">отчёт об ошибке</a>. Его кнопка <strong>{errorsClear}</strong> (или <code>/vg errors clear</code>) очищает список, и число исчезает. Если ничего не перехвачено, <code>/vg errors</code> пишет «{noErrors}»</p>` },
+      "language": { q: "Есть ли Vanguard на моём языке?",
+        a: `<p>Пока нет. Собственный текст Vanguard (окно настроек, мастер настройки, строки чата и подсказки) пока на английском, но аддон работает с любым языком клиента, а названия, которые даёт игра (заклинания, предметы, зоны), остаются на языке вашего клиента. Переводы запланированы после запуска.</p><p>Известный пробел на неанглийском клиенте до первого обновления после запуска: группы заклинаний и стартовые раскладки применения щелчком, проверка баффов подготовки к подземелью и список классовых баффов рейдового лечения ищут английские названия игры, поэтому могут ничего не найти или показать бафф, который у вас есть, как отсутствующий.</p>` },
+      "perf": { q: "Vanguard замедляет мою игру?",
+        a: `<p><code>/vg perf</code> показывает текущее время ЦП и память Vanguard, а также десять самых нагруженных функций. Чтобы самому измерить нагрузку на ЦП (в README: «{perfRecipe}»):</p><ol class="steps"><li>Введите <code>/vg perf cpu</code>, затем <code>/reload</code>.</li><li>Поиграйте какое-то время (рейдовый пулл — трудный случай).</li><li>Введите <code>/vg perf</code> и посмотрите на числа.</li><li>Снова введите <code>/vg perf cpu</code> и <code>/reload</code>. У измерения есть цена; в README сказано: «{perfSlows}».</li></ol><p>Данные о производительности пока не опубликованы.</p>` },
+    },
+  },
+  support: {
+    description: "Vanguard бесплатен, и его делает один человек. Здесь написано, на что идёт поддержка, как её оказать и как ещё можно помочь.",
+    lede: "Vanguard бесплатен и всегда будет бесплатным. Поддержка — это благодарность, а не обязанность.",
+    paysTitle: "На что идёт поддержка",
+    pays: `<p>Vanguard делает один человек. Поддержка оплачивает время, чтобы аддон продолжал работать, когда патчи меняют WoW Forever, и чтобы исправлять то, о чём сообщают игроки.</p>
+<p>Она ничего не открывает: каждая часть Vanguard работает одинаково для всех.</p>`,
+    giveTitle: "Поддержать на Ko-fi",
+    giveButton: "Поддержать Vanguard на Ko-fi",
+    giveNote: "Платёж принимает Ko-fi и показывает свои варианты. Ничего не передаётся Vanguard или этому сайту.",
+    otherTitle: "Нет возможности помочь деньгами? Это тоже помогает",
+    other: `<ul>
+  <li>Расскажите о Vanguard другим игрокам.</li>
+  <li>Отправьте отчёт об ошибке или идею на <a href="/feedback/">странице отзывов</a>.</li>
+  <li>Прикладывайте строки <code>/vg status</code>, когда что-то идёт не так, чтобы это исправили быстрее.</li>
+</ul>`,
+  },
+};
+
+export const PAGES_KO = {
+  help: {
+    page: {
+      description: "Vanguard의 흔한 문제를 애드온 자체의 명령어와 메시지로 해결하는 방법입니다.",
+      lede: "모든 답변은 Vanguard의 명령어를 쓰고 실제 메시지를 인용합니다. 질문을 열면 해결 방법이 보입니다.",
+      glanceStatus: "<code>/vg status</code>부터 시작하세요: 각 줄이 무엇이 불러와졌는지 알려 줍니다",
+      glanceReport: `해결되지 않나요? <a href="/feedback/">보고서를 보내 주세요</a>`,
+      questions: { other: "질문 {n}개" },
+      knownTitle: "알려진 문제",
+      known: `<p>아직 확인된 알려진 문제는 없습니다. Vanguard는 초기 버전이라 아직 게임에서 모두 확인하지 못했고 일부 기능은 다듬는 중입니다. 이상해 보이는 것이 있으면 <a href="/feedback/">피드백 페이지</a>에서 알려 주세요.</p>
+<div class="notice info"><p><strong>여기에 없나요?</strong> 아니면 해결 방법이 통하지 않았나요? 그곳에 함께 알려 주시고, <code>/vg status</code>의 모든 줄을 넣어 주세요.</p></div>`,
+      ask: "문제가 해결되었나요?",
+      thanks: "Ko-fi에서 고마움을 전하세요",
+      quote: "“{text}”",
+    },
+    sections: { fixes: "빠른 해결", forever: "WoW Forever, 설정과 오류" },
+    entries: {
+      "frame-moved": { q: "프레임이 화면 밖에 있거나 엉뚱한 곳에 있어요",
+        a: `<p><code>/vg frames</code>는 옮길 수 있는 프레임을 나열합니다. <code>/vg reset &lt;frame&gt;</code>는 프레임 하나를 기본 위치로 되돌리고, <code>/vg reset all</code>(또는 <code>/vg</code>의 <strong>{ui:General} → {ui:Layout}</strong>에 있는 <strong>{resetAll}</strong>)은 모든 프레임을 되돌립니다.</p><p>직접 배치하려면 <code>/vg unlock</code>을 입력하고(“{unlockMsg}”), 핸들을 끈 다음 <code>/vg lock</code>을 입력하세요.</p>` },
+      "look": { q: "색이나 글꼴이 이상해 보여요",
+        a: `<p><code>/vg theme reset</code>은 테마를 초기화합니다. 도움말 줄에는 “{themeHelp}”라고 나옵니다(<strong>{ui:General} → {ui:Look}</strong>의 <strong>{resetTheme}</strong> 버튼과 같습니다). <code>/vg accent reset</code>은 강조 색만 초기화합니다.</p>` },
+      "one-feature": { q: "Vanguard의 한 부분이 이상하게 동작해요",
+        a: `<p><code>/vg modules</code>를 입력해 부분(모듈)을 확인한 다음 <code>/vg disable &lt;module&gt;</code>과 <code>/reload</code>를 입력하세요. README에는 “{keepDefault}”라고 나옵니다. 옵션 창의 {ui:Modules} 페이지에는 “{modOff}”라고 덧붙어 있습니다.</p><p><code>/vg enable &lt;module&gt;</code>과 <code>/reload</code>로 다시 켤 수 있습니다. 무엇이 잘못되었는지 <a href="/feedback/">알려 주세요</a>.</p>` },
+      "errors": { q: "채팅에 Vanguard 오류가 나와요",
+        a: `<p>한 부분의 오류는 다른 부분을 멈추지 않습니다. Vanguard가 오류를 보관하고 <code>/vg errors</code>가 목록으로 보여 줍니다. 이 명령어의 도움말 줄은 “{errorsHelp}”입니다.</p><p>그 부분을 끄고(위 참고) <code>/vg report</code> 내용을 넣은 <a href="/feedback/">보고서</a>를 보내 주세요.</p>` },
+      "report": { q: "버그 보고서에는 무엇을 넣나요?",
+        a: `<p><code>/vg report</code>를 입력하세요. 도움말 줄은 “{reportHelp}”입니다. 내용은 이미 선택된 상태로 상자에 열리고, 상자 제목에는 “{reportTitle}”라고 나옵니다. 무엇을 했고 무슨 일이 일어났는지와 함께 <a href="/feedback/">피드백</a> 양식에 전부 붙여 넣으세요.</p>` },
+      "broken": { q: "전부 망가졌어요",
+        a: `<p><code>/vg profile reset</code>은 먼저 묻고(“{profResetAsk}”), 쓰고 있는 프로필의 사본을 남긴 뒤 기본값으로 되돌립니다(“{profReset}”). 그다음 UI를 다시 불러오세요.</p><p>설정을 잃지 않고 시험해 보려면 이 캐릭터를 새 빈 프로필로 바꾸세요: <code>/vg profile Test</code>. 다음에 다시 불러올 때 적용됩니다: “{nextSwitch}” <a href="/profiles/">프로필</a>을 참고하세요.</p>` },
+      "import": { q: "가져오기에 실패했어요",
+        a: `<p>가져오기 문자열을 쓸 수 없으면 Vanguard는 “{importFailed}”와 함께 다음 이유 중 하나를 알려 줍니다.</p>{reasons}<p>대부분은 복사하거나 붙여 넣을 때 문자열이 잘린 경우입니다. 다시 내보내고 전부 복사하세요.</p>` },
+      "health-hidden": { q: "인스턴스에서 일부 숫자가 보이지 않아요",
+        a: `<p>게임 클라이언트는 인스턴스 전투 중 등 일부 값을 애드온에 숨깁니다. README에는 이 값들이 “{unread}”라고 나옵니다. 바는 그대로 차지만, Vanguard는 읽을 수 없는 숫자를 표시할 수 없습니다. 정상입니다. 효과 값이 숨겨져 있을 때 <code>/vg status</code>는 “{auraHidden}”라고 알려 줍니다.</p>` },
+      "reload": { q: "설정을 바꿨는데 아무 변화가 없어요",
+        a: `<p><a href="/settings/">설정</a> 페이지에서 {RELOAD} 표시가 있는 설정은 다시 불러온 뒤에 적용되며, 옵션 창에 <strong>{ui:Reload now}</strong> 버튼이 나옵니다. 다시 불러오기 버튼은 WoW Forever가 허용하는 방식으로 만들어집니다. 전투 중에 만들어진 버튼은 전투가 끝나야 작동하며, 그때까지는 “{typeReload}”라고 나옵니다.</p>` },
+      "combat": { q: "전투 중에 바뀌지 않는 것이 있어요",
+        a: `<p>일부 변경은 전투 중에 할 수 없습니다. Vanguard가 보관해 두었다가 전투가 끝나면 적용합니다. <code>/vg status</code>의 두 번째 줄이 그 수를 셉니다: “&lt;n&gt; {waiting}”.</p>` },
+      "renamed": { q: "ForeverUI는 어디로 갔나요?",
+        a: `<p>이제 Vanguard입니다. 같은 애드온인데, 관계없는 다른 애드온이 ForeverUI라는 이름으로 나와 있어 이름을 바꿨습니다. 명령어는 <code>/fui</code> 대신 <code>/vg</code>와 <code>/vanguard</code>입니다. 설정은 저절로 옮겨지지 않습니다. 업데이트 전에 <code>/fui export</code>를 입력해 텍스트를 보관하고, 업데이트 후 <code>/vg import</code>로 가져오세요. <a href="/install/#renamed">설치 및 업데이트</a>를 참고하세요.</p>` },
+      "settings-lost": { q: "게임을 시작할 때마다 설정이 초기화돼요",
+        a: `<p>애드온 코드에는 {fixedBuild}보다 오래된 WoW Forever 베타 빌드가 실행할 때마다 애드온 설정을 잃고, 공격대 프레임, 클릭 시전, 바 페이지 전환을 망가뜨린다고 적혀 있습니다. 게임을 업데이트하세요. 오래된 빌드에서는 <code>/vg status</code>가 “{buildWarn}”라고 알려 줍니다.</p>` },
+      "hover-keys": { q: "마우스오버 키가 작동하지 않아요",
+        a: `<p>일부 WoW Forever 베타 클라이언트는 마우스오버 키에 필요한 코드를 실행할 수 없습니다. 그러면 Vanguard가 접속할 때 “{snipChat}”라고 알리고, <code>/vg status</code>에는 “{noSnip}”라고 나옵니다. {ui:Click casting} 페이지에는 “{ccNote}”라고 나옵니다.</p><p>마우스 클릭 시전은 계속 작동하고, 1번 바는 여전히 태세, 변신, Shift+숫자로 바뀌며, 공격대 프레임도 계속 작동합니다.</p>` },
+      "setup": { q: "설정 마법사가 열리지 않았어요",
+        a: `<p>설정 마법사는 계정에 처음 접속할 때 열립니다. 전투 중이면 기다립니다: “{setupCombat}” 마치거나 닫은 뒤에는 <code>/vg setup</code> 또는 <code>/vg</code>의 <strong>{ui:General} → {ui:Layout}</strong>에 있는 <strong>{ui:Run setup}</strong>으로 다시 열 수 있습니다.</p>` },
+      "edit-mode": { q: "편집 모드에서 Vanguard 프레임이 보이지 않아요",
+        a: `<p>게임의 편집 모드를 열면 Vanguard의 핸들도 안내와 함께 나타납니다: “{editNote}” 나타나지 않으면 <code>/vg</code>의 <strong>{ui:General} → {ui:Layout}</strong>에서 <strong>{editOpt}</strong>를 켜세요.</p><p>Vanguard가 숨기거나 대신하는 게임 프레임(행동 단축바, 경험치 및 평판 바, 유닛 프레임 등)에는 일부러 편집 모드 핸들을 두지 않습니다. 대신 Vanguard 프레임을 옮기세요.</p>` },
+      "edit-layout": { q: "채팅에 내 프로필이 이 계정에 없는 편집 모드 레이아웃을 쓴다고 나와요",
+        a: `<p>프로필은 함께 쓰는 게임의 편집 모드 레이아웃을 기억합니다. 캐릭터가 그 프로필을 불러오면, 계정에 같은 이름의 레이아웃이 있을 때 Vanguard가 편집 모드를 그 레이아웃으로 바꿉니다. 없으면 Vanguard는 “{editMissing}”라고 알리고 편집 모드를 그대로 둡니다.</p>` },
+      "errors-badge": { q: "애드온 버튼에 빨간 숫자가 있어요",
+        a: `<p>이번 세션에 Vanguard가 잡아낸 오류의 수입니다. 옵션 창 아래쪽에도 같은 내용이 나옵니다(“&lt;n&gt; errors{footerLine}”). 그 줄을 클릭하거나 <code>/vg errors</code>를 입력하면 목록이 나옵니다. 목록의 <strong>{errorsReport}</strong> 버튼은 목록을 첨부한 채 Vanguard의 버그 피드백 양식을 열고, 아니면 여기 <a href="/feedback/">버그 보고서</a>에 붙여 넣어도 됩니다. <strong>{errorsClear}</strong> 버튼(또는 <code>/vg errors clear</code>)은 목록을 비우고 숫자도 사라집니다. 잡아낸 오류가 없으면 <code>/vg errors</code>는 “{noErrors}”라고 알려 줍니다.</p>` },
+      "language": { q: "Vanguard를 제 언어로 쓸 수 있나요?",
+        a: `<p>아직은 아닙니다. Vanguard 자체의 텍스트(옵션 창, 설정, 채팅 줄, 툴팁)는 당분간 영어이지만, 모든 클라이언트 언어에서 작동하도록 만들어졌고, 게임이 주는 이름(주문, 아이템, 지역)은 클라이언트 언어 그대로 나옵니다. 번역은 출시 후에 할 계획입니다.</p><p>출시 후 첫 업데이트까지 영어가 아닌 클라이언트에서 알려진 빈틈이 하나 있습니다. 클릭 시전의 주문 묶음과 시작 배치, 인스턴스 준비 버프 점검, 공격대 치유의 직업 버프 목록이 게임의 영어 이름을 찾기 때문에, 아무것도 찾지 못하거나 가진 버프를 없다고 표시할 수 있습니다.</p>` },
+      "perf": { q: "Vanguard 때문에 게임이 느려지나요?",
+        a: `<p><code>/vg perf</code>는 지금 Vanguard의 CPU 시간과 메모리, 가장 바쁜 함수 10개를 보여 줍니다. CPU 비용을 직접 재려면(README: “{perfRecipe}”):</p><ol class="steps"><li><code>/vg perf cpu</code>를 입력한 다음 <code>/reload</code>를 입력하세요.</li><li>잠시 플레이하세요(공격대 풀링이 어려운 경우입니다).</li><li><code>/vg perf</code>를 입력하고 숫자를 읽으세요.</li><li><code>/vg perf cpu</code>와 <code>/reload</code>를 다시 입력하세요. 측정에는 대가가 있습니다. README에는 “{perfSlows}”라고 나옵니다.</li></ol><p>아직 공개된 성능 수치는 없습니다.</p>` },
+    },
+  },
+  support: {
+    description: "Vanguard는 무료이며 한 사람이 만듭니다. 후원이 무엇에 쓰이는지, 후원하는 방법, 그 밖에 도울 수 있는 방법을 안내합니다.",
+    lede: "Vanguard는 무료이며 앞으로도 무료입니다. 후원은 감사의 표시일 뿐, 필수가 아닙니다.",
+    paysTitle: "후원이 쓰이는 곳",
+    pays: `<p>Vanguard는 한 사람이 만듭니다. 후원은 WoW Forever 패치로 바뀌는 것에 맞춰 Vanguard가 계속 작동하게 하고, 플레이어가 알려 준 문제를 고치는 시간에 쓰입니다.</p>
+<p>후원으로 열리는 기능은 없습니다. Vanguard의 모든 부분은 누구에게나 똑같이 작동합니다.</p>`,
+    giveTitle: "Ko-fi에서 후원하기",
+    giveButton: "Ko-fi에서 Vanguard 후원하기",
+    giveNote: "결제는 Ko-fi가 처리하고 Ko-fi의 선택지를 보여 줍니다. Vanguard나 이 사이트로는 아무것도 전송되지 않습니다.",
+    otherTitle: "후원이 어렵나요? 이런 것도 도움이 됩니다",
+    other: `<ul>
+  <li>다른 플레이어에게 Vanguard를 알려 주세요.</li>
+  <li><a href="/feedback/">피드백 페이지</a>에서 버그 보고나 아이디어를 보내 주세요.</li>
+  <li>문제가 생기면 <code>/vg status</code>의 줄을 함께 보내 주세요. 더 빨리 고칠 수 있습니다.</li>
+</ul>`,
+  },
+};
+
+export const PAGES_ZH_CN = {
+  help: {
+    page: {
+      description: "用插件自己的命令和消息解决 Vanguard 的常见问题。",
+      lede: "每个回答都使用 Vanguard 自己的命令，并引用它真实的消息。打开一个问题即可看到解决办法。",
+      glanceStatus: "先从 <code>/vg status</code> 开始：它的各行会说明加载了什么",
+      glanceReport: `都没用？<a href="/feedback/">发送报告</a>`,
+      questions: { other: "{n} 个问题" },
+      knownTitle: "已知问题",
+      known: `<p>目前还没有确认的已知问题。Vanguard 是早期版本：还没有全部在游戏中检查过，有些功能还在打磨，所以如果有什么看起来不对，请在<a href="/feedback/">反馈页面</a>告诉我们。</p>
+<div class="notice info"><p><strong>这里没有？</strong>或者办法没用？也请在那里报告，并附上 <code>/vg status</code> 的每一行。</p></div>`,
+      ask: "问题解决了？",
+      thanks: "在 Ko-fi 上道谢",
+      quote: "“{text}”",
+    },
+    sections: { fixes: "快速解决", forever: "WoW Forever、设置与错误" },
+    entries: {
+      "frame-moved": { q: "某个框体跑到屏幕外或位置不对",
+        a: `<p><code>/vg frames</code> 列出你可以移动的框体。<code>/vg reset &lt;frame&gt;</code> 把一个框体放回默认位置，<code>/vg reset all</code>（或 <code>/vg</code> 中 <strong>{ui:General} → {ui:Layout}</strong> 下的 <strong>{resetAll}</strong>）把所有框体放回原处。</p><p>要自己摆放框体，输入 <code>/vg unlock</code>（“{unlockMsg}”），拖动手柄，然后输入 <code>/vg lock</code>。</p>` },
+      "look": { q: "颜色或字体看起来不对",
+        a: `<p><code>/vg theme reset</code> 会重置主题，它的帮助行写着：“{themeHelp}”（也就是 <strong>{ui:General} → {ui:Look}</strong> 下的 <strong>{resetTheme}</strong> 按钮）。<code>/vg accent reset</code> 只重置强调色。</p>` },
+      "one-feature": { q: "Vanguard 的某个部分出了问题",
+        a: `<p>输入 <code>/vg modules</code> 查看各个部分（模块），然后输入 <code>/vg disable &lt;module&gt;</code> 和 <code>/reload</code>。README 中写道：“{keepDefault}”选项窗口的 {ui:Modules} 页面补充道：“{modOff}”</p><p>用 <code>/vg enable &lt;module&gt;</code> 和 <code>/reload</code> 可以恢复它。请<a href="/feedback/">报告</a>出了什么问题。</p>` },
+      "errors": { q: "聊天框显示了 Vanguard 的错误",
+        a: `<p>一个部分出错不会让其他部分停下：Vanguard 会记下错误，<code>/vg errors</code> 会列出它。这个命令的帮助行写着：“{errorsHelp}”。</p><p>关闭那个部分（见上文），然后发送一份附有 <code>/vg report</code> 内容的<a href="/feedback/">报告</a>。</p>` },
+      "report": { q: "错误报告里要写什么？",
+        a: `<p>输入 <code>/vg report</code>。它的帮助行写着：“{reportHelp}”。内容会在一个已全选的文本框中打开，文本框的标题是“{reportTitle}”。把它完整粘贴到<a href="/feedback/">反馈</a>表单里，并写上你做了什么、发生了什么。</p>` },
+      "broken": { q: "一切都坏了",
+        a: `<p><code>/vg profile reset</code> 会先询问（“{profResetAsk}”），保留你正在使用的配置文件的副本，然后把它恢复为默认值（“{profReset}”）；之后重载界面。</p><p>想在不丢失设置的情况下测试，可以改为把这个角色切换到一个新的空配置文件：<code>/vg profile Test</code>。切换会在下次重载时发生：“{nextSwitch}”参见<a href="/profiles/">配置文件</a>。</p>` },
+      "import": { q: "导入失败",
+        a: `<p>当导入字符串无法使用时，Vanguard 会显示“{importFailed}”以及以下原因之一：</p>{reasons}<p>最常见的情况是复制或粘贴时字符串被截断了：重新导出，并完整复制。</p>` },
+      "health-hidden": { q: "副本里有些数字不显示",
+        a: `<p>游戏客户端会对插件隐藏一些数值，例如在副本战斗中。README 对这些数值的说法是：“{unread}”。条仍然会填充，但 Vanguard 无法显示不允许它读取的数字。这是正常的。光环数值被隐藏时，<code>/vg status</code> 会显示“{auraHidden}”。</p>` },
+      "reload": { q: "改了设置却没有变化",
+        a: `<p>在<a href="/settings/">设置</a>页面上标有 {RELOAD} 的设置要在重载后才生效：选项窗口会提供 <strong>{ui:Reload now}</strong> 按钮。重载按钮是按 WoW Forever 允许的方式制作的。战斗中创建的按钮要到战斗结束后才能用；在那之前它会显示“{typeReload}”</p>` },
+      "combat": { q: "战斗中有些东西改不了",
+        a: `<p>有些更改不能在战斗中进行。Vanguard 会先保留它们，等战斗结束再执行。<code>/vg status</code> 的第二行会统计它们：“&lt;n&gt; {waiting}”。</p>` },
+      "renamed": { q: "ForeverUI 去哪了？",
+        a: `<p>它现在叫 Vanguard：同一个插件，改名是因为另一个毫无关系的插件以 ForeverUI 的名字发布了。命令是 <code>/vg</code> 和 <code>/vanguard</code>，不再是 <code>/fui</code>。你的设置不会自动迁移：更新前输入 <code>/fui export</code> 并保存文本；更新后用 <code>/vg import</code> 导入。参见<a href="/install/#renamed">安装与更新</a>。</p>` },
+      "settings-lost": { q: "每次启动游戏设置都会被重置",
+        a: `<p>插件的代码中注明：早于 {fixedBuild} 的 WoW Forever 测试版构建每次启动都会丢失插件设置，并且会破坏团队框体、点击施法和动作条翻页。请更新游戏。在较旧的构建上，<code>/vg status</code> 会显示：“{buildWarn}”。</p>` },
+      "hover-keys": { q: "悬停按键不起作用",
+        a: `<p>有些 WoW Forever 测试版客户端无法运行悬停按键所需的代码。这时 Vanguard 会在登录时提示：“{snipChat}”，<code>/vg status</code> 会显示“{noSnip}”。{ui:Click casting} 页面写着：“{ccNote}”</p><p>鼠标点击施法仍然可用，动作条 1 仍会随姿态、形态和 Shift+数字切换，团队框体也仍然可用。</p>` },
+      "setup": { q: "设置向导没有打开",
+        a: `<p>设置向导会在你第一次登录某个账号时打开。如果你在战斗中，它会等待：“{setupCombat}”完成或关闭后，可以用 <code>/vg setup</code> 或 <code>/vg</code> 中 <strong>{ui:General} → {ui:Layout}</strong> 下的 <strong>{ui:Run setup}</strong> 再次打开。</p>` },
+      "edit-mode": { q: "编辑模式里看不到 Vanguard 的框体",
+        a: `<p>打开游戏的编辑模式时，Vanguard 的手柄也会出现，并附有说明：“{editNote}”如果没有出现，请在 <code>/vg</code> 的 <strong>{ui:General} → {ui:Layout}</strong> 下勾选 <strong>{editOpt}</strong>。</p><p>Vanguard 隐藏或替换的游戏框体（动作条、经验条和声望条、单位框体等）特意不提供编辑模式手柄。请改为移动 Vanguard 的框体。</p>` },
+      "edit-layout": { q: "聊天框说我的配置文件使用了这个账号没有的编辑模式布局",
+        a: `<p>配置文件会记住你和它一起使用的游戏编辑模式布局。角色加载该配置文件时，如果你的账号有同名布局，Vanguard 会把编辑模式切换到那个布局。如果没有，Vanguard 会显示“{editMissing}”，并保持编辑模式不变。</p>` },
+      "errors-badge": { q: "插件按钮上有个红色数字",
+        a: `<p>那是 Vanguard 本次会话捕获到的错误数量。选项窗口底部也会显示同样的内容（“&lt;n&gt; errors{footerLine}”）。点击那一行或输入 <code>/vg errors</code> 即可列出它们；列表的 <strong>{errorsReport}</strong> 按钮会打开 Vanguard 的错误反馈表单并附上列表，你也可以把它粘贴到这里的<a href="/feedback/">错误报告</a>中。它的 <strong>{errorsClear}</strong> 按钮（或 <code>/vg errors clear</code>）会清空列表，数字随之消失。没有捕获到错误时，<code>/vg errors</code> 会显示“{noErrors}”</p>` },
+      "language": { q: "Vanguard 有我的语言版本吗？",
+        a: `<p>还没有。Vanguard 自己的文字（选项窗口、设置向导、聊天消息和鼠标提示）目前是英文，但它可以在任何客户端语言上运行，游戏提供的名称（法术、物品、区域）也会保持你客户端的语言。翻译计划在发布之后进行。</p><p>在非英文客户端上，直到发布后的第一次更新之前，有一个已知缺口：点击施法的法术分组和初始布局、副本准备的增益检查，以及团队治疗的职业增益列表，查找的是游戏的英文名称，因此可能什么都找不到，或者把你已有的增益列为缺失。</p>` },
+      "perf": { q: "Vanguard 会拖慢我的游戏吗？",
+        a: `<p><code>/vg perf</code> 显示 Vanguard 当前的 CPU 时间和内存，以及它最忙的十个函数。要自己测量 CPU 开销（README：“{perfRecipe}”）：</p><ol class="steps"><li>输入 <code>/vg perf cpu</code>，然后输入 <code>/reload</code>。</li><li>玩一会儿（团队开怪是最吃力的情况）。</li><li>输入 <code>/vg perf</code> 并查看数字。</li><li>再次输入 <code>/vg perf cpu</code> 和 <code>/reload</code>。测量本身也有开销，README 中写道：“{perfSlows}”。</li></ol><p>目前还没有发布性能数据。</p>` },
+    },
+  },
+  support: {
+    description: "Vanguard 免费，由一个人制作。这里说明支持用于什么、如何支持，以及其他帮忙的方式。",
+    lede: "Vanguard 免费使用，并且永远免费。支持是一份谢意，从不是必须的。",
+    paysTitle: "支持用于什么",
+    pays: `<p>Vanguard 由一个人制作。支持用于支付让它在 WoW Forever 补丁变化后继续正常工作、以及修复玩家所报告问题的时间。</p>
+<p>它从不解锁任何东西：Vanguard 的每个部分对每个人都一样。</p>`,
+    giveTitle: "在 Ko-fi 上支持",
+    giveButton: "在 Ko-fi 上支持 Vanguard",
+    giveNote: "付款由 Ko-fi 处理，并显示它自己的选项。不会有任何信息发送给 Vanguard 或本网站。",
+    otherTitle: "无法出钱？这些也有帮助",
+    other: `<ul>
+  <li>把 Vanguard 告诉其他玩家。</li>
+  <li>在<a href="/feedback/">反馈页面</a>发送错误报告或想法。</li>
+  <li>出问题时附上 <code>/vg status</code> 的各行，这样能更快修好。</li>
+</ul>`,
+  },
+};
+
+export const PAGES_ZH_TW = {
+  help: {
+    page: {
+      description: "用插件自己的指令和訊息解決 Vanguard 的常見問題。",
+      lede: "每個回答都使用 Vanguard 自己的指令，並引用它真正的訊息。打開一個問題就能看到解決方法。",
+      glanceStatus: "先從 <code>/vg status</code> 開始：它的每一行會說明載入了什麼",
+      glanceReport: `都沒用？<a href="/feedback/">送出回報</a>`,
+      questions: { other: "{n} 個問題" },
+      knownTitle: "已知問題",
+      known: `<p>目前還沒有確認的已知問題。Vanguard 是早期版本：還沒有全部在遊戲中檢查過，有些功能還在打磨，所以如果有什麼看起來不對，請到<a href="/feedback/">意見回饋頁面</a>告訴我們。</p>
+<div class="notice info"><p><strong>這裡沒有？</strong>或是方法沒用？也請在那裡回報，並附上 <code>/vg status</code> 的每一行。</p></div>`,
+      ask: "問題解決了嗎？",
+      thanks: "到 Ko-fi 說聲謝謝",
+      quote: "「{text}」",
+    },
+    sections: { fixes: "快速解決", forever: "WoW Forever、設定與錯誤" },
+    entries: {
+      "frame-moved": { q: "某個框架跑到畫面外或位置不對",
+        a: `<p><code>/vg frames</code> 會列出你可以移動的框架。<code>/vg reset &lt;frame&gt;</code> 把一個框架放回預設位置，<code>/vg reset all</code>（或 <code>/vg</code> 中 <strong>{ui:General} → {ui:Layout}</strong> 底下的 <strong>{resetAll}</strong>）則把所有框架放回原位。</p><p>想自己擺放框架，請輸入 <code>/vg unlock</code>（「{unlockMsg}」），拖曳控制點，然後輸入 <code>/vg lock</code>。</p>` },
+      "look": { q: "顏色或字型看起來不對",
+        a: `<p><code>/vg theme reset</code> 會重設主題，它的說明行寫著：「{themeHelp}」（也就是 <strong>{ui:General} → {ui:Look}</strong> 底下的 <strong>{resetTheme}</strong> 按鈕）。<code>/vg accent reset</code> 只會重設強調色。</p>` },
+      "one-feature": { q: "Vanguard 的某個部分運作不正常",
+        a: `<p>輸入 <code>/vg modules</code> 查看各個部分（模組），再輸入 <code>/vg disable &lt;module&gt;</code> 和 <code>/reload</code>。README 寫道：「{keepDefault}」選項視窗的 {ui:Modules} 頁面補充：「{modOff}」</p><p>用 <code>/vg enable &lt;module&gt;</code> 和 <code>/reload</code> 就能恢復。請<a href="/feedback/">回報</a>出了什麼問題。</p>` },
+      "errors": { q: "聊天視窗出現 Vanguard 的錯誤",
+        a: `<p>一個部分出錯不會讓其他部分停下來：Vanguard 會記下錯誤，<code>/vg errors</code> 會列出來。這個指令的說明行寫著：「{errorsHelp}」。</p><p>關閉那個部分（見上文），然後送出一份附上 <code>/vg report</code> 內容的<a href="/feedback/">回報</a>。</p>` },
+      "report": { q: "錯誤回報要寫什麼？",
+        a: `<p>輸入 <code>/vg report</code>。它的說明行寫著：「{reportHelp}」。內容會在一個已全選的方塊中開啟，方塊的標題是「{reportTitle}」。把它完整貼到<a href="/feedback/">意見回饋</a>表單中，並寫下你做了什麼、發生了什麼。</p>` },
+      "broken": { q: "全部都壞了",
+        a: `<p><code>/vg profile reset</code> 會先詢問（「{profResetAsk}」），保留你正在使用的設定檔副本，再把它恢復成預設值（「{profReset}」）；之後重新載入介面。</p><p>想在不失去設定的情況下測試，可以改把這個角色切換到一個新的空白設定檔：<code>/vg profile Test</code>。切換會在下次重新載入時生效：「{nextSwitch}」請參閱<a href="/profiles/">設定檔</a>。</p>` },
+      "import": { q: "匯入失敗",
+        a: `<p>當匯入字串無法使用時，Vanguard 會顯示「{importFailed}」以及下列原因之一：</p>{reasons}<p>最常見的情況是複製或貼上時字串被截斷了：請重新匯出，並完整複製。</p>` },
+      "health-hidden": { q: "在副本裡有些數字不顯示",
+        a: `<p>遊戲用戶端會對插件隱藏一些數值，例如在副本戰鬥中。README 對這些數值的說法是：「{unread}」。條仍會填滿，但 Vanguard 無法顯示不允許它讀取的數字。這是正常的。光環數值被隱藏時，<code>/vg status</code> 會顯示「{auraHidden}」。</p>` },
+      "reload": { q: "改了設定卻沒有變化",
+        a: `<p>在<a href="/settings/">設定</a>頁面上標有 {RELOAD} 的設定要重新載入後才會生效：選項視窗會提供 <strong>{ui:Reload now}</strong> 按鈕。重新載入按鈕是依照 WoW Forever 允許的方式製作的。戰鬥中建立的按鈕要等戰鬥結束才能用；在那之前它會顯示「{typeReload}」</p>` },
+      "combat": { q: "戰鬥中有些東西改不了",
+        a: `<p>有些變更不能在戰鬥中進行。Vanguard 會先保留，等戰鬥結束再執行。<code>/vg status</code> 的第二行會計算它們的數量：「&lt;n&gt; {waiting}」。</p>` },
+      "renamed": { q: "ForeverUI 去哪了？",
+        a: `<p>它現在叫 Vanguard：同一個插件，改名是因為另一個毫無關係的插件以 ForeverUI 的名稱發布了。指令是 <code>/vg</code> 和 <code>/vanguard</code>，不再是 <code>/fui</code>。你的設定不會自動轉移：更新前輸入 <code>/fui export</code> 並保存文字；更新後用 <code>/vg import</code> 匯入。請參閱<a href="/install/#renamed">安裝與更新</a>。</p>` },
+      "settings-lost": { q: "每次啟動遊戲設定都會被重設",
+        a: `<p>插件的程式碼中註明：早於 {fixedBuild} 的 WoW Forever 測試版組建每次啟動都會遺失插件設定，並且會破壞團隊框架、點擊施法和快捷列換頁。請更新遊戲。在較舊的組建上，<code>/vg status</code> 會顯示：「{buildWarn}」。</p>` },
+      "hover-keys": { q: "滑鼠懸停按鍵沒有作用",
+        a: `<p>有些 WoW Forever 測試版用戶端無法執行滑鼠懸停按鍵需要的程式碼。這時 Vanguard 會在登入時提示：「{snipChat}」，<code>/vg status</code> 會顯示「{noSnip}」。{ui:Click casting} 頁面寫著：「{ccNote}」</p><p>滑鼠點擊施法仍然可以用，快捷列 1 仍會隨姿態、形態和 Shift+數字切換，團隊框架也仍然可以用。</p>` },
+      "setup": { q: "設定精靈沒有開啟",
+        a: `<p>設定精靈會在你第一次登入某個帳號時開啟。如果你正在戰鬥，它會等待：「{setupCombat}」完成或關閉之後，可以用 <code>/vg setup</code> 或 <code>/vg</code> 中 <strong>{ui:General} → {ui:Layout}</strong> 底下的 <strong>{ui:Run setup}</strong> 再次開啟。</p>` },
+      "edit-mode": { q: "編輯模式裡看不到 Vanguard 的框架",
+        a: `<p>開啟遊戲的編輯模式時，Vanguard 的控制點也會出現，並附上說明：「{editNote}」如果沒有出現，請在 <code>/vg</code> 的 <strong>{ui:General} → {ui:Layout}</strong> 底下勾選 <strong>{editOpt}</strong>。</p><p>Vanguard 隱藏或取代的遊戲框架（快捷列、經驗條和聲望條、單位框架等）刻意不提供編輯模式控制點。請改為移動 Vanguard 的框架。</p>` },
+      "edit-layout": { q: "聊天視窗說我的設定檔使用了這個帳號沒有的編輯模式版面配置",
+        a: `<p>設定檔會記住你搭配它使用的遊戲編輯模式版面配置。角色載入該設定檔時，如果你的帳號有同名的版面配置，Vanguard 會把編輯模式切換到那個版面配置。如果沒有，Vanguard 會顯示「{editMissing}」，並讓編輯模式維持原樣。</p>` },
+      "errors-badge": { q: "插件按鈕上有個紅色數字",
+        a: `<p>那是 Vanguard 本次登入期間攔截到的錯誤數量。選項視窗底部也會顯示同樣的內容（「&lt;n&gt; errors{footerLine}」）。點擊那一行或輸入 <code>/vg errors</code> 就能列出它們；清單的 <strong>{errorsReport}</strong> 按鈕會開啟 Vanguard 的錯誤回饋表單並附上清單，你也可以把它貼到這裡的<a href="/feedback/">錯誤回報</a>中。它的 <strong>{errorsClear}</strong> 按鈕（或 <code>/vg errors clear</code>）會清空清單，數字也會消失。沒有攔截到錯誤時，<code>/vg errors</code> 會顯示「{noErrors}」</p>` },
+      "language": { q: "Vanguard 有我的語言版本嗎？",
+        a: `<p>還沒有。Vanguard 自己的文字（選項視窗、設定精靈、聊天訊息和滑鼠提示）目前是英文，但它可以在任何用戶端語言上執行，遊戲提供的名稱（法術、物品、區域）也會維持你用戶端的語言。翻譯預計在上線後進行。</p><p>在非英文用戶端上，直到上線後的第一次更新之前，有一個已知缺口：點擊施法的法術分組和初始配置、副本準備的增益檢查，以及團隊治療的職業增益清單，找的是遊戲的英文名稱，所以可能什麼都找不到，或是把你已經有的增益列為缺少。</p>` },
+      "perf": { q: "Vanguard 會拖慢我的遊戲嗎？",
+        a: `<p><code>/vg perf</code> 會顯示 Vanguard 目前的 CPU 時間和記憶體，以及它最忙碌的十個函式。想自己測量 CPU 負擔（README：「{perfRecipe}」）：</p><ol class="steps"><li>輸入 <code>/vg perf cpu</code>，然後輸入 <code>/reload</code>。</li><li>玩一陣子（團隊拉怪是最吃重的情況）。</li><li>輸入 <code>/vg perf</code> 並查看數字。</li><li>再次輸入 <code>/vg perf cpu</code> 和 <code>/reload</code>。測量本身也有負擔，README 寫道：「{perfSlows}」。</li></ol><p>目前還沒有公布效能數據。</p>` },
+    },
+  },
+  support: {
+    description: "Vanguard 免費，由一個人製作。這裡說明贊助用在哪裡、如何贊助，以及其他幫忙的方式。",
+    lede: "Vanguard 免費使用，而且永遠免費。贊助是一份謝意，從來不是必要的。",
+    paysTitle: "贊助用在哪裡",
+    pays: `<p>Vanguard 由一個人製作。贊助用來支付讓它在 WoW Forever 改版後持續正常運作、以及修正玩家回報問題的時間。</p>
+<p>贊助從不解鎖任何東西：Vanguard 的每個部分對每個人都一樣。</p>`,
+    giveTitle: "在 Ko-fi 贊助",
+    giveButton: "在 Ko-fi 贊助 Vanguard",
+    giveNote: "付款由 Ko-fi 處理，並顯示它自己的選項。不會有任何資訊傳送給 Vanguard 或本網站。",
+    otherTitle: "無法出錢？這些也有幫助",
+    other: `<ul>
+  <li>把 Vanguard 介紹給其他玩家。</li>
+  <li>在<a href="/feedback/">意見回饋頁面</a>送出錯誤回報或點子。</li>
+  <li>出問題時附上 <code>/vg status</code> 的每一行，這樣能更快修好。</li>
+</ul>`,
+  },
+};
