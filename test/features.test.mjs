@@ -64,9 +64,10 @@ test("every module card on /features/ shows 2 to 4 longer sentences, in order", 
     assert.ok(list.length >= 2 && list.length <= 4, `${key}: ${list.length} longer sentences`);
     const at = html.indexOf(`data-module="${key}"`);
     const card = html.slice(at, html.indexOf("</article>", at));
-    const p = (card.match(/<p class="mod-longer">([^<]*)<\/p>/) || [])[1];
+    // Its text; a menu path's /vg is marked as code (menuPaths).
+    const p = (card.match(/<p class="mod-longer">((?:[^<]|<\/?code>)*)<\/p>/) || [])[1];
     assert.ok(p, `${key}: no longer text in its card`);
-    assert.equal(decode(p), list.map((x) => x.s).join(" "));
+    assert.equal(decode(p.replace(/<\/?code>/g, "")), list.map((x) => x.s).join(" "));
   }
   assert.deepEqual(Object.keys(LONGER).filter((k) => !keys.includes(k)), [], "longer text for a module that has no card");
 });

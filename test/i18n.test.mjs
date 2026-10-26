@@ -12,7 +12,7 @@ import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
-import { NAV } from "../scripts/lib/html.mjs";
+import { NAV, menuPaths } from "../scripts/lib/html.mjs";
 import { ENGLISH, ENGLISH_STRINGS, LOCALES, publishedLocales, parseLocaleLua, parseCsv, parseDraftCsv, addonTranslations, siteLocale, localiseLinks, proseOf, proseProblems } from "../scripts/lib/i18n-site.mjs";
 import { commandWords, commandsIn } from "../scripts/lib/commands.mjs";
 import { ENGLISH_HELP } from "../scripts/lib/help-content.mjs";
@@ -201,6 +201,10 @@ test("a command is read with its own words, placeholders and groups, and stops a
   assert.deepEqual(commandsIn("Type /vg move, then /vg reset <frame|all> and /vg opens the window.", words), ["/vg", "/vg move", "/vg reset <frame|all>"]);
   assert.deepEqual(commandsIn("<code>/vg profile new &lt;name&gt;</code>", words), ["/vg profile new <name>"]);
   assert.notDeepEqual(commandsIn("/vg zurücksetzen <Rahmen|jeden>", words), commandsIn("/vg reset <frame|all>", words));
+});
+
+test("a menu path shows /vg as a command, apart from the translated page names; attributes keep theirs", () => {
+  assert.equal(menuPaths('<p data-search="/vg → Módulos">Bajo <strong>/vg → Módulos</strong>.</p>'), '<p data-search="/vg → Módulos">Bajo <strong><code>/vg</code> → Módulos</strong>.</p>');
 });
 
 // Every translated text in a language with the English it translates: site strings (each plural

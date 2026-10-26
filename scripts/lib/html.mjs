@@ -294,12 +294,19 @@ function footerLines(site, loc) {
 // `loc` is the language (scripts/lib/i18n-site.mjs) and `alts` every published
 // language's copy of the page. A page that isn't `translated` keeps its English
 // body, marked lang="en", inside the translated shell.
+// A path through the options window ("/vg → Modules") shows /vg as the command it is, apart from
+// the page names after it, so a translated path never reads as a translated command. Text only:
+// attributes (search words, labels) and code keep theirs.
+export function menuPaths(html) {
+  return html.replace(/>([^<]*)</g, (all, text) => (text.includes("/vg → ") ? `>${text.replace(/\/vg → /g, "<code>/vg</code> → ")}<` : all));
+}
+
 export function layout({ path, title, description, body, site, scripts = [], loc = EN, alts = [], translated = false }) {
   const fullTitle = pageTitle(path, title, loc);
   if (loc.english || !translated) description = SEO[path]?.description || description;
   const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">${loc.t("menu")}</button>`;
   const nav = `<nav class="nav sidebar" aria-label="Main" id="site-nav">${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
-  const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${localiseLinks(body, loc)}\n</main>`;
+  const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${menuPaths(localiseLinks(body, loc))}\n</main>`;
   // An asset's URL with the build's version query (the plain path if it has none).
   const asset = (p) => site.assets?.[p] || p;
   return `<!doctype html>
