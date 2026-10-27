@@ -659,6 +659,13 @@ test("pages load their CSS and JS by a versioned URL, and assets are revalidated
   assert.match(headers, /\n\/fonts\/\*\n  Cache-Control: public, max-age=604800\n/, "fonts keep their names, so a week, not immutable");
 });
 
+test("search engines index only the site's own domain, not the Pages hosts", () => {
+  const headers = fs.readFileSync(path.join(dist, "_headers"), "utf8");
+  assert.match(headers, /\nhttps:\/\/vanguard-ui\.pages\.dev\/\*\n  X-Robots-Tag: noindex\n/, "the Pages project host is noindex");
+  assert.match(headers, /\nhttps:\/\/:preview\.vanguard-ui\.pages\.dev\/\*\n  X-Robots-Tag: noindex\n/, "preview deploys are noindex");
+  assert.equal((headers.match(/X-Robots-Tag/g) || []).length, 2, "nothing on vanguardui.com is noindex");
+});
+
 test("only the files pages load by a ?v=<hash> URL are cached as immutable", () => {
   const headers = fs.readFileSync(path.join(dist, "_headers"), "utf8");
   const immutable = [...headers.matchAll(/^(\S+)\n  ! Cache-Control\n  Cache-Control: public, max-age=31536000, immutable\n/gm)].map((m) => m[1]).sort();
