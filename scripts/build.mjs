@@ -83,9 +83,13 @@ function stampAssets(files) {
 // them, so they are kept for a week, not forever.
 // Every page also gets the plain security headers (no CSP yet: it needs a browser pass over the
 // feedback form's Turnstile frame first).
+// The same site is also served at the Pages project's own host and at a host per preview deploy;
+// search engines are told to leave those out, so only vanguardui.com is indexed.
+const PAGES_HOST = "vanguard-ui.pages.dev";
 function headersFile(stamped) {
   const forever = stamped.map((f) => `${f}\n  ! Cache-Control\n  Cache-Control: public, max-age=31536000, immutable\n`).join("\n");
-  return `/assets/*\n  Cache-Control: no-cache\n\n${forever}\n/fonts/*\n  Cache-Control: public, max-age=604800\n\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n`;
+  const noindex = [`https://${PAGES_HOST}/*`, `https://:preview.${PAGES_HOST}/*`].map((h) => `${h}\n  X-Robots-Tag: noindex\n`).join("\n");
+  return `/assets/*\n  Cache-Control: no-cache\n\n${forever}\n/fonts/*\n  Cache-Control: public, max-age=604800\n\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n\n${noindex}`;
 }
 
 // sitemap.xml: every page in NAV in every published language, under siteUrl from
