@@ -39,15 +39,12 @@ export function readFields(input) {
   return out;
 }
 
-// "2,000" for 2000.
-function count(n) {
-  return n.toLocaleString("en-US");
-}
-
-// A message in English: its {slots} filled from values. The page passes its own, which
-// translates the message first (assets/feedback.js); the Function always answers in English.
-export function english(text, values = {}) {
-  return text.replace(/\{(\w+)\}/g, (slot, k) => (k in values ? values[k] : slot));
+// A message in English: its {slots} filled from values, a number written as the language writes
+// it ("2,000"). The page passes its own translated text and the page's language
+// (assets/feedback.js); the Function always answers in English.
+export function english(text, values = {}, lang = "en-US") {
+  const shown = (v) => (typeof v === "number" ? v.toLocaleString(lang) : v);
+  return text.replace(/\{(\w+)\}/g, (slot, k) => (k in values ? shown(values[k]) : slot));
 }
 
 // A message when a text field is missing, too short or too long, else "".
@@ -55,8 +52,8 @@ function lengthError(name, value, label, say) {
   const [min, max] = LIMITS[name];
   const named = { label: say(label) };
   if (min > 0 && !value) return say("{label} is required.", named);
-  if (value && value.length < min) return say("{label} needs at least {min} characters.", { ...named, min: count(min) });
-  if (value.length > max) return say("{label} can be at most {max} characters (it has {length}).", { ...named, max: count(max), length: count(value.length) });
+  if (value && value.length < min) return say("{label} needs at least {min} characters.", { ...named, min });
+  if (value.length > max) return say("{label} can be at most {max} characters (it has {length}).", { ...named, max, length: value.length });
   return "";
 }
 

@@ -24,8 +24,8 @@ let token = "";
 
 // The page's translations of this script's messages, keyed by the English (none on the English page).
 const MESSAGES = JSON.parse(($("#fb-messages") || {}).textContent || "{}");
-// A message in the page's language, its {slots} filled.
-const tr = (text, values) => english(MESSAGES[text] ?? text, values);
+// A message in the page's language, its {slots} filled and its numbers written as the language writes them.
+const tr = (text, values) => english(MESSAGES[text] ?? text, values, document.documentElement.lang || "en-US");
 
 // The chosen kind: "bug" or "feature".
 // A form control by name (form.title would be the form's own title attribute).
