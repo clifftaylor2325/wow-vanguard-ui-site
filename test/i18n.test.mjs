@@ -162,6 +162,15 @@ test("Settings shows the addon's translation of a caption, page title and choice
   assert.ok(html.includes("TEST-ONLY Zeile") && /data-search="[^"]*TEST-ONLY Zeile/.test(html), "the search matches the translation");
 });
 
+test("Settings translates a caption written with {slots} by its game key, and shows its slots as <slot>", () => {
+  const row = model.pages.flatMap((p) => p.rows).find((r) => r.key && r.key.includes("{n}"));
+  assert.ok(row, "the addon has a caption with a {n} slot");
+  const html = settingsPage(model, read, siteLocale(DE, new Map([[row.key, row.key.replace("{n}", "{n} TEST-ONLY")]]))).body;
+  const shown = `${row.caption.replace("<n>", "&lt;n&gt; TEST-ONLY")}`;
+  assert.ok(html.includes(`>${shown}`), `the caption “${shown}”`);
+  assert.ok(new RegExp(`data-search="[^"]*${shown}`).test(html), "the search matches it too");
+});
+
 test("Commands shows the addon's translation of a help line, with the command typed as in English", () => {
   const e = model.commands.entries.find((x) => x.relLines?.length && !x.changed && x.relLines[0].text);
   const l = e.relLines[0];

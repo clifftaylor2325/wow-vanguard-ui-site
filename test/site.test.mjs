@@ -833,6 +833,21 @@ end
 local PAGES = { { key = "bars", title = L["Bars"], rows = barRows } }`);
   const [page] = extractPages({ read: (file) => (file === "Core/Options.lua" ? lua : null) }, ["Core/Options.lua"], []);
   assert.deepEqual(page.rows.map((r) => [r.kind, r.caption, r.loop?.variable ?? null]), [["check", "Show bar <n>", "n"], ["button", "Remove: <item>", null]]);
+  assert.deepEqual(page.rows.map((r) => r.key), ["Show bar {n}", "Remove: {item}"], "the row keeps the key the game looks the text up by");
+});
+
+// A caption joined with `..` to a dotted or indexed value reads in full, worded like the next release's ns.Format version.
+test("an option row's caption joined to BS.MAX or SI.LABELS[name] keeps the whole name and the text after it", () => {
+  const lua = unwrapLocale(`local ADDON, ns = ...
+local function rows(BS, SI)
+  local rows = {}
+  rows[1] = { "text", L["Picked feeds show along the top edge (up to "] .. BS.MAX .. L[", in the order picked)."] }
+  rows[2] = { "button", "Clear " .. SI.LABELS[name], function() clear(name) end }
+  return rows
+end
+local PAGES = { { key = "x", title = L["X"], rows = rows } }`);
+  const [page] = extractPages({ read: (file) => (file === "Core/Options.lua" ? lua : null) }, ["Core/Options.lua"], []);
+  assert.deepEqual(page.rows.map((r) => [r.caption, r.key ?? null]), [["Picked feeds show along the top edge (up to <count>, in the order picked).", null], ["Clear <situation>", null]]);
 });
 
 test("the profile reset quote is found written with %s or with ns.Format slots", () => {

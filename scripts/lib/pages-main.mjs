@@ -7,7 +7,7 @@ import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf, readmeSays } from "./features-content.mjs";
 import { EN } from "./i18n-site.mjs";
-import { splitHelp } from "./extract.mjs";
+import { splitHelp, showSlots } from "./extract.mjs";
 
 // "September 27, 2026" in New York time, in the page's language.
 export function dateET(iso, loc = EN) {
@@ -824,18 +824,24 @@ function groupRow(html, attrs) {
   return `</tbody><tbody><tr class="opt-row h" ${attrs}><th scope="rowgroup" colspan="${COLS.length}">${html}</th></tr>`;
 }
 
+// A row's caption in the page's language, as plain text. A ns.Format caption is looked up by its
+// {slot} text, as the game does, and its slots show as <slot>.
+function rowCaption(r, loc) {
+  return r.key ? showSlots(loc.addon(r.key)) : loc.addon(r.caption);
+}
+
 // A heading or note row from the addon, spanning the table.
 function wideRow(r, attrs, version, loc) {
   const b = r.inRel && r.inNext ? "" : ` ${badge(r.inRel, r.inNext, version, loc)}`;
-  if (r.kind === "header") return groupRow(`${esc(loc.addon(r.caption))}${b}`, attrs);
-  return `<tr class="opt-row t opt-item" ${attrs}><td colspan="${COLS.length}">${esc(loc.addon(r.caption))}${b}</td></tr>`;
+  if (r.kind === "header") return groupRow(`${esc(rowCaption(r, loc))}${b}`, attrs);
+  return `<tr class="opt-row t opt-item" ${attrs}><td colspan="${COLS.length}">${esc(rowCaption(r, loc))}${b}</td></tr>`;
 }
 
 // The words the search box matches for a row: its page, caption and choices,
 // in English and in the page's language.
 function rowSearch(r, pageTitle, loc) {
   const words = [pageTitle, r.caption, ...(r.choices || []).map((c) => c[1])];
-  const own = loc.english ? [] : words.map((w) => loc.addon(w)).filter((w) => !words.includes(w));
+  const own = loc.english ? [] : [...words.map((w) => loc.addon(w)), rowCaption(r, loc)].filter((w) => !words.includes(w));
   return `${pageTitle} ${r.caption} ${(r.choices || []).map((c) => c[1]).join(" ")}${own.length ? ` ${own.join(" ")}` : ""}`;
 }
 
@@ -847,7 +853,7 @@ function optRow(r, version, pageTitle, id, loc) {
   const notes = `${r.reload ? `${reloadBadge(loc)} ` : ""}${badge(r.inRel, r.inNext, version, loc)}`;
   const kind = KINDS.includes(r.kind) ? ` <span class="opt-kind">${loc.t(`kind.${r.kind}`)}</span>` : "";
   const cells = [valuesText(r, loc), defaultText(r, loc), notes].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
-  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(loc.addon(r.caption))}${loop}${kind}</th>${cells.join("")}</tr>`;
+  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${kind}</th>${cells.join("")}</tr>`;
 }
 
 // The heading over rows the options window repeats, e.g. "The rows below repeat for each n from 1 to 8".
