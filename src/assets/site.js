@@ -375,10 +375,22 @@
     document.body.appendChild(box);
   }
 
+  // Back or Forward can show this page again with the select still on the language
+  // that was picked; it goes back to this page's own language, so picking that one
+  // again is a change.
+  function resetLangSelect(sel) {
+    window.addEventListener("pageshow", function () {
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].defaultSelected) sel.selectedIndex = i;
+      }
+    });
+  }
+
   // The language select at the sidebar's foot: picking one opens this page in it.
   function wireLang() {
     var sel = document.querySelector("select[data-lang-switch]");
     if (!sel) return;
+    resetLangSelect(sel);
     sel.addEventListener("change", function () {
       var opt = sel.options[sel.selectedIndex];
       remember(opt.lang);

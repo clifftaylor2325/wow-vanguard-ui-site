@@ -897,3 +897,13 @@ test("the offer note's link keeps the section the reader arrived on", () => {
   assert.ok(js.includes("link.href = opt.value + location.hash;\n"), "set when the note is made");
   assert.ok(js.includes("remember(opt.lang); link.href = opt.value + location.hash;"), "and again when it is followed");
 });
+
+// Both are browser behaviour (the form-state restore and the back/forward cache), which the suite
+// can't run: it checks that the built page and script carry the pieces, and shots.mjs-style
+// browser probing (S6 browse2.mjs) showed autocomplete="off" stops the restore in Chromium.
+test("the language select is not restored by the browser, and site.js sets it back to this page's language on pageshow", () => {
+  assert.ok(page("settings").includes('<select id="lang-select" data-lang-switch autocomplete="off">'), "autocomplete is off on the select");
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  assert.match(js, /addEventListener\("pageshow"/, "a pageshow handler puts the select back");
+  assert.ok(js.includes("defaultSelected") && js.includes("sel.selectedIndex = i"), "...on the option the page marks selected");
+});

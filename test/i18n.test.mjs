@@ -332,7 +332,7 @@ test("the language switcher sits at the sidebar's foot, with this page in every 
   for (const l of ALL) {
     const h = html(folder(l), "/settings/");
     const nav = h.slice(h.indexOf('<nav class="nav sidebar"'), h.indexOf("</nav>"));
-    assert.ok(nav.includes('<select id="lang-select" data-lang-switch>'), `${l.code} switcher in the sidebar`);
+    assert.ok(nav.includes('<select id="lang-select" data-lang-switch autocomplete="off">'), `${l.code} switcher in the sidebar, not restored by the browser after Back`);
     for (const a of ALL) assert.ok(nav.includes(`<option value="${a === ENGLISH ? "" : `/${a.code}`}/settings/" lang="${a.lang}"`), `${l.code} option ${a.code}`);
     assert.ok(nav.includes(`lang="${l.lang}" data-offer="${l.strings["lang.offer"]}"`), `${l.code} offer line`);
     assert.ok(new RegExp(`<option [^>]*lang="${l.lang}"[^>]* selected>`).test(nav), `${l.code} is selected`);

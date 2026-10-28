@@ -224,7 +224,7 @@ export function langSwitch(alts, loc) {
   const own = (a) => `lang="${esc(a.lang)}" data-offer="${esc(a.strings["lang.offer"])}" data-dismiss="${esc(a.strings["lang.dismiss"])}"`;
   const option = (a) => `<option value="${esc(a.href)}" ${own(a)}${a.code === loc.code ? " selected" : ""}>${esc(a.name)}</option>`;
   return `<div class="nav-lang"><label for="lang-select">${loc.t("lang.label")}</label>
-<select id="lang-select" data-lang-switch>${alts.map(option).join("")}</select>
+<select id="lang-select" data-lang-switch autocomplete="off">${alts.map(option).join("")}</select>
 <noscript><ul class="lang-links">${langLinks(alts, loc)}</ul></noscript></div>`;
 }
 
