@@ -573,11 +573,12 @@ test("no garbled characters or byte-order marks in the source or the built site"
 });
 
 // A planted bad file is caught, with its file and line: a BOM, a garbled line and a UTF-16 file.
+// Capital Ã in real Portuguese words (NÃO, AÇÃO) is not garbling.
 test("the encoding check catches planted bad files", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fui-encoding-"));
   fs.writeFileSync(path.join(dir, "planted.md"), Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from("fine\nshows \u0393\u00c7\u00aa and \u00c3\u00a9 here\n", "utf8")]));
   fs.writeFileSync(path.join(dir, "out-file.txt"), Buffer.from("\ufeffhello", "utf16le"));
-  fs.writeFileSync(path.join(dir, "clean.mjs"), "// \u2026 \u201cquoted\u201d \u2192 \u00b7\n");
+  fs.writeFileSync(path.join(dir, "clean.mjs"), "// \u2026 \u201cquoted\u201d \u2192 \u00b7\nN\u00c3O A\u00c7\u00c3O S\u00c3O\n");
   const found = scanFiles(dir, ["planted.md", "out-file.txt", "clean.mjs"]);
   assert.deepEqual(found, ["planted.md:1: UTF-8 byte-order mark (save without BOM)", "planted.md:2: garbled characters", "out-file.txt:1: UTF-16 file (save it as UTF-8)"]);
   fs.rmSync(dir, { recursive: true, force: true });

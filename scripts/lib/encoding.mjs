@@ -10,7 +10,7 @@ import path from "node:path";
 // page 437), U+252C U+2556 (a middle dot, the same way), U+00E2 U+20AC (curly
 // quotes read as Windows-1252), U+00C3 or U+00C2 then a Latin-1 character
 // (accented letters, middle dot, no-break space) and U+FFFD (bytes that aren't UTF-8).
-export const MOJIBAKE = /\u0393[\u00c7\u00e5\u00c4]|\u252c[\u2556\u2591]|\u00e2\u20ac|\u00c3[\^@-\u00bf]|\u00c2[\u00a0-\u00bf]|\ufffd/;
+export const MOJIBAKE = /\u0393[\u00c7\u00e5\u00c4]|\u252c[\u2556\u2591]|\u00e2\u20ac|\u00c3[\u0080-\u00bf]|\u00c2[\u00a0-\u00bf]|\ufffd/;
 
 // Text files by extension or name; fonts, images and other binaries never match.
 const TEXT = /\.(m?js|cjs|json|md|css|html?|txt|xml|svg|ya?ml|toml|example)$|(^|\/)(LICENSE|\.gitignore|\.gitattributes|\.editorconfig)$/i;
