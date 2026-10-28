@@ -64,6 +64,9 @@ function fetchReleases() {
 function main() {
   ensureSource();
   const meta = fetchReleases();
+  // A clone made before the newest release has no tag for it yet.
+  if (!hasCommit(meta.current)) git(["fetch", "--quiet", "--tags", "origin"], cfg.sourcePath);
+  if (!hasCommit(meta.current)) throw new Error(`the addon clone has no tag ${meta.current}`);
   fs.mkdirSync(cfg.cacheDir, { recursive: true });
   fs.writeFileSync(cfg.releaseJson, JSON.stringify(meta, null, 2));
   console.log(`source ${cfg.sourceRef.slice(0, 7)} · current release ${meta.current}`);
