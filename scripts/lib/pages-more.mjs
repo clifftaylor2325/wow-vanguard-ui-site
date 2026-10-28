@@ -541,7 +541,7 @@ function feedbackSteps(loc) {
 <div class="fb-actions">
 <button class="button" type="button" id="fb-send">${P("Send report")}</button>
 <button class="button secondary" type="button" id="fb-edit">${P("Edit")}</button>
-<button class="copy" type="button" data-copy-from="#fb-preview-body" aria-label="${esc(loc.p("Copy the report text"))}">${P("Copy report text")}</button>
+<button class="copy" type="button" data-copy-from="#fb-preview-body">${P("Copy report text")}</button>
 </div>
 </section>
 <section id="fb-done" class="fb-step" hidden aria-labelledby="fb-done-h">
@@ -607,9 +607,9 @@ function readyBug(model, read, templates, loc) {
   <li>${errorsStep}</li>
 </ol>
 <p class="small">${loc.p("Can't copy text from chat? Type out the lines that matter, or describe them.")}${model.commands.nextKeys.has("copy") && !model.commands.relKeys.has("copy") ? nextOnly(` ${loc.p("In the next release, <code>/vg copy</code> opens the recent chat as plain text, ready to copy.")}`) : ""}</p>
-<h4>${loc.p("Bug report template")}</h4>
+<h4 id="bug-template-h">${loc.p("Bug report template")}</h4>
 <pre class="template" id="bug-template">${esc(templates.bug)}</pre>
-<button class="copy" type="button" data-copy-from="#bug-template" aria-label="${esc(loc.p("Copy the bug report template"))}">${loc.p("Copy template")}</button>
+<button class="copy" type="button" data-copy-from="#bug-template" aria-describedby="bug-template-h">${loc.p("Copy template")}</button>
 </section>`;
 }
 
@@ -627,9 +627,9 @@ function readyFeature(model, templates, loc) {
   <li>${loc.p("<strong>Why it would help you.</strong>")}</li>
 </ol>
 <div class="notice info"><p>${loc.p("<strong>Reviewed, not promised.</strong> Every request is read and considered, but there's no promise that it will be built, or when.")}</p></div>
-<h4>${loc.p("Feature request template")}</h4>
+<h4 id="feature-template-h">${loc.p("Feature request template")}</h4>
 <pre class="template" id="feature-template">${esc(templates.feature)}</pre>
-<button class="copy" type="button" data-copy-from="#feature-template" aria-label="${esc(loc.p("Copy the feature request template"))}">${loc.p("Copy template")}</button>
+<button class="copy" type="button" data-copy-from="#feature-template" aria-describedby="feature-template-h">${loc.p("Copy template")}</button>
 <p class="small template-note">${check}</p>
 </section>`;
 }

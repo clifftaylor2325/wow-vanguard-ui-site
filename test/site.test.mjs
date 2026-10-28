@@ -188,6 +188,26 @@ function countedRows(html) {
   return { tags, avail: (...a) => tags.filter((t) => a.some((x) => t.includes(`data-avail="${x}"`))).length };
 }
 
+test("a copy button's name contains its visible text (WCAG 2.5.3), in every language", () => {
+  for (const dir of LANG_DIRS) {
+    for (const name of ["commands", "feedback"]) {
+      const buttons = [...page(`${dir}${name}`).matchAll(/<button class="copy"[^>]*>([^<]*)<\/button>/g)];
+      for (const [tag, text] of buttons) {
+        const label = tag.match(/aria-label="([^"]*)"/);
+        if (label) assert.ok(label[1].toLowerCase().includes(text.toLowerCase()), `${dir}${name}: "${label[1]}" must contain "${text}"`);
+      }
+      if (name !== "commands") assert.ok(buttons.length > 0 && buttons.every(([tag]) => !tag.includes("aria-label")), `${dir}${name}: copy buttons name themselves by their text`);
+    }
+  }
+});
+
+test("copy buttons in site.js report only a copy that worked, and announce it", () => {
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  assert.match(js, /return ok;/, "fallback returns whether execCommand worked");
+  assert.match(js, /setAttribute\("role", "status"\)/, "Copied is announced in a status line");
+  assert.match(js, /clearTimeout\(btn\.copyTimer\)/, "a second click restarts the wait");
+});
+
 test("the Commands search hides groups with no match, as Features and Settings do", () => {
   for (const dir of LANG_DIRS) {
     assert.match(page(`${dir}commands`), /<div class="search" data-target="#cmd-list" data-items="\.cmd" data-groups="\.cmd-group"/, `${dir}commands search box needs data-groups`);

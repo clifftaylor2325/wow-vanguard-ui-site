@@ -253,7 +253,33 @@
     }
   }
 
-  // Copies text and briefly says so on the button.
+  // The hidden status line that says "Copied" to a screen reader (the button's
+  // own name stays "Copy ..."). Made once, when the page has a copy button.
+  var copyStatus = null;
+  function announce(text) {
+    if (!copyStatus) {
+      copyStatus = document.createElement("span");
+      copyStatus.className = "sr-only";
+      copyStatus.setAttribute("role", "status");
+      document.body.appendChild(copyStatus);
+    }
+    copyStatus.textContent = text;
+  }
+
+  // Says "Copied" on the button for a moment, then puts its first label back
+  // (a second click in that time restarts the wait, and never keeps "Copied").
+  function showCopied(btn) {
+    if (!btn.hasAttribute("data-label")) btn.setAttribute("data-label", btn.textContent);
+    clearTimeout(btn.copyTimer);
+    btn.textContent = say("copied", "Copied");
+    announce(btn.textContent);
+    btn.copyTimer = setTimeout(function () {
+      btn.textContent = btn.getAttribute("data-label");
+      announce("");
+    }, 1500);
+  }
+
+  // Copies text and says so on the button, but only when the copy worked.
   function copyText(btn) {
     var text = btn.getAttribute("data-copy");
     var src = btn.getAttribute("data-copy-from");
@@ -261,30 +287,27 @@
       var el = document.querySelector(src);
       text = el ? el.textContent : "";
     }
-    var done = function () {
-      var old = btn.textContent;
-      btn.textContent = say("copied", "Copied");
-      setTimeout(function () { btn.textContent = old; }, 1500);
-    };
+    var done = function (ok) { if (ok) showCopied(btn); };
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
     } else {
-      fallback(text);
-      done();
+      done(fallback(text));
     }
   }
 
-  // Copy for older browsers and plain-http previews.
+  // Copy for older browsers and plain-http previews; true when the browser did it.
   function fallback(text) {
     var ta = document.createElement("textarea");
+    var ok = false;
     ta.value = text;
     ta.setAttribute("readonly", "");
     ta.style.position = "fixed";
     ta.style.opacity = "0";
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand("copy"); } catch (e) { /* nothing else to try */ }
+    try { ok = document.execCommand("copy"); } catch (e) { /* nothing else to try */ }
     document.body.removeChild(ta);
+    return ok;
   }
 
   // The Menu button: opens the nav as a drawer on narrow screens, with a

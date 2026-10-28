@@ -119,10 +119,25 @@ async function checkCommandRows(page, base, failures) {
   report(failures, `/commands/ "reset": ${r.count}; ${rows.visible} rows visible, ${rows.collapsed} shown groups still collapsed`, rows.visible > 0 && rows.collapsed === 0);
 }
 
+// Two quick clicks on a Copy button say "Copied" (announced in the status line), then the label comes back.
+async function checkCopyButton(page, base, failures) {
+  await page.goto(base + "/commands/", { waitUntil: "load" });
+  await page.click("tbody button[aria-expanded]");
+  const btn = page.locator("button.copy:visible").first();
+  const before = await btn.textContent();
+  await btn.dblclick();
+  await page.waitForTimeout(200);
+  const during = [await btn.textContent(), await page.locator(".sr-only[role=status]").textContent()];
+  await page.waitForTimeout(1700);
+  const after = await btn.textContent();
+  report(failures, `/commands/ double-click on Copy: "${during[0]}" announced "${during[1]}", back to "${after}"`, during[0] !== before && during[1] === during[0] && after === before);
+}
+
 // The search checks for Commands and Settings, at 390px.
 async function checkSearch(browser, base, failures) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await checkCommandRows(page, base, failures);
+  await checkCopyButton(page, base, failures);
   await checkNoMatch(page, base, "/commands/", "commands", failures);
   await checkNoMatch(page, base, "/settings/", "settings", failures);
   await checkSettingsCount(page, base, failures);
