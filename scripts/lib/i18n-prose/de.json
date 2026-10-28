@@ -1147,5 +1147,41 @@
  "This website": "Diese Website",
  "This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href=\"/fonts/OFL.txt\">license text</a>. Its colors are Vanguard's own theme colors.": "Diese Seite nutzt Fira Sans Condensed, dieselbe Schrift wie das Addon, unter der SIL Open Font License 1.1: <a href=\"/fonts/OFL.txt\">Lizenztext</a>. Ihre Farben sind Vanguards eigene Theme-Farben.",
  "Vanguard is an addon for WoW Forever.": "Vanguard ist ein Addon für WoW Forever.",
- "a profile named after the character.": "ein Profil, das nach dem Charakter benannt ist."
+ "a profile named after the character.": "ein Profil, das nach dem Charakter benannt ist.",
+ "WoW Forever is live.": "WoW Forever ist gestartet.",
+ "WoW Forever launches {when}.": "WoW Forever startet am {when}.",
+ "WoW Forever launches in {time} ({when} your time).": "WoW Forever startet in {time} ({when} deine Zeit).",
+ "Addon": "Addon",
+ "What both do": "Was beide tun",
+ "Vanguard module": "Vanguard-Modul",
+ "Notes": "Hinweise",
+ "{n} addons": {
+  "one": "{n} Addon",
+  "other": "{n} Addons"
+ },
+ "When one of these is loaded, Vanguard says so once in chat, and its card under <strong>/vg → {modules}</strong> offers to turn Vanguard's part off or keep both. Nothing changes until you choose.": "Ist eines davon geladen, sagt Vanguard das einmal im Chat, und seine Karte unter <strong>/vg → {modules}</strong> bietet an, Vanguards Teil auszuschalten oder beide zu behalten. Nichts ändert sich, bevor du wählst.",
+ "Only this part of the module": "Nur dieser Teil des Moduls",
+ "These answers on Troubleshooting might already fix it:": "Diese Antworten unter Fehlerbehebung helfen vielleicht schon:",
+ "New releases are also in the <a href=\"/changelog/feed.xml\">release feed</a>, for feed readers and Discord bots.": "Neue Versionen stehen auch im <a href=\"/changelog/feed.xml\">Versions-Feed</a>, für Feedreader und Discord-Bots.",
+ "For writers and video makers": "Für Autoren und Videomacher",
+ "For writers and video makers covering Vanguard: the facts to quote, the artwork, and where to send readers.": "Für Autoren und Videomacher, die über Vanguard berichten: die Fakten zum Zitieren, die Grafiken und wohin Leser gehen sollen.",
+ "What it is": "Was es ist",
+ "Made by": "Gemacht von",
+ "Price": "Preis",
+ "Free": "Kostenlos",
+ "Get it": "Erhältlich auf",
+ "News and questions": "Neuigkeiten und Fragen",
+ "The crest (SVG, 1024 × 1024)": "Das Wappen (SVG, 1024 × 1024)",
+ "The share card (PNG, 1200 × 630)": "Die Vorschaukarte (PNG, 1200 × 630)",
+ "<a href=\"/screenshots/\">{n} in-game screenshots</a>: click one for the full-size file": {
+  "one": "<a href=\"/screenshots/\">{n} Screenshot aus dem Spiel</a>: anklicken für die Datei in voller Größe",
+  "other": "<a href=\"/screenshots/\">{n} Screenshots aus dem Spiel</a>: einen anklicken für die Datei in voller Größe"
+ },
+ "You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.": "Du darfst das Wappen, die Vorschaukarte und die Screenshots in Artikeln und Videos über Vanguard verwenden. Für alles andere frag zuerst auf Discord.",
+ "Privacy": "Datenschutz",
+ "This site sets no cookies and loads no analytics, ads or tracking scripts.": "Diese Seite setzt keine Cookies und lädt keine Analyse-, Werbe- oder Tracking-Skripte.",
+ "Your browser keeps two choices of yours on your own device: the language you picked and whether to show what's coming in the next release.": "Dein Browser speichert zwei deiner Entscheidungen auf deinem eigenen Gerät: die gewählte Sprache und ob angezeigt wird, was in der nächsten Version kommt.",
+ "The site is hosted on Cloudflare Pages. Like any host, Cloudflare sees the requests your browser makes, under its own privacy policy.": "Die Seite wird über Cloudflare Pages bereitgestellt. Wie jeder Host sieht Cloudflare die Anfragen deines Browsers, nach seiner eigenen Datenschutzerklärung.",
+ "The Feedback page loads Cloudflare Turnstile to stop spam reports. What a report holds and how long anything is kept is under <a href=\"/feedback/#privacy\">Where your report goes</a>.": "Die Feedback-Seite lädt Cloudflare Turnstile, um Spam-Berichte zu verhindern. Was ein Bericht enthält und wie lange etwas aufbewahrt wird, steht unter <a href=\"/feedback/#privacy\">Wohin dein Bericht geht</a>.",
+ "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "Links zu CurseForge, Wago, Ko-fi, Discord und X führen zu diesen Seiten, die eigene Datenschutzerklärungen haben."
 }

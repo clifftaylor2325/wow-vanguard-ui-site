@@ -132,6 +132,20 @@ export function extractModuleLinks(reader) {
   return t ? plain(t) : {};
 }
 
+// CX.OVERLAPS (Modules/Coexist.lua): the other addons Vanguard notices at login, each with the
+// module it overlaps and what both do; `part` when only some of the module's settings go
+// (keys), `reload` when that needs one, and `also` the card's extra sentence. [] before it existed.
+export function extractOverlaps(reader) {
+  const m = luaFile(reader, "Modules/Coexist.lua");
+  const t = m && findTable(m, "CX.OVERLAPS");
+  if (!t) return [];
+  return Object.entries(t.fields).map(([addon, v]) => {
+    const row = plain(v);
+    const [module, what] = Array.isArray(row) ? row : row._array;
+    return { addon, module, what, part: !Array.isArray(row) && row.keys !== undefined, reload: row.reload === true, also: Array.isArray(row) ? null : row.also || null };
+  }).filter((o) => typeof o.module === "string" && typeof o.what === "string");
+}
+
 // ---------------------------------------------------------------- options pages
 
 // Literal choices from a cycle's choice expression: [[value, label], ...] or null.
@@ -520,6 +534,7 @@ export function extractAddon(reader) {
     modules,
     moduleInfo: extractModuleInfo(reader),
     moduleLinks: extractModuleLinks(reader),
+    overlaps: extractOverlaps(reader),
     pages: extractPages(reader, files, modules),
     theme: extractTheme(reader),
     setup: extractSetup(reader),

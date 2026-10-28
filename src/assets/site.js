@@ -414,6 +414,35 @@
     });
   }
 
+  // An amount of time in the page's language ("7 days"), from the browser's own unit names.
+  function unitText(lang, n, unit) {
+    try { return new Intl.NumberFormat(lang, { style: "unit", unit: unit, unitDisplay: "long" }).format(n); } catch (e) { return n + " " + unit + (n === 1 ? "" : "s"); }
+  }
+
+  // The time left until `ms` from now: days and hours, hours and minutes, or minutes.
+  function timeLeft(lang, ms) {
+    var m = Math.max(1, Math.ceil(ms / 60000)), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60);
+    var parts = d ? [unitText(lang, d, "day"), unitText(lang, h, "hour")] : h ? [unitText(lang, h, "hour"), unitText(lang, m % 60, "minute")] : [unitText(lang, m, "minute")];
+    try { return new Intl.ListFormat(lang, { style: "long", type: "unit" }).format(parts); } catch (e) { return parts.join(" "); }
+  }
+
+  // Home's countdown to WoW Forever's launch: the time left and the launch on the reader's own
+  // clock, then "is live" until the week after, then nothing. Without scripts the built UTC line stays.
+  function wireCountdown() {
+    var el = document.querySelector("[data-launch]");
+    if (!el || !window.Intl) return;
+    var at = Date.parse(el.getAttribute("data-launch")), until = Date.parse(el.getAttribute("data-until"));
+    var lang = document.documentElement.lang || "en";
+    var when = new Intl.DateTimeFormat(lang, { dateStyle: "medium", timeStyle: "short" }).format(new Date(at));
+    function tick() {
+      var now = Date.now();
+      if (now >= until) { el.hidden = true; return; }
+      el.textContent = now >= at ? el.getAttribute("data-live") : el.getAttribute("data-soon").replace("{time}", timeLeft(lang, at - now)).replace("{when}", when);
+      setTimeout(tick, 30000);
+    }
+    tick();
+  }
+
   document.documentElement.classList.add("js");
   foldForSmall();
   wireNav();
@@ -425,6 +454,7 @@
   openForHash();
   wireExpandAll();
   wirePrint();
+  wireCountdown();
   window.addEventListener("hashchange", openForHash);
   document.addEventListener("click", function (e) {
     var btn = e.target.closest && e.target.closest("button.copy");

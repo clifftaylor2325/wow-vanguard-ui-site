@@ -350,6 +350,24 @@ export function menuPaths(html) {
   return html.replace(/>([^<]*)</g, (all, text) => (text.includes("/vg → ") ? `>${text.replace(/\/vg → /g, "<code>/vg</code> → ")}<` : all));
 }
 
+// The launch-day notice above every page (site.config.json `notice`): one line, a text for every
+// language ({ "en": …, "de": … }) or one English text for all, then the Discord link. A text that
+// isn't in the page's language is marked as English. "" while it's blank.
+export function siteNotice(notice, loc = EN, discord = DISCORD_URL) {
+  const own = typeof notice === "object" && notice ? notice[loc.code] : null;
+  const text = own || (typeof notice === "string" ? notice : notice?.en) || "";
+  if (!text.trim()) return "";
+  const lang = !own && !loc.english ? ' lang="en"' : "";
+  const link = discord ? ` · <a href="${esc(discord)}" rel="noopener">Discord</a>` : "";
+  return `<div class="site-notice" role="note"><p><span${lang}>${esc(text.trim())}</span>${link}</p></div>\n`;
+}
+
+// The release feed's link in every page's head, in the page's language, so a feed reader finds it
+// from any page.
+function feedLink(loc) {
+  return `<link rel="alternate" type="application/atom+xml" title="Vanguard · ${esc(loc.text("title./changelog/"))}" href="${loc.href("/changelog/feed.xml")}">\n`;
+}
+
 export function layout({ path, title, description, body, site, scripts = [], loc = EN, alts = [], translated = false }) {
   const fullTitle = pageTitle(path, title, loc);
   if (loc.english || !translated) description = SEO[path]?.description || description;
@@ -370,7 +388,7 @@ export function layout({ path, title, description, body, site, scripts = [], loc
 ${socialTags({ path: path === "/404" ? path : loc.href(path), title: fullTitle, description, imageAlt: loc.text("social.imageAlt"), site })}${hreflangTags(alts)}<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-${path === "/" && loc.english && site.url ? homeJsonLd(site, description) : ""}<link rel="preload" href="/fonts/FiraSansCondensed-Medium.woff2" as="font" type="font/woff2" crossorigin>
+${path === "/" && loc.english && site.url ? homeJsonLd(site, description) : ""}${feedLink(loc)}<link rel="preload" href="/fonts/FiraSansCondensed-Medium.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${esc(asset("/assets/theme.css"))}">
 <link rel="stylesheet" href="${esc(asset("/assets/site.css"))}">
 <script>(function (d) { d.className += " js"; try { if (localStorage.getItem("vg-show-next") === "1") d.className += " show-next"; } catch (e) {} })(document.documentElement);</script>
@@ -384,7 +402,7 @@ ${path === "/" && loc.english && site.url ? homeJsonLd(site, description) : ""}<
     ${toggle}
   </div>
 </header>
-<div class="shell">
+${siteNotice(site.notice, loc)}<div class="shell">
 ${nav}
 ${main}
 </div>

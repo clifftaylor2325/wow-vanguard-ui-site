@@ -16,15 +16,16 @@ import { buildModel } from "./lib/model.mjs";
 import { layout, pageHero, NAV } from "./lib/html.mjs";
 import { FONTS, WOFF2_DIR } from "./lib/fonts.mjs";
 import { homePage, installPage, startPage, featuresPage, commandsPage, settingsPage } from "./lib/pages-main.mjs";
-import { profilesPage, helpPage, feedbackPage, changelogPage, creditsPage, supportPage, screenshotsPage } from "./lib/pages-more.mjs";
+import { profilesPage, helpPage, feedbackPage, changelogPage, changelogFeed, creditsPage, supportPage, screenshotsPage } from "./lib/pages-more.mjs";
 import { longerGaps } from "./lib/features-content.mjs";
 import { faviconSvg } from "./lib/brand.mjs";
 import { publishedLocales, siteLocale, addonTranslations, alternates, PROSE_USED, proseOf } from "./lib/i18n-site.mjs";
 
 const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js", "fill.js"];
 
-// The brand rasters shipped under /assets/ (the social preview stays in src/, for GitHub's settings).
-const BRAND_RASTER = ["og-image.png", "apple-touch-icon.png", "favicon-32.png"];
+// The brand files shipped under /assets/: the rasters, and the crest drawing for the Credits press
+// section (the social preview stays in src/, for GitHub's settings).
+const BRAND_FILES = ["og-image.png", "apple-touch-icon.png", "favicon-32.png", "vanguard-crest.svg"];
 
 // The site names the author by their in-game name; the addon's text still carries the older names.
 const SITE_AUTHOR = "Cliff Hearthvale";
@@ -150,15 +151,16 @@ function main() {
   need(!gaps.length, `the README no longer says what the Features longer text is written from:\n  ${gaps.join("\n  ")}`);
   const theme = themeCss(next.theme);
   const base = cfg.siteUrl.replace(/\/+$/, "");
-  const site = { theme: theme.vars, author: SITE_AUTHOR, version: rel.meta.Version, hasNext: !model.same, url: base };
+  const site = { theme: theme.vars, author: SITE_AUTHOR, version: rel.meta.Version, hasNext: !model.same, url: base, launch: cfg.launch || null, notice: cfg.notice || "", now: Date.now() };
   const read = { rel: specReader(relReader), next: specReader(nextReader) };
 
   fs.rmSync(cfg.outDir, { recursive: true, force: true });
   write("assets/theme.css", theme.css);
   write("assets/favicon.svg", faviconSvg(theme.vars));
   // The crest as raster, for the places that can't take SVG or CSS: the Open Graph image, the
-  // iOS home-screen icon and the PNG favicon fallback (src/assets/brand/, made from the crest).
-  for (const f of BRAND_RASTER) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets/brand", f)));
+  // iOS home-screen icon and the PNG favicon fallback (src/assets/brand/, made from the crest);
+  // and the full crest drawing, for writers who cover Vanguard.
+  for (const f of BRAND_FILES) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets/brand", f)));
   // The screenshots (webp, cropped and blurred where a player's name was in frame).
   for (const f of fs.readdirSync(path.join(root, "src/assets/shots"))) write(`assets/shots/${f}`, fs.readFileSync(path.join(root, "src/assets/shots", f)));
   const locales = publishedLocales(cfg.locales);
@@ -185,11 +187,12 @@ function main() {
   for (const locale of locales) {
     const loc = siteLocale(locale, addonTranslations(readers, locale.addon, cfg.addonDrafts));
     pages = [
-      homePage(model, loc), installPage(model, loc), startPage(model, read, loc), featuresPage(model, loc), screenshotsPage(model, loc), commandsPage(model, loc), settingsPage(model, read, loc),
+      homePage(model, loc, site), installPage(model, loc), startPage(model, read, loc), featuresPage(model, loc), screenshotsPage(model, loc), commandsPage(model, loc), settingsPage(model, read, loc),
       profilesPage(model, read, loc), helpPage(model, read, loc), feedbackPage(model, read, loc), changelogPage(model, loc), creditsPage(model, site, loc), supportPage(loc),
     ];
     for (const p of pages) write(path.join(loc.prefix, p.path, "index.html"), layout({ ...p, site, loc, alts: alternates(locales, p.path, base) }));
     write(path.join(loc.prefix, "404.html"), notFoundPage(site, loc));
+    write(path.join(loc.prefix, "changelog", "feed.xml"), changelogFeed(model, site, loc));
   }
 
   writeProse(locales);

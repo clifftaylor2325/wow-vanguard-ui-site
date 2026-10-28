@@ -104,10 +104,20 @@ function mergeModules(rel, next, pages, commands) {
   });
 }
 
+// The other addons Vanguard notices (Modules/Coexist.lua), by folder name: the newer source's
+// row where it has one, with where each exists.
+function mergeOverlaps(rel, next) {
+  const relNames = new Set(rel.overlaps.map((o) => o.addon));
+  const nextNames = new Set(next.overlaps.map((o) => o.addon));
+  const rows = [...next.overlaps, ...rel.overlaps.filter((o) => !nextNames.has(o.addon))];
+  return rows.map((o) => ({ ...o, inRel: relNames.has(o.addon), inNext: nextNames.has(o.addon) }));
+}
+
 // The model every page is rendered from.
 export function buildModel({ rel, next, release, releases }) {
   const commands = mergeCommands(rel, next);
   const pages = mergePages(rel, next);
   const modules = mergeModules(rel, next, pages, commands);
-  return { rel, next, release, releases, commands, pages, modules, version: rel.meta.Version, same: rel.commit === next.commit };
+  const overlaps = mergeOverlaps(rel, next);
+  return { rel, next, release, releases, commands, pages, modules, overlaps, version: rel.meta.Version, same: rel.commit === next.commit };
 }

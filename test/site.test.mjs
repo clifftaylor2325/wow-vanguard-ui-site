@@ -361,7 +361,7 @@ test("internal links point at pages and anchors that exist", () => {
       if (/^https?:/.test(href)) continue;
       const [p, hash] = href.split("?")[0].split("#");
       const target = p === "" ? `/${d}` : p;
-      if (target.startsWith("/assets/") || target.startsWith("/fonts/")) {
+      if (target.startsWith("/assets/") || target.startsWith("/fonts/") || /\.\w+$/.test(target)) {
         if (!fs.existsSync(path.join(dist, target))) bad.push(`${d}: ${href}`);
         continue;
       }
