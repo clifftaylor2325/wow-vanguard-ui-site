@@ -327,11 +327,13 @@
 
   // The switcher's option for one language the browser asks for: the same
   // language and region, else the same language ("pt-PT" gets Brazilian
-  // Portuguese); Chinese for Taiwan, Hong Kong, Macau or zh-Hant is Traditional.
+  // Portuguese); Chinese for Taiwan, Hong Kong, Macau or zh-Hant is Traditional;
+  // Spanish from any region but Spain (es-419, es-AR, es-CO...) is Latin American.
   function optionFor(sel, want) {
     var w = String(want).toLowerCase();
     if (/^zh-(hant|tw|hk|mo)/.test(w)) w = "zh-tw";
     else if (/^zh/.test(w)) w = "zh-cn";
+    else if (/^es-/.test(w) && w !== "es-es") w = "es-mx";
     var same = null;
     for (var i = 0; i < sel.options.length; i++) {
       var lang = sel.options[i].lang.toLowerCase();
@@ -361,9 +363,9 @@
     box.className = "lang-offer";
     box.lang = opt.lang;
     var link = document.createElement("a");
-    link.href = opt.value;
+    link.href = opt.value + location.hash;
     link.textContent = opt.getAttribute("data-offer");
-    link.addEventListener("click", function () { remember(opt.lang); });
+    link.addEventListener("click", function () { remember(opt.lang); link.href = opt.value + location.hash; });
     var no = document.createElement("button");
     no.type = "button";
     no.textContent = opt.getAttribute("data-dismiss");

@@ -873,3 +873,27 @@ test("the addon's L[\"…\"] lookups unwrap to their English literal", () => {
   assert.deepEqual([reader.read("A.lua"), reader.read("A.md")], [`check("Bags")`, `L["Bags"]`], "Lua files are read unwrapped, other files as they are");
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+// site.js is a browser script with no exports: its optionFor is cut out of the built file and run
+// against the real language select of the built Settings page.
+test("site.js offers a browser's language: Latin American Spanish gets es-mx, Spain and plain Spanish get es", () => {
+  if (!LANG_DIRS.includes("es-mx/")) return;
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  const source = js.match(/function optionFor\(sel, want\) \{[\s\S]*?\n  \}\n/)?.[0];
+  assert.ok(source, "optionFor is in site.js");
+  const optionFor = new Function(`${source}; return optionFor;`)();
+  const options = [...page("settings").matchAll(/<option value="([^"]*)" lang="([^"]+)"/g)].map((m) => ({ value: m[1], lang: m[2] }));
+  const sel = { options };
+  const offered = (want) => optionFor(sel, want)?.value;
+  for (const want of ["es-419", "es-AR", "es-CO", "es-CL", "es-US", "es-MX", "es-mx"]) assert.equal(offered(want), "/es-mx/settings/", want);
+  for (const want of ["es", "es-ES", "es-es"]) assert.equal(offered(want), "/es/settings/", want);
+  assert.equal(offered("pt-PT"), "/pt-br/settings/");
+  assert.equal(offered("zh-HK"), "/zh-tw/settings/");
+  assert.equal(offered("nb"), undefined);
+});
+
+test("the offer note's link keeps the section the reader arrived on", () => {
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  assert.ok(js.includes("link.href = opt.value + location.hash;\n"), "set when the note is made");
+  assert.ok(js.includes("remember(opt.lang); link.href = opt.value + location.hash;"), "and again when it is followed");
+});
