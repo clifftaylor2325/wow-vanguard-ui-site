@@ -432,3 +432,16 @@ test("the site as published today (no `locales` listed) has no language switcher
   assert.ok(!h.includes("hreflang") && !h.includes("lang-select") && !h.includes("lang-menu") && !h.includes("vg-strings"));
   assert.ok(!fs.existsSync(path.join(cfg.outDir, "de")));
 });
+
+test("the Home tagline is the addon's Notes line up to its colon, full-width or not, with the language's own full stop", () => {
+  const hero = (dir) => html(dir, "/").match(/<p class="hero-tagline">([^<]*)<\/p>/)[1];
+  const english = hero("");
+  for (const l of LOCALES) {
+    const notes = model.next.meta[`Notes-${l.addon}`];
+    assert.ok(notes, `${l.code}: the TOC has a Notes line`);
+    const cut = notes.search(/[:：]/);
+    const stop = notes[cut] === "：" ? "。" : ".";
+    assert.equal(hero(l.code).replace(/&#39;/g, "'"), `${notes.slice(0, cut).trim()}${stop}`.replace(/&/g, "&amp;"), l.code);
+    assert.notEqual(hero(l.code), english, `${l.code}: not the English tagline`);
+  }
+});

@@ -72,12 +72,14 @@ export function tagline(readme) {
   return m ? m[1].trim() : "";
 }
 
-// The tagline in the page's language: the addon's own translated TOC Notes line
-// (## Notes-deDE) up to its colon, which says the same; English from the README.
-function localTagline(model, loc) {
+// The tagline in the page's language, with its closing stop: the addon's own translated TOC Notes
+// line (## Notes-deDE) up to its colon, which says the same (the full-width "：" of Chinese ends
+// with "。"); English from the README.
+export function localTagline(model, loc) {
   const notes = String(model.next.meta[`Notes-${loc.addonLocale}`] || "");
-  if (loc.english || !notes.includes(":")) return tagline(model.next.readme) || tagline(model.rel.readme);
-  return notes.slice(0, notes.indexOf(":")).trim();
+  const colon = notes.search(/[:：]/);
+  if (loc.english || colon < 0) return `${tagline(model.next.readme) || tagline(model.rel.readme)}.`;
+  return `${notes.slice(0, colon).trim()}${notes[colon] === "：" ? "。" : "."}`;
 }
 
 // The modules featured on the home page, in this order, when the current
@@ -166,7 +168,7 @@ ${heroArt()}
   <p class="hero-kicker">${loc.p("An addon for WoW&nbsp;Forever")}</p>
   <h1 id="hero-title" class="hero-title">Vanguard</h1>
   ${ornament("hero-orn")}
-  <p class="hero-tagline">${esc(localTagline(model, loc))}.</p>
+  <p class="hero-tagline">${esc(localTagline(model, loc))}</p>
   <div class="hero-actions">${storeCtas({ size: "lg", loc })}<a class="button ghost" href="/features/">${loc.p("See the features")}</a></div>
   <p class="hero-meta">${heroFacts(model, n, loc)}</p>
 </div>
