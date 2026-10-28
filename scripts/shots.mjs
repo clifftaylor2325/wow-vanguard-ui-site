@@ -275,6 +275,26 @@ async function checkLangMenu(page, base, loc, failures) {
   report(failures, `language button on /settings/#general opens ${r[0]} (lang ${r[1]})`, r[0] === `/${loc.code}/settings/#general` && r[1] === loc.lang);
 }
 
+// The offer never covers the open drawer's language select, nor a footer link once it has focus.
+async function checkOfferClear(page, failures) {
+  await page.click(".nav-toggle");
+  await page.locator("#lang-select").scrollIntoViewIfNeeded();
+  const hit = await page.evaluate(() => {
+    const r = document.getElementById("lang-select").getBoundingClientRect();
+    return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.id;
+  });
+  await page.keyboard.press("Escape");
+  let covered = 0;
+  for (const link of await page.$$(".site-footer a")) {
+    await link.focus();
+    covered += await page.evaluate(() => {
+      const a = document.activeElement.getBoundingClientRect(), o = document.querySelector(".lang-offer").getBoundingClientRect();
+      return a.left >= o.left && a.right <= o.right && a.top >= o.top && a.bottom <= o.bottom ? 1 : 0;
+    });
+  }
+  report(failures, "the language offer leaves the drawer's select and every focused footer link uncovered", hit === "lang-select" && covered === 0);
+}
+
 // A browser asking for the language gets one offer on an English page, and none once it is turned down.
 async function checkLangOffer(browser, base, loc, failures) {
   const context = await browser.newContext({ locale: loc.lang, viewport: { width: 390, height: 844 } });
@@ -282,6 +302,7 @@ async function checkLangOffer(browser, base, loc, failures) {
   await page.goto(`${base}/install/`, { waitUntil: "load" });
   const offer = await page.evaluate(() => document.querySelector(".lang-offer a")?.textContent || null);
   report(failures, `a ${loc.lang} browser on /install/ is offered "${offer}"`, offer === loc.strings["lang.offer"]);
+  if (offer) await checkOfferClear(page, failures);
   if (offer) await page.click(".lang-offer button");
   await page.goto(`${base}/start/`, { waitUntil: "load" });
   const again = await page.evaluate(() => !!document.querySelector(".lang-offer"));

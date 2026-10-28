@@ -208,6 +208,13 @@ test("copy buttons in site.js report only a copy that worked, and announce it", 
   assert.match(js, /clearTimeout\(btn\.copyTimer\)/, "a second click restarts the wait");
 });
 
+test("the language offer stays off the open drawer and leaves room under the page", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.match(css, /html\.nav-open \.lang-offer \{ display: none; \}/);
+  assert.match(css, /html:has\(\.lang-offer\) \{ scroll-padding-bottom: 96px; \}/);
+  assert.match(css, /body:has\(\.lang-offer\) \{ padding-bottom: 96px; \}/);
+});
+
 test("the Commands search hides groups with no match, as Features and Settings do", () => {
   for (const dir of LANG_DIRS) {
     assert.match(page(`${dir}commands`), /<div class="search" data-target="#cmd-list" data-items="\.cmd" data-groups="\.cmd-group"/, `${dir}commands search box needs data-groups`);
