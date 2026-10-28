@@ -372,7 +372,7 @@ test("internal links point at pages and anchors that exist", () => {
   assert.deepEqual(bad, [], `broken links: ${bad.join(", ")}`);
 });
 
-test("no GitHub links in the output", () => {
+test("no GitHub links in the output, and the author is only ever Cliff Hearthvale", () => {
   const bad = [];
   const walk = (dir) => {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -381,6 +381,8 @@ test("no GitHub links in the output", () => {
       else if (/\.(html|css|js|json)$/.test(e.name)) {
         const t = fs.readFileSync(p, "utf8");
         if (/github\.com/i.test(t)) bad.push(`${p}: github.com link`);
+        // The Ko-fi page's address is its account name, which only Ko-fi can change.
+        if (/Clifton|Taylor|clifftaylor/i.test(SUPPORT.reduce((out, s) => out.replaceAll(s.url, ""), t))) bad.push(`${p}: names the author other than as Cliff Hearthvale`);
       }
     }
   };

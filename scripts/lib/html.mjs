@@ -402,7 +402,7 @@ ${scripts.map((s) => `<script type="module" src="${esc(asset(s))}"></script>\n`)
 
 // The footer's copyright line, for the site and Vanguard alike. The license of each release
 // (v0.4.0 and before were MIT) is on the Credits page, read from that release's LICENSE.
-export const COPYRIGHT = "© 2026 Clifton Taylor. All rights reserved.";
+export const COPYRIGHT = "© 2026 Cliff Hearthvale. All rights reserved.";
 
 // The "Next release" tag.
 export const NEXT_BADGE = `<span class="badge next">Next release</span>`;
