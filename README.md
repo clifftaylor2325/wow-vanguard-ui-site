@@ -205,4 +205,4 @@ CI (`.github/workflows/check.yml`) runs `npm run check` on every pull request (t
 
 ## License
 
-Copyright (c) 2026 Clifton Taylor. All rights reserved; see `LICENSE`. The bundled fonts are under the SIL Open Font License 1.1 (`dist/fonts/OFL.txt`). Every page's footer says "© 2026 Clifton Taylor. All rights reserved." (`COPYRIGHT` in `scripts/lib/html.mjs`). The Credits page shows the current release's own license, read from its `LICENSE` and README (v0.4.0 and earlier were MIT).
+Copyright (c) 2026 Clifton Taylor. All rights reserved; see `LICENSE`. The bundled fonts are under the SIL Open Font License 1.1 (`dist/fonts/OFL.txt`). Every page's footer says "© 2026 Cliff Hearthvale. All rights reserved." (`COPYRIGHT` in `scripts/lib/html.mjs`; Cliff Hearthvale is Cliff's in-game name, and the build writes it wherever the addon's own text says Clifton Taylor or clifftaylor2325). The Credits page shows the current release's own license, read from its `LICENSE` and README (v0.4.0 and earlier were MIT).

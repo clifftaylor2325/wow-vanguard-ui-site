@@ -26,9 +26,10 @@ const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js", "fi
 // The brand rasters shipped under /assets/ (the social preview stays in src/, for GitHub's settings).
 const BRAND_RASTER = ["og-image.png", "apple-touch-icon.png", "favicon-32.png"];
 
-const SITE_AUTHOR = "Clifton Taylor";
-const OLD_AUTHOR = "clifftaylor2325";
-const publicText = (text) => String(text ?? "").replaceAll(OLD_AUTHOR, SITE_AUTHOR);
+// The site names the author by their in-game name; the addon's text still carries the older names.
+const SITE_AUTHOR = "Cliff Hearthvale";
+const OLD_AUTHORS = ["clifftaylor2325", "Clifton Taylor"];
+const publicText = (text) => OLD_AUTHORS.reduce((out, old) => out.replaceAll(old, SITE_AUTHOR), String(text ?? ""));
 const publicAddon = (addon) => ({
   ...addon,
   meta: { ...addon.meta, Author: SITE_AUTHOR },
