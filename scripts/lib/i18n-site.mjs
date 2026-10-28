@@ -141,7 +141,6 @@ export const ENGLISH_STRINGS = {
   "set.col.setting": "Setting",
   "set.col.values": "Values",
   "set.col.default": "Default",
-  "set.col.notes": "Notes",
   "kind.check": "Switch",
   "kind.cycle": "Choice",
   "kind.slider": "Slider",

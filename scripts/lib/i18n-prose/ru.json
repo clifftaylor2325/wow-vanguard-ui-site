@@ -389,7 +389,6 @@
  "Only what you changed is kept, and only frames' spot, scale, opacity and anchors, the info strip, menu bar and XP bar visibility, the info strip's parts and the nameplates' levels, threat colors, target border and quest marks, and the Calm HUD can be recorded.": "Сохраняется только то, что вы изменили, и записать можно лишь положение, масштаб, непрозрачность и привязки рамок, видимость инфополосы, панели меню и полосы опыта, части инфополосы, а также уровни, цвета угрозы, рамку цели и метки заданий на индикаторах здоровья и «Спокойный HUD».",
  "Your profile is always saved and exported with your own values, and profiles carry their situations.": "Ваш профиль всегда сохраняется и экспортируется с вашими собственными значениями, а профили несут свои ситуации.",
  "Record a different layout and settings for raids, PvP, instances or resting: pick what to record for, move frames and change settings, then save. They apply out of combat as you move between them, and leaving puts your own layout back.": "Запишите отдельное расположение и настройки для рейдов, PvP, подземелий или отдыха: выберите, для чего записывать, подвигайте рамки и измените настройки, затем сохраните. Они применяются вне боя, когда вы переходите между ними, а при выходе возвращается ваше собственное расположение.",
- "Other": "Другое",
  "It is off until you turn it on under Unit frames, and it needs a reload.": "Он выключен, пока вы не включите его в разделе «Рамки юнитов», и ему нужна перезагрузка.",
  "Each line is a name and a percentage, such as “Name 87%”.": "Каждая строка — это имя и процент, например «Name 87%».",
  "It updates in combat, since nothing in it is protected.": "Он обновляется в бою, так как в нём ничего не защищено.",
@@ -664,7 +663,6 @@
  "What do you want?": "Чего вы хотите?",
  "Part of Vanguard": "Часть Vanguard",
  "Choose one": "Выберите",
- "Other modules": "Другие модули",
  "Something else": "Что-то другое",
  "A command": "Команда",
  "A setting": "Настройка",
@@ -1197,5 +1195,6 @@
  "Your browser keeps two choices of yours on your own device: the language you picked and whether to show what's coming in the next release.": "Ваш браузер хранит на вашем устройстве два ваших выбора: выбранный язык и показывать ли то, что выйдет в следующей версии.",
  "The site is hosted on Cloudflare Pages. Like any host, Cloudflare sees the requests your browser makes, under its own privacy policy.": "Сайт размещён на Cloudflare Pages. Как и любой хостинг, Cloudflare видит запросы вашего браузера в рамках своей политики конфиденциальности.",
  "The Feedback page loads Cloudflare Turnstile to stop spam reports. What a report holds and how long anything is kept is under <a href=\"/feedback/#privacy\">Where your report goes</a>.": "Страница обратной связи загружает Cloudflare Turnstile, чтобы останавливать спам. Что содержит отчёт и сколько что хранится, описано в разделе <a href=\"/feedback/#privacy\">Куда уходит ваш отчёт</a>.",
- "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "Ссылки на CurseForge, Wago, Ko-fi, Discord и X ведут на эти сайты, у которых свои политики конфиденциальности."
+ "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "Ссылки на CurseForge, Wago, Ko-fi, Discord и X ведут на эти сайты, у которых свои политики конфиденциальности.",
+ "Close menu": "Закрыть меню"
 }

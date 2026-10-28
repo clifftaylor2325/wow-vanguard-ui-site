@@ -950,10 +950,10 @@ ${disclosure({ id: "other-ways", title: esc(w.otherTitle), body: withFollow(w.ot
 
 // ------------------------------------------------------------------ Screenshots
 
-// One group of screenshots as a folded section. A group whose every shot is next-release only is too.
+// One group of screenshots as an open section (the page shows its pictures as it opens). A group whose every shot is next-release only is too.
 function shotGroup(g, loc) {
   const next = g.shots.every((x) => x.next);
-  return disclosure({ id: g.id, title: esc(loc.p(g.title)), meta: loc.pn({ one: "{n} shot", other: "{n} shots" }, g.shots.length), next, cls: "area", body: `<p>${esc(loc.p(g.intro))}</p>\n<div class="shots-grid">${g.shots.map((x) => shotFigure(x, { loc })).join("\n")}</div>` });
+  return disclosure({ id: g.id, title: esc(loc.p(g.title)), meta: loc.pn({ one: "{n} shot", other: "{n} shots" }, g.shots.length), next, open: "always", cls: "area", body: `<p>${esc(loc.p(g.intro))}</p>\n<div class="shots-grid">${g.shots.map((x) => shotFigure(x, { loc, sizes: "grid" })).join("\n")}</div>` });
 }
 
 // The Screenshots page: real in-game captures, grouped by what they show.

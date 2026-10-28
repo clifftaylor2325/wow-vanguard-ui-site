@@ -110,7 +110,7 @@ function highlightCard(m, version, loc) {
 
 // The layout at a glance: a real screenshot of the default layout, with what is in it.
 function layoutShot(loc) {
-  return `${shotFigure(shotByFile("01-hud-overview"), { caption: false, loc })}
+  return `${shotFigure(shotByFile("01-hud-overview"), { caption: false, loc, sizes: "wide" })}
 <p class="small">${loc.p(`The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner. More pictures are on <a href="/screenshots/">Screenshots</a>.`)}</p>`;
 }
 
@@ -193,11 +193,12 @@ ${heroArt()}
 
 ${homeTiles(loc)}
 
+${disclosure({ id: "mock-h", title: loc.p("The layout at a glance"), open: "always", body: layoutShot(loc) })}
+
 <div class="notice info early"><p>${loc.p(`<strong>Vanguard is an early release.</strong> Not everything has been checked in the game yet, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.`)}</p></div>
 
 ${disclosure({ id: "hl-h", title: loc.p("What's in v{version}", { version: esc(model.version) }), meta: loc.pn({ one: "{n} module", other: "{n} modules" }, n), body: `<p>${loc.p(`A few of its modules, in the words the addon uses on its own Modules page. <a href="/features/">All {n} are on Features</a>, and each can be turned off under <strong>/vg → {modules}</strong>.`, { n, modules: esc(loc.addon("Modules")) })}</p>
-<ul class="feats">${highlights.map((m) => highlightCard(m, model.version, loc)).join("\n")}</ul>` })}
-${disclosure({ id: "mock-h", title: loc.p("The layout at a glance"), body: layoutShot(loc) })}`,
+<ul class="feats">${highlights.map((m) => highlightCard(m, model.version, loc)).join("\n")}</ul>` })}`,
   };
 }
 
@@ -267,8 +268,8 @@ export function installPage(model, loc = EN) {
     translated: true,
     body: `${pageHero(loc.t("title./install/"), installLede(listed, loc))}
 ${curseforgeBox(model, { loc })}
-${disclosure({ id: "curseforge", title: loc.p("Install through CurseForge"), body: installStores(listed, loc) })}
-${disclosure({ id: "by-hand", title: loc.p("If you install by hand"), body: installByHand(where, loc) })}
+${disclosure({ id: "curseforge", title: loc.p("Install through CurseForge"), open: "always", body: installStores(listed, loc) })}
+${disclosure({ id: "by-hand", title: loc.p("If you install by hand"), open: "always", body: installByHand(where, loc) })}
 ${disclosure({ id: "update", title: loc.p("Update"), body: installUpdate(rel, loc) })}
 ${disclosure({ id: "uninstall", title: loc.p("Uninstall"), body: installRemove(loc) })}
 ${supportAsk("install", loc.p("Vanguard is free and built by one person. If it saved you an evening of setting up your UI,"), undefined, loc.p("Say thanks on Ko-fi"))}`,
@@ -470,7 +471,7 @@ ${wizardScreenStep(setup, w, loc)}
 
 ${wizardLookMoveSteps(setup, w, loc)}
 ${wizardProfileStep(setup, w, loc)}${wizardFinish(setup, w, loc)}`;
-  return disclosure({ id: "setup-wizard", title: loc.p("The setup wizard"), next: !inRel, meta: inRel ? loc.pn({ one: "{n} step", other: "{n} steps" }, setup.steps.length) : nextBadge(loc), body });
+  return disclosure({ id: "setup-wizard", title: loc.p("The setup wizard"), open: "always", next: !inRel, meta: inRel ? loc.pn({ one: "{n} step", other: "{n} steps" }, setup.steps.length) : nextBadge(loc), body });
 }
 
 // Getting started's glance strip: the four commands to know.
@@ -535,10 +536,10 @@ export function startPage(model, read, loc = EN) {
     translated: true,
     body: `${pageHero(loc.t("title./start/"), loc.p(`After you <a href="/install/">install</a> Vanguard and log in, its frames replace the game's. Here's how to find the options and put things where you want them.`))}
 ${startGlance(rel, next, loc)}
-${disclosure({ id: "options", title: loc.p("Open the options"), open: true, body: startOptions(model, read, loc) })}
+${disclosure({ id: "options", title: loc.p("Open the options"), open: "always", body: startOptions(model, read, loc) })}
 ${wizardSection(next.setup, !!rel.setup, read, loc)}
-${disclosure({ id: "move", title: loc.p("Move your frames"), body: startMove(model, read, loc) })}
-${disclosure({ id: "accent", title: loc.p("Pick an accent color"), body: accent })}
+${disclosure({ id: "move", title: loc.p("Move your frames"), open: "always", body: startMove(model, read, loc) })}
+${disclosure({ id: "accent", title: loc.p("Pick an accent color"), open: "always", body: accent })}
 ${disclosure({ id: "modules", title: loc.p("Keep the game's version of something"), body: modules })}`,
   };
 }
@@ -829,7 +830,7 @@ export function commandsPage(model, loc = EN) {
 // ------------------------------------------------------------------ Settings
 
 // The columns of a settings table (string keys); the first is each row's header.
-const COLS = ["set.col.setting", "set.col.values", "set.col.default", "set.col.notes"];
+const COLS = ["set.col.setting", "set.col.values", "set.col.default"];
 
 // The kinds of row the site names (kind.<kind>).
 const KINDS = ["check", "cycle", "slider", "button", "visibility"];
@@ -895,15 +896,16 @@ function rowSearch(r, pageTitle, loc) {
   return `${pageTitle} ${r.caption} ${(r.choices || []).map((c) => c[1]).join(" ")}${own.length ? ` ${own.join(" ")}` : ""}`;
 }
 
-// One setting as a table row: the caption is the row header; each cell carries its card label.
+// One setting as a table row: the caption is the row header, with its reload and release tags
+// beside it; each other cell carries its card label.
 function optRow(r, version, pageTitle, id, loc) {
   const attrs = `data-avail="${avail(r.inRel, r.inNext)}" data-search="${esc(rowSearch(r, pageTitle, loc))}"`;
   if (r.kind === "header" || r.kind === "text") return wideRow(r, attrs, version, loc);
   const loop = r.loop ? ` <span class="small">(${esc(r.loop.variable)} = ${loc.t("set.range", { min: r.loop.from, max: r.loop.to })})</span>` : "";
-  const notes = `${r.reload ? `${reloadBadge(loc)} ` : ""}${badge(r.inRel, r.inNext, version, loc)}`;
+  const tags = [r.reload ? reloadBadge(loc) : "", badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
   const kind = KINDS.includes(r.kind) ? ` <span class="opt-kind">${loc.t(`kind.${r.kind}`)}</span>` : "";
-  const cells = [valuesText(r, loc), defaultText(r, loc), notes].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
-  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${kind}</th>${cells.join("")}</tr>`;
+  const cells = [valuesText(r, loc), defaultText(r, loc)].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
+  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${tags ? ` ${tags}` : ""}${kind}</th>${cells.join("")}</tr>`;
 }
 
 // The heading over rows the options window repeats, e.g. "The rows below repeat for each n from 1 to 8".

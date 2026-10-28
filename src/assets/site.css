@@ -134,6 +134,26 @@ html:not(.js) .nav-toggle, html:not(.js) .search { display: none; }
 @media (min-width: 900px) {
   .nav-toggle, .nav-backdrop { display: none; }
 }
+/* The drawer's own Close button, at its top; the sidebar has none. */
+.nav-close { display: none; }
+@media (max-width: 899px) {
+  .js .nav-close { display: flex; align-items: center; gap: 6px; margin: 0 0 var(--sp-3) auto; font: inherit; font-weight: 600; cursor: pointer; padding: 6px 12px; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); }
+  .js .nav-close::after { content: "✕"; content: "✕" / ""; color: var(--text2); }
+}
+/* With a mouse, the sidebar's rows are tighter so all of it fits a laptop screen (800 px tall);
+   touch screens keep the larger rows. */
+@media (min-width: 900px) and (pointer: fine) {
+  .sidebar { padding-top: var(--sp-2); padding-bottom: var(--sp-2); }
+  .nav-community { gap: 6px; padding-bottom: var(--sp-2); }
+  .nav .discord-btn, .nav .support-btn { padding: 3px 10px; font-size: var(--fs-sm); }
+  .nav a { padding-top: 2px; padding-bottom: 2px; line-height: 1.35; }
+  .nav-group { margin-top: 4px; }
+  .nav-group-h { padding-top: 3px; padding-bottom: 0; }
+  .nav-foot { margin-top: var(--sp-2); padding-top: var(--sp-2); }
+  .nav-lang { display: flex; align-items: center; gap: 8px; margin-top: var(--sp-2); padding-top: var(--sp-2); }
+  .nav-lang label { margin: 0; flex: none; }
+  .nav-lang select { flex: 1; min-width: 0; padding-top: 4px; padding-bottom: 4px; }
+}
 
 /* ------------------------------------------------------------------ Shell
    Every page: the sidebar on the left, the content beside it. */
@@ -174,9 +194,10 @@ a.tile:hover { border-color: var(--accent); }
 a.tile strong { display: block; color: var(--accent); font-size: 1.1rem; margin-bottom: 4px; }
 .tiles { margin: var(--sp-4) 0 var(--sp-3); gap: 10px; }
 .tiles .tile { padding: 10px 14px; font-size: var(--fs-sm); color: var(--text2); }
+.tiles .tile span { display: block; }
 .tiles .tile strong { font-size: 1.02rem; margin-bottom: 2px; }
 @media (max-width: 719px) { .grid.four.tiles { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 559px) { .tiles .tile span { display: none; } .tiles .tile { padding: 10px 12px; } .tiles .tile strong { margin: 0; } }
+@media (max-width: 559px) { .tiles .tile { padding: 8px 12px; line-height: 1.35; } .tiles .tile strong { margin: 0; } }
 
 .notice { position: relative; border: 1px solid var(--divider); border-left: 3px solid var(--warn); background: var(--panel); border-radius: var(--r-2); padding: 10px 14px; margin: 12px 0; }
 .notice.info { border-left-color: var(--accent); }
@@ -226,6 +247,10 @@ details.disclosure > summary > h2 { overflow-wrap: anywhere; hyphens: auto; }
 .counts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
 details.src { margin-top: var(--sp-3); font-size: var(--fs-sm); color: var(--text2); }
 details.src > summary { cursor: pointer; display: inline-flex; align-items: center; min-height: 24px; }
+/* The same diamond as a folded section, so "Source" reads as something that opens. */
+details.src > summary { gap: 8px; }
+details.src > summary::before { content: ""; flex: none; width: 7px; height: 7px; border: 1.5px solid var(--accent); transform: rotate(45deg); }
+details.src[open] > summary::before { background: var(--accent); }
 details.src > p { margin: 4px 0 0; }
 @media (max-width: 559px) { .dis-meta { display: none; } }
 
@@ -234,6 +259,12 @@ details.src > p { margin: 4px 0 0; }
 .glance li { display: flex; align-items: center; justify-content: center; text-align: center; margin: 0; padding: 3px 10px; border: 1px solid var(--divider); border-radius: 999px; background: var(--panel); font-size: var(--fs-sm); color: var(--text2); }
 .glance li strong { color: var(--text); }
 .glance li [data-avail] { display: inline; }
+/* On a phone the facts are one run of small text, not a stack of pills. */
+@media (max-width: 559px) {
+  .glance { display: block; line-height: 1.5; font-size: var(--fs-sm); color: var(--text2); }
+  .glance li { display: inline; padding: 0; border: 0; background: none; text-align: left; }
+  .glance li + li::before { content: " · "; content: " · " / ""; color: var(--text2); }
+}
 .counts { color: var(--text2); font-size: var(--fs-sm); margin: 0 0 var(--sp-2); }
 .counts strong { color: var(--text); }
 
@@ -340,6 +371,15 @@ caption { caption-side: top; text-align: left; padding: 0 0 8px; color: var(--te
 .opt-cap { font-weight: 600; color: var(--text); }
 .opt-kind { display: block; font-weight: 500; font-size: var(--fs-xs); color: var(--text2); text-transform: uppercase; letter-spacing: 0.04em; }
 .cmd-table th[scope=col]:first-child, .cmd-table .cmd-cap { width: 34%; }
+/* Settings: the caption column gets the room (its reload and release tags sit beside it), the default the least. */
+.opt-page .opt-table th[scope=col]:first-child { width: 40%; }
+.opt-page .opt-table th[scope=col]:last-child { width: 22%; }
+.opt-cap .badge { font-weight: 500; }
+/* An open options page keeps its name in view while its long table scrolls. */
+@media (min-width: 900px) {
+  .opt-page[open] > summary { position: sticky; top: var(--header-h); z-index: 3; background: var(--panel); }
+  .opt-page[open] > summary:hover { background: var(--raised); }
+}
 @media (max-width: 899px) {
   /* Each row becomes a card; cells carry their column label. */
   .opt-table, .opt-table tbody, .opt-table tr, .opt-table th, .opt-table td { display: block; width: auto; }
@@ -382,6 +422,8 @@ table.stack { margin: 0 0 1em; }
 .footer-orn { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: var(--bg); padding: 0 10px; width: 200px; }
 .footer-inner { max-width: var(--shell-max); margin: 0 auto; text-align: center; }
 .footer-inner p { margin: 0 0 6px; }
+/* At least 24 px tall to tap (WCAG 2.2, 2.5.8). */
+.footer-inner a { display: inline-block; padding: 4px 2px; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Ornamental divider (inline SVG from html.mjs) */
@@ -445,14 +487,23 @@ table.stack { margin: 0 0 1em; }
 .hero-meta { margin: 8px 0 0; font-size: var(--fs-sm); color: var(--text); text-shadow: 0 1px 8px var(--bg), 0 0 2px var(--bg); }
 .hero-countdown { margin: 0; font-size: var(--fs-sm); font-weight: 600; color: var(--accent); text-shadow: 0 1px 8px var(--bg), 0 0 2px var(--bg); font-variant-numeric: tabular-nums; }
 
-@media (max-width: 559px) { .hero { min-height: 280px; padding: 26px 16px 40px; } .hero-orn { margin: 6px auto 8px; } .hero-actions { margin-top: 12px; } }
+@media (max-width: 559px) {
+  /* A shorter hero on a phone, so the shortcuts and the screenshot start on the first screen. */
+  .hero { min-height: 0; padding: 18px 14px 30px; }
+  .hero-crest { height: 52px; }
+  .hero-kicker { font-size: 0.75rem; }
+  .hero-orn { margin: 4px auto 6px; }
+  .hero-tagline { font-size: 1.15rem; margin-bottom: 6px; }
+  .hero-actions { margin-top: 8px; gap: 8px; }
+  .hero-actions .button { padding: 9px 16px; font-size: 1rem; }
+}
 
 @keyframes fui-rise { 0% { transform: translate(0, 0); opacity: 0; } 12% { opacity: 0.9; } 70% { opacity: 0.6; } 100% { transform: translate(28px, -460px); opacity: 0; } }
 @keyframes fui-rise-b { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 0.8; } 65% { opacity: 0.5; } 100% { transform: translate(-34px, -420px); opacity: 0; } }
 @keyframes fui-breathe { 0%, 100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); } }
 @keyframes fui-turn { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
-/* Home: the highlight cards and the layout sketch sit in folded sections. */
+/* Home: the highlight cards sit in a folded section, the default layout's screenshot in an open one. */
 .feats { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: 1fr; }
 @media (min-width: 640px) { .feats { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 980px) { .feats { grid-template-columns: repeat(3, 1fr); } }
