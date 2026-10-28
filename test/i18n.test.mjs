@@ -21,7 +21,7 @@ import { gitReader } from "../scripts/lib/source.mjs";
 import { extractAddon, specReader } from "../scripts/lib/extract.mjs";
 import { buildModel } from "../scripts/lib/model.mjs";
 import { FALLBACK_AREAS } from "../src/feedback/fields.js";
-import { settingsPage, commandsPage } from "../scripts/lib/pages-main.mjs";
+import { settingsPage, commandsPage, startPage } from "../scripts/lib/pages-main.mjs";
 
 const cfg = loadConfig();
 const placeholders = (s) => [...new Set([...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]))].sort();
@@ -464,4 +464,25 @@ test("every Feedback area option carries the English name the Function files, in
   const names = new Map(data.modules.map((m) => [m.key, m.name]));
   for (const [value, name] of english) assert.ok(names.get(value) === name || FALLBACK_AREAS.some(([v, l]) => v === value && l === name), `${value}: “${name}”`);
   for (const l of LOCALES) assert.deepEqual(options(html(l.code, "/feedback/")), english, `${l.code}: the same English names as the English page`);
+});
+
+test("Getting started names the options pages General, Look and Layout in the addon's words for every language", () => {
+  const names = new Map([["General", "TEST-ONLY Allgemein"], ["Look", "TEST-ONLY Aussehen"], ["Layout", "TEST-ONLY Anordnung"]]);
+  for (const l of LOCALES) {
+    const body = startPage(model, read, siteLocale(l, names)).body.replace(/<[^>]+>/g, "");
+    assert.ok(body.includes("TEST-ONLY Allgemein → TEST-ONLY Aussehen"), `${l.code}: General → Look`);
+    assert.ok(body.includes("TEST-ONLY Allgemein → TEST-ONLY Anordnung"), `${l.code}: General → Layout`);
+    assert.ok(!/General → (Look|Layout)/.test(body), `${l.code}: no English page names`);
+  }
+});
+
+test("a built Getting started page uses each language's own words for General → Look and General → Layout", () => {
+  for (const l of LOCALES) {
+    const own = addonTranslations([relReader, nextReader], l.addon);
+    const body = text(html(l.code, "/start/").match(/<main[\s\S]*<\/main>/)[0]);
+    for (const [name, rest] of [["Look", "Look"], ["Layout", "Layout"]]) {
+      const want = `${own.get("General") ?? "General"} → ${own.get(rest) ?? name}`;
+      assert.ok(body.includes(want), `${l.code}: “${want}”`);
+    }
+  }
 });

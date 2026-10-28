@@ -303,6 +303,12 @@ function setupWords(S, loc) {
   return { A, lab, say, s: (part) => say(S, "Core/Setup.lua", part) };
 }
 
+// The names of the options pages the prose points to (General → Look, General → Layout), as the
+// addon's own words in the page's language; the prose carries them as {general}, {look}, {layout}.
+function pageNames(loc) {
+  return { general: esc(loc.addon("General")), look: esc(loc.addon("Look")), layout: esc(loc.addon("Layout")) };
+}
+
 // A setup text with named slots, in the page's language: the addon's translation of the
 // sentence, filled; the English the extractor made when the source has no named sentence.
 function namedText(named, values, english, loc) {
@@ -365,9 +371,9 @@ function wizardScreenStep(setup, w, loc) {
 <p>${loc.p("It asks: “{question}”", { question: A(setup.questions[1] || "") })} ${presets} ${small} ${loc.p("Your choice takes effect when you click <strong>{next}</strong>.", { next: lab(S, "Core/Setup.lua", "Next") })}</p>
 <div class="table-wrap"><table class="stack"><thead><tr><th scope="col">${head[0]}</th><th scope="col">${head[1]}</th></tr></thead><tbody>
 ${setup.screens.map((p) => row(screenRow(p), esc(namedText(setup.named.hint, p.values, p.hint, loc)))).join("\n")}
-${setup.pixelText ? `${row(A(setup.pixelText), loc.p("Leaves the game's UI scale alone and turns on <strong>{pixel}</strong> under General → Look instead.", { pixel }))}\n` : ""}${row(A(setup.keepText), esc(keepHint))}
+${setup.pixelText ? `${row(A(setup.pixelText), loc.p("Leaves the game's UI scale alone and turns on <strong>{pixel}</strong> under {general} → {look} instead.", { pixel, ...pageNames(loc) }))}\n` : ""}${row(A(setup.keepText), esc(keepHint))}
 </tbody></table></div>
-<p>${loc.p("The UI scale a preset sets is the game's own UI scale (the one in the game's graphics settings). It changes once you're out of combat, and choosing a preset turns off <strong>{pixel}</strong> under <strong>General → Look</strong>.", { pixel })} ${A(setup.reloadTile)}</p>`;
+<p>${loc.p("The UI scale a preset sets is the game's own UI scale (the one in the game's graphics settings). It changes once you're out of combat, and choosing a preset turns off <strong>{pixel}</strong> under <strong>{general} → {look}</strong>.", { pixel, ...pageNames(loc) })} ${A(setup.reloadTile)}</p>`;
 }
 
 // Steps 3 and 4: the look, and moving frames.
@@ -421,7 +427,7 @@ function wizardFinish(setup, w, loc) {
   const ends = setup.later
     ? `<p>${clicks} ${loc.p("<strong>{done}</strong> finishes it, and so does <strong>{skip}</strong>; both lock your frames again, and chat says “{again}”", { done, skip: lab(S, "Core/Setup.lua", "Skip setup"), again: A(setup.again) })}</p>
 <p>${loc.p("The window's close button and <kbd>Escape</kbd> only close it. Until it's finished, it opens again at your next login, and chat says “{later}”", { later: A(setup.later) })}</p>
-<p>${loc.p("To run it again, type <code>/vg setup</code> or click <strong>{run}</strong> under <strong>General → Layout</strong> in <code>/vg</code>.", { run: lab(w.O, "Core/Options.lua", "Run setup") })}</p>`
+<p>${loc.p("To run it again, type <code>/vg setup</code> or click <strong>{run}</strong> under <strong>{general} → {layout}</strong> in <code>/vg</code>.", { run: lab(w.O, "Core/Options.lua", "Run setup"), ...pageNames(loc) })}</p>`
     : `<p>${clicks} ${loc.p("<strong>{done}</strong>, the window's close button and <kbd>Escape</kbd> all end the wizard and lock your frames again. It doesn't come back by itself; type <code>/vg setup</code> to run it again.", { done })}</p>`;
   return `<h3 id="setup-finish">${loc.p("Finishing")}</h3>
 ${ends}
@@ -481,7 +487,7 @@ function startMove(model, read, loc) {
   const popoverNext = /scale and opacity/.test(JSON.stringify(next.pages)) && !/scale and opacity/.test(JSON.stringify(rel.pages));
   label(O, "Core/Options.lua", "Move frames");
   return `<ol class="steps">
-  <li>${loc.p("Type <code>/vg unlock</code> (or <code>/vg move</code>), or click <strong>{button}</strong> under <strong>General → Layout</strong>. Every Vanguard frame gets a drag handle.", { button: esc(loc.addon("Move frames")) })}</li>
+  <li>${loc.p("Type <code>/vg unlock</code> (or <code>/vg move</code>), or click <strong>{button}</strong> under <strong>{general} → {layout}</strong>. Every Vanguard frame gets a drag handle.", { button: esc(loc.addon("Move frames")), ...pageNames(loc) })}</li>
   <li>${loc.p("Drag a handle to move that frame. Or click a handle, then use the arrow keys to nudge it (hold <kbd>Shift</kbd> to move 10 px).")}</li>
   <li>${loc.p("Right-click a handle for its exact anchor and offsets")}${popoverNext ? nextOnly(`${loc.p("; the next release adds its scale (50% to 200%) and opacity (10% to 100%) there too")} ${nextBadge(loc)}`) : ""}.</li>
   <li>${loc.p("Type <code>/vg lock</code> when you're done.")}</li>
@@ -496,7 +502,7 @@ function startAccentModules(model, read, loc) {
   const O = read.next("Core/Options.lua");
   const offLine = "A module that's off builds nothing and costs nothing.";
   says(O, "Core/Options.lua", offLine);
-  const accent = `<p>${loc.p("Click a swatch under <strong>/vg → General → Look</strong>, or type <code>/vg accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/vg accent reset</code> puts the default back.")}</p>
+  const accent = `<p>${loc.p("Click a swatch under <strong>/vg → {general} → {look}</strong>, or type <code>/vg accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/vg accent reset</code> puts the default back.", pageNames(loc))}</p>
 <ul class="swatches">${presets.map(([k, hex], i) => `<li class="swatch"><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? ` ${loc.p("(default)")}` : ""} <span class="small">${esc(hex)}</span></span></li>`).join("")}</ul>`;
   const modules = `<p>${loc.p(`Every part of Vanguard is a module you can turn off under <strong>/vg → {modules}</strong> (or type <code>/vg disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “{line}” The list is on <a href="/features/">Features</a>.`, { modules: esc(loc.addon("Modules")), line: esc(loc.addon(offLine)) })}</p>`;
   return { accent, modules };
