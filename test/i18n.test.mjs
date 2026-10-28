@@ -423,6 +423,23 @@ test("the Feedback form carries a translation of each message the Function can a
   }
 });
 
+test("a Choice row's Default is one of its Values, in the page's language", () => {
+  let checked = 0;
+  for (const l of ALL) {
+    const own = siteLocale(l);
+    const cell = (row, key) => ((row.match(new RegExp(`<td data-label="${own.t(key)}">([\\s\\S]*?)</td>`)) || [])[1] || "");
+    for (const row of html(folder(l), "/settings/").match(/<tr class="opt-row opt-item"[\s\S]*?<\/tr>/g)) {
+      if (!row.includes(`class="opt-kind">${own.t("kind.cycle")}</span>`)) continue;
+      const values = text(cell(row, "set.col.values")).split(" / ");
+      const shown = text(cell(row, "set.col.default").replace(/<span[\s\S]*$/, ""));
+      if (!shown) continue;
+      checked++;
+      assert.ok(values.includes(shown), `${l.code}: Default “${shown}” is not among “${values.join(" / ")}”`);
+    }
+  }
+  assert.ok(checked > 100, `only ${checked} Choice rows with a default`);
+});
+
 test("every page is translated: no main or Features card list is marked lang=en", () => {
   for (const l of LOCALES) {
     for (const n of NAV) assert.ok(!/<main id="main" tabindex="-1" lang="en">/.test(html(l.code, n.path)), `/${l.code}${n.path} main lang=en`);

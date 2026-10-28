@@ -161,8 +161,8 @@ function rangeOf(m, v) {
 // enchantSetting()) into their bodies.
 function settingRef(ctx, text, depth = 0) {
   const { m, defs, fileModule } = ctx;
-  let hit = text.match(/\b(?:setting|liveSetting)\(\s*"(\w+)"\s*,\s*"(\w+)"\s*(,\s*true)?/);
-  if (hit) return { scope: hit[1], key: hit[2], reload: !!hit[3] };
+  let hit = text.match(/\b(reloadSetting|setting|liveSetting)\(\s*"(\w+)"\s*,\s*"(\w+)"\s*(,\s*true)?/);
+  if (hit) return { scope: hit[2], key: hit[3], reload: hit[1] === "reloadSetting" || !!hit[4] };
   hit = text.match(/\b(?:setting|switch)\(\s*"(\w+)"\s*(,\s*true)?\s*\)/);
   if (hit && fileModule) return { scope: fileModule, key: hit[1], reload: !!hit[2] };
   hit = text.match(/T\.Settings\(\)\.(\w+)/);
