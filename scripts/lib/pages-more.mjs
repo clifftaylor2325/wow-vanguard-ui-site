@@ -272,7 +272,7 @@ ${disclosure({ id: "same-account", title: loc.p("Use one layout on several chara
 ${profileList(w, news, loc)}
 
 ${profileChatTable(w, news, loc)}
-<p>${loc.p("On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>, straight away and without asking first. The options window then shows its <strong>Reload now</strong> button.", { reset: w.lb("opt", "Reset profile") })}</p>` })}
+<p>${loc.p("On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>, straight away and without asking first. The options window then shows its <strong>{ui:Reload now}</strong> button.", { reset: w.lb("opt", "Reset profile") })}</p>` })}
 ${disclosure({ id: "share", title: loc.p("Move a profile to another account or PC"), body: profileShare(w, news, v, fuiPrefix, loc) })}
 ${disclosure({ id: "edit-mode", title: loc.p("The game's Edit Mode layout"), meta: `${nb(news.editNew)}`, next: news.editNew, body: profileEditMode(w, loc) })}
 ${disclosure({ id: "click-casting", title: loc.p("Click-casting bindings"), meta: `${nb(news.shareNew)}`, body: profileClickCasting(w, loc) })}

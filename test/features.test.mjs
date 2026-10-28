@@ -67,7 +67,7 @@ test("every module card on /features/ shows 2 to 4 longer sentences, in order", 
     // Its text; a menu path's /vg is marked as code (menuPaths).
     const p = (card.match(/<p class="mod-longer">((?:[^<]|<\/?code>)*)<\/p>/) || [])[1];
     assert.ok(p, `${key}: no longer text in its card`);
-    assert.equal(decode(p.replace(/<\/?code>/g, "")), list.map((x) => x.s).join(" "));
+    assert.equal(decode(p.replace(/<\/?code>/g, "")), list.map((x) => x.s.replace(/\{ui:([^}]+)\}/g, "$1")).join(" "));
   }
   assert.deepEqual(Object.keys(LONGER).filter((k) => !keys.includes(k)), [], "longer text for a module that has no card");
 });

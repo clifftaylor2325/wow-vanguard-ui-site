@@ -124,7 +124,7 @@ RELEASE_NOTES["v0.4.0"] = { groups: [
       { label: "Boss levels", text: "A “??” boss level shows in red instead of gray.", from: [81] },
       { label: "Russian", text: "Russian headings use a font with Cyrillic letters.", from: [81] },
       { label: "Profiles", text: "A profile deleted on another character no longer comes back empty: a character that used it moves to Default. Copy here while a switch waits for a reload copies into the profile you'll use after it.", from: [124] },
-      { label: "Moving frames", text: "Trying to unlock frames during a fight now says “In combat. Try again once combat ends.”", from: [124] },
+      { label: "Moving frames", text: "Trying to unlock frames during a fight now says “{ui:In combat. Try again once combat ends.}”", from: [124] },
     ] },
   ],
 };
@@ -176,7 +176,7 @@ RELEASE_NOTES["v0.5.0"] = { groups: [
 // tooling), and #362 (a light look that was added and removed before any release).
 RELEASE_NOTES["v0.6.0"] = { groups: [
     { id: "new", title: "New", items: [
-      { label: "Looks", text: "Seven more looks under General → Look: High contrast (opaque panels, white text, a thicker accent ring), Vellum and ink (a warm dark with cream text), Classic look (dark leather and bronze), Midnight, Obsidian, Moss, and Ash and ember. Slate and brass stays the default. A Corners setting rounds the corners of windows, frames, tooltips and buttons on any look (square stays the default), and a Window ornaments switch adds a thin brass rule under the options window's header and corner brackets on setup and the quest log.", from: [321, 328, 352, 325, 355, 361] },
+      { label: "Looks", text: "Seven more looks under {ui:General} → {ui:Look}: High contrast (opaque panels, white text, a thicker accent ring), Vellum and ink (a warm dark with cream text), Classic look (dark leather and bronze), Midnight, Obsidian, Moss, and Ash and ember. Slate and brass stays the default. A Corners setting rounds the corners of windows, frames, tooltips and buttons on any look (square stays the default), and a Window ornaments switch adds a thin brass rule under the options window's header and corner brackets on setup and the quest log.", from: [321, 328, 352, 325, 355, 361] },
       { label: "Role layouts", text: "Setup's Healing and Damage and tanking layouts now set the raid frame, raid aura and nameplate settings of the Healer and Damage presets, so the two look different. Vanguard's Healer, Damage and Tank presets also apply from the Profiles page (or /vg preset) after a question and a backup.", from: [348, 306] },
       { label: "Raid frames", text: "A raid of 25 or 40 now starts at the left of your character, its groups stacked as rows, where healers keep it. A party or a raid of 10 stays over your player frame, and Stack big raids at the left turns the change off.", from: [331, 335] },
       { label: "What's new", text: "After an update, the first login shows what changed in this version, grouped by part. Click a line to open its setting. /vg whatsnew opens it again.", from: [274] },

@@ -27,7 +27,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { commandsIn } from "./commands.mjs";
-import { md } from "./html.mjs";
+import { md, esc } from "./html.mjs";
 import { STRINGS_DE, STRINGS_FR, STRINGS_ES, STRINGS_ES_MX, STRINGS_IT, STRINGS_PT_BR } from "./i18n-strings-latin.mjs";
 import { STRINGS_RU, STRINGS_KO, STRINGS_ZH_CN, STRINGS_ZH_TW } from "./i18n-strings-other.mjs";
 import { PAGES_DE, PAGES_FR, PAGES_ES, PAGES_ES_MX, PAGES_IT, PAGES_PT_BR } from "./i18n-pages-latin.mjs";
@@ -302,6 +302,12 @@ function englishList(items) {
   return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
 
+// A prose line with each {ui:Text} (a button, switch or page name of the addon's) replaced by the
+// addon's own words for it in this language: the translation when the addon has one, else Text.
+function uiWords(template, translations) {
+  return template.replace(/\{ui:([^}]+)\}/g, (_, text) => esc(translations.get(text) ?? text));
+}
+
 // The page context every localised generator takes: which language, its
 // folder, and how to say things in it.
 //   t(key, values)     the site string as HTML
@@ -309,7 +315,8 @@ function englishList(items) {
 //   n(key, count, v)   the plural site string for count, as HTML
 //   addon(text)        the addon's own text in this language, English when untranslated
 //   has(text)          whether the addon translates text in this language
-//   p(english, values) a page's own sentence (HTML) in this language, English when untranslated
+//   p(english, values) a page's own sentence (HTML) in this language, English when untranslated;
+//                      {ui:Text} in it is the addon's own words for Text, so a translation never retypes them
 //   pn(forms, count, v) the same for a count: forms is { one, other } in English, keyed by other
 //   href(path)         a site path in this language's folder
 //   list(items)        "a, b and c" in this language
@@ -337,7 +344,7 @@ export function siteLocale(locale = ENGLISH, translations = new Map(), prose = l
     has: (text) => translations.has(text),
     p: (english, values = {}) => {
       PROSE_USED.set(english, english);
-      return fill(prose.get(english) ?? english, values);
+      return fill(uiWords(prose.get(english) ?? english, translations), values);
     },
     pn: (forms, count, values = {}) => {
       PROSE_USED.set(forms.other, forms);
@@ -386,12 +393,13 @@ export function proseProblems(english, translation, lang, words) {
   const forms = (v) => (typeof v === "string" ? [v] : Object.values(v ?? {}));
   const en = forms(english).at(-1);
   const sorted = (s, re) => (s.match(re) || []).sort().join(" ");
+  const slotRe = /\{(?:ui:[^}]+|\w+)\}/g;
   const out = [];
   if (typeof english !== typeof translation) out.push(typeof english === "string" ? "a plain text, not plural forms" : "plural forms, one per category");
   else if (typeof english !== "string" && Object.keys(translation).sort().join() !== new Intl.PluralRules(lang).resolvedOptions().pluralCategories.sort().join()) out.push(`one form per ${lang} plural category`);
   for (const t of forms(translation)) {
     if (!t.trim()) out.push("empty");
-    else if (sorted(t, /\{\w+\}/g) !== sorted(en, /\{\w+\}/g) && typeof english === "string") out.push(`{slots} differ: ${t}`);
+    else if (sorted(t, slotRe) !== sorted(en, slotRe) && typeof english === "string") out.push(`{slots} differ: ${t}`);
     else if (sorted(t, /<[^>]+>/g) !== sorted(en, /<[^>]+>/g)) out.push(`tags differ: ${t}`);
     else if (commandsIn(t, words).join("\n") !== commandsIn(en, words).join("\n")) out.push(`/vg commands differ: ${t}`);
   }
