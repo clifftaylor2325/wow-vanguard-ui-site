@@ -247,6 +247,15 @@ test("without JavaScript the Menu button and the search boxes are hidden, since 
   assert.match(page("commands"), /<script>\(function \(d\) \{ d\.className \+= " js";/, "the js class is set by the inline script in the head");
 });
 
+test("the language answer hides its next-release sentences the same way in every language", () => {
+  const nextParts = (html) => {
+    const entry = html.slice(html.indexOf('id="language"'), html.indexOf('id="perf"'));
+    return (entry.match(/data-avail="next"/g) || []).length;
+  };
+  assert.equal(nextParts(page("help")), 2, "English: the next-release paragraph and the closing sentence");
+  for (const dir of LANG_DIRS) assert.equal(nextParts(page(`${dir}help`)), 2, `${dir}help: same gating as English`);
+});
+
 test("the Commands search hides groups with no match, as Features and Settings do", () => {
   for (const dir of LANG_DIRS) {
     assert.match(page(`${dir}commands`), /<div class="search" data-target="#cmd-list" data-items="\.cmd" data-groups="\.cmd-group"/, `${dir}commands search box needs data-groups`);
