@@ -35,7 +35,11 @@ const kind = () => (form.querySelector("input[name=kind]:checked") || {}).value 
 
 // Every allowed "Part of Vanguard" value, and the label of one.
 const areaValues = () => Array.from(el("area").options, (o) => o.value).filter(Boolean);
-const areaLabel = (value) => (Array.from(el("area").options).find((o) => o.value === value) || {}).textContent || "";
+// The English name (data-en), which is what the Function files; the option's own text on a page without it.
+const areaLabel = (value) => {
+  const option = Array.from(el("area").options).find((o) => o.value === value);
+  return option ? option.dataset.en || option.textContent : "";
+};
 
 // The form's values, as the Function reads them.
 function values() {

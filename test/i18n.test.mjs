@@ -20,6 +20,7 @@ import { helpPage, supportPage, SUPPORT_PAGE } from "../scripts/lib/pages-more.m
 import { gitReader } from "../scripts/lib/source.mjs";
 import { extractAddon, specReader } from "../scripts/lib/extract.mjs";
 import { buildModel } from "../scripts/lib/model.mjs";
+import { FALLBACK_AREAS } from "../src/feedback/fields.js";
 import { settingsPage, commandsPage } from "../scripts/lib/pages-main.mjs";
 
 const cfg = loadConfig();
@@ -453,4 +454,14 @@ test("the Home tagline is the addon's Notes line up to its colon, full-width or 
     assert.equal(hero(l.code).replace(/&#39;/g, "'"), `${notes.slice(0, cut).trim()}${stop}`.replace(/&/g, "&amp;"), l.code);
     assert.notEqual(hero(l.code), english, `${l.code}: not the English tagline`);
   }
+});
+
+test("every Feedback area option carries the English name the Function files, in every language", () => {
+  const options = (h) => [...h.matchAll(/<option value="([^"]+)" data-en="([^"]*)">/g)].map((m) => [m[1], m[2]]);
+  const english = options(html("", "/feedback/"));
+  assert.ok(english.length > 10 && english.some(([v]) => v === "RaidFrames"));
+  const data = JSON.parse(fs.readFileSync(path.join(out, "site-data.json"), "utf8"));
+  const names = new Map(data.modules.map((m) => [m.key, m.name]));
+  for (const [value, name] of english) assert.ok(names.get(value) === name || FALLBACK_AREAS.some(([v, l]) => v === value && l === name), `${value}: “${name}”`);
+  for (const l of LOCALES) assert.deepEqual(options(html(l.code, "/feedback/")), english, `${l.code}: the same English names as the English page`);
 });
