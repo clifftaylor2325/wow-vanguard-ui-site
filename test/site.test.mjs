@@ -198,7 +198,7 @@ test("the Settings counter counts only setting rows, so it matches the header", 
   const html = page("settings");
   // "N settings in vX · M in the next release", or just "N settings in vX" when the pinned source is the release.
   // Greedy up to the next tag: a lazy run here let the optional next-release group match nothing, so it was never read.
-  const head = html.match(/<strong>(\d+)<\/strong> settings in v[^<]*(?:<strong>(\d+)<\/strong> in the next release)?/);
+  const head = html.match(/<strong>(\d+)<\/strong> settings in v[^<]*(?:<span data-avail="next"> · <strong>(\d+)<\/strong> in the next release<\/span>)?/);
   const rows = countedRows(html);
   assert.ok(head, "the header count is missing");
   assert.ok(rows.tags.every((t) => /class="opt-row opt-item"/.test(t)), "only setting rows may carry data-count (no notes or headings)");
@@ -206,6 +206,17 @@ test("the Settings counter counts only setting rows, so it matches the header", 
   assert.equal(rows.avail("rel", "next"), Number(head[2] ?? head[1]), "rows counted with v-only hidden must match the header's next-release count");
   if (!head[2]) assert.equal(rows.avail("next", "old"), 0, "with no next-release count, no row is next-release or release-only");
   assert.ok(fs.readFileSync(path.join(dist, "assets/site.js"), "utf8").includes('hasAttribute("data-count")'), "site.js must count data-count rows only");
+});
+
+test("the Settings counts line shows the next-release count only when the switch is on", () => {
+  for (const dir of LANG_DIRS) {
+    const line = page(`${dir}settings`).match(/<p class="counts">(.*?)<\/p>/)[1];
+    const plain = line.replace(/<span data-avail="next">.*?<\/span>/g, "");
+    const rows = countedRows(page(`${dir}settings`));
+    const hasNext = rows.avail("next", "old") > 0;
+    assert.equal(line.includes('data-avail="next"'), hasNext, `${dir}settings: the next-release count is wrapped exactly when there is one`);
+    if (hasNext) assert.equal(plain.match(/<strong>/g).length, 2, `${dir}settings: with the switch off only the release count and the page count remain`);
+  }
 });
 
 test("both searches have singular and plural nouns, a no-match message and a Clear search button", () => {

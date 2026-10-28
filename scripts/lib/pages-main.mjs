@@ -939,8 +939,9 @@ function settingsSearchBox(model, loc) {
 function settingsCounts(model, loc) {
   const { pages, version } = model;
   const count = (f) => pages.reduce((n, p) => n + p.rows.filter((r) => r.kind !== "header" && r.kind !== "text" && f(r)).length, 0);
-  const parts = [loc.n("set.inRelease", count((r) => r.inRel), { version: esc(version) }), model.same ? "" : loc.t("set.inNext", { n: count((r) => r.inNext) }), loc.n("set.pages", pages.length)];
-  return `<p class="counts">${parts.filter(Boolean).join(" · ")}.</p>`;
+  const release = loc.n("set.inRelease", count((r) => r.inRel), { version: esc(version) });
+  const next = model.same ? "" : nextOnly(` · ${loc.t("set.inNext", { n: count((r) => r.inNext) })}`);
+  return `<p class="counts">${release}${next} · ${loc.n("set.pages", pages.length)}.</p>`;
 }
 
 // The folded aside under the settings: reloads, defaults and what isn't listed.
