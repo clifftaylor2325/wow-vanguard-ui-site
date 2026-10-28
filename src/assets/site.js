@@ -486,6 +486,95 @@
     tick();
   }
 
+  // The site-wide search (the header box, and the one at the top of the phone menu): loads the
+  // language's search.json the first time it's used, then lists up to eight places whose words
+  // hold every word typed, best first. Enter or the first arrow key goes to the results.
+  var SITE_INDEX = {};
+  function loadIndex(url) {
+    if (!SITE_INDEX[url]) {
+      SITE_INDEX[url] = fetch(url).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (list) {
+        return list.map(function (e) { return { e: e, title: fold(e.t), all: fold(e.t + " " + e.p + " " + e.x) }; });
+      });
+      SITE_INDEX[url].catch(function () { delete SITE_INDEX[url]; });
+    }
+    return SITE_INDEX[url];
+  }
+  function siteMatches(index, query) {
+    var words = fold(query).split(/\s+/).filter(Boolean);
+    var next = document.documentElement.classList.contains("show-next");
+    if (!words.length) return [];
+    var hits = [];
+    index.forEach(function (row) {
+      if (row.e.n && !next) return;
+      var score = 0;
+      for (var i = 0; i < words.length; i++) {
+        if (row.all.indexOf(words[i]) < 0) return;
+        var at = row.title.indexOf(words[i]);
+        score += at === 0 ? 4 : at > 0 ? 2 : 0;
+      }
+      if (!row.e.p) score += 1;
+      hits.push({ e: row.e, score: score });
+    });
+    hits.sort(function (a, b) { return b.score - a.score; });
+    return hits.slice(0, 8).map(function (h) { return h.e; });
+  }
+  function resultItem(e) {
+    var li = document.createElement("li");
+    var a = document.createElement("a");
+    a.href = e.u;
+    [["ss-t", e.t], ["ss-p", e.p], ["ss-x", e.x]].forEach(function (part) {
+      if (!part[1]) return;
+      var span = document.createElement("span");
+      span.className = part[0];
+      span.textContent = part[1];
+      a.appendChild(span);
+    });
+    li.appendChild(a);
+    return li;
+  }
+  function wireSiteSearch(form) {
+    var input = form.querySelector("input");
+    var box = form.querySelector(".ss-results");
+    var list = box.querySelector("ul");
+    var note = box.querySelector(".ss-note");
+    var url = form.getAttribute("data-index");
+    var show = function () {
+      var q = input.value.trim();
+      if (!q) { box.hidden = true; return; }
+      loadIndex(url).then(function (index) {
+        if (input.value.trim() !== q) return;
+        var hits = siteMatches(index, q);
+        list.replaceChildren.apply(list, hits.map(resultItem));
+        note.textContent = hits.length ? "" : form.getAttribute("data-none");
+        box.hidden = false;
+      }, function () {
+        note.textContent = form.getAttribute("data-failed");
+        box.hidden = false;
+      });
+    };
+    var links = function () { return Array.prototype.slice.call(list.querySelectorAll("a")); };
+    input.addEventListener("focus", function () { loadIndex(url).catch(function () {}); });
+    input.addEventListener("input", show);
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var first = links()[0];
+      if (first) first.click();
+    });
+    form.addEventListener("keydown", function (e) {
+      var all = links();
+      var at = all.indexOf(document.activeElement);
+      if (e.key === "ArrowDown" && all.length) { e.preventDefault(); all[Math.min(at + 1, all.length - 1)].focus(); }
+      if (e.key === "ArrowUp" && at >= 0) { e.preventDefault(); (at === 0 ? input : all[at - 1]).focus(); }
+      if (e.key === "Escape" && !box.hidden) { e.stopPropagation(); box.hidden = true; input.focus(); }
+    });
+    list.addEventListener("click", function () {
+      box.hidden = true;
+      var close = form.closest(".nav") && document.querySelector(".nav.open .nav-close");
+      if (close) close.click();
+    });
+    document.addEventListener("click", function (e) { if (!form.contains(e.target)) box.hidden = true; });
+  }
+
   document.documentElement.classList.add("js");
   foldForSmall();
   wireNav();
@@ -498,6 +587,7 @@
   wireExpandAll();
   wirePrint();
   wireCountdown();
+  document.querySelectorAll(".site-search").forEach(wireSiteSearch);
   window.addEventListener("hashchange", openForHash);
   document.addEventListener("click", function (e) {
     var btn = e.target.closest && e.target.closest("button.copy");

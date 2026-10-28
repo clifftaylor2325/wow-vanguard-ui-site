@@ -19,7 +19,7 @@ import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
 import { publishedLocales, EN } from "../scripts/lib/i18n-site.mjs";
 import { extractAddon, extractPages } from "../scripts/lib/extract.mjs";
-import { buildModel } from "../scripts/lib/model.mjs";
+import { buildModel, AREAS } from "../scripts/lib/model.mjs";
 import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
 
 const cfg = loadConfig();
@@ -30,6 +30,8 @@ const dist = cfg.outDir;
 const page = (p) => fs.readFileSync(path.join(dist, p, "index.html"), "utf8");
 // Each published language's folder below the root ("" for English, "de/" and so on).
 const LANG_DIRS = publishedLocales(cfg.locales).map((l) => (l.code === "en" ? "" : `${l.code}/`));
+// Every page's folder in one language: the 13 in the sidebar, then each feature area's page.
+const ALL_PAGES = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots", ...AREAS.map(([a]) => `features/${a.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`)];
 const meta = JSON.parse(fs.readFileSync(cfg.releaseJson, "utf8"));
 const refs = { release: meta.current, next: cfg.sourceRef };
 
@@ -172,10 +174,9 @@ test("every page links the favicon, and it is shipped", () => {
 test("sitemap.xml lists every page under siteUrl, and robots.txt points to it", () => {
   const base = cfg.siteUrl.replace(/\/+$/, "");
   const xml = fs.readFileSync(path.join(dist, "sitemap.xml"), "utf8");
-  const pages = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
-  const want = LANG_DIRS.flatMap((lang) => pages.map((d) => `${base}/${lang}${d ? d + "/" : ""}`));
+  const want = LANG_DIRS.flatMap((lang) => ALL_PAGES.map((d) => `${base}/${lang}${d ? d + "/" : ""}`));
   assert.ok(/^<\?xml version="1\.0" encoding="UTF-8"\?>\n<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/.test(xml), "sitemap.xml has no urlset");
-  assert.deepEqual([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]).sort(), want.sort(), "sitemap.xml must list exactly the 13 pages in every published language");
+  assert.deepEqual([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]).sort(), want.sort(), "sitemap.xml must list exactly the site's pages in every published language");
   const meta = JSON.parse(fs.readFileSync(cfg.releaseJson, "utf8"));
   const day = new Date(meta.releases.find((r) => r.tagName === meta.current).publishedAt).toISOString().slice(0, 10);
   assert.equal([...xml.matchAll(/<url><loc>[^<]+<\/loc><lastmod>([^<]+)<\/lastmod><\/url>/g)].filter((m) => m[1] === day).length, want.length, `every page's lastmod is ${day}`);
@@ -443,8 +444,7 @@ test("pages are well formed: one h1, skip link, shared nav and footer", () => {
 });
 
 test("internal links point at pages and anchors that exist", () => {
-  const pages = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
-  const dirs = LANG_DIRS.flatMap((lang) => pages.map((d) => `${lang}${d ? d + "/" : ""}`));
+  const dirs = LANG_DIRS.flatMap((lang) => ALL_PAGES.map((d) => `${lang}${d ? d + "/" : ""}`));
   const ids = Object.fromEntries(dirs.map((d) => [`/${d}`, new Set([...page(d).matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]))]));
   const bad = [];
   for (const d of dirs) {

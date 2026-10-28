@@ -1175,5 +1175,12 @@
  "The site is hosted on Cloudflare Pages. Like any host, Cloudflare sees the requests your browser makes, under its own privacy policy.": "本站託管在 Cloudflare Pages 上。和任何託管服務一樣，Cloudflare 會依其隱私權政策看到你的瀏覽器發出的請求。",
  "The Feedback page loads Cloudflare Turnstile to stop spam reports. What a report holds and how long anything is kept is under <a href=\"/feedback/#privacy\">Where your report goes</a>.": "意見回饋頁面會載入 Cloudflare Turnstile 以阻擋垃圾回報。回報包含什麼、各項內容保存多久，請見<a href=\"/feedback/#privacy\">你的回報送到哪裡</a>。",
  "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "指向 CurseForge、Wago、Ko-fi、Discord 和 X 的連結會帶你前往這些網站，它們有各自的隱私權政策。",
- "Close menu": "關閉選單"
+ "Close menu": "關閉選單",
+ "Search the site": "搜尋本站",
+ "Nothing on the site matches that.": "本站沒有相符的內容。",
+ "The search couldn't load. Check your connection and try again.": "無法載入搜尋。請檢查網路連線後再試一次。",
+ "Open the {area} page": "開啟「{area}」頁面",
+ "<a href=\"/features/\">Every area is on Features</a>": "<a href=\"/features/\">所有分類都在「功能」頁</a>",
+ "Vanguard's {area} modules: what each one does, and its settings and commands.": "Vanguard 的{area}模組：每個模組的作用，以及它的設定和指令。",
+ "Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands.": "Vanguard 這一部分的每個模組，用插件自己的話來說明。打開卡片上的<strong>更多</strong>查看它的設定和指令。"
 }

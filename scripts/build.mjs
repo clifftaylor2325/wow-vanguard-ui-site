@@ -15,10 +15,12 @@ import { extractAddon, specReader } from "./lib/extract.mjs";
 import { buildModel } from "./lib/model.mjs";
 import { layout, pageHero, NAV } from "./lib/html.mjs";
 import { FONTS, WOFF2_DIR } from "./lib/fonts.mjs";
-import { homePage, installPage, startPage, featuresPage, commandsPage, settingsPage } from "./lib/pages-main.mjs";
+import { homePage, installPage, startPage, featuresPage, areaPages, commandsPage, settingsPage } from "./lib/pages-main.mjs";
 import { profilesPage, helpPage, feedbackPage, changelogPage, changelogFeed, creditsPage, supportPage, screenshotsPage } from "./lib/pages-more.mjs";
 import { longerGaps } from "./lib/features-content.mjs";
 import { faviconSvg } from "./lib/brand.mjs";
+import { pageMarkdown, llmsTxt } from "./lib/markdown.mjs";
+import { pageEntries } from "./lib/search-index.mjs";
 import { publishedLocales, siteLocale, addonTranslations, alternates, PROSE_USED, proseOf } from "./lib/i18n-site.mjs";
 
 const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js", "fill.js"];
@@ -91,16 +93,28 @@ const PAGES_HOST = "vanguard-ui.pages.dev";
 function headersFile(stamped) {
   const forever = stamped.map((f) => `${f}\n  ! Cache-Control\n  Cache-Control: public, max-age=31536000, immutable\n`).join("\n");
   const noindex = [`https://${PAGES_HOST}/*`, `https://:preview.${PAGES_HOST}/*`].map((h) => `${h}\n  X-Robots-Tag: noindex\n`).join("\n");
-  return `/assets/*\n  Cache-Control: no-cache\n\n${forever}\n/fonts/*\n  Cache-Control: public, max-age=604800\n\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n\n${noindex}`;
+  return `/assets/*\n  Cache-Control: no-cache\n\n${forever}\n/fonts/*\n  Cache-Control: public, max-age=604800\n\n/*.md\n  Content-Type: text/markdown; charset=utf-8\n\n/llms.txt\n  Content-Type: text/plain; charset=utf-8\n\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n\n${noindex}`;
 }
 
-// sitemap.xml: every page in NAV in every published language, under siteUrl from
-// site.config.json. Every page is regenerated from the current release, so each
-// one's lastmod is that release's date.
-function sitemapXml(base, publishedAt, locales) {
+// sitemap.xml: every page in NAV, and each feature area's page, in every published language,
+// under siteUrl from site.config.json. Every page is regenerated from the current release, so
+// each one's lastmod is that release's date.
+function sitemapXml(base, publishedAt, locales, extra) {
   const lastmod = new Date(publishedAt).toISOString().slice(0, 10);
-  const urls = locales.flatMap((l) => NAV.map((n) => alternates([l], n.path, base)[0].url)).map((url) => `  <url><loc>${url}</loc><lastmod>${lastmod}</lastmod></url>`).join("\n");
+  const paths = [...NAV.map((n) => n.path), ...extra];
+  const urls = locales.flatMap((l) => paths.map((p) => alternates([l], p, base)[0].url)).map((url) => `  <url><loc>${url}</loc><lastmod>${lastmod}</lastmod></url>`).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+}
+
+// The inside of a built page's <main>.
+function mainOf(html) {
+  const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
+  return main.slice(main.indexOf(">") + 1);
+}
+
+// A page's Markdown copy, from its built HTML (so it says what the page says).
+function markdownCopy(p, html, base) {
+  return pageMarkdown({ title: p.title, description: p.description, main: mainOf(html), path: p.path, base });
 }
 
 // robots.txt: everything may be crawled, and where the sitemap is.
@@ -164,7 +178,7 @@ function main() {
   // The screenshots (webp, cropped and blurred where a player's name was in frame).
   for (const f of fs.readdirSync(path.join(root, "src/assets/shots"))) write(`assets/shots/${f}`, fs.readFileSync(path.join(root, "src/assets/shots", f)));
   const locales = publishedLocales(cfg.locales);
-  write("sitemap.xml", sitemapXml(base, release.publishedAt, locales));
+  write("sitemap.xml", sitemapXml(base, release.publishedAt, locales, areaPages(model).map((p) => p.path)));
   write("robots.txt", robotsTxt(base));
   for (const f of ["site.css", "site.js", "feedback.js"]) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets", f)));
   // The feedback form's shared code: the same files the Pages Function imports (functions/_lib/handler.js).
@@ -189,8 +203,18 @@ function main() {
     pages = [
       homePage(model, loc, site), installPage(model, loc), startPage(model, read, loc), featuresPage(model, loc), screenshotsPage(model, loc), commandsPage(model, loc), settingsPage(model, read, loc),
       profilesPage(model, read, loc), helpPage(model, read, loc), feedbackPage(model, read, loc), changelogPage(model, loc), creditsPage(model, site, loc), supportPage(loc),
+      ...areaPages(model, loc),
     ];
-    for (const p of pages) write(path.join(loc.prefix, p.path, "index.html"), layout({ ...p, site, loc, alts: alternates(locales, p.path, base) }));
+    const index = [];
+    for (const p of pages) {
+      const html = layout({ ...p, site, loc, alts: alternates(locales, p.path, base) });
+      write(path.join(loc.prefix, p.path, "index.html"), html);
+      if (loc.english) write(path.join(p.path, "index.md"), markdownCopy(p, html, base));
+      const name = `nav.${p.path}` in loc.strings ? loc.text(`nav.${p.path}`) : p.title;
+      index.push(...pageEntries({ title: name, description: p.description, main: mainOf(html), url: loc.href(p.path) }));
+    }
+    write(path.join(loc.prefix, "search.json"), JSON.stringify(index));
+    if (loc.english) write("llms.txt", llmsTxt({ base, summary: model.rel.meta.Notes, pages: pages.map((p) => ({ path: p.path, title: p.title, description: p.description })), languages: locales.slice(1).map((l) => l.name) }));
     write(path.join(loc.prefix, "404.html"), notFoundPage(site, loc));
     write(path.join(loc.prefix, "changelog", "feed.xml"), changelogFeed(model, site, loc));
   }

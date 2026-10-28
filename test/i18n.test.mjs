@@ -20,7 +20,7 @@ import { ENGLISH_HELP } from "../scripts/lib/help-content.mjs";
 import { helpPage, supportPage, SUPPORT_PAGE } from "../scripts/lib/pages-more.mjs";
 import { gitReader } from "../scripts/lib/source.mjs";
 import { extractAddon, specReader } from "../scripts/lib/extract.mjs";
-import { buildModel } from "../scripts/lib/model.mjs";
+import { buildModel, AREAS } from "../scripts/lib/model.mjs";
 import { FALLBACK_AREAS } from "../src/feedback/fields.js";
 import { settingsPage, commandsPage, startPage } from "../scripts/lib/pages-main.mjs";
 
@@ -390,8 +390,9 @@ test("every page says its language and links every language's copy, plus x-defau
 
 test("the sitemap lists every page in every language", () => {
   const xml = fs.readFileSync(path.join(out, "sitemap.xml"), "utf8");
-  for (const l of ALL) for (const n of NAV) assert.ok(xml.includes(`<loc>${base}${l === ENGLISH ? "" : `/${l.code}`}${n.path}</loc>`), `${l.code} ${n.path}`);
-  assert.equal((xml.match(/<url>/g) || []).length, ALL.length * NAV.length);
+  const paths = [...NAV.map((n) => n.path), ...AREAS.map(([a]) => `/features/${a.toLowerCase().replace(/[^a-z0-9]+/g, "-")}/`)];
+  for (const l of ALL) for (const p of paths) assert.ok(xml.includes(`<loc>${base}${l === ENGLISH ? "" : `/${l.code}`}${p}</loc>`), `${l.code} ${p}`);
+  assert.equal((xml.match(/<url>/g) || []).length, ALL.length * paths.length);
 });
 
 test("the language switcher sits at the sidebar's foot, with this page in every language", () => {

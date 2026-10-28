@@ -134,6 +134,33 @@ html:not(.js) .nav-toggle, html:not(.js) .search { display: none; }
 @media (min-width: 900px) {
   .nav-toggle, .nav-backdrop { display: none; }
 }
+/* The site-wide search: in the header from 900px wide, at the top of the Menu drawer below that.
+   It needs scripts. */
+.site-search { position: relative; }
+.site-search input { width: 100%; font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--ui-line); border-radius: var(--r-2); padding: 6px 10px; }
+.site-search input::placeholder { color: var(--muted); opacity: 1; }
+.site-search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ss-results { margin-top: 6px; background: var(--raised); border: 1px solid var(--ui-line); border-radius: var(--r-2); }
+.ss-results ul { list-style: none; margin: 0; padding: 4px; }
+.ss-results li { margin: 0; }
+.ss-results a { display: block; padding: 6px 8px; border-radius: var(--r-2); color: var(--text); text-decoration: none; }
+.ss-results a:hover, .ss-results a:focus-visible { background: var(--panel); outline: none; box-shadow: inset 2px 0 0 var(--accent); }
+.ss-t { display: block; font-weight: 600; color: var(--accent); }
+.ss-p { display: block; font-size: var(--fs-xs); color: var(--text2); }
+.ss-x { display: block; font-size: var(--fs-sm); color: var(--text2); }
+.ss-note { margin: 0; padding: 0 10px; font-size: var(--fs-sm); color: var(--text2); }
+.ss-note:not(:empty) { padding: 8px 10px; }
+html:not(.js) .site-search { display: none; }
+@media (min-width: 900px) {
+  .ss-head { margin-left: auto; width: min(360px, 36vw); }
+  .ss-head .ss-results { position: absolute; z-index: 40; top: 100%; right: 0; width: min(460px, 80vw); max-height: calc(100vh - var(--header-h) - 24px); overflow-y: auto; box-shadow: 0 12px 32px -12px #000; }
+  .ss-nav { display: none; }
+}
+@media (max-width: 899px) {
+  .ss-head { display: none; }
+  .ss-nav { margin: 0 0 var(--sp-3); }
+}
+
 /* The drawer's own Close button, at its top; the sidebar has none. */
 .nav-close { display: none; }
 @media (max-width: 899px) {

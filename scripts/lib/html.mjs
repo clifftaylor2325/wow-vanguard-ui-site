@@ -340,6 +340,16 @@ function footerLines(site, loc) {
     ${footerLinks(site, loc)}`;
 }
 
+// The site-wide search box (assets/site.js): one in the header from 900px wide, one at the top
+// of the Menu drawer below that. It needs scripts, so without them it isn't shown.
+function siteSearch(loc, where) {
+  const label = loc.p("Search the site");
+  return `<form class="site-search ss-${where}" role="search" data-index="${loc.href("/search.json")}" data-none="${esc(loc.p("Nothing on the site matches that."))}" data-failed="${esc(loc.p("The search couldn't load. Check your connection and try again."))}">
+<label class="visually-hidden" for="ss-${where}">${label}</label><input id="ss-${where}" type="search" placeholder="${esc(label)}" autocomplete="off" enterkeyhint="search">
+<div class="ss-results" hidden><p class="ss-note" role="status"></p><ul></ul></div>
+</form>`;
+}
+
 // A full HTML page with the shared header, sidebar and footer. Every page, Home
 // included, has the same grouped sidebar; it's the only nav (the header holds
 // the brand, the language button and the Menu button, the footer no page links).
@@ -375,7 +385,7 @@ export function layout({ path, title, description, body, site, scripts = [], loc
   const fullTitle = pageTitle(path, title, loc);
   if (loc.english || !translated) description = SEO[path]?.description || description;
   const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">${loc.t("menu")}</button>`;
-  const nav = `<nav class="nav sidebar" aria-label="${esc(loc.text("nav.label"))}" id="site-nav"><button class="nav-close" type="button">${loc.p("Close menu")}</button>${navCommunity(loc)}${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
+  const nav = `<nav class="nav sidebar" aria-label="${esc(loc.text("nav.label"))}" id="site-nav"><button class="nav-close" type="button">${loc.p("Close menu")}</button>${siteSearch(loc, "nav")}${navCommunity(loc)}${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
   const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${menuPaths(localiseLinks(body, loc))}\n</main>`;
   // An asset's URL with the build's version query (the plain path if it has none).
   const asset = (p) => site.assets?.[p] || p;
@@ -401,6 +411,7 @@ ${path === "/" && loc.english && site.url ? homeJsonLd(site, description) : ""}$
 <header class="site-header">
   <div class="header-inner">
     <a class="brand" href="${loc.href("/")}">${MARK}<span>Vanguard</span></a>
+    ${siteSearch(loc, "head")}
     ${langMenu(alts, loc)}
     ${toggle}
   </div>
