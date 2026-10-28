@@ -16,10 +16,11 @@ import { LIMITS, FALLBACK_AREAS } from "../../src/feedback/fields.js";
 
 const NEXT = NEXT_BADGE;
 
-// A string literal from a file, by a regex with one capture group (null when absent).
+// A string literal from a file, by a regex with one capture group, or one per alternative
+// (the first that matched; null when absent).
 function grab(text, re) {
   const m = (text || "").match(re);
-  return m ? m[1] : null;
+  return m ? m.slice(1).find((group) => group !== undefined) ?? null : null;
 }
 
 // ------------------------------------------------------------------ Profiles
@@ -290,6 +291,21 @@ function luaText(text, names = []) {
   return text.replace(/" \.\. [\w.():]+ \.\. "/g, () => `<${names[i++] || "name"}>`).replace(/%s|\{\w+\}/g, "…");
 }
 
+// A fact's Lua text with every join, %s and {slot} made the same "…", to compare two refs' wording.
+function plainLua(text) {
+  return text.replace(/" \.\. [\w.():]+ \.\. "|%s|\{\w+\}/g, "…");
+}
+
+// A release fact that shows values (the release joins them with " .. ", the next release writes
+// an ns.Format {slot}) in the page's language: the next release's text is the Locales key. Each
+// {slot} shows as its name, taken by the slot's place in the English text. English, as the
+// release writes it, when the next release words it differently.
+function placeholderFact(rel, next, names, loc) {
+  if (next === null || !plainLua(next).endsWith(plainLua(rel))) return luaText(loc.addon(rel), names);
+  const slots = [...next.matchAll(/\{(\w+)\}/g)].map((m) => m[1]);
+  return loc.addon(next).replace(/\{(\w+)\}/g, (_, slot) => `<${names[slots.indexOf(slot)] ?? slot}>`);
+}
+
 // One fact from FACTS: the captured text, or null when it isn't in the code
 // ("both" needs the same text in the current release and the next, a %s and a
 // {name} slot being the same), in the page's language when the addon translates
@@ -298,7 +314,8 @@ function readFact(read, [, where, file, re, names], loc) {
   const one = (ref) => grab(read[ref](file), re);
   const same = (a, b) => a !== null && b !== null && luaText(a, names) === luaText(b, names);
   const raw = where === "both" ? (same(one("rel"), one("next")) ? one("next") : null) : one(where);
-  return raw === null ? null : luaText(loc.addon(raw), names);
+  if (raw === null) return null;
+  return where === "rel" && names ? placeholderFact(raw, one("next"), names, loc) : luaText(loc.addon(raw), names);
 }
 
 // Every fact the help page quotes, plus the version and the import reasons.

@@ -190,6 +190,23 @@ test("Troubleshooting quotes the addon's translation of a message and a button n
   assert.ok(html.includes(DE.pages.help.entries.setup.q), "the German question");
 });
 
+test("Troubleshooting quotes a message with values by its Locales key, the values shown as <name>", () => {
+  const t = new Map([
+    ["This character will use profile {profile} after the reload.", "TEST-ONLY Profil {profile}"],
+    ["Profile {profile} uses Edit Mode layout {layout}, which this account doesn't have.", "TEST-ONLY {layout} fehlt für {profile}"],
+    ["{count} errors caught this session: click to list them", "TEST-ONLY {count} Fehler"],
+    ["opens the errors Vanguard caught this session, with stacks and counts, in the copy window (for a bug report); clear empties the list", "TEST-ONLY Fehlerliste"],
+  ]);
+  const html = helpPage(model, read, siteLocale(DE, t)).body;
+  assert.ok(html.includes("„TEST-ONLY Profil &lt;name&gt;“"), "the profile switch message");
+  assert.ok(html.includes("„TEST-ONLY &lt;layout&gt; fehlt für &lt;name&gt;“"), "slots by their place in the English text, not the translation's");
+  assert.ok(html.includes("„TEST-ONLY &lt;n&gt; Fehler“"), "the footer line");
+  assert.ok(html.includes("„TEST-ONLY Fehlerliste“"), "the /vg errors help line");
+  const english = helpPage(model, read, siteLocale()).body;
+  assert.ok(english.includes("“&lt;n&gt; errors caught this session: click to list them”"), "English keeps the whole footer line");
+  assert.ok(english.includes("“This character will use profile &lt;name&gt; after the reload.”"), "English keeps <name>");
+});
+
 test("every language's Troubleshooting page shows the entries English shows", () => {
   const ids = (h) => [...h.matchAll(/<section class="card help-entry" id="([^"]+)"/g)].map((m) => m[1]);
   const en = ids(helpPage(model, read).body);

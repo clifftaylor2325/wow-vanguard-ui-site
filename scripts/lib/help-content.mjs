@@ -6,7 +6,8 @@
 // [key, where, file, regex with one capture, placeholder names].
 // where: "rel" (the current release, which the page describes), "next" (the
 // pinned newer source) or "both" (must read the same in both). Lua joins (" .. x .. ") in a capture
-// become <name>, <layout>, ... in order, and %s or an ns.Format slot ({profile}) becomes "…".
+// become <name>, <layout>, ... in order, and %s or an ns.Format slot ({profile}) becomes "…". A "rel"
+// fact with names is looked up in Locales by the next release's ns.Format text, whose slots show as those names.
 export const FACTS = [
   ["unlockMsg", "both", "Core/Slash.lua", /chat\("(Unlocked: drag the handles\. \/vg lock when done\.)"\)/],
   ["resetAll", "both", "Core/Options.lua", /"button", "(Reset all positions)"/],
@@ -14,7 +15,7 @@ export const FACTS = [
   ["resetTheme", "both", "Core/Options.lua", /"button", "(Reset theme)"/],
   ["modOff", "both", "Core/Options.lua", /"(A module that's off builds nothing and costs nothing\.)"/],
   ["keepDefault", "both", "README.md", /(Turn any module off under Modules to keep the default one\.)/],
-  ["errorsHelp", "rel", "Core/Slash.lua", /"errors \[clear\]"?,?\s+"?(opens the errors Vanguard caught this session, with stacks and counts, in the copy window \(for a bug report\))/],
+  ["errorsHelp", "rel", "Core/Slash.lua", /"errors \[clear\]"?,?\s+"?(opens the errors Vanguard caught this session, with stacks and counts, in the copy window \(for a bug report\); clear empties the list)/],
   ["profResetAsk", "both", "Core/Options.lua", /confirmReset\("(Reset this profile\?)", "Reset"/],
   ["profReset", "both", "Core/Options.lua", /"(Profile (?:%s|\{\w+\}) as it was is saved as profile (?:%s|\{\w+\})\.)"/],
   ["nextSwitch", "rel", "Core/Slash.lua", /OfferReload\((?:ns\.Format\()?"(This character will use profile (?:" \.\. name \.\. "|\{profile\}) after the reload\.)"/, ["name"]],
@@ -33,7 +34,7 @@ export const FACTS = [
   ["editNote", "rel", "Core/Movers.lua", /ns\.EDIT_NOTE = "([^"]+)"/],
   ["editOpt", "rel", "Core/Options.lua", /check\("(Show these handles in the game's Edit Mode too)"/],
   ["editMissing", "rel", "Core/Profiles.lua", /ns\.Chat\((?:ns\.Format\()?"(Profile (?:" \.\. ns\.ProfileName\(\) \.\. "|\{profile\}) uses Edit Mode layout (?:" \.\. name \.\. "|\{layout\}), which this account doesn't have\.)"/, ["name", "layout"]],
-  ["footerLine", "rel", "Core/ErrorBadge.lua", /(?:errorsText\(n\) \.\. "|\{count\} errors)( caught this session: click to list them)"/],
+  ["footerLine", "rel", "Core/ErrorBadge.lua", /errorsText\(n\) \.\. "( caught this session: click to list them)"|"(\{count\} errors caught this session: click to list them)"/, ["n"]],
   ["noErrors", "rel", "Core/Slash.lua", /chat\("(No errors caught this session\.)"\)/],
   ["errorsClear", "rel", "Core/Dialog.lua", /f\.clear = button\(f, "([^"]+)"\)/],
   ["errorsReport", "rel", "Core/Dialog.lua", /f\.primary\.text:SetText\("([^"]+)"\)/],
@@ -119,7 +120,7 @@ export const SECTIONS = [
       a: `<p>A profile remembers which of the game's Edit Mode layouts you use with it. When a character loads that profile, Vanguard switches Edit Mode to the layout of that name, if your account has one. If it doesn't, Vanguard says “{editMissing}” and leaves Edit Mode as it is.</p>`,
       src: ["Core/Profiles.lua (Edit Mode layout)", "README.md (Look and layout)"] },
     { id: "errors-badge", q: "There's a red number on the addons button",
-      a: `<p>That's how many errors Vanguard caught this session. The options window's footer says the same (“&lt;n&gt; errors{footerLine}”). Click that line or type <code>/vg errors</code> to list them; the list's <strong>{errorsReport}</strong> button opens Vanguard's feedback form on a bug with the list attached, or you can paste it into a <a href="/feedback/">bug report</a> here. Its <strong>{errorsClear}</strong> button (or <code>/vg errors clear</code>) empties the list, and the number goes away. With nothing caught, <code>/vg errors</code> says “{noErrors}”</p>`,
+      a: `<p>That's how many errors Vanguard caught this session. The options window's footer says the same (“{footerLine}”). Click that line or type <code>/vg errors</code> to list them; the list's <strong>{errorsReport}</strong> button opens Vanguard's feedback form on a bug with the list attached, or you can paste it into a <a href="/feedback/">bug report</a> here. Its <strong>{errorsClear}</strong> button (or <code>/vg errors clear</code>) empties the list, and the number goes away. With nothing caught, <code>/vg errors</code> says “{noErrors}”</p>`,
       src: ["Core/ErrorBadge.lua", "Core/Slash.lua (errors)", "Core/Dialog.lua (errors window)", "README.md (Options)"] },
     { id: "language", q: "Is Vanguard in my language?",
       a: `<p>Vanguard's own text (the options window, setup, chat lines and tooltips) is in English in the current release. It runs on every client language, and names the game supplies (spells, items, zones) stay in your client's language.</p><p data-avail="next">{NEXT} The next release shows Vanguard's own text in your client's language: German, French, Spanish (Spain and Latin America), Italian, Brazilian Portuguese, Russian, Korean and Chinese (Simplified and Traditional). The translations are new and machine-drafted, so some lines will read oddly. When one does, please tell us on the <a href="/feedback/">Feedback page</a> (or with <code>/vg feedback</code> in the game): quote the line, name your language and, if you can, say how it should read. The commands you type stay English.</p><p>One known gap in the current release on a non-English client: click casting's spell groups and starter layouts, the instance prep buff checks and raid healing's class buff list look for the game's English names, so they can find nothing or list a buff you have as missing.<span data-avail="next"> The next release looks them up by id instead.</span></p>`,
