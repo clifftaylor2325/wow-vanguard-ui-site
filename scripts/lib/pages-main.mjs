@@ -759,7 +759,7 @@ function cmdFilters(c, version, loc) {
 
 // The search box over the commands, with its switches and a live count.
 function cmdSearchBox(c, version, loc) {
-  return `<div class="search" data-target="#cmd-list" data-items=".cmd" data-noun="commands" data-noun-one="command">
+  return `<div class="search" data-target="#cmd-list" data-items=".cmd" data-groups=".cmd-group" data-noun="commands" data-noun-one="command">
   <label for="cmd-q" class="search-label">${loc.t("cmd.search")}</label>
   <input id="cmd-q" type="search" placeholder="${esc(loc.text("cmd.placeholder"))}" autocomplete="off">
   ${cmdFilters(c, version, loc)}

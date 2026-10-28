@@ -188,6 +188,12 @@ function countedRows(html) {
   return { tags, avail: (...a) => tags.filter((t) => a.some((x) => t.includes(`data-avail="${x}"`))).length };
 }
 
+test("the Commands search hides groups with no match, as Features and Settings do", () => {
+  for (const dir of LANG_DIRS) {
+    assert.match(page(`${dir}commands`), /<div class="search" data-target="#cmd-list" data-items="\.cmd" data-groups="\.cmd-group"/, `${dir}commands search box needs data-groups`);
+  }
+});
+
 test("the Settings counter counts only setting rows, so it matches the header", () => {
   const html = page("settings");
   // "N settings in vX · M in the next release", or just "N settings in vX" when the pinned source is the release.

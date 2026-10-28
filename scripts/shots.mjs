@@ -108,9 +108,21 @@ async function checkSettingsCount(page, base, failures) {
   report(failures, `/settings/ next release hidden: "${r.count}" (header ${want})`, r.count === `${want} settings shown`);
 }
 
+// A Commands search shows rows, not just a count: groups with a match open, the rest are hidden.
+async function checkCommandRows(page, base, failures) {
+  await page.goto(base + "/commands/", { waitUntil: "load" });
+  const r = await searchFor(page, "reset");
+  const rows = await page.evaluate(() => ({
+    visible: [...document.querySelectorAll("tr.cmd")].filter((tr) => tr.getClientRects().length).length,
+    collapsed: [...document.querySelectorAll(".cmd-group")].filter((g) => !g.hidden && g.classList.contains("collapsed")).length
+  }));
+  report(failures, `/commands/ "reset": ${r.count}; ${rows.visible} rows visible, ${rows.collapsed} shown groups still collapsed`, rows.visible > 0 && rows.collapsed === 0);
+}
+
 // The search checks for Commands and Settings, at 390px.
 async function checkSearch(browser, base, failures) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await checkCommandRows(page, base, failures);
   await checkNoMatch(page, base, "/commands/", "commands", failures);
   await checkNoMatch(page, base, "/settings/", "settings", failures);
   await checkSettingsCount(page, base, failures);
