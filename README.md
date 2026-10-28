@@ -60,6 +60,12 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
 - Every language has a release feed (Atom) at `/changelog/feed.xml` (`/de/changelog/feed.xml`, …), one entry per release with the Changelog's notes, linked from every page's head and from the Changelog. A Discord feed bot can post each release from it.
 - Features ends with the other addons Vanguard notices at login, read from `CX.OVERLAPS` in the addon's `Modules/Coexist.lua`. The Feedback form suggests up to three Troubleshooting answers whose question shares a word with a bug's summary.
 
+## Search, area pages and Markdown copies
+
+- The header (from 900px wide) and the top of the Menu drawer hold a site-wide search. The build writes each language's index, `search.json` (`/de/search.json`, …), from the built pages (`scripts/lib/search-index.mjs`): every page, every section with an id, every module card, setting and command, each with a short snippet. `site.js` loads it the first time the box is used and lists up to eight places that hold every word typed. A next-release entry shows only while the switch is on. Without scripts the box isn't shown.
+- Each feature area has its own page under Features (`/features/unit-frames/`, `areaPages()` in `pages-main.mjs`), with the same module cards as Features, open. Features links each one from its area's section, and they're in the sitemap. The areas are `AREAS` in `scripts/lib/model.mjs`; a module that isn't in one lands under "Other".
+- Every English page has a plain Markdown copy beside it (`/install/index.md`), made from the built page's `<main>` by `scripts/lib/markdown.mjs`, and `/llms.txt` lists them for AI tools ([llmstxt.org](https://llmstxt.org/)). `_headers` serves them as Markdown and plain text.
+
 ## Languages
 
 English is at the site root. Each other language has a folder with the same paths below it (`/de/settings/`), and its own `404.html`. `locales` in `site.config.json` lists the languages published besides English, by folder code: `de`, `fr`, `es`, `es-mx`, `it`, `pt-br`, `ru`, `ko`, `zh-cn`, `zh-tw`. All ten are listed. The translations are machine drafts, published as they are (Cliff, 2026-10-26): players' feedback corrects them, and the Troubleshooting page asks for it.

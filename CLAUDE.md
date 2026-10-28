@@ -64,6 +64,7 @@ Anything only in `sourceRef` is tagged "Next release" and hidden until the reade
 - Every reference page (Features, Commands, Settings, Profiles, Troubleshooting, Changelog, Credits, Support) must fit one screen as it opens, at 1280x800 and 390x844. Sections fold with `<details>`. A section that starts open is marked `open data-open` (on phones it starts folded). Home, Install, Getting started and Screenshots show their content open instead, on phones too (`open: "always"`; Cliff, 2026-10-28), and Feedback is its form (`OPEN_PAGES` in `scripts/shots.mjs`).
 - The sidebar (`NAV`) is the only navigation; Discord and Support buttons sit above its page list. The header holds the brand and, under 900px, a language button and Menu. The footer links no pages, only the stores, Discord and X.
 - Deep links must keep working. Section ids stay on the `h2`/`h3`.
+- Each feature area also has its own page (`/features/<area>/`), and the build writes each language's `search.json` and the English Markdown copies with `/llms.txt` from the built pages. Fix a page, never those files. README.md (Search, area pages and Markdown copies) has the detail.
 
 ## Deploying
 

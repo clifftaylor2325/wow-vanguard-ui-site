@@ -1182,5 +1182,12 @@
  "The site is hosted on Cloudflare Pages. Like any host, Cloudflare sees the requests your browser makes, under its own privacy policy.": "Die Seite wird über Cloudflare Pages bereitgestellt. Wie jeder Host sieht Cloudflare die Anfragen deines Browsers, nach seiner eigenen Datenschutzerklärung.",
  "The Feedback page loads Cloudflare Turnstile to stop spam reports. What a report holds and how long anything is kept is under <a href=\"/feedback/#privacy\">Where your report goes</a>.": "Die Feedback-Seite lädt Cloudflare Turnstile, um Spam-Berichte zu verhindern. Was ein Bericht enthält und wie lange etwas aufbewahrt wird, steht unter <a href=\"/feedback/#privacy\">Wohin dein Bericht geht</a>.",
  "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "Links zu CurseForge, Wago, Ko-fi, Discord und X führen zu diesen Seiten, die eigene Datenschutzerklärungen haben.",
- "Close menu": "Menü schließen"
+ "Close menu": "Menü schließen",
+ "Search the site": "Website durchsuchen",
+ "Nothing on the site matches that.": "Auf der Website passt nichts dazu.",
+ "The search couldn't load. Check your connection and try again.": "Die Suche konnte nicht geladen werden. Prüfe deine Verbindung und versuche es noch einmal.",
+ "Open the {area} page": "Seite „{area}“ öffnen",
+ "<a href=\"/features/\">Every area is on Features</a>": "<a href=\"/features/\">Alle Bereiche stehen unter Funktionen</a>",
+ "Vanguard's {area} modules: what each one does, and its settings and commands.": "Die Vanguard-Module für {area}: was jedes macht, mit seinen Einstellungen und Befehlen.",
+ "Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands.": "Jedes Modul dieses Teils von Vanguard, in den Worten des Addons. Öffne <strong>Mehr</strong> auf einer Karte für seine Einstellungen und Befehle."
 }

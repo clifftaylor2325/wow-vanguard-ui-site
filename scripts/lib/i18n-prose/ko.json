@@ -1175,5 +1175,12 @@
  "The site is hosted on Cloudflare Pages. Like any host, Cloudflare sees the requests your browser makes, under its own privacy policy.": "이 사이트는 Cloudflare Pages에서 호스팅됩니다. 다른 호스트와 마찬가지로 Cloudflare는 자체 개인정보 처리방침에 따라 브라우저의 요청을 봅니다.",
  "The Feedback page loads Cloudflare Turnstile to stop spam reports. What a report holds and how long anything is kept is under <a href=\"/feedback/#privacy\">Where your report goes</a>.": "피드백 페이지는 스팸 보고를 막기 위해 Cloudflare Turnstile을 불러옵니다. 보고서에 담기는 내용과 보관 기간은 <a href=\"/feedback/#privacy\">보고서가 가는 곳</a>에 있습니다.",
  "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "CurseForge, Wago, Ko-fi, Discord, X 링크는 해당 사이트로 이동하며, 각 사이트에는 자체 개인정보 처리방침이 있습니다.",
- "Close menu": "메뉴 닫기"
+ "Close menu": "메뉴 닫기",
+ "Search the site": "사이트 검색",
+ "Nothing on the site matches that.": "사이트에 일치하는 내용이 없습니다.",
+ "The search couldn't load. Check your connection and try again.": "검색을 불러오지 못했습니다. 연결을 확인하고 다시 시도하세요.",
+ "Open the {area} page": "{area} 페이지 열기",
+ "<a href=\"/features/\">Every area is on Features</a>": "<a href=\"/features/\">모든 영역은 기능 페이지에 있습니다</a>",
+ "Vanguard's {area} modules: what each one does, and its settings and commands.": "Vanguard의 {area} 모듈: 각 모듈이 하는 일과 설정, 명령어.",
+ "Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands.": "Vanguard의 이 영역에 있는 모든 모듈을 애드온의 말 그대로 보여 줍니다. 카드의 <strong>더 보기</strong>를 열면 설정과 명령어가 나옵니다."
 }

@@ -1196,5 +1196,12 @@
  "The site is hosted on Cloudflare Pages. Like any host, Cloudflare sees the requests your browser makes, under its own privacy policy.": "Сайт размещён на Cloudflare Pages. Как и любой хостинг, Cloudflare видит запросы вашего браузера в рамках своей политики конфиденциальности.",
  "The Feedback page loads Cloudflare Turnstile to stop spam reports. What a report holds and how long anything is kept is under <a href=\"/feedback/#privacy\">Where your report goes</a>.": "Страница обратной связи загружает Cloudflare Turnstile, чтобы останавливать спам. Что содержит отчёт и сколько что хранится, описано в разделе <a href=\"/feedback/#privacy\">Куда уходит ваш отчёт</a>.",
  "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "Ссылки на CurseForge, Wago, Ko-fi, Discord и X ведут на эти сайты, у которых свои политики конфиденциальности.",
- "Close menu": "Закрыть меню"
+ "Close menu": "Закрыть меню",
+ "Search the site": "Поиск по сайту",
+ "Nothing on the site matches that.": "На сайте ничего не найдено.",
+ "The search couldn't load. Check your connection and try again.": "Не удалось загрузить поиск. Проверьте подключение и попробуйте ещё раз.",
+ "Open the {area} page": "Открыть страницу «{area}»",
+ "<a href=\"/features/\">Every area is on Features</a>": "<a href=\"/features/\">Все разделы — на странице «Возможности»</a>",
+ "Vanguard's {area} modules: what each one does, and its settings and commands.": "Модули Vanguard из раздела «{area}»: что делает каждый, его настройки и команды.",
+ "Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands.": "Каждый модуль этой части Vanguard словами самого аддона. Откройте <strong>Подробнее</strong> на карточке, чтобы увидеть настройки и команды."
 }
