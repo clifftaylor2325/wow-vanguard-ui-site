@@ -215,6 +215,14 @@ test("the language offer stays off the open drawer and leaves room under the pag
   assert.match(css, /body:has\(\.lang-offer\) \{ padding-bottom: 96px; \}/);
 });
 
+test("narrow grids can shrink below their content, so a long German title cannot widen the page", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.match(css, /\.dis-grid \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
+  assert.match(css, /\.facts \{[^}]*grid-template-columns: max-content minmax\(0, 1fr\);/);
+  assert.match(css, /\.facts dd \{[^}]*overflow-wrap: anywhere;/);
+  assert.match(css, /details\.disclosure > summary > h2 \{[^}]*overflow-wrap: anywhere;/);
+});
+
 test("the Commands search hides groups with no match, as Features and Settings do", () => {
   for (const dir of LANG_DIRS) {
     assert.match(page(`${dir}commands`), /<div class="search" data-target="#cmd-list" data-items="\.cmd" data-groups="\.cmd-group"/, `${dir}commands search box needs data-groups`);

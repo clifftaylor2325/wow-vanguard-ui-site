@@ -206,10 +206,11 @@ details.disclosure details.disclosure { background: var(--raised); border-color:
 details.disclosure.aside { margin-top: var(--sp-4); }
 details.disclosure.aside > summary { min-height: 38px; }
 details.disclosure.aside > summary > h3 { font-size: var(--fs-sm); color: var(--text2); }
-.dis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2); margin: 0 0 var(--sp-2); }
+.dis-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2); margin: 0 0 var(--sp-2); }
 .dis-grid > details.disclosure { margin: 0; }
 .dis-grid > details[open], .dis-grid > :has(> details[open]) { grid-column: 1 / -1; }
 .dis-grid > .help-entry { margin: 0; }
+details.disclosure > summary > h2 { overflow-wrap: anywhere; hyphens: auto; }
 @media (max-width: 559px) { .dis-grid { gap: 6px; } .dis-grid > details.disclosure > summary { min-height: 42px; padding: 6px 10px; gap: 8px; } .dis-grid > details.disclosure > summary > h2 { font-size: 1rem; } }
 .counts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
 details.src { margin-top: var(--sp-3); font-size: var(--fs-sm); color: var(--text2); }
@@ -260,9 +261,9 @@ html.nav-open .lang-offer { display: none; }
 .cf-box-h:empty { display: none; }
 .cf-box-note { max-width: 52ch; }
 .cf-box-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
-.facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; }
+.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px; margin: 0; }
 .facts dt { color: var(--text2); }
-.facts dd { margin: 0; }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
 .button, .cf-cta { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: var(--r-2); border: 1px solid var(--accent); background: var(--accent); color: var(--bg); font-weight: 600; text-decoration: none; cursor: pointer; font: inherit; font-weight: 600; }
 .button:hover, a.cf-cta:hover { filter: brightness(1.08); }
 .button.secondary, .button.ghost { background: transparent; color: var(--accent); }

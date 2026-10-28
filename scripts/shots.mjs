@@ -320,6 +320,18 @@ async function checkSpanishRegionOffer(browser, base, loc, failures) {
   await context.close();
 }
 
+// At 320px no page of the language scrolls sideways, folded or with every section open.
+async function checkNarrowest(browser, base, loc, failures) {
+  const page = await browser.newPage({ viewport: { width: 320, height: 700 } });
+  for (const n of NAV) {
+    await page.goto(`${base}/${loc.code}${n.path}`, { waitUntil: "load" });
+    await noSideScroll(page, `/${loc.code}${n.path} at 320px folded`, failures);
+    await page.evaluate(() => document.querySelectorAll("main details").forEach((d) => { d.open = true; }));
+    await noSideScroll(page, `/${loc.code}${n.path} at 320px all open`, failures);
+  }
+  await page.close();
+}
+
 // Every check of one published language, with screenshots of its Settings and Commands.
 async function checkLanguage(browser, base, loc, failures) {
   for (const [width, height] of [[1280, 800], [390, 844]]) {
@@ -345,6 +357,7 @@ async function checkLanguage(browser, base, loc, failures) {
   }
   await checkLangOffer(browser, base, loc, failures);
   if (loc.code === "es-mx") await checkSpanishRegionOffer(browser, base, loc, failures);
+  await checkNarrowest(browser, base, loc, failures);
 }
 
 // Entry point.
