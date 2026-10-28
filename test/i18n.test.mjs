@@ -186,7 +186,10 @@ test("Troubleshooting quotes the addon's translation of a message and a button n
   const html = helpPage(model, read, siteLocale(DE, t)).body;
   assert.ok(html.includes("„TEST-ONLY Kampf“"), "the quoted message, in the language's quotation marks");
   assert.ok(html.includes("<strong>TEST-ONLY Einrichten</strong>"), "the button's name");
-  assert.ok(html.includes("„Unlocked: drag the handles. /vg lock when done.“"), "an untranslated message stays English");
+  assert.ok(html.includes("„<span lang=\"en\">Unlocked: drag the handles. /vg lock when done.</span>“"), "an untranslated message stays English, marked lang=en");
+  assert.ok(html.includes("„TEST-ONLY Kampf“") && !html.includes("<span lang=\"en\">TEST-ONLY"), "a translated message is not marked");
+  assert.ok(/„<span lang="en">Turn any module off under Modules to keep the default one\.<\/span>“/.test(html), "a README sentence is never translated, so it is marked");
+  assert.ok(!helpPage(model, read, siteLocale()).body.includes("lang=\"en\""), "an English page marks nothing");
   assert.ok(html.includes(DE.pages.help.entries.setup.q), "the German question");
 });
 

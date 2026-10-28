@@ -308,6 +308,7 @@ function englishList(items) {
 //   text(key, values)  the site string as plain text (attributes; escape it)
 //   n(key, count, v)   the plural site string for count, as HTML
 //   addon(text)        the addon's own text in this language, English when untranslated
+//   has(text)          whether the addon translates text in this language
 //   p(english, values) a page's own sentence (HTML) in this language, English when untranslated
 //   pn(forms, count, v) the same for a count: forms is { one, other } in English, keyed by other
 //   href(path)         a site path in this language's folder
@@ -333,6 +334,7 @@ export function siteLocale(locale = ENGLISH, translations = new Map(), prose = l
       return fill(md(forms[rules.select(count)] ?? forms.other), { ...values, n: count });
     },
     addon: (text) => translations.get(text) ?? text,
+    has: (text) => translations.has(text),
     p: (english, values = {}) => {
       PROSE_USED.set(english, english);
       return fill(prose.get(english) ?? english, values);

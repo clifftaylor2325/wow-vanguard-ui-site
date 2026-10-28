@@ -299,31 +299,43 @@ function plainLua(text) {
 // A release fact that shows values (the release joins them with " .. ", the next release writes
 // an ns.Format {slot}) in the page's language: the next release's text is the Locales key. Each
 // {slot} shows as its name, taken by the slot's place in the English text. English, as the
-// release writes it, when the next release words it differently.
+// release writes it, when the next release words it differently. { key, text }: the text looked up
+// in Locales, and the text to show.
 function placeholderFact(rel, next, names, loc) {
-  if (next === null || !plainLua(next).endsWith(plainLua(rel))) return luaText(loc.addon(rel), names);
+  if (next === null || !plainLua(next).endsWith(plainLua(rel))) return { key: rel, text: luaText(loc.addon(rel), names) };
   const slots = [...next.matchAll(/\{(\w+)\}/g)].map((m) => m[1]);
-  return loc.addon(next).replace(/\{(\w+)\}/g, (_, slot) => `<${names[slots.indexOf(slot)] ?? slot}>`);
+  return { key: next, text: loc.addon(next).replace(/\{(\w+)\}/g, (_, slot) => `<${names[slots.indexOf(slot)] ?? slot}>`) };
+}
+
+// A quoted text to show, noted in `english` when it stays English on a translated page (the addon
+// has no translation of it, as with the README's sentences), so fill() marks it lang="en".
+function shown(text, key, english, loc) {
+  if (!loc.english && !loc.has(key) && /[A-Za-z]{2}/.test(text)) english.add(text);
+  return text;
 }
 
 // One fact from FACTS: the captured text, or null when it isn't in the code
 // ("both" needs the same text in the current release and the next, a %s and a
 // {name} slot being the same), in the page's language when the addon translates
 // that text (English otherwise; the next release's wording is the one translated).
-function readFact(read, [, where, file, re, names], loc) {
+function readFact(read, [, where, file, re, names], loc, english) {
   const one = (ref) => grab(read[ref](file), re);
   const same = (a, b) => a !== null && b !== null && luaText(a, names) === luaText(b, names);
   const raw = where === "both" ? (same(one("rel"), one("next")) ? one("next") : null) : one(where);
   if (raw === null) return null;
-  return where === "rel" && names ? placeholderFact(raw, one("next"), names, loc) : luaText(loc.addon(raw), names);
+  const { key, text } = where === "rel" && names ? placeholderFact(raw, one("next"), names, loc) : { key: raw, text: luaText(loc.addon(raw), names) };
+  return shown(text, key, english, loc);
 }
 
 // Every fact the help page quotes, plus the version and the import reasons.
 function helpFacts(model, read, loc) {
-  const facts = { v: model.version };
-  for (const f of FACTS) facts[f[0]] = readFact(read, f, loc);
+  const facts = { v: model.version, english: new Set() };
+  for (const f of FACTS) facts[f[0]] = readFact(read, f, loc, facts.english);
   // Releases before 0.4.0 name the addon ForeverUI in these reasons; read as Vanguard, they're the same.
-  const reasons = (ref) => [...(read[ref]("Core/Serialize.lua") || "").matchAll(/return nil, "([^"]+)"/g)].map((m) => loc.addon(m[1].replace("ForeverUI", "Vanguard")));
+  const reasons = (ref) => [...(read[ref]("Core/Serialize.lua") || "").matchAll(/return nil, "([^"]+)"/g)].map((m) => {
+    const key = m[1].replace("ForeverUI", "Vanguard");
+    return shown(loc.addon(key), key, facts.english, loc);
+  });
   const rel = reasons("rel");
   // The current release's reasons: a newer release may add some, and the page describes the current one.
   facts.reasons = rel.length ? rel : null;
@@ -338,12 +350,13 @@ function keysOf(text) {
 // A text with its {key}s filled in: escaped text, a list for a list, the badges for {NEXT} and
 // {RELOAD}, and {ui:Text} the addon's own word for a button or page, in the page's language.
 function fill(text, facts, loc, words) {
-  const quote = (t) => words.page.quote.replace("{text}", esc(t));
+  const say = (t) => (facts.english.has(t) ? `<span lang="en">${esc(t)}</span>` : esc(t));
+  const quote = (t) => words.page.quote.replace("{text}", say(t));
   return text.replace(/\{ui:([^}]+)\}/g, (_, w) => esc(loc.addon(w))).replace(/\{(\w+)\}/g, (_, k) => {
     if (k === "NEXT") return nextBadge(loc);
     if (k === "RELOAD") return reloadBadge(loc);
     const v = facts[k];
-    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>${quote(r)}</li>`).join("")}</ul>` : esc(v);
+    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>${quote(r)}</li>`).join("")}</ul>` : say(v);
   });
 }
 
