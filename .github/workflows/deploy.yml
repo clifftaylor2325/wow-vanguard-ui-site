@@ -30,6 +30,9 @@ concurrency:
 
 jobs:
   deploy:
+    # Only main goes to production (--branch main below): a run started by hand from another
+    # branch is skipped. Called from check.yml or feedback-setup.yml on main, github.ref is main.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
