@@ -45,6 +45,8 @@ export const ENGLISH_STRINGS = {
   "lang.label": "Language",
   "lang.offer": "Read this site in English",
   "lang.dismiss": "No thanks",
+  "nav.label": "Main",
+  "social.imageAlt": "Vanguard's crest, two swords crossed behind a shield bearing a V, beside the name",
   "group.Get started": "Get started",
   "group.Learn": "Learn",
   "group.Reference": "Reference",

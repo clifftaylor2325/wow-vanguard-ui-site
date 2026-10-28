@@ -339,6 +339,17 @@ test("the language switcher sits at the sidebar's foot, with this page in every 
   }
 });
 
+test("the sidebar landmark and the link-preview image description are in the page's language", () => {
+  for (const l of ALL) {
+    const h = html(folder(l), "/settings/");
+    assert.ok(h.includes(`<nav class="nav sidebar" aria-label="${l.strings["nav.label"]}" id="site-nav">`), `${l.code} nav label`);
+    assert.ok(h.includes(`<meta property="og:image:alt" content="${l.strings["social.imageAlt"].replace(/&/g, "&amp;")}">`), `${l.code} og:image:alt`);
+    if (l === ENGLISH) continue;
+    assert.notEqual(l.strings["nav.label"], ENGLISH_STRINGS["nav.label"], `${l.code} nav label is translated`);
+    assert.notEqual(l.strings["social.imageAlt"], ENGLISH_STRINGS["social.imageAlt"], `${l.code} image description is translated`);
+  }
+});
+
 test("the header's language button names this language and opens this page in every language", () => {
   for (const l of ALL) {
     const h = html(folder(l), "/settings/");

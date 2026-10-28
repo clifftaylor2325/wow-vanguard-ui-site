@@ -262,7 +262,7 @@ export function hreflangTags(alts) {
 // The page's canonical URL and the Open Graph and Twitter card tags, so a link pasted in Discord,
 // Reddit or a forum unfurls with the crest. Only real pages get them (the 404 page has no URL of
 // its own); every page shares the one Open Graph image.
-export function socialTags({ path, title, description, site }) {
+export function socialTags({ path, title, description, imageAlt, site }) {
   if (!site.url || path === "/404") return "";
   const url = `${site.url}${path}`;
   return [
@@ -275,7 +275,7 @@ export function socialTags({ path, title, description, site }) {
     `<meta property="og:image" content="${esc(site.url)}/assets/og-image.png">`,
     `<meta property="og:image:width" content="1200">`,
     `<meta property="og:image:height" content="630">`,
-    `<meta property="og:image:alt" content="Vanguard's crest, two swords crossed behind a shield bearing a V, beside the name">`,
+    `<meta property="og:image:alt" content="${esc(imageAlt)}">`,
     `<meta name="twitter:card" content="summary_large_image">`,
     ...(X_URL ? [`<meta name="twitter:site" content="${esc(X_HANDLE)}">`] : []),
   ].join("\n") + "\n";
@@ -354,7 +354,7 @@ export function layout({ path, title, description, body, site, scripts = [], loc
   const fullTitle = pageTitle(path, title, loc);
   if (loc.english || !translated) description = SEO[path]?.description || description;
   const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">${loc.t("menu")}</button>`;
-  const nav = `<nav class="nav sidebar" aria-label="Main" id="site-nav">${navCommunity(loc)}${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
+  const nav = `<nav class="nav sidebar" aria-label="${esc(loc.text("nav.label"))}" id="site-nav">${navCommunity(loc)}${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
   const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${menuPaths(localiseLinks(body, loc))}\n</main>`;
   // An asset's URL with the build's version query (the plain path if it has none).
   const asset = (p) => site.assets?.[p] || p;
@@ -367,7 +367,7 @@ export function layout({ path, title, description, body, site, scripts = [], loc
 <meta name="description" content="${esc(description)}">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="${esc(site.theme.bg)}">
-${socialTags({ path: path === "/404" ? path : loc.href(path), title: fullTitle, description, site })}${hreflangTags(alts)}<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
+${socialTags({ path: path === "/404" ? path : loc.href(path), title: fullTitle, description, imageAlt: loc.text("social.imageAlt"), site })}${hreflangTags(alts)}<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 ${path === "/" && loc.english && site.url ? homeJsonLd(site, description) : ""}<link rel="preload" href="/fonts/FiraSansCondensed-Medium.woff2" as="font" type="font/woff2" crossorigin>
