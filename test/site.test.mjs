@@ -381,8 +381,7 @@ test("no GitHub links in the output, and the author is only ever Cliff Hearthval
       else if (/\.(html|css|js|json)$/.test(e.name)) {
         const t = fs.readFileSync(p, "utf8");
         if (/github\.com/i.test(t)) bad.push(`${p}: github.com link`);
-        // The Ko-fi page's address is its account name, which only Ko-fi can change.
-        if (/Clifton|Taylor|clifftaylor/i.test(SUPPORT.reduce((out, s) => out.replaceAll(s.url, ""), t))) bad.push(`${p}: names the author other than as Cliff Hearthvale`);
+        if (/Clifton|Taylor|clifftaylor/i.test(t)) bad.push(`${p}: names the author other than as Cliff Hearthvale`);
       }
     }
   };
