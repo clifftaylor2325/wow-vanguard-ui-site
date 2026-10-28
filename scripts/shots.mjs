@@ -281,6 +281,14 @@ async function checkLocaleSearch(page, base, loc, failures) {
   report(failures, `/${loc.code}/settings/ "zzqqxx": ${r.count}; message: ${r.empty}`, !/ shown$/.test(r.count) && (r.empty || "").startsWith(want));
 }
 
+// A search typed without accents finds the accented word (French: reinitialiser, Réinitialiser).
+async function checkAccentSearch(page, base, failures) {
+  await page.goto(`${base}/fr/settings/`, { waitUntil: "load" });
+  const plain = await searchFor(page, "reinitialiser");
+  const accented = await searchFor(page, "RÉINITIALISER");
+  report(failures, `/fr/settings/ "reinitialiser": ${plain.count}; "RÉINITIALISER": ${accented.count}`, plain.empty === null && plain.count === accented.count);
+}
+
 // The language select opens the same page in the language picked, keeping the section link.
 async function checkLangSelect(page, base, loc, failures) {
   await page.goto(`${base}/settings/#general`, { waitUntil: "load" });
@@ -400,6 +408,7 @@ async function checkLanguage(browser, base, loc, failures) {
     }
     if (width === 390) {
       await checkLocaleSearch(page, base, loc, failures);
+      if (loc.code === "fr") await checkAccentSearch(page, base, failures);
       await checkLangMenu(page, base, loc, failures);
     } else await checkLangSelect(page, base, loc, failures);
     await page.close();

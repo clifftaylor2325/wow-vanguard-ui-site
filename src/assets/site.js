@@ -36,9 +36,17 @@
     for (var i = 0; i < open.length; i++) open[i].open = false;
   }
 
-  // Lowercase text of an element's search data.
+  // Text as the search compares it: lowercase, with accents and composed forms
+  // taken apart, so "reinitialiser" finds "Réinitialiser" however either is typed.
+  function fold(text) {
+    var plain = String(text);
+    if (plain.normalize) plain = plain.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return plain.toLowerCase();
+  }
+
+  // Folded text of an element's search data.
   function hay(el) {
-    return (el.getAttribute("data-search") || el.textContent || "").toLowerCase();
+    return fold(el.getAttribute("data-search") || el.textContent || "");
   }
 
   // Reads one search form: <div class="search" data-target="#list" data-items=".item">.
@@ -140,7 +148,7 @@
   // Filters the list by the search words and boxes, then updates the counter and the no-match message.
   function apply(s) {
     var query = s.input.value.trim();
-    var shown = filterItems(s, query.toLowerCase().split(/\s+/).filter(Boolean));
+    var shown = filterItems(s, fold(query).split(/\s+/).filter(Boolean));
     if (s.groupSel) hideEmptyGroups(s, query !== "");
     if (s.count) s.count.textContent = countText(s.box, shown);
     showEmpty(s, shown, query);

@@ -256,6 +256,13 @@ test("the language answer hides its next-release sentences the same way in every
   for (const dir of LANG_DIRS) assert.equal(nextParts(page(`${dir}help`)), 2, `${dir}help: same gating as English`);
 });
 
+test("search folds accents on both sides, with one helper", () => {
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  assert.equal((js.match(/function fold\(/g) || []).length, 1);
+  assert.ok(js.includes('normalize("NFD")') && js.includes("fold(query)") && js.includes('fold(el.getAttribute("data-search")'), "the words typed and the list's text are both folded");
+  assert.ok(!js.includes("query.toLowerCase()"), "no second way to lowercase the query");
+});
+
 test("the Commands search hides groups with no match, as Features and Settings do", () => {
   for (const dir of LANG_DIRS) {
     assert.match(page(`${dir}commands`), /<div class="search" data-target="#cmd-list" data-items="\.cmd" data-groups="\.cmd-group"/, `${dir}commands search box needs data-groups`);
