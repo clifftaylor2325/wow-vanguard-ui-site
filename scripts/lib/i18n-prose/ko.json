@@ -383,7 +383,6 @@
  "Only what you changed is kept, and only frames' spot, scale, opacity and anchors, the info strip, menu bar and XP bar visibility, the info strip's parts and the nameplates' levels, threat colors, target border and quest marks, and the Calm HUD can be recorded.": "바꾼 것만 유지되며, 기록할 수 있는 것은 프레임의 위치, 크기, 투명도, 앵커, 정보 막대, 메뉴 막대, 경험치 막대의 표시 여부, 정보 막대의 구성, 이름표의 레벨, 위협 수준 색, 대상 테두리, 퀘스트 표시, 차분한 HUD뿐입니다.",
  "Your profile is always saved and exported with your own values, and profiles carry their situations.": "프로필은 언제나 내 값으로 저장되고 내보내지며, 프로필은 자신의 상황 설정을 함께 가집니다.",
  "Record a different layout and settings for raids, PvP, instances or resting: pick what to record for, move frames and change settings, then save. They apply out of combat as you move between them, and leaving puts your own layout back.": "공격대, PvP, 인스턴스, 휴식 중에 쓸 배치와 설정을 따로 기록하세요. 기록할 대상을 고르고, 프레임을 옮기고 설정을 바꾼 다음 저장하면 됩니다. 이들은 전투 중이 아닐 때 상황이 바뀌면 적용되며, 벗어나면 내 배치로 돌아옵니다.",
- "Other": "기타",
  "It is off until you turn it on under Unit frames, and it needs a reload.": "개체창에서 켜기 전까지는 꺼져 있으며, 다시 불러와야 합니다.",
  "Each line is a name and a percentage, such as “Name 87%”.": "각 줄은 이름과 퍼센트이며, “Name 87%” 같은 형식입니다.",
  "It updates in combat, since nothing in it is protected.": "보호된 것이 없으므로 전투 중에도 갱신됩니다.",
@@ -652,7 +651,6 @@
  "What do you want?": "무엇을 원하시나요?",
  "Part of Vanguard": "Vanguard의 부분",
  "Choose one": "하나를 고르세요",
- "Other modules": "다른 모듈",
  "Something else": "그 외",
  "A command": "명령어",
  "A setting": "설정",
@@ -1176,5 +1174,6 @@
  "Your browser keeps two choices of yours on your own device: the language you picked and whether to show what's coming in the next release.": "브라우저는 내 기기에 두 가지 선택만 저장합니다: 고른 언어, 그리고 다음 버전에 나올 내용을 표시할지 여부.",
  "The site is hosted on Cloudflare Pages. Like any host, Cloudflare sees the requests your browser makes, under its own privacy policy.": "이 사이트는 Cloudflare Pages에서 호스팅됩니다. 다른 호스트와 마찬가지로 Cloudflare는 자체 개인정보 처리방침에 따라 브라우저의 요청을 봅니다.",
  "The Feedback page loads Cloudflare Turnstile to stop spam reports. What a report holds and how long anything is kept is under <a href=\"/feedback/#privacy\">Where your report goes</a>.": "피드백 페이지는 스팸 보고를 막기 위해 Cloudflare Turnstile을 불러옵니다. 보고서에 담기는 내용과 보관 기간은 <a href=\"/feedback/#privacy\">보고서가 가는 곳</a>에 있습니다.",
- "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "CurseForge, Wago, Ko-fi, Discord, X 링크는 해당 사이트로 이동하며, 각 사이트에는 자체 개인정보 처리방침이 있습니다."
+ "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "CurseForge, Wago, Ko-fi, Discord, X 링크는 해당 사이트로 이동하며, 각 사이트에는 자체 개인정보 처리방침이 있습니다.",
+ "Close menu": "메뉴 닫기"
 }

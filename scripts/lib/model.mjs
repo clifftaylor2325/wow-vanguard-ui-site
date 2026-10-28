@@ -9,13 +9,13 @@ import { defaultLabel } from "./extract.mjs";
 // isn't listed still shows, under "Other".
 export const AREAS = [
   ["Unit frames", ["UnitFrames", "CastBars", "FrameAuras", "PlayerAuras", "ComboPoints", "ClassBars", "PowerTicks", "SwingTimer", "UnitExtras", "PartyExtras"]],
-  ["Raid and group", ["RaidFrames", "RaidAuras", "RaidHealing", "RaidStatus", "MainTanks", "RaidTools", "ClickCast", "BossDocks"]],
-  ["Action bars", ["ActionBars", "SpecialBars", "DataBars"]],
+  ["Raid and group", ["RaidFrames", "RaidAuras", "RaidHealing", "RaidStatus", "MainTanks", "RaidTools", "ClickCast", "BossDocks", "GroupThreat", "Rolls", "OfficerLoot", "GroupBoard"]],
+  ["Action bars", ["ActionBars", "SpecialBars", "DataBars", "CooldownGaps", "CooldownGlow", "CooldownKeys", "SpellRanks"]],
   ["Map and HUD", ["Minimap", "MinimapButtons", "InfoStrip", "MenuStrip", "BrokerStrip", "Waypoints"]],
-  ["Chat", ["Chat", "ChatExtras", "ChatWatch"]],
-  ["Items and money", ["Bags", "Merchant", "VendorMemory", "AuctionHelper", "Errands", "Inventory", "Upgrades"]],
-  ["Quests", ["QuestDialog", "QuestTracker", "QuestLog", "QuestAuto"]],
-  ["Comfort and more", ["AfkScreen", "AutoAccept", "GameAlerts", "GameTools", "FightHistory", "InstancePrep", "Windows", "Tooltips", "Nameplates", "Situations"]],
+  ["Chat", ["Chat", "ChatExtras", "ChatWatch", "ChatFilter", "ChatBubbles", "ChatHistory", "ChatWindows"]],
+  ["Items and money", ["Bags", "Merchant", "VendorMemory", "AuctionHelper", "Errands", "Inventory", "Upgrades", "CraftQueue", "MailTools", "CharacterExtras"]],
+  ["Quests", ["QuestDialog", "QuestTracker", "QuestLog", "QuestAuto", "QuestHistory", "QuestGuide", "QuestArrow", "QuestMinimap"]],
+  ["Comfort and more", ["AfkScreen", "AutoAccept", "GameAlerts", "GameTools", "FightHistory", "InstancePrep", "Windows", "Tooltips", "Nameplates", "Situations", "Quiet", "TalentPlanner", "Legacy", "Meter", "PetStable", "Coexist"]],
 ];
 
 // Help-line entries for one extraction: [{ keys, lines }] in help order.

@@ -26,13 +26,14 @@
   }
 
   // Whether a section marked open by default should be open now: on a phone
-  // every section starts folded, so the page fits the screen.
+  // every section starts folded, so the page fits the screen, except the
+  // steps and pictures of a content page (data-stay-open).
   function openByDefault(el) {
-    return el.hasAttribute("data-open") && !small.matches;
+    return el.hasAttribute("data-open") && (!small.matches || el.hasAttribute("data-stay-open"));
   }
   function foldForSmall() {
     if (!small.matches) return;
-    var open = document.querySelectorAll("main details[data-open]");
+    var open = document.querySelectorAll("main details[data-open]:not([data-stay-open])");
     for (var i = 0; i < open.length; i++) open[i].open = false;
   }
 
@@ -327,7 +328,7 @@
   }
 
   // The Menu button: opens the nav as a drawer on narrow screens, with a
-  // backdrop; Escape, the backdrop or the button close it.
+  // backdrop; Escape, the backdrop, the drawer's Close button or the Menu button close it.
   function wireNav() {
     var btn = document.querySelector(".nav-toggle");
     var nav = document.getElementById("site-nav");
@@ -348,6 +349,8 @@
       if (on) { var first = nav.querySelector("a"); if (first) first.focus(); }
     };
     btn.addEventListener("click", function () { open(!nav.classList.contains("open")); });
+    var close = nav.querySelector(".nav-close");
+    if (close) close.addEventListener("click", function () { open(false); btn.focus(); });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && nav.classList.contains("open")) { open(false); btn.focus(); }
     });

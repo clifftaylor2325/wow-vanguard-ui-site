@@ -385,7 +385,6 @@
  "Only what you changed is kept, and only frames' spot, scale, opacity and anchors, the info strip, menu bar and XP bar visibility, the info strip's parts and the nameplates' levels, threat colors, target border and quest marks, and the Calm HUD can be recorded.": "Nur was du geändert hast, wird behalten, und nur Stelle, Skalierung, Deckkraft und Anker der Fenster, die Sichtbarkeit von Infoleiste, Menüleiste und EP-Leiste, die Teile der Infoleiste sowie Stufen, Bedrohungsfarben, Zielrand und Questmarkierungen der Namensplaketten und das Ruhige HUD lassen sich aufnehmen.",
  "Your profile is always saved and exported with your own values, and profiles carry their situations.": "Dein Profil wird immer mit deinen eigenen Werten gespeichert und exportiert, und Profile tragen ihre Situationen mit.",
  "Record a different layout and settings for raids, PvP, instances or resting: pick what to record for, move frames and change settings, then save. They apply out of combat as you move between them, and leaving puts your own layout back.": "Nimm ein anderes Layout und andere Einstellungen für Schlachtzüge, PvP, Instanzen oder Erholung auf: Wähle, wofür du aufnimmst, verschiebe Fenster und ändere Einstellungen, dann speichere. Sie wirken außerhalb des Kampfes, wenn du zwischen ihnen wechselst, und beim Verlassen kommt dein eigenes Layout zurück.",
- "Other": "Andere",
  "It is off until you turn it on under Unit frames, and it needs a reload.": "Es ist aus, bis du es unter Einheitenfenster einschaltest, und es braucht ein Neuladen.",
  "Each line is a name and a percentage, such as “Name 87%”.": "Jede Zeile ist ein Name und ein Prozentwert, etwa „Name 87 %“.",
  "It updates in combat, since nothing in it is protected.": "Es aktualisiert sich im Kampf, da nichts darin geschützt ist.",
@@ -656,7 +655,6 @@
  "What do you want?": "Was wünschst du dir?",
  "Part of Vanguard": "Teil von Vanguard",
  "Choose one": "Bitte wählen",
- "Other modules": "Andere Module",
  "Something else": "Etwas anderes",
  "A command": "Ein Befehl",
  "A setting": "Eine Einstellung",
@@ -1183,5 +1181,6 @@
  "Your browser keeps two choices of yours on your own device: the language you picked and whether to show what's coming in the next release.": "Dein Browser speichert zwei deiner Entscheidungen auf deinem eigenen Gerät: die gewählte Sprache und ob angezeigt wird, was in der nächsten Version kommt.",
  "The site is hosted on Cloudflare Pages. Like any host, Cloudflare sees the requests your browser makes, under its own privacy policy.": "Die Seite wird über Cloudflare Pages bereitgestellt. Wie jeder Host sieht Cloudflare die Anfragen deines Browsers, nach seiner eigenen Datenschutzerklärung.",
  "The Feedback page loads Cloudflare Turnstile to stop spam reports. What a report holds and how long anything is kept is under <a href=\"/feedback/#privacy\">Where your report goes</a>.": "Die Feedback-Seite lädt Cloudflare Turnstile, um Spam-Berichte zu verhindern. Was ein Bericht enthält und wie lange etwas aufbewahrt wird, steht unter <a href=\"/feedback/#privacy\">Wohin dein Bericht geht</a>.",
- "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "Links zu CurseForge, Wago, Ko-fi, Discord und X führen zu diesen Seiten, die eigene Datenschutzerklärungen haben."
+ "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "Links zu CurseForge, Wago, Ko-fi, Discord und X führen zu diesen Seiten, die eigene Datenschutzerklärungen haben.",
+ "Close menu": "Menü schließen"
 }

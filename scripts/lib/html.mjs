@@ -181,10 +181,12 @@ export function glance(items) {
 
 // A collapsed section: the heading (with its id) is the summary, the body
 // opens on click. `open` sections start open (and data-open lets the search
-// put them back). `next` marks a section only the next release has.
+// put them back); on a phone they start folded too, unless `open` is "always"
+// (the steps and pictures of a content page). `next` marks a section only the
+// next release has.
 export function disclosure({ id, title, body, level = 2, open = false, next = false, meta = "", cls = "", attrs = "" }) {
   const h = `h${level}`;
-  return `<details class="disclosure${cls ? ` ${cls}` : ""}"${open ? " open data-open" : ""}${next ? ' data-avail="next"' : ""}${attrs}>
+  return `<details class="disclosure${cls ? ` ${cls}` : ""}"${open ? " open data-open" : ""}${open === "always" ? " data-stay-open" : ""}${next ? ' data-avail="next"' : ""}${attrs}>
 <summary><${h} id="${id}">${title}</${h}>${meta ? `<span class="dis-meta">${meta}</span>` : ""}</summary>
 <div class="dis-body">
 ${body}
@@ -373,7 +375,7 @@ export function layout({ path, title, description, body, site, scripts = [], loc
   const fullTitle = pageTitle(path, title, loc);
   if (loc.english || !translated) description = SEO[path]?.description || description;
   const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">${loc.t("menu")}</button>`;
-  const nav = `<nav class="nav sidebar" aria-label="${esc(loc.text("nav.label"))}" id="site-nav">${navCommunity(loc)}${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
+  const nav = `<nav class="nav sidebar" aria-label="${esc(loc.text("nav.label"))}" id="site-nav"><button class="nav-close" type="button">${loc.p("Close menu")}</button>${navCommunity(loc)}${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
   const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${menuPaths(localiseLinks(body, loc))}\n</main>`;
   // An asset's URL with the build's version query (the plain path if it has none).
   const asset = (p) => site.assets?.[p] || p;
@@ -456,10 +458,24 @@ export function avail(inRel, inNext) {
   return inRel && inNext ? "rel" : inNext ? "next" : "old";
 }
 
+// The widest a screenshot is shown that has a smaller copy (src/assets/shots/<file>-800w.webp).
+export const SMALL_SHOT_W = 800;
+
+// How wide a screenshot is shown, for the browser's pick between the two copies: in the
+// Screenshots grid, across the whole content column (Home), or beside a feature.
+export const SHOT_SIZES = {
+  grid: "(max-width: 559px) calc(100vw - 32px), (max-width: 899px) calc(50vw - 24px), 340px",
+  wide: "(max-width: 899px) calc(100vw - 32px), 920px",
+  card: "(max-width: 899px) calc(100vw - 32px), 560px",
+};
+
 // A real in-game screenshot as a figure that opens the full-size image (a `shot` from
-// scripts/lib/shots-content.mjs). A shot that shows something only the next release has hides
-// with the rest of it.
-export function shotFigure(s, { caption = true, loc = EN } = {}) {
-  const img = `<img src="/assets/shots/${esc(s.file)}.webp" width="${s.w}" height="${s.h}" alt="${esc(loc.p(s.alt))}" loading="lazy" decoding="async">`;
+// scripts/lib/shots-content.mjs). A shot wider than SMALL_SHOT_W also offers its smaller copy,
+// so a phone or a thumbnail doesn't load the full size. A shot that shows something only the
+// next release has hides with the rest of it.
+export function shotFigure(s, { caption = true, loc = EN, sizes = "card" } = {}) {
+  const full = `/assets/shots/${esc(s.file)}.webp`;
+  const set = s.w > SMALL_SHOT_W ? ` srcset="/assets/shots/${esc(s.file)}-${SMALL_SHOT_W}w.webp ${SMALL_SHOT_W}w, ${full} ${s.w}w" sizes="${SHOT_SIZES[sizes]}"` : "";
+  const img = `<img src="${full}"${set} width="${s.w}" height="${s.h}" alt="${esc(loc.p(s.alt))}" loading="lazy" decoding="async">`;
   return `<figure class="shot-fig"${s.next ? ' data-avail="next"' : ""}><a href="/assets/shots/${esc(s.file)}.webp">${img}</a>${caption ? `<figcaption>${esc(loc.p(s.caption))}</figcaption>` : ""}</figure>`;
 }
