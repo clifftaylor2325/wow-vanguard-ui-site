@@ -241,6 +241,12 @@ test("the Menu button controls the drawer it opens, and its arrows are not part 
   assert.match(fs.readFileSync(path.join(dist, "assets/site.js"), "utf8"), /\.inert = inert/, "the open drawer makes the page behind it inert");
 });
 
+test("without JavaScript the Menu button and the search boxes are hidden, since they do nothing", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.match(css, /html:not\(\.js\) \.nav-toggle, html:not\(\.js\) \.search \{ display: none; \}/);
+  assert.match(page("commands"), /<script>\(function \(d\) \{ d\.className \+= " js";/, "the js class is set by the inline script in the head");
+});
+
 test("the Commands search hides groups with no match, as Features and Settings do", () => {
   for (const dir of LANG_DIRS) {
     assert.match(page(`${dir}commands`), /<div class="search" data-target="#cmd-list" data-items="\.cmd" data-groups="\.cmd-group"/, `${dir}commands search box needs data-groups`);

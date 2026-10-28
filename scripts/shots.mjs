@@ -133,9 +133,21 @@ async function checkCopyButton(page, base, failures) {
   report(failures, `/commands/ double-click on Copy: "${during[0]}" announced "${during[1]}", back to "${after}"`, during[0] !== before && during[1] === during[0] && after === before);
 }
 
+// With JavaScript off, the Menu button and the search boxes are hidden, and the nav and the full lists show.
+async function checkNoScript(browser, base, failures) {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+  await page.goto(base + "/commands/", { waitUntil: "load" });
+  const r = await page.evaluate(() => ["nav-toggle", "search"].map((c) => getComputedStyle(document.querySelector("." + c)).display));
+  const nav = await page.evaluate(() => getComputedStyle(document.getElementById("site-nav")).visibility);
+  report(failures, `/commands/ without JavaScript: Menu ${r[0]}, search ${r[1]}, nav ${nav}`, r[0] === "none" && r[1] === "none" && nav === "visible");
+  await context.close();
+}
+
 // The search checks for Commands and Settings, at 390px.
 async function checkSearch(browser, base, failures) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await checkNoScript(browser, base, failures);
   await checkCommandRows(page, base, failures);
   await checkCopyButton(page, base, failures);
   await checkNoMatch(page, base, "/commands/", "commands", failures);
