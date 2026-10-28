@@ -290,6 +290,7 @@ html.nav-open .lang-offer { display: none; }
 .search { margin: 0 0 var(--sp-2); padding: 10px 14px; border: 1px solid var(--divider); border-radius: var(--r-3); background: var(--panel); }
 .search-label { display: block; font-weight: 600; margin-bottom: 4px; font-size: var(--fs-sm); }
 .search input[type=search] { width: 100%; font: inherit; color: var(--text); background: var(--raised); border: 1px solid var(--ui-line); border-radius: var(--r-2); padding: 8px 10px; }
+.search input[type=search]::placeholder { color: var(--muted); opacity: 1; }
 .search input[type=search]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .filters { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0 0; font-size: var(--fs-sm); }
 .filters label { display: inline-flex; align-items: center; gap: 6px; }
