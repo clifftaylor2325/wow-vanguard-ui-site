@@ -941,7 +941,7 @@ function settingsCounts(model, loc) {
   const count = (f) => pages.reduce((n, p) => n + p.rows.filter((r) => r.kind !== "header" && r.kind !== "text" && f(r)).length, 0);
   const release = loc.n("set.inRelease", count((r) => r.inRel), { version: esc(version) });
   const next = model.same ? "" : nextOnly(` · ${loc.t("set.inNext", { n: count((r) => r.inNext) })}`);
-  return `<p class="counts">${release}${next} · ${loc.n("set.pages", pages.length)}.</p>`;
+  return `<p class="counts">${loc.t("set.countsLine", { parts: `${release}${next} · ${loc.n("set.pages", pages.length)}` })}</p>`;
 }
 
 // The folded aside under the settings: reloads, defaults and what isn't listed.

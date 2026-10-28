@@ -134,6 +134,7 @@ export const ENGLISH_STRINGS = {
   "set.inRelease": { one: "**{n}** setting in v{version}", other: "**{n}** settings in v{version}" },
   "set.inNext": "**{n}** in the next release",
   "set.pages": { one: "**{n}** page", other: "**{n}** pages" },
+  "set.countsLine": "{parts}.",
   "set.search": "Search settings",
   "set.placeholder": "for example: raid, tooltip, chat",
   "set.showOld": "Show v{version}-only settings",

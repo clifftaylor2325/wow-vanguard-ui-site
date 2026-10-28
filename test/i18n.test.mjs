@@ -385,6 +385,15 @@ test("every page names its Open Graph locale after its html lang", () => {
   }
 });
 
+test("the Settings counts line ends with the language's full stop", () => {
+  for (const l of ALL) {
+    const counts = text(html(folder(l), "/settings/").match(/<p class="counts">([\s\S]*?)<\/p>/)[1]);
+    const chinese = l.code.startsWith("zh-");
+    assert.ok(counts.endsWith(chinese ? "。" : "."), `${l.code}: “${counts.slice(-12)}”`);
+    assert.ok(!chinese || !counts.endsWith("."), `${l.code} has no ASCII full stop`);
+  }
+});
+
 test("every page is translated: no main or Features card list is marked lang=en", () => {
   for (const l of LOCALES) {
     for (const n of NAV) assert.ok(!/<main id="main" tabindex="-1" lang="en">/.test(html(l.code, n.path)), `/${l.code}${n.path} main lang=en`);
