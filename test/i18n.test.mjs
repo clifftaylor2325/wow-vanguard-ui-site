@@ -378,6 +378,13 @@ test("a language's sidebar, header and footer are in that language, with no Engl
   }
 });
 
+test("every page names its Open Graph locale after its html lang", () => {
+  for (const l of ALL) {
+    const want = l === ENGLISH ? "en_US" : l.lang.replace("-", "_");
+    assert.ok(html(folder(l), "/").includes(`<meta property="og:locale" content="${want}">`), `${l.code} og:locale`);
+  }
+});
+
 test("every page is translated: no main or Features card list is marked lang=en", () => {
   for (const l of LOCALES) {
     for (const n of NAV) assert.ok(!/<main id="main" tabindex="-1" lang="en">/.test(html(l.code, n.path)), `/${l.code}${n.path} main lang=en`);
