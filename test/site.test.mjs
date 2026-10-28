@@ -188,11 +188,92 @@ function countedRows(html) {
   return { tags, avail: (...a) => tags.filter((t) => a.some((x) => t.includes(`data-avail="${x}"`))).length };
 }
 
+test("a copy button's name contains its visible text (WCAG 2.5.3), in every language", () => {
+  for (const dir of LANG_DIRS) {
+    for (const name of ["commands", "feedback"]) {
+      const buttons = [...page(`${dir}${name}`).matchAll(/<button class="copy"[^>]*>([^<]*)<\/button>/g)];
+      for (const [tag, text] of buttons) {
+        const label = tag.match(/aria-label="([^"]*)"/);
+        if (label) assert.ok(label[1].toLowerCase().includes(text.toLowerCase()), `${dir}${name}: "${label[1]}" must contain "${text}"`);
+      }
+      if (name !== "commands") assert.ok(buttons.length > 0 && buttons.every(([tag]) => !tag.includes("aria-label")), `${dir}${name}: copy buttons name themselves by their text`);
+    }
+  }
+});
+
+test("copy buttons in site.js report only a copy that worked, and announce it", () => {
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  assert.match(js, /return ok;/, "fallback returns whether execCommand worked");
+  assert.match(js, /setAttribute\("role", "status"\)/, "Copied is announced in a status line");
+  assert.match(js, /clearTimeout\(btn\.copyTimer\)/, "a second click restarts the wait");
+});
+
+test("the language offer stays off the open drawer and leaves room under the page", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.match(css, /html\.nav-open \.lang-offer \{ display: none; \}/);
+  assert.match(css, /html:has\(\.lang-offer\) \{ scroll-padding-bottom: 96px; \}/);
+  assert.match(css, /body:has\(\.lang-offer\) \{ padding-bottom: 96px; \}/);
+});
+
+test("narrow grids can shrink below their content, so a long German title cannot widen the page", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.match(css, /\.dis-grid \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
+  assert.match(css, /\.facts \{[^}]*grid-template-columns: max-content minmax\(0, 1fr\);/);
+  assert.match(css, /\.facts dd \{[^}]*overflow-wrap: anywhere;/);
+  assert.match(css, /details\.disclosure > summary > h2 \{[^}]*overflow-wrap: anywhere;/);
+});
+
+test("the page title leaves 6rem each side for the Expand all button", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.match(css, /@media \(min-width: 560px\) \{[\s\S]*?\.page-hero:has\(\.expand-all\) \.page-title \{ margin-inline: 6rem; \}/);
+});
+
+test("the Menu button controls the drawer it opens, and its arrows are not part of its name", () => {
+  for (const dir of LANG_DIRS) {
+    for (const name of ["", "install", "commands", "feedback"]) {
+      const html = page(`${dir}${name}`);
+      const controls = html.match(/<button class="nav-toggle"[^>]*aria-controls="([^"]+)"/)[1];
+      assert.match(html, new RegExp(`<nav class="nav sidebar"[^>]* id="${controls}"`), `${dir}${name}: aria-controls names the nav`);
+    }
+  }
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.ok(css.includes('content: " ▾" / "";') && css.includes('content: " ▴" / "";'), "the arrows have an empty text alternative");
+  assert.match(fs.readFileSync(path.join(dist, "assets/site.js"), "utf8"), /\.inert = inert/, "the open drawer makes the page behind it inert");
+});
+
+test("without JavaScript the Menu button and the search boxes are hidden, since they do nothing", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.match(css, /html:not\(\.js\) \.nav-toggle, html:not\(\.js\) \.search \{ display: none; \}/);
+  assert.match(page("commands"), /<script>\(function \(d\) \{ d\.className \+= " js";/, "the js class is set by the inline script in the head");
+});
+
+test("the language answer hides its next-release sentences the same way in every language", () => {
+  const nextParts = (html) => {
+    const entry = html.slice(html.indexOf('id="language"'), html.indexOf('id="perf"'));
+    return (entry.match(/data-avail="next"/g) || []).length;
+  };
+  assert.equal(nextParts(page("help")), 2, "English: the next-release paragraph and the closing sentence");
+  for (const dir of LANG_DIRS) assert.equal(nextParts(page(`${dir}help`)), 2, `${dir}help: same gating as English`);
+});
+
+test("search folds accents on both sides, with one helper", () => {
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  assert.equal((js.match(/function fold\(/g) || []).length, 1);
+  assert.ok(js.includes('normalize("NFD")') && js.includes("fold(query)") && js.includes('fold(el.getAttribute("data-search")'), "the words typed and the list's text are both folded");
+  assert.ok(!js.includes("query.toLowerCase()"), "no second way to lowercase the query");
+});
+
+test("the Commands search hides groups with no match, as Features and Settings do", () => {
+  for (const dir of LANG_DIRS) {
+    assert.match(page(`${dir}commands`), /<div class="search" data-target="#cmd-list" data-items="\.cmd" data-groups="\.cmd-group"/, `${dir}commands search box needs data-groups`);
+  }
+});
+
 test("the Settings counter counts only setting rows, so it matches the header", () => {
   const html = page("settings");
   // "N settings in vX · M in the next release", or just "N settings in vX" when the pinned source is the release.
   // Greedy up to the next tag: a lazy run here let the optional next-release group match nothing, so it was never read.
-  const head = html.match(/<strong>(\d+)<\/strong> settings in v[^<]*(?:<strong>(\d+)<\/strong> in the next release)?/);
+  const head = html.match(/<strong>(\d+)<\/strong> settings in v[^<]*(?:<span data-avail="next"> · <strong>(\d+)<\/strong> in the next release<\/span>)?/);
   const rows = countedRows(html);
   assert.ok(head, "the header count is missing");
   assert.ok(rows.tags.every((t) => /class="opt-row opt-item"/.test(t)), "only setting rows may carry data-count (no notes or headings)");
@@ -200,6 +281,17 @@ test("the Settings counter counts only setting rows, so it matches the header", 
   assert.equal(rows.avail("rel", "next"), Number(head[2] ?? head[1]), "rows counted with v-only hidden must match the header's next-release count");
   if (!head[2]) assert.equal(rows.avail("next", "old"), 0, "with no next-release count, no row is next-release or release-only");
   assert.ok(fs.readFileSync(path.join(dist, "assets/site.js"), "utf8").includes('hasAttribute("data-count")'), "site.js must count data-count rows only");
+});
+
+test("the Settings counts line shows the next-release count only when the switch is on", () => {
+  for (const dir of LANG_DIRS) {
+    const line = page(`${dir}settings`).match(/<p class="counts">(.*?)<\/p>/)[1];
+    const plain = line.replace(/<span data-avail="next">.*?<\/span>/g, "");
+    const rows = countedRows(page(`${dir}settings`));
+    const hasNext = rows.avail("next", "old") > 0;
+    assert.equal(line.includes('data-avail="next"'), hasNext, `${dir}settings: the next-release count is wrapped exactly when there is one`);
+    if (hasNext) assert.equal(plain.match(/<strong>/g).length, 2, `${dir}settings: with the switch off only the release count and the page count remain`);
+  }
 });
 
 test("both searches have singular and plural nouns, a no-match message and a Clear search button", () => {
@@ -481,11 +573,12 @@ test("no garbled characters or byte-order marks in the source or the built site"
 });
 
 // A planted bad file is caught, with its file and line: a BOM, a garbled line and a UTF-16 file.
+// Capital Ã in real Portuguese words (NÃO, AÇÃO) is not garbling.
 test("the encoding check catches planted bad files", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fui-encoding-"));
   fs.writeFileSync(path.join(dir, "planted.md"), Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from("fine\nshows \u0393\u00c7\u00aa and \u00c3\u00a9 here\n", "utf8")]));
   fs.writeFileSync(path.join(dir, "out-file.txt"), Buffer.from("\ufeffhello", "utf16le"));
-  fs.writeFileSync(path.join(dir, "clean.mjs"), "// \u2026 \u201cquoted\u201d \u2192 \u00b7\n");
+  fs.writeFileSync(path.join(dir, "clean.mjs"), "// \u2026 \u201cquoted\u201d \u2192 \u00b7\nN\u00c3O A\u00c7\u00c3O S\u00c3O\n");
   const found = scanFiles(dir, ["planted.md", "out-file.txt", "clean.mjs"]);
   assert.deepEqual(found, ["planted.md:1: UTF-8 byte-order mark (save without BOM)", "planted.md:2: garbled characters", "out-file.txt:1: UTF-16 file (save it as UTF-8)"]);
   fs.rmSync(dir, { recursive: true, force: true });

@@ -14,6 +14,7 @@ import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { NAV, menuPaths } from "../scripts/lib/html.mjs";
 import { ENGLISH, ENGLISH_STRINGS, LOCALES, publishedLocales, parseLocaleLua, parseCsv, parseDraftCsv, addonTranslations, siteLocale, localiseLinks, proseOf, proseProblems } from "../scripts/lib/i18n-site.mjs";
+import { MESSAGES } from "../functions/_lib/handler.js";
 import { commandWords, commandsIn } from "../scripts/lib/commands.mjs";
 import { ENGLISH_HELP } from "../scripts/lib/help-content.mjs";
 import { helpPage, supportPage, SUPPORT_PAGE } from "../scripts/lib/pages-more.mjs";
@@ -172,6 +173,51 @@ test("Settings translates a caption written with {slots} by its game key, and sh
   assert.ok(new RegExp(`data-search="[^"]*${shown}`).test(html), "the search matches it too");
 });
 
+test("{ui:Text} in a prose line is the addon's own words, in English where it has none", () => {
+  const t = new Map([["Reload now", "TEST-ONLY Neu laden"]]);
+  const line = "Click <strong>{ui:Reload now}</strong> or <strong>{ui:Run setup}</strong> in {ui:General} → {ui:Layout} & {name}.";
+  assert.equal(siteLocale(DE, t).p(line, { name: "x" }), "Click <strong>TEST-ONLY Neu laden</strong> or <strong>Run setup</strong> in General → Layout & x.");
+  assert.equal(siteLocale().p(line, { name: "x" }), "Click <strong>Reload now</strong> or <strong>Run setup</strong> in General → Layout & x.");
+  const own = siteLocale(DE, new Map([["Reload now", "A & <B>"]]));
+  assert.equal(own.p("{ui:Reload now}"), "A &amp; &lt;B&gt;", "the addon's words are HTML-safe");
+  const prose = new Map([["{ui:Reload now} please", "Bitte {ui:Reload now}"]]);
+  assert.equal(siteLocale(DE, t, prose).p("{ui:Reload now} please"), "Bitte TEST-ONLY Neu laden", "a translation keeps the token and gets the addon's words");
+});
+
+test("a prose translation keeps every {ui:Text} of its English line", () => {
+  assert.deepEqual(proseProblems("Click {ui:Reload now}.", "Klick {ui:Reload now}.", "de", words), []);
+  assert.match(proseProblems("Click {ui:Reload now}.", "Klick „Neu laden“.", "de", words).join(), /slots\} differ/);
+});
+
+// The addon's own words, as the Locales files hold them: every English text the addon translates.
+const addonKeys = [...addonTranslations([relReader, nextReader], "deDE").keys()];
+
+test("prose never types a button, switch, message or page name the addon has; it uses {ui:Text}", () => {
+  const typed = [];
+  const literal = (key) => key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  for (const line of used.keys()) {
+    for (const m of line.matchAll(/<strong>([^<{]+)<\/strong>|“([^”{]+)”|\\?"([^"{<\\]+)\\?"/g)) {
+      const quoted = (m[1] || m[2] || m[3]).trim();
+      if (/ /.test(quoted) && addonKeys.includes(quoted)) typed.push(`“${quoted}” in: ${line.slice(0, 80)}`);
+    }
+    const bare = line.replace(/\{ui:[^}]+\}/g, "");
+    for (const key of addonKeys) {
+      if (key.length < 3 || !(bare.includes(`${key} → `) || bare.includes(` → ${key}`))) continue;
+      if (new RegExp(`(^|[^\\p{L}])${literal(key)} → |(^|[^\\p{L}]) → ${literal(key)}([^\\p{L}]|$)`, "u").test(bare)) typed.push(`${key} → in: ${line.slice(0, 80)}`);
+    }
+  }
+  assert.deepEqual(typed, []);
+});
+
+test("the addon's words used in {ui:Text} need no HTML escaping", () => {
+  const tokens = new Set([...used.keys()].flatMap((k) => [...k.matchAll(/\{ui:([^}]+)\}/g)].map((m) => m[1])));
+  assert.ok(tokens.size > 10);
+  for (const l of LOCALES) {
+    const tr = addonTranslations([relReader, nextReader], l.addon);
+    for (const token of tokens) assert.ok(!/[&<>"]/.test(tr.get(token) ?? token), `${l.code}: ${token}`);
+  }
+});
+
 test("Commands shows the addon's translation of a help line, with the command typed as in English", () => {
   const e = model.commands.entries.find((x) => x.relLines?.length && !x.changed && x.relLines[0].text);
   const l = e.relLines[0];
@@ -185,8 +231,28 @@ test("Troubleshooting quotes the addon's translation of a message and a button n
   const html = helpPage(model, read, siteLocale(DE, t)).body;
   assert.ok(html.includes("„TEST-ONLY Kampf“"), "the quoted message, in the language's quotation marks");
   assert.ok(html.includes("<strong>TEST-ONLY Einrichten</strong>"), "the button's name");
-  assert.ok(html.includes("„Unlocked: drag the handles. /vg lock when done.“"), "an untranslated message stays English");
+  assert.ok(html.includes("„<span lang=\"en\">Unlocked: drag the handles. /vg lock when done.</span>“"), "an untranslated message stays English, marked lang=en");
+  assert.ok(html.includes("„TEST-ONLY Kampf“") && !html.includes("<span lang=\"en\">TEST-ONLY"), "a translated message is not marked");
+  assert.ok(/„<span lang="en">Turn any module off under Modules to keep the default one\.<\/span>“/.test(html), "a README sentence is never translated, so it is marked");
+  assert.ok(!helpPage(model, read, siteLocale()).body.includes("lang=\"en\""), "an English page marks nothing");
   assert.ok(html.includes(DE.pages.help.entries.setup.q), "the German question");
+});
+
+test("Troubleshooting quotes a message with values by its Locales key, the values shown as <name>", () => {
+  const t = new Map([
+    ["This character will use profile {profile} after the reload.", "TEST-ONLY Profil {profile}"],
+    ["Profile {profile} uses Edit Mode layout {layout}, which this account doesn't have.", "TEST-ONLY {layout} fehlt für {profile}"],
+    ["{count} errors caught this session: click to list them", "TEST-ONLY {count} Fehler"],
+    ["opens the errors Vanguard caught this session, with stacks and counts, in the copy window (for a bug report); clear empties the list", "TEST-ONLY Fehlerliste"],
+  ]);
+  const html = helpPage(model, read, siteLocale(DE, t)).body;
+  assert.ok(html.includes("„TEST-ONLY Profil &lt;name&gt;“"), "the profile switch message");
+  assert.ok(html.includes("„TEST-ONLY &lt;layout&gt; fehlt für &lt;name&gt;“"), "slots by their place in the English text, not the translation's");
+  assert.ok(html.includes("„TEST-ONLY &lt;n&gt; Fehler“"), "the footer line");
+  assert.ok(html.includes("„TEST-ONLY Fehlerliste“"), "the /vg errors help line");
+  const english = helpPage(model, read, siteLocale()).body;
+  assert.ok(english.includes("“&lt;n&gt; errors caught this session: click to list them”"), "English keeps the whole footer line");
+  assert.ok(english.includes("“This character will use profile &lt;name&gt; after the reload.”"), "English keeps <name>");
 });
 
 test("every language's Troubleshooting page shows the entries English shows", () => {
@@ -376,6 +442,50 @@ test("a language's sidebar, header and footer are in that language, with no Engl
       for (const m of NAV) assert.ok(t.includes(text(siteLocale(l).t(`nav.${m.path}`))), `/${l.code}${n.path}: nav label for ${m.path}`);
     }
   }
+});
+
+test("every page names its Open Graph locale after its html lang", () => {
+  for (const l of ALL) {
+    const want = l === ENGLISH ? "en_US" : l.lang.replace("-", "_");
+    assert.ok(html(folder(l), "/").includes(`<meta property="og:locale" content="${want}">`), `${l.code} og:locale`);
+  }
+});
+
+test("the Settings counts line ends with the language's full stop", () => {
+  for (const l of ALL) {
+    const counts = text(html(folder(l), "/settings/").match(/<p class="counts">([\s\S]*?)<\/p>/)[1]);
+    const chinese = l.code.startsWith("zh-");
+    assert.ok(counts.endsWith(chinese ? "。" : "."), `${l.code}: “${counts.slice(-12)}”`);
+    assert.ok(!chinese || !counts.endsWith("."), `${l.code} has no ASCII full stop`);
+  }
+});
+
+test("the Feedback form carries a translation of each message the Function can answer with", () => {
+  for (const l of LOCALES) {
+    const m = html(l.code, "/feedback/").match(/<script type="application\/json" id="fb-messages">([\s\S]*?)<\/script>/);
+    const own = JSON.parse(m[1]);
+    for (const [code, english] of Object.entries(MESSAGES)) {
+      if (code === "invalid") continue;
+      assert.ok(own[english] && own[english] !== english, `${l.code}: ${code} translated`);
+    }
+  }
+});
+
+test("a Choice row's Default is one of its Values, in the page's language", () => {
+  let checked = 0;
+  for (const l of ALL) {
+    const own = siteLocale(l);
+    const cell = (row, key) => ((row.match(new RegExp(`<td data-label="${own.t(key)}">([\\s\\S]*?)</td>`)) || [])[1] || "");
+    for (const row of html(folder(l), "/settings/").match(/<tr class="opt-row opt-item"[\s\S]*?<\/tr>/g)) {
+      if (!row.includes(`class="opt-kind">${own.t("kind.cycle")}</span>`)) continue;
+      const values = text(cell(row, "set.col.values")).split(" / ");
+      const shown = text(cell(row, "set.col.default").replace(/<span[\s\S]*$/, ""));
+      if (!shown) continue;
+      checked++;
+      assert.ok(values.includes(shown), `${l.code}: Default “${shown}” is not among “${values.join(" / ")}”`);
+    }
+  }
+  assert.ok(checked > 100, `only ${checked} Choice rows with a default`);
 });
 
 test("every page is translated: no main or Features card list is marked lang=en", () => {

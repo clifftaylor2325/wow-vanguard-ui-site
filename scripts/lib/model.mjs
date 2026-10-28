@@ -66,6 +66,12 @@ function mergeCommands(rel, next) {
   return { entries: all, relKeys, nextKeys, slashes: next.commands.slashes, relSlashes: rel.commands.slashes, intro: next.commands.help[0], relIntro: rel.commands.help[0], unknown: next.commands.unknown };
 }
 
+// The release's default for a row in the words of the row's own (next release) choices, so it is one of its
+// Values and the addon translates it; the release's own label when the row has no such choice.
+function releaseDefault(row, old) {
+  return defaultLabel({ ...row, default: old.default }) ?? defaultLabel(old);
+}
+
 // Merged options pages, rows tagged with where they exist and their defaults per version.
 function mergePages(rel, next) {
   const pages = [];
@@ -76,7 +82,7 @@ function mergePages(rel, next) {
     const relRows = new Map((rp?.rows || []).map((r) => [rowKey(r), r]));
     const rows = np.rows.map((r) => {
       const old = relRows.get(rowKey(r));
-      return { ...r, inNext: true, inRel: !!old, relDefault: old ? defaultLabel(old) : null, nextDefault: defaultLabel(r) };
+      return { ...r, inNext: true, inRel: !!old, relDefault: old ? releaseDefault(r, old) : null, nextDefault: defaultLabel(r) };
     });
     for (const r of rp?.rows || []) {
       if (!np.rows.some((x) => rowKey(x) === rowKey(r))) rows.push({ ...r, inNext: false, inRel: true, relDefault: defaultLabel(r), nextDefault: null });

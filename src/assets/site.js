@@ -36,9 +36,17 @@
     for (var i = 0; i < open.length; i++) open[i].open = false;
   }
 
-  // Lowercase text of an element's search data.
+  // Text as the search compares it: lowercase, with accents and composed forms
+  // taken apart, so "reinitialiser" finds "Réinitialiser" however either is typed.
+  function fold(text) {
+    var plain = String(text);
+    if (plain.normalize) plain = plain.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return plain.toLowerCase();
+  }
+
+  // Folded text of an element's search data.
   function hay(el) {
-    return (el.getAttribute("data-search") || el.textContent || "").toLowerCase();
+    return fold(el.getAttribute("data-search") || el.textContent || "");
   }
 
   // Reads one search form: <div class="search" data-target="#list" data-items=".item">.
@@ -140,7 +148,7 @@
   // Filters the list by the search words and boxes, then updates the counter and the no-match message.
   function apply(s) {
     var query = s.input.value.trim();
-    var shown = filterItems(s, query.toLowerCase().split(/\s+/).filter(Boolean));
+    var shown = filterItems(s, fold(query).split(/\s+/).filter(Boolean));
     if (s.groupSel) hideEmptyGroups(s, query !== "");
     if (s.count) s.count.textContent = countText(s.box, shown);
     showEmpty(s, shown, query);
@@ -253,7 +261,33 @@
     }
   }
 
-  // Copies text and briefly says so on the button.
+  // The hidden status line that says "Copied" to a screen reader (the button's
+  // own name stays "Copy ..."). Made once, when the page has a copy button.
+  var copyStatus = null;
+  function announce(text) {
+    if (!copyStatus) {
+      copyStatus = document.createElement("span");
+      copyStatus.className = "sr-only";
+      copyStatus.setAttribute("role", "status");
+      document.body.appendChild(copyStatus);
+    }
+    copyStatus.textContent = text;
+  }
+
+  // Says "Copied" on the button for a moment, then puts its first label back
+  // (a second click in that time restarts the wait, and never keeps "Copied").
+  function showCopied(btn) {
+    if (!btn.hasAttribute("data-label")) btn.setAttribute("data-label", btn.textContent);
+    clearTimeout(btn.copyTimer);
+    btn.textContent = say("copied", "Copied");
+    announce(btn.textContent);
+    btn.copyTimer = setTimeout(function () {
+      btn.textContent = btn.getAttribute("data-label");
+      announce("");
+    }, 1500);
+  }
+
+  // Copies text and says so on the button, but only when the copy worked.
   function copyText(btn) {
     var text = btn.getAttribute("data-copy");
     var src = btn.getAttribute("data-copy-from");
@@ -261,30 +295,35 @@
       var el = document.querySelector(src);
       text = el ? el.textContent : "";
     }
-    var done = function () {
-      var old = btn.textContent;
-      btn.textContent = say("copied", "Copied");
-      setTimeout(function () { btn.textContent = old; }, 1500);
-    };
+    var done = function (ok) { if (ok) showCopied(btn); };
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
     } else {
-      fallback(text);
-      done();
+      done(fallback(text));
     }
   }
 
-  // Copy for older browsers and plain-http previews.
+  // Copy for older browsers and plain-http previews; true when the browser did it.
   function fallback(text) {
     var ta = document.createElement("textarea");
+    var ok = false;
     ta.value = text;
     ta.setAttribute("readonly", "");
     ta.style.position = "fixed";
     ta.style.opacity = "0";
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand("copy"); } catch (e) { /* nothing else to try */ }
+    try { ok = document.execCommand("copy"); } catch (e) { /* nothing else to try */ }
     document.body.removeChild(ta);
+    return ok;
+  }
+
+  // What sits behind the open drawer: Tab and screen readers skip it. The Menu
+  // button stays live so the drawer can be closed from the keyboard.
+  var BEHIND_DRAWER = ".shell > main, .site-footer, .site-header .brand, .site-header .lang-menu";
+  function setBehindDrawer(inert) {
+    var parts = document.querySelectorAll(BEHIND_DRAWER);
+    for (var i = 0; i < parts.length; i++) parts[i].inert = inert;
   }
 
   // The Menu button: opens the nav as a drawer on narrow screens, with a
@@ -298,6 +337,7 @@
       nav.classList.toggle("open", on);
       document.documentElement.classList.toggle("nav-open", on);
       btn.setAttribute("aria-expanded", on ? "true" : "false");
+      setBehindDrawer(on);
       if (on && !backdrop) {
         backdrop = document.createElement("div");
         backdrop.className = "nav-backdrop";

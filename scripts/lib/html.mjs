@@ -262,13 +262,14 @@ export function hreflangTags(alts) {
 // The page's canonical URL and the Open Graph and Twitter card tags, so a link pasted in Discord,
 // Reddit or a forum unfurls with the crest. Only real pages get them (the 404 page has no URL of
 // its own); every page shares the one Open Graph image.
-export function socialTags({ path, title, description, imageAlt, site }) {
+export function socialTags({ path, title, description, imageAlt, lang = "en", site }) {
   if (!site.url || path === "/404") return "";
   const url = `${site.url}${path}`;
   return [
     `<link rel="canonical" href="${esc(url)}">`,
     `<meta property="og:type" content="website">`,
     `<meta property="og:site_name" content="Vanguard">`,
+    `<meta property="og:locale" content="${esc(lang.replace("-", "_").replace(/^en$/, "en_US"))}">`,
     `<meta property="og:title" content="${esc(title)}">`,
     `<meta property="og:description" content="${esc(description)}">`,
     `<meta property="og:url" content="${esc(url)}">`,
@@ -353,7 +354,7 @@ export function menuPaths(html) {
 export function layout({ path, title, description, body, site, scripts = [], loc = EN, alts = [], translated = false }) {
   const fullTitle = pageTitle(path, title, loc);
   if (loc.english || !translated) description = SEO[path]?.description || description;
-  const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">${loc.t("menu")}</button>`;
+  const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">${loc.t("menu")}</button>`;
   const nav = `<nav class="nav sidebar" aria-label="${esc(loc.text("nav.label"))}" id="site-nav">${navCommunity(loc)}${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
   const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${menuPaths(localiseLinks(body, loc))}\n</main>`;
   // An asset's URL with the build's version query (the plain path if it has none).
@@ -367,7 +368,7 @@ export function layout({ path, title, description, body, site, scripts = [], loc
 <meta name="description" content="${esc(description)}">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="${esc(site.theme.bg)}">
-${socialTags({ path: path === "/404" ? path : loc.href(path), title: fullTitle, description, imageAlt: loc.text("social.imageAlt"), site })}${hreflangTags(alts)}<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
+${socialTags({ path: path === "/404" ? path : loc.href(path), title: fullTitle, description, imageAlt: loc.text("social.imageAlt"), lang: loc.lang, site })}${hreflangTags(alts)}<link rel="icon" href="${esc(asset("/assets/favicon.svg"))}" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 ${path === "/" && loc.english && site.url ? homeJsonLd(site, description) : ""}<link rel="preload" href="/fonts/FiraSansCondensed-Medium.woff2" as="font" type="font/woff2" crossorigin>

@@ -108,9 +108,48 @@ async function checkSettingsCount(page, base, failures) {
   report(failures, `/settings/ next release hidden: "${r.count}" (header ${want})`, r.count === `${want} settings shown`);
 }
 
+// A Commands search shows rows, not just a count: groups with a match open, the rest are hidden.
+async function checkCommandRows(page, base, failures) {
+  await page.goto(base + "/commands/", { waitUntil: "load" });
+  const r = await searchFor(page, "reset");
+  const rows = await page.evaluate(() => ({
+    visible: [...document.querySelectorAll("tr.cmd")].filter((tr) => tr.getClientRects().length).length,
+    collapsed: [...document.querySelectorAll(".cmd-group")].filter((g) => !g.hidden && g.classList.contains("collapsed")).length
+  }));
+  report(failures, `/commands/ "reset": ${r.count}; ${rows.visible} rows visible, ${rows.collapsed} shown groups still collapsed`, rows.visible > 0 && rows.collapsed === 0);
+}
+
+// Two quick clicks on a Copy button say "Copied" (announced in the status line), then the label comes back.
+async function checkCopyButton(page, base, failures) {
+  await page.goto(base + "/commands/", { waitUntil: "load" });
+  await page.click("tbody button[aria-expanded]");
+  const btn = page.locator("button.copy:visible").first();
+  const before = await btn.textContent();
+  await btn.dblclick();
+  await page.waitForTimeout(200);
+  const during = [await btn.textContent(), await page.locator(".sr-only[role=status]").textContent()];
+  await page.waitForTimeout(1700);
+  const after = await btn.textContent();
+  report(failures, `/commands/ double-click on Copy: "${during[0]}" announced "${during[1]}", back to "${after}"`, during[0] !== before && during[1] === during[0] && after === before);
+}
+
+// With JavaScript off, the Menu button and the search boxes are hidden, and the nav and the full lists show.
+async function checkNoScript(browser, base, failures) {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+  await page.goto(base + "/commands/", { waitUntil: "load" });
+  const r = await page.evaluate(() => ["nav-toggle", "search"].map((c) => getComputedStyle(document.querySelector("." + c)).display));
+  const nav = await page.evaluate(() => getComputedStyle(document.getElementById("site-nav")).visibility);
+  report(failures, `/commands/ without JavaScript: Menu ${r[0]}, search ${r[1]}, nav ${nav}`, r[0] === "none" && r[1] === "none" && nav === "visible");
+  await context.close();
+}
+
 // The search checks for Commands and Settings, at 390px.
 async function checkSearch(browser, base, failures) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await checkNoScript(browser, base, failures);
+  await checkCommandRows(page, base, failures);
+  await checkCopyButton(page, base, failures);
   await checkNoMatch(page, base, "/commands/", "commands", failures);
   await checkNoMatch(page, base, "/settings/", "settings", failures);
   await checkSettingsCount(page, base, failures);
@@ -143,9 +182,24 @@ async function checkDrawer(page, base, url, failures) {
     const nav = document.getElementById("site-nav");
     return nav.classList.contains("open") && getComputedStyle(nav).visibility === "visible" && document.querySelector(".nav-toggle").getAttribute("aria-expanded") === "true";
   });
+  const stray = await tabStraysFromDrawer(page);
   await page.keyboard.press("Escape");
   const closed = await page.evaluate(() => !document.getElementById("site-nav").classList.contains("open"));
   report(failures, `${url} Menu opens the drawer and Escape closes it`, opened && closed);
+  report(failures, `${url} with the drawer open, Tab stays in it (${stray} stops outside)`, stray === 0);
+}
+
+// Presses Tab 30 times in the open drawer and counts the stops outside it (the Menu button, the skip link and the body are fine).
+async function tabStraysFromDrawer(page) {
+  let stray = 0;
+  for (let i = 0; i < 30; i++) {
+    await page.keyboard.press("Tab");
+    stray += await page.evaluate(() => {
+      const a = document.activeElement;
+      return a === document.body || a.closest("#site-nav") || a.matches(".nav-toggle, .skip") ? 0 : 1;
+    });
+  }
+  return stray;
 }
 
 // Fails when the page scrolls sideways.
@@ -227,6 +281,14 @@ async function checkLocaleSearch(page, base, loc, failures) {
   report(failures, `/${loc.code}/settings/ "zzqqxx": ${r.count}; message: ${r.empty}`, !/ shown$/.test(r.count) && (r.empty || "").startsWith(want));
 }
 
+// A search typed without accents finds the accented word (French: reinitialiser, Réinitialiser).
+async function checkAccentSearch(page, base, failures) {
+  await page.goto(`${base}/fr/settings/`, { waitUntil: "load" });
+  const plain = await searchFor(page, "reinitialiser");
+  const accented = await searchFor(page, "RÉINITIALISER");
+  report(failures, `/fr/settings/ "reinitialiser": ${plain.count}; "RÉINITIALISER": ${accented.count}`, plain.empty === null && plain.count === accented.count);
+}
+
 // The language select opens the same page in the language picked, keeping the section link.
 async function checkLangSelect(page, base, loc, failures) {
   await page.goto(`${base}/settings/#general`, { waitUntil: "load" });
@@ -248,6 +310,26 @@ async function checkLangMenu(page, base, loc, failures) {
   report(failures, `language button on /settings/#general opens ${r[0]} (lang ${r[1]})`, r[0] === `/${loc.code}/settings/#general` && r[1] === loc.lang);
 }
 
+// The offer never covers the open drawer's language select, nor a footer link once it has focus.
+async function checkOfferClear(page, failures) {
+  await page.click(".nav-toggle");
+  await page.locator("#lang-select").scrollIntoViewIfNeeded();
+  const hit = await page.evaluate(() => {
+    const r = document.getElementById("lang-select").getBoundingClientRect();
+    return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.id;
+  });
+  await page.keyboard.press("Escape");
+  let covered = 0;
+  for (const link of await page.$$(".site-footer a")) {
+    await link.focus();
+    covered += await page.evaluate(() => {
+      const a = document.activeElement.getBoundingClientRect(), o = document.querySelector(".lang-offer").getBoundingClientRect();
+      return a.left >= o.left && a.right <= o.right && a.top >= o.top && a.bottom <= o.bottom ? 1 : 0;
+    });
+  }
+  report(failures, "the language offer leaves the drawer's select and every focused footer link uncovered", hit === "lang-select" && covered === 0);
+}
+
 // A browser asking for the language gets one offer on an English page, and none once it is turned down.
 async function checkLangOffer(browser, base, loc, failures) {
   const context = await browser.newContext({ locale: loc.lang, viewport: { width: 390, height: 844 } });
@@ -255,6 +337,7 @@ async function checkLangOffer(browser, base, loc, failures) {
   await page.goto(`${base}/install/`, { waitUntil: "load" });
   const offer = await page.evaluate(() => document.querySelector(".lang-offer a")?.textContent || null);
   report(failures, `a ${loc.lang} browser on /install/ is offered "${offer}"`, offer === loc.strings["lang.offer"]);
+  if (offer) await checkOfferClear(page, failures);
   if (offer) await page.click(".lang-offer button");
   await page.goto(`${base}/start/`, { waitUntil: "load" });
   const again = await page.evaluate(() => !!document.querySelector(".lang-offer"));
@@ -270,6 +353,40 @@ async function checkSpanishRegionOffer(browser, base, loc, failures) {
   const href = await page.evaluate(() => document.querySelector(".lang-offer a")?.getAttribute("href") || null);
   report(failures, `an es-419 browser on /install/#by-hand is offered ${href}`, href === `/${loc.code}/install/#by-hand`);
   await context.close();
+}
+
+// At 320px no page of the language scrolls sideways, folded or with every section open.
+async function checkNarrowest(browser, base, loc, failures) {
+  const page = await browser.newPage({ viewport: { width: 320, height: 700 } });
+  for (const n of NAV) {
+    await page.goto(`${base}/${loc.code}${n.path}`, { waitUntil: "load" });
+    await noSideScroll(page, `/${loc.code}${n.path} at 320px folded`, failures);
+    await page.evaluate(() => document.querySelectorAll("main details").forEach((d) => { d.open = true; }));
+    await noSideScroll(page, `/${loc.code}${n.path} at 320px all open`, failures);
+  }
+  await page.close();
+}
+
+// From 560px up, no line of the page title runs under the Expand all button.
+async function checkTitleClear(browser, base, loc, failures) {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  let under = 0;
+  for (const n of NAV) {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto(`${base}/${loc.code}${n.path}`, { waitUntil: "load" });
+    if (!(await page.$(".expand-all"))) continue;
+    for (let width = 560; width <= 1280; width += 80) {
+      await page.setViewportSize({ width, height: 800 });
+      under += await page.evaluate(() => {
+        const b = document.querySelector(".expand-all").getBoundingClientRect();
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector(".page-title"));
+        return [...range.getClientRects()].some((q) => q.width && q.left < b.right && q.right > b.left && q.top < b.bottom && q.bottom > b.top) ? 1 : 0;
+      });
+    }
+  }
+  report(failures, `/${loc.code}/ titles stay clear of Expand all from 560 to 1280px (${under} overlaps)`, under === 0);
+  await page.close();
 }
 
 // Every check of one published language, with screenshots of its Settings and Commands.
@@ -291,12 +408,15 @@ async function checkLanguage(browser, base, loc, failures) {
     }
     if (width === 390) {
       await checkLocaleSearch(page, base, loc, failures);
+      if (loc.code === "fr") await checkAccentSearch(page, base, failures);
       await checkLangMenu(page, base, loc, failures);
     } else await checkLangSelect(page, base, loc, failures);
     await page.close();
   }
   await checkLangOffer(browser, base, loc, failures);
   if (loc.code === "es-mx") await checkSpanishRegionOffer(browser, base, loc, failures);
+  await checkNarrowest(browser, base, loc, failures);
+  await checkTitleClear(browser, base, loc, failures);
 }
 
 // Entry point.

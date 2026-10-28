@@ -16,10 +16,11 @@ import { LIMITS, FALLBACK_AREAS } from "../../src/feedback/fields.js";
 
 const NEXT = NEXT_BADGE;
 
-// A string literal from a file, by a regex with one capture group (null when absent).
+// A string literal from a file, by a regex with one capture group, or one per alternative
+// (the first that matched; null when absent).
 function grab(text, re) {
   const m = (text || "").match(re);
-  return m ? m[1] : null;
+  return m ? m.slice(1).find((group) => group !== undefined) ?? null : null;
 }
 
 // ------------------------------------------------------------------ Profiles
@@ -271,7 +272,7 @@ ${disclosure({ id: "same-account", title: loc.p("Use one layout on several chara
 ${profileList(w, news, loc)}
 
 ${profileChatTable(w, news, loc)}
-<p>${loc.p("On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>, straight away and without asking first. The options window then shows its <strong>Reload now</strong> button.", { reset: w.lb("opt", "Reset profile") })}</p>` })}
+<p>${loc.p("On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>, straight away and without asking first. The options window then shows its <strong>{ui:Reload now}</strong> button.", { reset: w.lb("opt", "Reset profile") })}</p>` })}
 ${disclosure({ id: "share", title: loc.p("Move a profile to another account or PC"), body: profileShare(w, news, v, fuiPrefix, loc) })}
 ${disclosure({ id: "edit-mode", title: loc.p("The game's Edit Mode layout"), meta: `${nb(news.editNew)}`, next: news.editNew, body: profileEditMode(w, loc) })}
 ${disclosure({ id: "click-casting", title: loc.p("Click-casting bindings"), meta: `${nb(news.shareNew)}`, body: profileClickCasting(w, loc) })}
@@ -290,23 +291,51 @@ function luaText(text, names = []) {
   return text.replace(/" \.\. [\w.():]+ \.\. "/g, () => `<${names[i++] || "name"}>`).replace(/%s|\{\w+\}/g, "…");
 }
 
+// A fact's Lua text with every join, %s and {slot} made the same "…", to compare two refs' wording.
+function plainLua(text) {
+  return text.replace(/" \.\. [\w.():]+ \.\. "|%s|\{\w+\}/g, "…");
+}
+
+// A release fact that shows values (the release joins them with " .. ", the next release writes
+// an ns.Format {slot}) in the page's language: the next release's text is the Locales key. Each
+// {slot} shows as its name, taken by the slot's place in the English text. English, as the
+// release writes it, when the next release words it differently. { key, text }: the text looked up
+// in Locales, and the text to show.
+function placeholderFact(rel, next, names, loc) {
+  if (next === null || !plainLua(next).endsWith(plainLua(rel))) return { key: rel, text: luaText(loc.addon(rel), names) };
+  const slots = [...next.matchAll(/\{(\w+)\}/g)].map((m) => m[1]);
+  return { key: next, text: loc.addon(next).replace(/\{(\w+)\}/g, (_, slot) => `<${names[slots.indexOf(slot)] ?? slot}>`) };
+}
+
+// A quoted text to show, noted in `english` when it stays English on a translated page (the addon
+// has no translation of it, as with the README's sentences), so fill() marks it lang="en".
+function shown(text, key, english, loc) {
+  if (!loc.english && !loc.has(key) && /[A-Za-z]{2}/.test(text)) english.add(text);
+  return text;
+}
+
 // One fact from FACTS: the captured text, or null when it isn't in the code
 // ("both" needs the same text in the current release and the next, a %s and a
 // {name} slot being the same), in the page's language when the addon translates
 // that text (English otherwise; the next release's wording is the one translated).
-function readFact(read, [, where, file, re, names], loc) {
+function readFact(read, [, where, file, re, names], loc, english) {
   const one = (ref) => grab(read[ref](file), re);
   const same = (a, b) => a !== null && b !== null && luaText(a, names) === luaText(b, names);
   const raw = where === "both" ? (same(one("rel"), one("next")) ? one("next") : null) : one(where);
-  return raw === null ? null : luaText(loc.addon(raw), names);
+  if (raw === null) return null;
+  const { key, text } = where === "rel" && names ? placeholderFact(raw, one("next"), names, loc) : { key: raw, text: luaText(loc.addon(raw), names) };
+  return shown(text, key, english, loc);
 }
 
 // Every fact the help page quotes, plus the version and the import reasons.
 function helpFacts(model, read, loc) {
-  const facts = { v: model.version };
-  for (const f of FACTS) facts[f[0]] = readFact(read, f, loc);
+  const facts = { v: model.version, english: new Set() };
+  for (const f of FACTS) facts[f[0]] = readFact(read, f, loc, facts.english);
   // Releases before 0.4.0 name the addon ForeverUI in these reasons; read as Vanguard, they're the same.
-  const reasons = (ref) => [...(read[ref]("Core/Serialize.lua") || "").matchAll(/return nil, "([^"]+)"/g)].map((m) => loc.addon(m[1].replace("ForeverUI", "Vanguard")));
+  const reasons = (ref) => [...(read[ref]("Core/Serialize.lua") || "").matchAll(/return nil, "([^"]+)"/g)].map((m) => {
+    const key = m[1].replace("ForeverUI", "Vanguard");
+    return shown(loc.addon(key), key, facts.english, loc);
+  });
   const rel = reasons("rel");
   // The current release's reasons: a newer release may add some, and the page describes the current one.
   facts.reasons = rel.length ? rel : null;
@@ -321,12 +350,13 @@ function keysOf(text) {
 // A text with its {key}s filled in: escaped text, a list for a list, the badges for {NEXT} and
 // {RELOAD}, and {ui:Text} the addon's own word for a button or page, in the page's language.
 function fill(text, facts, loc, words) {
-  const quote = (t) => words.page.quote.replace("{text}", esc(t));
+  const say = (t) => (facts.english.has(t) ? `<span lang="en">${esc(t)}</span>` : esc(t));
+  const quote = (t) => words.page.quote.replace("{text}", say(t));
   return text.replace(/\{ui:([^}]+)\}/g, (_, w) => esc(loc.addon(w))).replace(/\{(\w+)\}/g, (_, k) => {
     if (k === "NEXT") return nextBadge(loc);
     if (k === "RELOAD") return reloadBadge(loc);
     const v = facts[k];
-    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>${quote(r)}</li>`).join("")}</ul>` : esc(v);
+    return Array.isArray(v) ? `<ul>${v.map((r) => `<li>${quote(r)}</li>`).join("")}</ul>` : say(v);
   });
 }
 
@@ -541,7 +571,7 @@ function feedbackSteps(loc) {
 <div class="fb-actions">
 <button class="button" type="button" id="fb-send">${P("Send report")}</button>
 <button class="button secondary" type="button" id="fb-edit">${P("Edit")}</button>
-<button class="copy" type="button" data-copy-from="#fb-preview-body" aria-label="${esc(loc.p("Copy the report text"))}">${P("Copy report text")}</button>
+<button class="copy" type="button" data-copy-from="#fb-preview-body">${P("Copy report text")}</button>
 </div>
 </section>
 <section id="fb-done" class="fb-step" hidden aria-labelledby="fb-done-h">
@@ -607,9 +637,9 @@ function readyBug(model, read, templates, loc) {
   <li>${errorsStep}</li>
 </ol>
 <p class="small">${loc.p("Can't copy text from chat? Type out the lines that matter, or describe them.")}${model.commands.nextKeys.has("copy") && !model.commands.relKeys.has("copy") ? nextOnly(` ${loc.p("In the next release, <code>/vg copy</code> opens the recent chat as plain text, ready to copy.")}`) : ""}</p>
-<h4>${loc.p("Bug report template")}</h4>
+<h4 id="bug-template-h">${loc.p("Bug report template")}</h4>
 <pre class="template" id="bug-template">${esc(templates.bug)}</pre>
-<button class="copy" type="button" data-copy-from="#bug-template" aria-label="${esc(loc.p("Copy the bug report template"))}">${loc.p("Copy template")}</button>
+<button class="copy" type="button" data-copy-from="#bug-template" aria-describedby="bug-template-h">${loc.p("Copy template")}</button>
 </section>`;
 }
 
@@ -627,9 +657,9 @@ function readyFeature(model, templates, loc) {
   <li>${loc.p("<strong>Why it would help you.</strong>")}</li>
 </ol>
 <div class="notice info"><p>${loc.p("<strong>Reviewed, not promised.</strong> Every request is read and considered, but there's no promise that it will be built, or when.")}</p></div>
-<h4>${loc.p("Feature request template")}</h4>
+<h4 id="feature-template-h">${loc.p("Feature request template")}</h4>
 <pre class="template" id="feature-template">${esc(templates.feature)}</pre>
-<button class="copy" type="button" data-copy-from="#feature-template" aria-label="${esc(loc.p("Copy the feature request template"))}">${loc.p("Copy template")}</button>
+<button class="copy" type="button" data-copy-from="#feature-template" aria-describedby="feature-template-h">${loc.p("Copy template")}</button>
 <p class="small template-note">${check}</p>
 </section>`;
 }

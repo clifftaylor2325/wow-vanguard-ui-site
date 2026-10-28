@@ -7,12 +7,12 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { clean, cleanLine, cell, fence, block, inline } from "../src/feedback/sanitize.js";
+import { clean, cleanLine, titleLine, cell, fence, block, inline } from "../src/feedback/sanitize.js";
 import { parseReport, normalize, fingerprint } from "../src/feedback/report.js";
 import { parseFeedback, hasFeedback, FEEDBACK_START, FEEDBACK_END } from "../src/feedback/fill.js";
 import { readFields, validate, english, FALLBACK_AREAS } from "../src/feedback/fields.js";
 import { bugIssue, featureIssue, duplicateComment, refIn } from "../src/feedback/body.js";
-import { handlePost, handleGet, configProblem } from "../functions/_lib/handler.js";
+import { handlePost, handleGet, configProblem, MESSAGES } from "../functions/_lib/handler.js";
 import { playerNet, capKeys } from "../functions/_lib/ratelimit.js";
 import { apiBase, gitHub } from "../functions/_lib/github.js";
 import { SITEVERIFY } from "../functions/_lib/turnstile.js";
@@ -227,6 +227,20 @@ test("bug issue: marker, title, env table, fenced report, footer, labels", async
   assert.ok(issue.body.includes("**What I did**\n```text\nReloaded in a raid @boss #4\n```"), "free text is fenced");
   assert.ok(issue.body.includes("**What happened instead**\n```text\nFrames <i>vanished</i>\n```"), "HTML shows as typed inside its fence");
   assert.equal(refIn(issue.body), "FUI-ABCDEF");
+});
+
+test("issue titles are plain text: no entities, no stripped tags, at most 256 characters", async () => {
+  const bug = await bugIssue(readFields(bugFields({ title: "Tooltip shows <nil> & a > b" })), "FUI-ABCDEF");
+  assert.equal(bug.title, "[Bug] Tooltip shows <nil> & a > b (v0.3.0, WoW Forever)");
+  assert.equal(titleLine("raid\u202e frames @boss #4 GH-5 ![x]"), "raid frames @\u200bboss #\u200b4 GH\u200b-5 !\u200b[x]");
+  for (const bracket of ["<", "&"]) {
+    const long = await bugIssue(readFields(bugFields({ title: bracket.repeat(100) })), "FUI-ABCDEF");
+    assert.ok(long.title.length <= 256, `${long.title.length} characters`);
+    assert.ok(long.title.endsWith("(v0.3.0, WoW Forever)"), "the version and client suffix is kept");
+  }
+  const idea = featureIssue(readFields(featureFields({ title: "x".repeat(400) })), "Raid frames", "FUI-ABCDEF");
+  assert.equal(idea.title.length, 256);
+  assert.equal(featureIssue(readFields(featureFields({ title: "A & B" })), "Raid frames", "FUI-ABCDEF").title, "[Idea] A & B");
 });
 
 test("bug issue without a report or error: fp=none and a note", async () => {
@@ -832,4 +846,15 @@ test("the rate caps count an IPv6 /64 as one player, and an IPv4 address as itse
   const c = await capKeys("2001:db8:85a3:8d4:1:2:3:4", "salt", now);
   assert.equal(a.player, b.player);
   assert.notEqual(a.player, c.player);
+});
+
+test("the page says each of the Function's error messages itself (unavailable is its fallback), so a translation reaches the player", () => {
+  const script = fs.readFileSync(path.join(root, "src/assets/feedback.js"), "utf8");
+  const literals = new Set([...script.matchAll(/\btr\("((?:[^"\\]|\\.)*)"/g)].map((m) => JSON.parse(`"${m[1]}"`)));
+  for (const [code, message] of Object.entries(MESSAGES)) {
+    if (code === "invalid") continue;
+    assert.ok(literals.has(message), `feedback.js needs tr("${message}") for ${code}`);
+    if (code !== "unavailable") assert.ok(script.includes(`${code}: () => tr(`), `FAILURES answers ${code}`);
+  }
+  assert.ok(!/data\.message/.test(script), "the Function's English message is never shown");
 });

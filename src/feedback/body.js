@@ -5,7 +5,7 @@
 // player types can add headings, tables, quotes, lists, HTML or mentions to
 // the issue), and one-line values are escaped. The player's contact details
 // are never part of any of this.
-import { cleanLine, inline, cell, block, fence } from "./sanitize.js";
+import { titleLine, inline, cell, block, fence } from "./sanitize.js";
 import { parseReport, fingerprint } from "./report.js";
 
 export const LABELS = { bug: ["bug", "from-site"], feature: ["feature-request", "from-site"] };
@@ -50,10 +50,20 @@ function pasted(f) {
   return `<details><summary>/vg report (as pasted)</summary>\n\n${fence(f.report)}\n</details>`;
 }
 
+const MAX_TITLE = 256;
+
+// A title of at most GitHub's 256 characters: the prefix, as much of the
+// summary as fits, then the suffix (dropped when it alone leaves no room).
+function fitTitle(prefix, summary, suffix) {
+  const room = MAX_TITLE - prefix.length - suffix.length;
+  const text = room < 20 ? `${prefix}${summary}`.slice(0, MAX_TITLE) : `${prefix}${summary.slice(0, room)}${suffix}`;
+  return text.replace(/[\ud800-\udbff]$/, "");
+}
+
 // The bug title: "[Bug] summary", with " (v1.2.3, WoW Forever)" when the report says.
 function bugTitle(f, env) {
-  const where = [env.version && `v${env.version}`, env.client].filter(Boolean).map(cleanLine).join(", ");
-  return `[Bug] ${cleanLine(f.title)}${where ? ` (${where})` : ""}`;
+  const where = [env.version && `v${env.version}`, env.client].filter(Boolean).map(titleLine).join(", ");
+  return fitTitle("[Bug] ", titleLine(f.title), where ? ` (${where})` : "");
 }
 
 // A bug report's issue: { title, body, labels, fp, env }. reference fills the
@@ -87,7 +97,7 @@ export function featureIssue(f, areaLabel, reference) {
     "_Sent from the Vanguard site._",
     refLine(reference),
   ].join("\n");
-  return { title: `[Idea] ${cleanLine(f.title)}`, body, labels: LABELS.feature };
+  return { title: fitTitle("[Idea] ", titleLine(f.title), ""), body, labels: LABELS.feature };
 }
 
 // The comment a repeat bug report adds to the open issue it matches, with

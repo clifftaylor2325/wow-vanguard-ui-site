@@ -77,7 +77,7 @@ export const MORE = {
     check: ["the kind info-bar addons show: gold trackers, durability, guild counts and so on) in a thin strip along the top edge of the screen", "(up to four, in the order picked)"], from: "Broker strip" },
   QuestDialog: { more: "Talking to a quest giver opens Vanguard's own dialog instead of the game's quest and gossip windows: the NPC's portrait and name, the text, numbered lines, reward cards and the money and XP you'll get. Press a number to pick, Space or Enter for the main button and Escape to say goodbye.",
     check: ["talking to a quest giver opens Vanguard's own dialog", "instead of the game's quest and gossip windows", "the NPC's portrait", "numbered lines for quests", "reward cards with quality borders", "and the money and XP you'll get", "Press a number to pick a line or a reward, Space or Enter for the main button", "Escape to say goodbye"], from: "Quest dialog" },
-  QuestTracker: { more: "Each quest you watch, with its level in its difficulty color, its objectives as rows (muted gray with a check when done) or \"Ready to turn in\", and its quest item as a button beside it. Left-click a quest to open it, Shift-click to point the arrow at it, right-click to stop watching it, and order it as the game does or nearest first.",
+  QuestTracker: { more: "Each quest you watch, with its level in its difficulty color, its objectives as rows (muted gray with a check when done) or \"{ui:Ready to turn in}\", and its quest item as a button beside it. Left-click a quest to open it, Shift-click to point the arrow at it, right-click to stop watching it, and order it as the game does or nearest first.",
     check: ["each quest you watch as \"[12] Title\" in its difficulty color", "its objectives as rows like the quest log's", "once done it turns muted gray with a check before it) or \"Ready to turn in\"", "its usable quest item as a button beside it", "Left-click a quest to open it", "Shift-click to point the arrow at it", "right-click to stop watching it", "order it as the game does or nearest first"], from: "Quest tracker" },
   QuestLog: { more: "Your quests under their zones (click a zone to fold it), with the chosen quest's text, objectives and rewards, and Track, Share, Abandon and Map buttons. The game's quest log key and /vg quests open it.",
     check: ["your quests under their zones (each zone a small-capitals header with a chevron: click it to fold the zone", "the chosen quest's text, its objectives as rows", "Track/Untrack", "Share (in a group) and Map along the right, and Abandon", "the game's quest log key", "`/vg quests`) open Vanguard's own"], from: "Quest log" },
@@ -87,7 +87,7 @@ export const MORE = {
     check: ["Loss of control (stunned, feared...) shows on a flat panel", "the talking head on one at the top left, under the raid tools (or hidden", "on a Hardcore realm the game's death notices there take the theme's title font and its red", "a rare that shows up on your minimap is announced", "out of combat and once per rare"], from: "Game windows" },
   Errands: { more: "A Train all button on the trainer's window shows how many skills your gold covers and learns them in one click. Keep stocked tops up items you name from merchants who sell them, while you can pay. The flight timer counts down to landing on routes you've flown before.",
     check: ["a **Train all** button on the trainer's window shows how many one click learns (the skills your gold covers", "learns them in one click", "**Keep stocked**", "a merchant who sells it tops you up", "while you can pay", "The **flight timer** saves each flight's time by route, and the next flight on that route shows a bar (movable) counting down to landing"], from: "Errands" },
-  InstancePrep: { more: "Stepping into a dungeon or raid, a card lists what you're short of: ammo, soul shards, your class's reagents, food and drink, bandages, potions, worn gear and your stocked items. A ready check or /vg prep always shows it, saying \"Everything's packed.\" when nothing is short.",
+  InstancePrep: { more: "Stepping into a dungeon or raid, a card lists what you're short of: ammo, soul shards, your class's reagents, food and drink, bandages, potions, worn gear and your stocked items. A ready check or /vg prep always shows it, saying \"{ui:Everything's packed.}\" when nothing is short.",
     check: ["a card at the door listing what you're short of", "Stepping into a dungeon or raid, it lists what is low", "ammo (hunters), soul shards (warlocks), your class's reagents", "food and drink, bandages, potions, durability under 50%, and anything on your Keep-stocked list", "A ready check (or `/vg prep`) always shows it, saying \"Everything's packed.\" when nothing is short"], from: "Instance prep" },
   GameTools: { more: "The game's Cooldown Manager gets square icons and the theme's font, with its rows between the player and target frames. The game's damage meter gets a flat panel above the bag and menu bar.",
     check: ["the game's Cooldown Manager", "gets square icons in thin borders with the theme font", "its rows sit between the player and target frames", "The game's damage meter gets a flat panel with theme bars and text", "above the bag and menu bar"], from: "The game's tools" },
@@ -99,7 +99,7 @@ export const MORE = {
     check: ["three bars of 38 px buttons under them over thin XP and reputation bars", "the game's own XP bar is hidden while Vanguard's shows (no more double XP bar)"], from: "Centered layout; The game's extras, tidied" },
   Tooltips: { more: "Themed tooltips with class colors and a target line. Item tooltips show what the stack sells for and how many you have in your bags and bank, with an optional item ID line.",
     check: ["themed tooltips with class colors and a Target line", "Item tooltips show what the stack sells for", "how many you have, bags and bank, with an optional item ID line"], from: "Everything else; At a merchant" },
-  VendorMemory: { more: "Once you've visited a merchant, item tooltips say who sells an item and where, for example \"Sold by Thomas Miller (Elwynn Forest, Goldshire)\", with \"limited stock\" when they carry only a few. It's remembered for every character on the account.",
+  VendorMemory: { more: "Once you've visited a merchant, item tooltips say who sells an item and where, for example \"Sold by Thomas Miller (Elwynn Forest, Goldshire)\", with \"{ui:limited stock}\" when they carry only a few. It's remembered for every character on the account.",
     check: ["tooltips say which merchant sells an item (and where) once you've visited one", "\"Sold by Thomas Miller (Elwynn Forest, Goldshire)\"", "with \"limited stock\" when the merchant carries only a few", "What merchants sell is remembered for every character on the account"], from: "Vendor memory" },
   AuctionHelper: { more: "Two tabs on the auction house window. Lists: your shopping lists, searched one item at a time, with Recent, Deals and Upgrades beside them. Posting: suggests a price just under the cheapest and posts, and marks your auctions someone undercut, each with a Cancel button. Scan: prices from your scans in item tooltips. It only posts or cancels when you click; buying stays in the game's own window.",
     check: ["two Vanguard tabs join the game's window after its Buy, Sell and Auctions", "the **Lists** tab (the Lists pane on the left", "the **Posting** tab (the Sell card on the left; what's up now and your auctions on the right)", "the pane lists your named shopping lists with how many items each holds, then Recent, Deals and Upgrades", "searches each item in turn (one search at a time", "**Sell**", "the price it will ask: 1 silver under the cheapest", "**Post** puts up one stack per click", "**Your auctions**", "marks with a red square each auction someone else asks less for per unit; each row has a **Cancel** button", "only a click on it cancels", "**Scan the auction house**", "item tooltips everywhere say \"AH: ", "Buying and bidding stay in the game's own window"], from: "Auction helper" },
@@ -218,9 +218,9 @@ export const LONGER = {
     R("They're always shown unless you pick another visibility (On mouseover, In combat, Hidden or the action bars' row of conditions), one setting for both.", "On mouseover, In combat, Hidden or the action bars' row of conditions", "so are the XP and reputation bars, which share one setting"),
   ],
   QuestHistory: [
-    R("A quest you meet again says in a muted line where and when it was done, such as “Done on this character”.", "A quest you meet again says so in a muted line", "(\"Done on this character\" for one you did here"),
+    R("A quest you meet again says in a muted line where and when it was done, such as “{ui:Done on this character}”.", "A quest you meet again says so in a muted line", "(\"Done on this character\" for one you did here"),
     R("It remembers, for the whole account, which character last turned in each quest, up to 1000 quests, and its List latest turn-ins button or /vg quests history lists the latest.", "Vanguard remembers for the whole account which of your characters last turned in each quest and when", "`/vg quests history [n]` list the latest turn-ins"),
-    R("With no turn-in remembered, a quest the game itself flags as done on this character reads \"Done on this character\", so quests finished before Vanguard count too.", "With no turn-in remembered, a quest the game itself flags as done on this character reads \"Done on this character\" (so quests finished before Vanguard count too"),
+    R("With no turn-in remembered, a quest the game itself flags as done on this character reads \"{ui:Done on this character}\", so quests finished before Vanguard count too.", "With no turn-in remembered, a quest the game itself flags as done on this character reads \"Done on this character\" (so quests finished before Vanguard count too"),
   ],
   CooldownKeys: [
     R("It decorates the game's own icon and copies nothing.", "It decorates the game's own icon and copies nothing"),
@@ -240,7 +240,7 @@ export const LONGER = {
   QuestArrow: [
     R("A small panel at the top centre shows an arrow in your accent that turns toward the nearest unfinished objective among the quests you watch, with the quest's title and the distance in yards.", "an arrow in your accent that turns toward the nearest unfinished objective among the quests you watch, the quest's title and the distance in yards"),
     R("Shift-click a quest in the tracker to hold the arrow on it until it leaves your log.", "Shift-click a quest in the tracker to hold the arrow on it until it leaves your log"),
-    R("A quest with no spot says “No spot from the game”, and you can move the panel with /vg unlock.", "a quest with no spot says `No spot from the game`", "Move it with `/vg unlock`"),
+    R("A quest with no spot says “{ui:No spot from the game}”, and you can move the panel with /vg unlock.", "a quest with no spot says `No spot from the game`", "Move it with `/vg unlock`"),
   ],
   QuestMinimap: [
     R("A small dot in your accent on the minimap shows where each quest in your log has its spot, and a gold ? once it is ready to turn in, drawn over the dots.", "a small dot in your accent on the minimap where each quest in your log has its spot on the map you're on, and a gold `?` once it's ready to turn in, drawn over the dots"),
@@ -305,7 +305,7 @@ export const LONGER = {
     R("Chat the game hides from addons in instances is left untouched, never shortened, and left out of the copy.", "Chat the game hides from addons (in instances) is left untouched, never shortened, and out of the copy"),
   ],
   ChatWatch: [
-    R("Add phrases under Chat → Chat watch or with /vg watch add LFM; numbered channels such as Trade and LFG, and yell, are watched by default.", "with `/vg watch add LFM`", "numbered channels such as Trade and LFG, and yell, by default"),
+    R("Add phrases under {ui:Chat} → {ui:Chat watch} or with /vg watch add LFM; numbered channels such as Trade and LFG, and yell, are watched by default.", "with `/vg watch add LFM`", "numbered channels such as Trade and LFG, and yell, by default"),
     R("A match ignores case and works on item links too; the toast stays for 8 seconds, and right-click dismisses it.", "any case, item links included)", "for 8 seconds", "right-click to dismiss"),
     R("There's one alert per sender and phrase every 30 seconds, for up to 20 phrases of 40 characters.", "One alert per sender and phrase every 30 seconds", "Up to 20 phrases of 40 characters"),
     R("In dungeons, raids and encounters, where the game hides chat from addons, nothing matches.", "In dungeons, raids and encounters, where the game hides chat from addons, nothing matches"),
@@ -393,7 +393,7 @@ export const LONGER = {
   ],
   BrokerStrip: [
     R("Each feed shows its icon and text, its own tooltip on hover, and takes your clicks.", "each shows its icon", "its own tooltip on hover", "and takes your clicks"),
-    R("Pick the feeds under Map → Data from other addons, and move the strip with /vg unlock.", "Pick the feeds under Map → Data from other addons", "movable with `/vg unlock`"),
+    R("Pick the feeds under {ui:Map} → {ui:Data from other addons}, and move the strip with /vg unlock.", "Pick the feeds under Map → Data from other addons", "movable with `/vg unlock`"),
     R("The addons that share feeds bring what the strip needs, so with none of them installed it stays hidden.", "the addons that share feeds load it, so with none of them the strip stays hidden"),
   ],
   GameAlerts: [
@@ -407,7 +407,7 @@ export const LONGER = {
     R("/vg prep want food 30 sets how many to carry.", "`/vg prep want food 30` sets one amount directly"),
   ],
   GameTools: [
-    R("Turn the Cooldown Manager on in the game's Options (Gameplay Enhancements), or with Vanguard's switch \"Show the game's manager\" on the Cooldowns page.", "Options, Gameplay Enhancements", "Show the game's manager"),
+    R("Turn the Cooldown Manager on in the game's Options (Gameplay Enhancements), or with Vanguard's switch \"{ui:Show the game's manager}\" on the Cooldowns page.", "Options, Gameplay Enhancements", "Show the game's manager"),
     R("With the damage meter there, the tooltip corner moves just above it.", "the tooltip corner moves just above it"),
     RC("Move them with /vg unlock; where your client has Edit Mode, Vanguard stands aside while it's open, and one switch leaves placing them to Edit Mode.", ["Move them with `/vg unlock`; while Edit Mode is open, Vanguard stands aside", "One switch leaves placing them to Edit Mode"], "Core/Movers.lua", "local edit = _G.EditModeManagerFrame", "if type(edit) ~= \"table\" or not edit.HookScript then return end"),
   ],
@@ -520,13 +520,13 @@ Object.assign(LONGER, {
     R("Where the client hides the time, or which aura an icon tracks, the glow stays off with no error; the glow itself is static, with no fade.", "when the time is hidden, or the game hides which aura an icon tracks, the glow stays off with no error", "The glow is static (no fade)"),
   ],
   CraftQueue: [
-    R("It is off until you turn it on under Town and gear → Craft queue.", "off until you turn it on under Town and gear → Craft queue"),
+    R("It is off until you turn it on under {ui:Town and gear} → {ui:Craft queue}.", "off until you turn it on under Town and gear → Craft queue"),
     R("/vg craft lists the queue and the reagents you are still short of, and /vg craft stock raises Keep stocked to what the queue needs.", "`/vg craft` lists the queue and the reagents you are still short of", "`/vg craft stock` raises Keep stocked to what the queue needs"),
     R("A craft you finish comes off the queue; done takes one off and clear empties it.", "a craft you finish (your own cast, out of combat) comes off the queue", "`done` takes one off and `clear` empties it"),
     R("/vg craft cd lists every character's profession cooldowns, and /vg craft top ranks the best five recipes by profit.", "`/vg craft cd` lists every character's", "`/vg craft top`: the best five"),
   ],
   MailTools: [
-    R("It is off until you turn it on under Town and gear → Mail tools.", "off until you turn it on under Town and gear → Mail tools"),
+    R("It is off until you turn it on under {ui:Town and gear} → {ui:Mail tools}.", "off until you turn it on under Town and gear → Mail tools"),
     R("/vg mail followed by words prints the same matches in chat.", "`/vg mail <words>` prints the same matches in chat"),
     R("A preset is made with /vg mail preset add <name> <character> [words]; its button types the character in and attaches the matching items, up to the game's 12.", "`/vg mail preset add <name> <character> [words]`", "up to the game's 12"),
     R("Attaching happens out of combat, and you press Send.", "out of combat; you press Send"),
@@ -540,7 +540,7 @@ Object.assign(LONGER, {
   Meter: [
     R("It shows three to ten lines, eight by default.", "up to ten (three to ten, eight by default)"),
     R("It reads the game's meter every half second, in combat too, and never counts, compares or sorts the figures itself.", "It reads the game's meter every half second, in combat too", "never counted, compared or sorted by Vanguard"),
-    R("A line the client hides is drawn blank rather than guessed, and a list the client hides shows “No damage yet this fight” (or “No healing yet this fight”).", "a line the client hides is drawn blank rather than guessed", "a list the client hides shows \"No damage yet this fight\""),
+    R("A line the client hides is drawn blank rather than guessed, and a list the client hides shows “{ui:No damage yet this fight}” (or “{ui:No healing yet this fight}”).", "a line the client hides is drawn blank rather than guessed", "a list the client hides shows \"No damage yet this fight\""),
     R("The game's own meter is left alone; turn it off in the game's settings to see only this one.", "the game's own meter is left alone (turn it off in the game's settings to see only this one)"),
   ],
   SpellRanks: [
@@ -550,7 +550,7 @@ Object.assign(LONGER, {
     R("No rank or level table ships with Vanguard: it reads only your spellbook and the trainers' windows.", "no rank or level table ships with Vanguard"),
   ],
   QuestGuide: [
-    R("Each part has its own switch under Quests → Finding your way.", "each part switched under `/vg` → Quests → Finding your way"),
+    R("Each part has its own switch under {ui:Quests} → {ui:Finding your way}.", "each part switched under `/vg` → Quests → Finding your way"),
     R("Without a quest flag from the client, nothing is marked.", "without one nothing is marked"),
     R("Hover a pin for the quest, and click it to point the arrow there.", "(hover one for the quest", "click it to point the arrow there"),
     R("Pins aren't drawn on a map where the game's own map already shows quest offers, or while Questie or OpenMap is loaded.", "Vanguard draws none on a map where the game's own map already shows quest offers, or while Questie or OpenMap is loaded"),
@@ -567,7 +567,7 @@ Object.assign(LONGER, {
     R("An answer isn't asked again in that profile.", "an answer isn't asked again in that profile"),
   ],
   GroupBoard: [
-    R("Open it with /vg lfg, or Open the group board under Chat → Group board.", "`/vg lfg`, or **Open the group board** under Chat → Group board"),
+    R("Open it with /vg lfg, or {ui:Open the group board} under {ui:Chat} → {ui:Group board}.", "`/vg lfg`, or **Open the group board** under Chat → Group board"),
     R("A filter button shows all posts, only looking for more or only looking for a group, and Only dungeons for my level is on by default.", "**Only dungeons for my level** (on by default)"),
     R("Posts go after 10 minutes (5 or 20 if you like), and a newer post from the same player replaces the older one.", "Posts go after 10 minutes (5 or 20 if you like)", "a newer post from the same player replaces the older one"),
     R("In dungeons and raids, where the game hides chat from addons, nothing is read.", "In dungeons and raids, where the game hides chat from addons, nothing is read"),

@@ -14,27 +14,39 @@ export function plain(value) {
     .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "");
 }
 
+// Text with mentions, issue autolinks and markdown images broken by a
+// zero-width space, so GitHub links to nothing.
+function breakAutolinks(text) {
+  return text
+    .replace(/@(?=[\w-])/g, `@${ZWSP}`)
+    .replace(/#(?=\d)/g, `#${ZWSP}`)
+    .replace(/\b(GH)-(?=\d)/gi, `$1${ZWSP}-`)
+    .replace(/!\[/g, `!${ZWSP}[`);
+}
+
 // Free text for an issue body: HTML comments and tags stripped, any `<` or `>`
 // left over written as entities, entity-looking `&` escaped, and mentions,
 // issue autolinks and markdown images broken with a zero-width space.
 export function clean(value) {
-  return plain(value)
+  return breakAutolinks(plain(value)
     .replace(/<!--[\s\S]*?(?:-->|$)/g, "")
     .replace(/<\/?[A-Za-z][^>]*>/g, "")
     .replace(/&(?=#?\w+;)/g, "&amp;")
     .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/@(?=[\w-])/g, `@${ZWSP}`)
-    .replace(/#(?=\d)/g, `#${ZWSP}`)
-    .replace(/\b(GH)-(?=\d)/gi, `$1${ZWSP}-`)
-    .replace(/!\[/g, `!${ZWSP}[`)
+    .replace(/>/g, "&gt;"))
     .trim();
 }
 
-// A one-line version of clean() for issue titles (GitHub shows titles as
-// plain text, apart from `code`).
+// A one-line version of clean() for issue bodies (a table cell, a label).
 export function cleanLine(value) {
   return clean(String(value ?? "").replace(/\s+/g, " "));
+}
+
+// One plain line for an issue title: GitHub shows titles as text, so `<`, `>`
+// and `&` stay as typed, but mentions and issue links are broken and the
+// characters that reorder text (bidi controls) are dropped.
+export function titleLine(value) {
+  return breakAutolinks(plain(String(value ?? "").replace(/\s+/g, " ")).replace(/[\u202a-\u202e\u2066-\u2069]/g, "")).trim();
 }
 
 // One clean line for inside an issue body, with the characters that make
