@@ -24,8 +24,8 @@ let token = "";
 
 // The page's translations of this script's messages, keyed by the English (none on the English page).
 const MESSAGES = JSON.parse(($("#fb-messages") || {}).textContent || "{}");
-// A message in the page's language, its {slots} filled.
-const tr = (text, values) => english(MESSAGES[text] ?? text, values);
+// A message in the page's language, its {slots} filled and its numbers written as the language writes them.
+const tr = (text, values) => english(MESSAGES[text] ?? text, values, document.documentElement.lang || "en-US");
 
 // The chosen kind: "bug" or "feature".
 // A form control by name (form.title would be the form's own title attribute).
@@ -35,7 +35,11 @@ const kind = () => (form.querySelector("input[name=kind]:checked") || {}).value 
 
 // Every allowed "Part of Vanguard" value, and the label of one.
 const areaValues = () => Array.from(el("area").options, (o) => o.value).filter(Boolean);
-const areaLabel = (value) => (Array.from(el("area").options).find((o) => o.value === value) || {}).textContent || "";
+// The English name (data-en), which is what the Function files; the option's own text on a page without it.
+const areaLabel = (value) => {
+  const option = Array.from(el("area").options).find((o) => o.value === value);
+  return option ? option.dataset.en || option.textContent : "";
+};
 
 // The form's values, as the Function reads them.
 function values() {

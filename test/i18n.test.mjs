@@ -20,7 +20,8 @@ import { helpPage, supportPage, SUPPORT_PAGE } from "../scripts/lib/pages-more.m
 import { gitReader } from "../scripts/lib/source.mjs";
 import { extractAddon, specReader } from "../scripts/lib/extract.mjs";
 import { buildModel } from "../scripts/lib/model.mjs";
-import { settingsPage, commandsPage } from "../scripts/lib/pages-main.mjs";
+import { FALLBACK_AREAS } from "../src/feedback/fields.js";
+import { settingsPage, commandsPage, startPage } from "../scripts/lib/pages-main.mjs";
 
 const cfg = loadConfig();
 const placeholders = (s) => [...new Set([...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]))].sort();
@@ -160,6 +161,15 @@ test("Settings shows the addon's translation of a caption, page title and choice
   assert.ok(html.includes("TEST-ONLY Wahl"), "the choice");
   assert.ok(html.includes(`>${other.caption.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}`), "an untranslated caption stays English");
   assert.ok(html.includes("TEST-ONLY Zeile") && /data-search="[^"]*TEST-ONLY Zeile/.test(html), "the search matches the translation");
+});
+
+test("Settings translates a caption written with {slots} by its game key, and shows its slots as <slot>", () => {
+  const row = model.pages.flatMap((p) => p.rows).find((r) => r.key && r.key.includes("{n}"));
+  assert.ok(row, "the addon has a caption with a {n} slot");
+  const html = settingsPage(model, read, siteLocale(DE, new Map([[row.key, row.key.replace("{n}", "{n} TEST-ONLY")]]))).body;
+  const shown = `${row.caption.replace("<n>", "&lt;n&gt; TEST-ONLY")}`;
+  assert.ok(html.includes(`>${shown}`), `the caption “${shown}”`);
+  assert.ok(new RegExp(`data-search="[^"]*${shown}`).test(html), "the search matches it too");
 });
 
 test("Commands shows the addon's translation of a help line, with the command typed as in English", () => {
@@ -322,10 +332,21 @@ test("the language switcher sits at the sidebar's foot, with this page in every 
   for (const l of ALL) {
     const h = html(folder(l), "/settings/");
     const nav = h.slice(h.indexOf('<nav class="nav sidebar"'), h.indexOf("</nav>"));
-    assert.ok(nav.includes('<select id="lang-select" data-lang-switch>'), `${l.code} switcher in the sidebar`);
+    assert.ok(nav.includes('<select id="lang-select" data-lang-switch autocomplete="off">'), `${l.code} switcher in the sidebar, not restored by the browser after Back`);
     for (const a of ALL) assert.ok(nav.includes(`<option value="${a === ENGLISH ? "" : `/${a.code}`}/settings/" lang="${a.lang}"`), `${l.code} option ${a.code}`);
     assert.ok(nav.includes(`lang="${l.lang}" data-offer="${l.strings["lang.offer"]}"`), `${l.code} offer line`);
     assert.ok(new RegExp(`<option [^>]*lang="${l.lang}"[^>]* selected>`).test(nav), `${l.code} is selected`);
+  }
+});
+
+test("the sidebar landmark and the link-preview image description are in the page's language", () => {
+  for (const l of ALL) {
+    const h = html(folder(l), "/settings/");
+    assert.ok(h.includes(`<nav class="nav sidebar" aria-label="${l.strings["nav.label"]}" id="site-nav">`), `${l.code} nav label`);
+    assert.ok(h.includes(`<meta property="og:image:alt" content="${l.strings["social.imageAlt"].replace(/&/g, "&amp;")}">`), `${l.code} og:image:alt`);
+    if (l === ENGLISH) continue;
+    assert.notEqual(l.strings["nav.label"], ENGLISH_STRINGS["nav.label"], `${l.code} nav label is translated`);
+    assert.notEqual(l.strings["social.imageAlt"], ENGLISH_STRINGS["social.imageAlt"], `${l.code} image description is translated`);
   }
 });
 
@@ -431,4 +452,48 @@ test("the site as published today (no `locales` listed) has no language switcher
   const h = fs.readFileSync(path.join(cfg.outDir, "settings", "index.html"), "utf8");
   assert.ok(!h.includes("hreflang") && !h.includes("lang-select") && !h.includes("lang-menu") && !h.includes("vg-strings"));
   assert.ok(!fs.existsSync(path.join(cfg.outDir, "de")));
+});
+
+test("the Home tagline is the addon's Notes line up to its colon, full-width or not, with the language's own full stop", () => {
+  const hero = (dir) => html(dir, "/").match(/<p class="hero-tagline">([^<]*)<\/p>/)[1];
+  const english = hero("");
+  for (const l of LOCALES) {
+    const notes = model.next.meta[`Notes-${l.addon}`];
+    assert.ok(notes, `${l.code}: the TOC has a Notes line`);
+    const cut = notes.search(/[:：]/);
+    const stop = notes[cut] === "：" ? "。" : ".";
+    assert.equal(hero(l.code).replace(/&#39;/g, "'"), `${notes.slice(0, cut).trim()}${stop}`.replace(/&/g, "&amp;"), l.code);
+    assert.notEqual(hero(l.code), english, `${l.code}: not the English tagline`);
+  }
+});
+
+test("every Feedback area option carries the English name the Function files, in every language", () => {
+  const options = (h) => [...h.matchAll(/<option value="([^"]+)" data-en="([^"]*)">/g)].map((m) => [m[1], m[2]]);
+  const english = options(html("", "/feedback/"));
+  assert.ok(english.length > 10 && english.some(([v]) => v === "RaidFrames"));
+  const data = JSON.parse(fs.readFileSync(path.join(out, "site-data.json"), "utf8"));
+  const names = new Map(data.modules.map((m) => [m.key, m.name]));
+  for (const [value, name] of english) assert.ok(names.get(value) === name || FALLBACK_AREAS.some(([v, l]) => v === value && l === name), `${value}: “${name}”`);
+  for (const l of LOCALES) assert.deepEqual(options(html(l.code, "/feedback/")), english, `${l.code}: the same English names as the English page`);
+});
+
+test("Getting started names the options pages General, Look and Layout in the addon's words for every language", () => {
+  const names = new Map([["General", "TEST-ONLY Allgemein"], ["Look", "TEST-ONLY Aussehen"], ["Layout", "TEST-ONLY Anordnung"]]);
+  for (const l of LOCALES) {
+    const body = startPage(model, read, siteLocale(l, names)).body.replace(/<[^>]+>/g, "");
+    assert.ok(body.includes("TEST-ONLY Allgemein → TEST-ONLY Aussehen"), `${l.code}: General → Look`);
+    assert.ok(body.includes("TEST-ONLY Allgemein → TEST-ONLY Anordnung"), `${l.code}: General → Layout`);
+    assert.ok(!/General → (Look|Layout)/.test(body), `${l.code}: no English page names`);
+  }
+});
+
+test("a built Getting started page uses each language's own words for General → Look and General → Layout", () => {
+  for (const l of LOCALES) {
+    const own = addonTranslations([relReader, nextReader], l.addon);
+    const body = text(html(l.code, "/start/").match(/<main[\s\S]*<\/main>/)[0]);
+    for (const [name, rest] of [["Look", "Look"], ["Layout", "Layout"]]) {
+      const want = `${own.get("General") ?? "General"} → ${own.get(rest) ?? name}`;
+      assert.ok(body.includes(want), `${l.code}: “${want}”`);
+    }
+  }
 });

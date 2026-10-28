@@ -206,24 +206,43 @@ function makeRow(ctx, kind, caption, extraParts, loop) {
 const FORMAT_CALL = /^ns\.Format\(\s*/;
 // How a caption's placeholder reads on the site, by its name.
 const SHOWN = { n: "n", p: "phrase" };
+// The same for a value joined onto a caption with `..`, by its last name (BS.MAX, SI.LABELS[name]):
+// worded as the next release's ns.Format version of the caption words it, so the two are one row.
+const JOINED_SHOWN = { MAX: "count", LABELS: "situation" };
+
+// A caption's text with each {slot} shown as <slot>, the way the site lists it.
+export function showSlots(text) {
+  return text.replace(/\{(\w+)\}/g, (_, name) => `<${SHOWN[name] || name}>`);
+}
 
 // Reads an ns.Format caption's string at code[i]: each {slot} shows as <slot>, and its variable is the identifier
 // the first slot's value starts with ({ n = n } gives n), so a row in a numeric loop is still seen as one.
+// `key` is the string as the game looks it up in the language files.
 function formatCaption(m, i) {
   const s = readString(m.code, i);
   const values = (m.code.slice(s.end).match(/^\s*,\s*\{([^}]*)\}/) || [])[1] || "";
   const first = (s.value.match(/\{(\w+)\}/) || [])[1];
   const variable = first ? (values.match(new RegExp(`\\b${first}\\s*=\\s*([A-Za-z_]\\w*)`)) || [])[1] || null : null;
-  return { caption: s.value.replace(/\{(\w+)\}/g, (_, name) => `<${SHOWN[name] || name}>`), variable, end: s.end };
+  return { caption: showSlots(s.value), key: s.value, variable, end: s.end };
 }
 
-// Reads a caption string at code[i] and an optional `.. name` after it, or an ns.Format caption (formatCaption).
+// A value joined onto a caption string with `..`: a name, maybe dotted or indexed, such as `BS.MAX`.
+const JOINED_VALUE = /^\s*\.\.\s*([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)(?:\[[^\]]*\])?/;
+
+// Reads a caption string at code[i] with the values and strings joined on after it (`"Clear " .. SI.LABELS[name]`),
+// or an ns.Format caption (formatCaption).
 function captionAt(m, i) {
   const call = m.code.slice(i).match(FORMAT_CALL);
   if (call) return formatCaption(m, i + call[0].length);
   const s = readString(m.code, i);
-  const cat = m.code.slice(s.end).match(/^\s*\.\.\s*([A-Za-z_]\w*)/);
-  return { caption: cat ? `${s.value}<${SHOWN[cat[1]] || cat[1]}>` : s.value, variable: cat ? cat[1] : null, end: s.end };
+  const joined = m.code.slice(s.end).match(JOINED_VALUE);
+  if (!joined) return { caption: s.value, variable: null, end: s.end };
+  const name = joined[1];
+  const last = name.split(".").pop();
+  const shown = `<${JOINED_SHOWN[last] || SHOWN[last] || last}>`;
+  const after = m.code.slice(s.end + joined[0].length).match(/^\s*\.\.\s*(?=["'])/);
+  const tail = after ? readString(m.code, s.end + joined[0].length + after[0].length) : null;
+  return { caption: `${s.value}${shown}${tail ? tail.value : ""}`, variable: name.includes(".") ? null : name, end: tail ? tail.end : s.end };
 }
 
 // Expands the rows reachable from code[from..to): row literals, check(...)
@@ -270,6 +289,7 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
     const kind = f.type === "lit" ? f.h[1] : f.type === "check" ? "check" : "visibility";
     const loopFor = cap.variable && here && here.variable === cap.variable ? here : null;
     const row = makeRow(ctx, kind, cap.caption, parts.slice(capIdx + 1), loopFor);
+    if (cap.key) row.key = cap.key;
     if (kind === "visibility") row.choices = ctx.visibility(m.code.slice(open, close));
     if (here && !loopFor && f.type !== "lit") row.repeated = here;
     if (here && !loopFor && f.type === "lit") row.repeated = here;

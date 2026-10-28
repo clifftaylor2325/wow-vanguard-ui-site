@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { clean, cleanLine, cell, fence, block, inline } from "../src/feedback/sanitize.js";
 import { parseReport, normalize, fingerprint } from "../src/feedback/report.js";
 import { parseFeedback, hasFeedback, FEEDBACK_START, FEEDBACK_END } from "../src/feedback/fill.js";
-import { readFields, validate, FALLBACK_AREAS } from "../src/feedback/fields.js";
+import { readFields, validate, english, FALLBACK_AREAS } from "../src/feedback/fields.js";
 import { bugIssue, featureIssue, duplicateComment, refIn } from "../src/feedback/body.js";
 import { handlePost, handleGet, configProblem } from "../functions/_lib/handler.js";
 import { playerNet, capKeys } from "../functions/_lib/ratelimit.js";
@@ -205,6 +205,14 @@ test("validate: required fields, limits, report-or-tick, area and acknowledgemen
   assert.ok(validate(readFields(featureFields({ area: "Nope" })), AREAS.keys()).area);
   assert.deepEqual(validate(readFields(featureFields()), AREAS.keys()), {});
   assert.equal(readFields({ contact: "me@example.com", contact_ok: false }).contact, "", "contact needs the box ticked");
+});
+
+test("length messages write their numbers in the language they are shown in, and in en-US for the Function", () => {
+  const long = readFields(bugFields({ did: "x".repeat(2001) }));
+  assert.equal(validate(long, AREAS.keys()).did, "What you did can be at most 2,000 characters (it has 2,001).");
+  const german = (text, values) => english(text, values, "de");
+  assert.equal(validate(long, AREAS.keys(), german).did, "What you did can be at most 2.000 characters (it has 2.001).");
+  assert.equal(english("{n} / {label}", { n: 20000, label: "20000" }, "fr").replace(/\s/g, " "), "20 000 / 20000", "only numbers are formatted");
 });
 
 test("bug issue: marker, title, env table, fenced report, footer, labels", async () => {

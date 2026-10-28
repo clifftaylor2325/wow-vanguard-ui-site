@@ -834,6 +834,21 @@ end
 local PAGES = { { key = "bars", title = L["Bars"], rows = barRows } }`);
   const [page] = extractPages({ read: (file) => (file === "Core/Options.lua" ? lua : null) }, ["Core/Options.lua"], []);
   assert.deepEqual(page.rows.map((r) => [r.kind, r.caption, r.loop?.variable ?? null]), [["check", "Show bar <n>", "n"], ["button", "Remove: <item>", null]]);
+  assert.deepEqual(page.rows.map((r) => r.key), ["Show bar {n}", "Remove: {item}"], "the row keeps the key the game looks the text up by");
+});
+
+// A caption joined with `..` to a dotted or indexed value reads in full, worded like the next release's ns.Format version.
+test("an option row's caption joined to BS.MAX or SI.LABELS[name] keeps the whole name and the text after it", () => {
+  const lua = unwrapLocale(`local ADDON, ns = ...
+local function rows(BS, SI)
+  local rows = {}
+  rows[1] = { "text", L["Picked feeds show along the top edge (up to "] .. BS.MAX .. L[", in the order picked)."] }
+  rows[2] = { "button", "Clear " .. SI.LABELS[name], function() clear(name) end }
+  return rows
+end
+local PAGES = { { key = "x", title = L["X"], rows = rows } }`);
+  const [page] = extractPages({ read: (file) => (file === "Core/Options.lua" ? lua : null) }, ["Core/Options.lua"], []);
+  assert.deepEqual(page.rows.map((r) => [r.caption, r.key ?? null]), [["Picked feeds show along the top edge (up to <count>, in the order picked).", null], ["Clear <situation>", null]]);
 });
 
 test("the profile reset quote is found written with %s or with ns.Format slots", () => {
@@ -858,4 +873,38 @@ test("the addon's L[\"…\"] lookups unwrap to their English literal", () => {
   const reader = gitReader(dir, "HEAD");
   assert.deepEqual([reader.read("A.lua"), reader.read("A.md")], [`check("Bags")`, `L["Bags"]`], "Lua files are read unwrapped, other files as they are");
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+// site.js is a browser script with no exports: its optionFor is cut out of the built file and run
+// against the real language select of the built Settings page.
+test("site.js offers a browser's language: Latin American Spanish gets es-mx, Spain and plain Spanish get es", () => {
+  if (!LANG_DIRS.includes("es-mx/")) return;
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  const source = js.match(/function optionFor\(sel, want\) \{[\s\S]*?\n  \}\n/)?.[0];
+  assert.ok(source, "optionFor is in site.js");
+  const optionFor = new Function(`${source}; return optionFor;`)();
+  const options = [...page("settings").matchAll(/<option value="([^"]*)" lang="([^"]+)"/g)].map((m) => ({ value: m[1], lang: m[2] }));
+  const sel = { options };
+  const offered = (want) => optionFor(sel, want)?.value;
+  for (const want of ["es-419", "es-AR", "es-CO", "es-CL", "es-US", "es-MX", "es-mx"]) assert.equal(offered(want), "/es-mx/settings/", want);
+  for (const want of ["es", "es-ES", "es-es"]) assert.equal(offered(want), "/es/settings/", want);
+  assert.equal(offered("pt-PT"), "/pt-br/settings/");
+  assert.equal(offered("zh-HK"), "/zh-tw/settings/");
+  assert.equal(offered("nb"), undefined);
+});
+
+test("the offer note's link keeps the section the reader arrived on", () => {
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  assert.ok(js.includes("link.href = opt.value + location.hash;\n"), "set when the note is made");
+  assert.ok(js.includes("remember(opt.lang); link.href = opt.value + location.hash;"), "and again when it is followed");
+});
+
+// Both are browser behaviour (the form-state restore and the back/forward cache), which the suite
+// can't run: it checks that the built page and script carry the pieces, and shots.mjs-style
+// browser probing (S6 browse2.mjs) showed autocomplete="off" stops the restore in Chromium.
+test("the language select is not restored by the browser, and site.js sets it back to this page's language on pageshow", () => {
+  assert.ok(page("settings").includes('<select id="lang-select" data-lang-switch autocomplete="off">'), "autocomplete is off on the select");
+  const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
+  assert.match(js, /addEventListener\("pageshow"/, "a pageshow handler puts the select back");
+  assert.ok(js.includes("defaultSelected") && js.includes("sel.selectedIndex = i"), "...on the option the page marks selected");
 });

@@ -7,7 +7,7 @@ import { crestSvg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf, readmeSays } from "./features-content.mjs";
 import { EN } from "./i18n-site.mjs";
-import { splitHelp } from "./extract.mjs";
+import { splitHelp, showSlots } from "./extract.mjs";
 
 // "September 27, 2026" in New York time, in the page's language.
 export function dateET(iso, loc = EN) {
@@ -72,12 +72,14 @@ export function tagline(readme) {
   return m ? m[1].trim() : "";
 }
 
-// The tagline in the page's language: the addon's own translated TOC Notes line
-// (## Notes-deDE) up to its colon, which says the same; English from the README.
-function localTagline(model, loc) {
+// The tagline in the page's language, with its closing stop: the addon's own translated TOC Notes
+// line (## Notes-deDE) up to its colon, which says the same (the full-width "：" of Chinese ends
+// with "。"); English from the README.
+export function localTagline(model, loc) {
   const notes = String(model.next.meta[`Notes-${loc.addonLocale}`] || "");
-  if (loc.english || !notes.includes(":")) return tagline(model.next.readme) || tagline(model.rel.readme);
-  return notes.slice(0, notes.indexOf(":")).trim();
+  const colon = notes.search(/[:：]/);
+  if (loc.english || colon < 0) return `${tagline(model.next.readme) || tagline(model.rel.readme)}.`;
+  return `${notes.slice(0, colon).trim()}${notes[colon] === "：" ? "。" : "."}`;
 }
 
 // The modules featured on the home page, in this order, when the current
@@ -166,7 +168,7 @@ ${heroArt()}
   <p class="hero-kicker">${loc.p("An addon for WoW&nbsp;Forever")}</p>
   <h1 id="hero-title" class="hero-title">Vanguard</h1>
   ${ornament("hero-orn")}
-  <p class="hero-tagline">${esc(localTagline(model, loc))}.</p>
+  <p class="hero-tagline">${esc(localTagline(model, loc))}</p>
   <div class="hero-actions">${storeCtas({ size: "lg", loc })}<a class="button ghost" href="/features/">${loc.p("See the features")}</a></div>
   <p class="hero-meta">${heroFacts(model, n, loc)}</p>
 </div>
@@ -301,6 +303,12 @@ function setupWords(S, loc) {
   return { A, lab, say, s: (part) => say(S, "Core/Setup.lua", part) };
 }
 
+// The names of the options pages the prose points to (General → Look, General → Layout), as the
+// addon's own words in the page's language; the prose carries them as {general}, {look}, {layout}.
+function pageNames(loc) {
+  return { general: esc(loc.addon("General")), look: esc(loc.addon("Look")), layout: esc(loc.addon("Layout")) };
+}
+
 // A setup text with named slots, in the page's language: the addon's translation of the
 // sentence, filled; the English the extractor made when the source has no named sentence.
 function namedText(named, values, english, loc) {
@@ -363,9 +371,9 @@ function wizardScreenStep(setup, w, loc) {
 <p>${loc.p("It asks: “{question}”", { question: A(setup.questions[1] || "") })} ${presets} ${small} ${loc.p("Your choice takes effect when you click <strong>{next}</strong>.", { next: lab(S, "Core/Setup.lua", "Next") })}</p>
 <div class="table-wrap"><table class="stack"><thead><tr><th scope="col">${head[0]}</th><th scope="col">${head[1]}</th></tr></thead><tbody>
 ${setup.screens.map((p) => row(screenRow(p), esc(namedText(setup.named.hint, p.values, p.hint, loc)))).join("\n")}
-${setup.pixelText ? `${row(A(setup.pixelText), loc.p("Leaves the game's UI scale alone and turns on <strong>{pixel}</strong> under General → Look instead.", { pixel }))}\n` : ""}${row(A(setup.keepText), esc(keepHint))}
+${setup.pixelText ? `${row(A(setup.pixelText), loc.p("Leaves the game's UI scale alone and turns on <strong>{pixel}</strong> under {general} → {look} instead.", { pixel, ...pageNames(loc) }))}\n` : ""}${row(A(setup.keepText), esc(keepHint))}
 </tbody></table></div>
-<p>${loc.p("The UI scale a preset sets is the game's own UI scale (the one in the game's graphics settings). It changes once you're out of combat, and choosing a preset turns off <strong>{pixel}</strong> under <strong>General → Look</strong>.", { pixel })} ${A(setup.reloadTile)}</p>`;
+<p>${loc.p("The UI scale a preset sets is the game's own UI scale (the one in the game's graphics settings). It changes once you're out of combat, and choosing a preset turns off <strong>{pixel}</strong> under <strong>{general} → {look}</strong>.", { pixel, ...pageNames(loc) })} ${A(setup.reloadTile)}</p>`;
 }
 
 // Steps 3 and 4: the look, and moving frames.
@@ -419,7 +427,7 @@ function wizardFinish(setup, w, loc) {
   const ends = setup.later
     ? `<p>${clicks} ${loc.p("<strong>{done}</strong> finishes it, and so does <strong>{skip}</strong>; both lock your frames again, and chat says “{again}”", { done, skip: lab(S, "Core/Setup.lua", "Skip setup"), again: A(setup.again) })}</p>
 <p>${loc.p("The window's close button and <kbd>Escape</kbd> only close it. Until it's finished, it opens again at your next login, and chat says “{later}”", { later: A(setup.later) })}</p>
-<p>${loc.p("To run it again, type <code>/vg setup</code> or click <strong>{run}</strong> under <strong>General → Layout</strong> in <code>/vg</code>.", { run: lab(w.O, "Core/Options.lua", "Run setup") })}</p>`
+<p>${loc.p("To run it again, type <code>/vg setup</code> or click <strong>{run}</strong> under <strong>{general} → {layout}</strong> in <code>/vg</code>.", { run: lab(w.O, "Core/Options.lua", "Run setup"), ...pageNames(loc) })}</p>`
     : `<p>${clicks} ${loc.p("<strong>{done}</strong>, the window's close button and <kbd>Escape</kbd> all end the wizard and lock your frames again. It doesn't come back by itself; type <code>/vg setup</code> to run it again.", { done })}</p>`;
   return `<h3 id="setup-finish">${loc.p("Finishing")}</h3>
 ${ends}
@@ -479,7 +487,7 @@ function startMove(model, read, loc) {
   const popoverNext = /scale and opacity/.test(JSON.stringify(next.pages)) && !/scale and opacity/.test(JSON.stringify(rel.pages));
   label(O, "Core/Options.lua", "Move frames");
   return `<ol class="steps">
-  <li>${loc.p("Type <code>/vg unlock</code> (or <code>/vg move</code>), or click <strong>{button}</strong> under <strong>General → Layout</strong>. Every Vanguard frame gets a drag handle.", { button: esc(loc.addon("Move frames")) })}</li>
+  <li>${loc.p("Type <code>/vg unlock</code> (or <code>/vg move</code>), or click <strong>{button}</strong> under <strong>{general} → {layout}</strong>. Every Vanguard frame gets a drag handle.", { button: esc(loc.addon("Move frames")), ...pageNames(loc) })}</li>
   <li>${loc.p("Drag a handle to move that frame. Or click a handle, then use the arrow keys to nudge it (hold <kbd>Shift</kbd> to move 10 px).")}</li>
   <li>${loc.p("Right-click a handle for its exact anchor and offsets")}${popoverNext ? nextOnly(`${loc.p("; the next release adds its scale (50% to 200%) and opacity (10% to 100%) there too")} ${nextBadge(loc)}`) : ""}.</li>
   <li>${loc.p("Type <code>/vg lock</code> when you're done.")}</li>
@@ -494,7 +502,7 @@ function startAccentModules(model, read, loc) {
   const O = read.next("Core/Options.lua");
   const offLine = "A module that's off builds nothing and costs nothing.";
   says(O, "Core/Options.lua", offLine);
-  const accent = `<p>${loc.p("Click a swatch under <strong>/vg → General → Look</strong>, or type <code>/vg accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/vg accent reset</code> puts the default back.")}</p>
+  const accent = `<p>${loc.p("Click a swatch under <strong>/vg → {general} → {look}</strong>, or type <code>/vg accent &lt;name&gt;</code> with one of these names (or any color as six hex digits, like <code>ffcc00</code>). <code>/vg accent reset</code> puts the default back.", pageNames(loc))}</p>
 <ul class="swatches">${presets.map(([k, hex], i) => `<li class="swatch"><i style="background:${esc(hex)}"></i><span><strong>${esc(k)}</strong>${i === 0 ? ` ${loc.p("(default)")}` : ""} <span class="small">${esc(hex)}</span></span></li>`).join("")}</ul>`;
   const modules = `<p>${loc.p(`Every part of Vanguard is a module you can turn off under <strong>/vg → {modules}</strong> (or type <code>/vg disable &lt;module&gt;</code>, then <code>/reload</code>). The options say: “{line}” The list is on <a href="/features/">Features</a>.`, { modules: esc(loc.addon("Modules")), line: esc(loc.addon(offLine)) })}</p>`;
   return { accent, modules };
@@ -822,18 +830,24 @@ function groupRow(html, attrs) {
   return `</tbody><tbody><tr class="opt-row h" ${attrs}><th scope="rowgroup" colspan="${COLS.length}">${html}</th></tr>`;
 }
 
+// A row's caption in the page's language, as plain text. A ns.Format caption is looked up by its
+// {slot} text, as the game does, and its slots show as <slot>.
+function rowCaption(r, loc) {
+  return r.key ? showSlots(loc.addon(r.key)) : loc.addon(r.caption);
+}
+
 // A heading or note row from the addon, spanning the table.
 function wideRow(r, attrs, version, loc) {
   const b = r.inRel && r.inNext ? "" : ` ${badge(r.inRel, r.inNext, version, loc)}`;
-  if (r.kind === "header") return groupRow(`${esc(loc.addon(r.caption))}${b}`, attrs);
-  return `<tr class="opt-row t opt-item" ${attrs}><td colspan="${COLS.length}">${esc(loc.addon(r.caption))}${b}</td></tr>`;
+  if (r.kind === "header") return groupRow(`${esc(rowCaption(r, loc))}${b}`, attrs);
+  return `<tr class="opt-row t opt-item" ${attrs}><td colspan="${COLS.length}">${esc(rowCaption(r, loc))}${b}</td></tr>`;
 }
 
 // The words the search box matches for a row: its page, caption and choices,
 // in English and in the page's language.
 function rowSearch(r, pageTitle, loc) {
   const words = [pageTitle, r.caption, ...(r.choices || []).map((c) => c[1])];
-  const own = loc.english ? [] : words.map((w) => loc.addon(w)).filter((w) => !words.includes(w));
+  const own = loc.english ? [] : [...words.map((w) => loc.addon(w)), rowCaption(r, loc)].filter((w) => !words.includes(w));
   return `${pageTitle} ${r.caption} ${(r.choices || []).map((c) => c[1]).join(" ")}${own.length ? ` ${own.join(" ")}` : ""}`;
 }
 
@@ -845,7 +859,7 @@ function optRow(r, version, pageTitle, id, loc) {
   const notes = `${r.reload ? `${reloadBadge(loc)} ` : ""}${badge(r.inRel, r.inNext, version, loc)}`;
   const kind = KINDS.includes(r.kind) ? ` <span class="opt-kind">${loc.t(`kind.${r.kind}`)}</span>` : "";
   const cells = [valuesText(r, loc), defaultText(r, loc), notes].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
-  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(loc.addon(r.caption))}${loop}${kind}</th>${cells.join("")}</tr>`;
+  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${kind}</th>${cells.join("")}</tr>`;
 }
 
 // The heading over rows the options window repeats, e.g. "The rows below repeat for each n from 1 to 8".

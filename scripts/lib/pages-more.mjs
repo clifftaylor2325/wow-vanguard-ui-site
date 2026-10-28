@@ -386,7 +386,8 @@ export function helpPage(model, read, loc = EN) {
 
 // The "Part of Vanguard" options: the addon's modules, grouped as on the
 // Features page, then the four general choices. Values are module keys; the
-// Function reads the same list from site-data.json.
+// Function reads the same list from site-data.json. Each option carries its English name in
+// data-en, which the preview shows, so it reads as the report the Function files.
 function areaOptions(model, loc) {
   const byKey = new Map(model.modules.map((m) => [m.key, m]));
   const used = new Set();
@@ -397,10 +398,10 @@ function areaOptions(model, loc) {
   });
   const rest = model.modules.filter((m) => !used.has(m.key));
   if (rest.length) groups.push(["Other modules", rest]);
-  const opt = (value, label) => `<option value="${esc(value)}">${esc(label)}</option>`;
+  const opt = (value, label, english) => `<option value="${esc(value)}" data-en="${esc(english)}">${esc(label)}</option>`;
   return [`<option value="">${loc.p("Choose one")}</option>`,
-    ...groups.filter(([, mods]) => mods.length).map(([title, mods]) => `<optgroup label="${esc(loc.p(title))}">${mods.map((m) => opt(m.key, loc.addon(m.name))).join("")}</optgroup>`),
-    `<optgroup label="${esc(loc.p("Something else"))}">${FALLBACK_AREAS.map(([v, l]) => opt(v, loc.p(l))).join("")}</optgroup>`].join("\n");
+    ...groups.filter(([, mods]) => mods.length).map(([title, mods]) => `<optgroup label="${esc(loc.p(title))}">${mods.map((m) => opt(m.key, loc.addon(m.name), m.name)).join("")}</optgroup>`),
+    `<optgroup label="${esc(loc.p("Something else"))}">${FALLBACK_AREAS.map(([v, l]) => opt(v, loc.p(l), l)).join("")}</optgroup>`].join("\n");
 }
 
 // One labelled text field: input (or textarea) with its hint and error line.

@@ -262,6 +262,16 @@ async function checkLangOffer(browser, base, loc, failures) {
   await context.close();
 }
 
+// A Latin American Spanish browser (es-419) is offered /es-mx/, and the offer keeps the section link.
+async function checkSpanishRegionOffer(browser, base, loc, failures) {
+  const context = await browser.newContext({ locale: "es-419", viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+  await page.goto(`${base}/install/#by-hand`, { waitUntil: "load" });
+  const href = await page.evaluate(() => document.querySelector(".lang-offer a")?.getAttribute("href") || null);
+  report(failures, `an es-419 browser on /install/#by-hand is offered ${href}`, href === `/${loc.code}/install/#by-hand`);
+  await context.close();
+}
+
 // Every check of one published language, with screenshots of its Settings and Commands.
 async function checkLanguage(browser, base, loc, failures) {
   for (const [width, height] of [[1280, 800], [390, 844]]) {
@@ -286,6 +296,7 @@ async function checkLanguage(browser, base, loc, failures) {
     await page.close();
   }
   await checkLangOffer(browser, base, loc, failures);
+  if (loc.code === "es-mx") await checkSpanishRegionOffer(browser, base, loc, failures);
 }
 
 // Entry point.
