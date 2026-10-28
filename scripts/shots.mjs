@@ -170,9 +170,24 @@ async function checkDrawer(page, base, url, failures) {
     const nav = document.getElementById("site-nav");
     return nav.classList.contains("open") && getComputedStyle(nav).visibility === "visible" && document.querySelector(".nav-toggle").getAttribute("aria-expanded") === "true";
   });
+  const stray = await tabStraysFromDrawer(page);
   await page.keyboard.press("Escape");
   const closed = await page.evaluate(() => !document.getElementById("site-nav").classList.contains("open"));
   report(failures, `${url} Menu opens the drawer and Escape closes it`, opened && closed);
+  report(failures, `${url} with the drawer open, Tab stays in it (${stray} stops outside)`, stray === 0);
+}
+
+// Presses Tab 30 times in the open drawer and counts the stops outside it (the Menu button, the skip link and the body are fine).
+async function tabStraysFromDrawer(page) {
+  let stray = 0;
+  for (let i = 0; i < 30; i++) {
+    await page.keyboard.press("Tab");
+    stray += await page.evaluate(() => {
+      const a = document.activeElement;
+      return a === document.body || a.closest("#site-nav") || a.matches(".nav-toggle, .skip") ? 0 : 1;
+    });
+  }
+  return stray;
 }
 
 // Fails when the page scrolls sideways.

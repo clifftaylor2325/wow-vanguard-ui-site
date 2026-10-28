@@ -228,6 +228,19 @@ test("the page title leaves 6rem each side for the Expand all button", () => {
   assert.match(css, /@media \(min-width: 560px\) \{[\s\S]*?\.page-hero:has\(\.expand-all\) \.page-title \{ margin-inline: 6rem; \}/);
 });
 
+test("the Menu button controls the drawer it opens, and its arrows are not part of its name", () => {
+  for (const dir of LANG_DIRS) {
+    for (const name of ["", "install", "commands", "feedback"]) {
+      const html = page(`${dir}${name}`);
+      const controls = html.match(/<button class="nav-toggle"[^>]*aria-controls="([^"]+)"/)[1];
+      assert.match(html, new RegExp(`<nav class="nav sidebar"[^>]* id="${controls}"`), `${dir}${name}: aria-controls names the nav`);
+    }
+  }
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.ok(css.includes('content: " ▾" / "";') && css.includes('content: " ▴" / "";'), "the arrows have an empty text alternative");
+  assert.match(fs.readFileSync(path.join(dist, "assets/site.js"), "utf8"), /\.inert = inert/, "the open drawer makes the page behind it inert");
+});
+
 test("the Commands search hides groups with no match, as Features and Settings do", () => {
   for (const dir of LANG_DIRS) {
     assert.match(page(`${dir}commands`), /<div class="search" data-target="#cmd-list" data-items="\.cmd" data-groups="\.cmd-group"/, `${dir}commands search box needs data-groups`);

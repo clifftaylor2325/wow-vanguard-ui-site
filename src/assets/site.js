@@ -310,6 +310,14 @@
     return ok;
   }
 
+  // What sits behind the open drawer: Tab and screen readers skip it. The Menu
+  // button stays live so the drawer can be closed from the keyboard.
+  var BEHIND_DRAWER = ".shell > main, .site-footer, .site-header .brand, .site-header .lang-menu";
+  function setBehindDrawer(inert) {
+    var parts = document.querySelectorAll(BEHIND_DRAWER);
+    for (var i = 0; i < parts.length; i++) parts[i].inert = inert;
+  }
+
   // The Menu button: opens the nav as a drawer on narrow screens, with a
   // backdrop; Escape, the backdrop or the button close it.
   function wireNav() {
@@ -321,6 +329,7 @@
       nav.classList.toggle("open", on);
       document.documentElement.classList.toggle("nav-open", on);
       btn.setAttribute("aria-expanded", on ? "true" : "false");
+      setBehindDrawer(on);
       if (on && !backdrop) {
         backdrop = document.createElement("div");
         backdrop.className = "nav-backdrop";

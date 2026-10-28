@@ -103,8 +103,8 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 @media (max-width: 479px) { .header-inner { gap: var(--sp-2); } .nav-toggle { white-space: nowrap; padding-left: 10px; padding-right: 10px; } }
 .ask { margin-top: var(--sp-4); }
 .nav-toggle { margin-left: auto; font: inherit; cursor: pointer; padding: 6px 12px; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); font-weight: 600; }
-.nav-toggle::after { content: " ▾"; color: var(--text2); }
-.nav-toggle[aria-expanded="true"]::after { content: " ▴"; }
+.nav-toggle::after { content: " ▾"; content: " ▾" / ""; color: var(--text2); }
+.nav-toggle[aria-expanded="true"]::after { content: " ▴"; content: " ▴" / ""; }
 
 /* ------------------------------------------------------------------ Nav
    The sidebar on every page. Under 900px it's a drawer that slides in from

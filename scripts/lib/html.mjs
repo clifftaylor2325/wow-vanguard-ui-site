@@ -353,7 +353,7 @@ export function menuPaths(html) {
 export function layout({ path, title, description, body, site, scripts = [], loc = EN, alts = [], translated = false }) {
   const fullTitle = pageTitle(path, title, loc);
   if (loc.english || !translated) description = SEO[path]?.description || description;
-  const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-list">${loc.t("menu")}</button>`;
+  const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">${loc.t("menu")}</button>`;
   const nav = `<nav class="nav sidebar" aria-label="${esc(loc.text("nav.label"))}" id="site-nav">${navCommunity(loc)}${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
   const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${menuPaths(localiseLinks(body, loc))}\n</main>`;
   // An asset's URL with the build's version query (the plain path if it has none).
