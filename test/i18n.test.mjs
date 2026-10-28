@@ -14,6 +14,7 @@ import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { NAV, menuPaths } from "../scripts/lib/html.mjs";
 import { ENGLISH, ENGLISH_STRINGS, LOCALES, publishedLocales, parseLocaleLua, parseCsv, parseDraftCsv, addonTranslations, siteLocale, localiseLinks, proseOf, proseProblems } from "../scripts/lib/i18n-site.mjs";
+import { MESSAGES } from "../functions/_lib/handler.js";
 import { commandWords, commandsIn } from "../scripts/lib/commands.mjs";
 import { ENGLISH_HELP } from "../scripts/lib/help-content.mjs";
 import { helpPage, supportPage, SUPPORT_PAGE } from "../scripts/lib/pages-more.mjs";
@@ -391,6 +392,17 @@ test("the Settings counts line ends with the language's full stop", () => {
     const chinese = l.code.startsWith("zh-");
     assert.ok(counts.endsWith(chinese ? "。" : "."), `${l.code}: “${counts.slice(-12)}”`);
     assert.ok(!chinese || !counts.endsWith("."), `${l.code} has no ASCII full stop`);
+  }
+});
+
+test("the Feedback form carries a translation of each message the Function can answer with", () => {
+  for (const l of LOCALES) {
+    const m = html(l.code, "/feedback/").match(/<script type="application\/json" id="fb-messages">([\s\S]*?)<\/script>/);
+    const own = JSON.parse(m[1]);
+    for (const [code, english] of Object.entries(MESSAGES)) {
+      if (code === "invalid") continue;
+      assert.ok(own[english] && own[english] !== english, `${l.code}: ${code} translated`);
+    }
   }
 });
 

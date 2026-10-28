@@ -26,8 +26,9 @@ const FP_TTL = 30 * 86400;
 const LOCAL = new Set(["localhost", "127.0.0.1", "[::1]"]);
 const REF_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
-// The messages the page shows for each kind of failure.
-const MESSAGES = {
+// The Function's English answer for each kind of failure, for other API clients. The page shows
+// its own translation of each (src/assets/feedback.js FAILURES); test/feedback.test.mjs keeps them in sync.
+export const MESSAGES = {
   bad_request: "That didn't look like a report from this page. Reload the page and try again.",
   invalid: "Some fields need another look.",
   spam: "That was sent too quickly. Wait a few seconds and try again.",

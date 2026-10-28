@@ -12,7 +12,7 @@ import { parseReport, normalize, fingerprint } from "../src/feedback/report.js";
 import { parseFeedback, hasFeedback, FEEDBACK_START, FEEDBACK_END } from "../src/feedback/fill.js";
 import { readFields, validate, english, FALLBACK_AREAS } from "../src/feedback/fields.js";
 import { bugIssue, featureIssue, duplicateComment, refIn } from "../src/feedback/body.js";
-import { handlePost, handleGet, configProblem } from "../functions/_lib/handler.js";
+import { handlePost, handleGet, configProblem, MESSAGES } from "../functions/_lib/handler.js";
 import { playerNet, capKeys } from "../functions/_lib/ratelimit.js";
 import { apiBase, gitHub } from "../functions/_lib/github.js";
 import { SITEVERIFY } from "../functions/_lib/turnstile.js";
@@ -846,4 +846,15 @@ test("the rate caps count an IPv6 /64 as one player, and an IPv4 address as itse
   const c = await capKeys("2001:db8:85a3:8d4:1:2:3:4", "salt", now);
   assert.equal(a.player, b.player);
   assert.notEqual(a.player, c.player);
+});
+
+test("the page says each of the Function's error messages itself (unavailable is its fallback), so a translation reaches the player", () => {
+  const script = fs.readFileSync(path.join(root, "src/assets/feedback.js"), "utf8");
+  const literals = new Set([...script.matchAll(/\btr\("((?:[^"\\]|\\.)*)"/g)].map((m) => JSON.parse(`"${m[1]}"`)));
+  for (const [code, message] of Object.entries(MESSAGES)) {
+    if (code === "invalid") continue;
+    assert.ok(literals.has(message), `feedback.js needs tr("${message}") for ${code}`);
+    if (code !== "unavailable") assert.ok(script.includes(`${code}: () => tr(`), `FAILURES answers ${code}`);
+  }
+  assert.ok(!/data\.message/.test(script), "the Function's English message is never shown");
 });

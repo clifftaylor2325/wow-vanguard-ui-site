@@ -179,11 +179,20 @@ async function onPreview(e) {
   await showTurnstile();
 }
 
+// The page's own words for each error code the Function sends (functions/_lib/handler.js MESSAGES),
+// so a translated page never shows the Function's English text.
+const FAILURES = {
+  bad_request: () => tr("That didn't look like a report from this page. Reload the page and try again."),
+  spam: () => tr("That was sent too quickly. Wait a few seconds and try again."),
+  turnstile: () => tr("The spam check didn't pass. Please try it again."),
+  rate_limited: () => tr("You've sent several reports in a short time. Please wait a while before sending another."),
+};
+
 // The message for a failed send, from the Function's answer.
 function failure(res, data) {
   if (res.status === 400 && data.fields) return tr("Some fields need another look: go back with Edit.");
-  if (res.status === 429) return data.message || tr("You've sent several reports in a short time. Please wait a while before sending another.");
-  return (data && data.message) || tr("Reports can't be sent right now. Your text is still here: try again later, or copy it to keep it.");
+  const own = FAILURES[data && data.error];
+  return own ? own() : tr("Reports can't be sent right now. Your text is still here: try again later, or copy it to keep it.");
 }
 
 // Send: post the fields and the Turnstile token; show the reference.
