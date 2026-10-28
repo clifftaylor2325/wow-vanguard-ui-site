@@ -332,6 +332,28 @@ async function checkNarrowest(browser, base, loc, failures) {
   await page.close();
 }
 
+// From 560px up, no line of the page title runs under the Expand all button.
+async function checkTitleClear(browser, base, loc, failures) {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  let under = 0;
+  for (const n of NAV) {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto(`${base}/${loc.code}${n.path}`, { waitUntil: "load" });
+    if (!(await page.$(".expand-all"))) continue;
+    for (let width = 560; width <= 1280; width += 80) {
+      await page.setViewportSize({ width, height: 800 });
+      under += await page.evaluate(() => {
+        const b = document.querySelector(".expand-all").getBoundingClientRect();
+        const range = document.createRange();
+        range.selectNodeContents(document.querySelector(".page-title"));
+        return [...range.getClientRects()].some((q) => q.width && q.left < b.right && q.right > b.left && q.top < b.bottom && q.bottom > b.top) ? 1 : 0;
+      });
+    }
+  }
+  report(failures, `/${loc.code}/ titles stay clear of Expand all from 560 to 1280px (${under} overlaps)`, under === 0);
+  await page.close();
+}
+
 // Every check of one published language, with screenshots of its Settings and Commands.
 async function checkLanguage(browser, base, loc, failures) {
   for (const [width, height] of [[1280, 800], [390, 844]]) {
@@ -358,6 +380,7 @@ async function checkLanguage(browser, base, loc, failures) {
   await checkLangOffer(browser, base, loc, failures);
   if (loc.code === "es-mx") await checkSpanishRegionOffer(browser, base, loc, failures);
   await checkNarrowest(browser, base, loc, failures);
+  await checkTitleClear(browser, base, loc, failures);
 }
 
 // Entry point.

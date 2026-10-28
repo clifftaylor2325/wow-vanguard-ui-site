@@ -223,6 +223,11 @@ test("narrow grids can shrink below their content, so a long German title cannot
   assert.match(css, /details\.disclosure > summary > h2 \{[^}]*overflow-wrap: anywhere;/);
 });
 
+test("the page title leaves 6rem each side for the Expand all button", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.match(css, /@media \(min-width: 560px\) \{[\s\S]*?\.page-hero:has\(\.expand-all\) \.page-title \{ margin-inline: 6rem; \}/);
+});
+
 test("the Commands search hides groups with no match, as Features and Settings do", () => {
   for (const dir of LANG_DIRS) {
     assert.match(page(`${dir}commands`), /<div class="search" data-target="#cmd-list" data-items="\.cmd" data-groups="\.cmd-group"/, `${dir}commands search box needs data-groups`);
