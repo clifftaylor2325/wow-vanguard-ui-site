@@ -230,8 +230,51 @@ function again() {
   showKind();
   showContact();
   showErrors({});
+  suggest();
   step("form");
   el("title").focus();
+}
+
+// The Troubleshooting questions the page carries ({ q, en, href }), for the suggestions under the summary.
+const FAQ = JSON.parse(($("#fb-faq-data") || {}).textContent || "[]");
+// Words too common to say which question a summary is about.
+const COMMON = new Set(["vanguard", "with", "when", "after", "does", "doesn", "dont", "that", "this", "have", "from", "into", "what", "work", "working", "there", "your", "about", "every", "some", "game"]);
+// A text's words for matching, in lower case: runs of four letters or more (common ones left out),
+// and each pair of characters in a run of Chinese, Japanese or Korean, which has no spaces.
+function wordsOf(text) {
+  const out = new Set();
+  for (const run of String(text).toLowerCase().split(/[^\p{L}\p{N}]+/u)) {
+    if (/[\p{Script=Han}\p{Script=Hangul}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(run)) {
+      for (let i = 0; i < run.length - 1; i++) out.add(run.slice(i, i + 2));
+    } else if (run.length >= 4 && !COMMON.has(run)) {
+      out.add(run);
+    }
+  }
+  return out;
+}
+const FAQ_WORDS = FAQ.map((f) => wordsOf(`${f.q} ${f.en}`));
+
+// Under a bug's summary: up to three Troubleshooting questions that share a word with it (or a
+// word's first five letters, so "reset" finds "resets"), best first, as links. Nothing is
+// stopped: the player can still send.
+function suggest() {
+  const box = $("#fb-faq");
+  if (!box) return;
+  const want = kind() === "bug" ? wordsOf(el("title").value) : new Set();
+  const score = (i) => [...want].filter((w) => FAQ_WORDS[i].has(w) || [...FAQ_WORDS[i]].some((f) => f.length >= 5 && w.length >= 5 && f.slice(0, 5) === w.slice(0, 5))).length;
+  const hits = FAQ.map((f, i) => ({ f, n: score(i) })).filter((h) => h.n > 0).sort((a, b) => b.n - a.n).slice(0, 3);
+  const list = box.querySelector("ul");
+  list.replaceChildren(...hits.map(({ f }) => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = f.href;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = f.q;
+    li.append(a);
+    return li;
+  }));
+  box.hidden = hits.length === 0;
 }
 
 // Whether reports can be sent, and the Turnstile sitekey.
@@ -247,11 +290,12 @@ async function loadConfig() {
 
 if (form) {
   form.addEventListener("change", (e) => {
-    if (e.target.name === "kind") showKind();
+    if (e.target.name === "kind") { showKind(); suggest(); }
     if (e.target.name === "contact_ok") showContact();
   });
   form.addEventListener("input", (e) => {
     if (e.target.id === "fb-paste" || e.target.name === "report") fillFrom(e.target);
+    suggest();
   });
   form.addEventListener("submit", onPreview);
   sendBtn.addEventListener("click", onSend);

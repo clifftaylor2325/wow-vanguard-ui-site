@@ -1142,5 +1142,39 @@
  "This website": "이 웹사이트",
  "This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href=\"/fonts/OFL.txt\">license text</a>. Its colors are Vanguard's own theme colors.": "이 사이트는 애드온과 같은 글꼴인 Fira Sans Condensed를 SIL Open Font License 1.1에 따라 사용합니다: <a href=\"/fonts/OFL.txt\">라이선스 전문</a>. 사이트의 색은 Vanguard 자체의 테마 색입니다.",
  "Vanguard is an addon for WoW Forever.": "Vanguard는 WoW Forever용 애드온입니다.",
- "a profile named after the character.": "캐릭터 이름을 딴 프로필."
+ "a profile named after the character.": "캐릭터 이름을 딴 프로필.",
+ "WoW Forever is live.": "WoW Forever가 출시되었습니다.",
+ "WoW Forever launches {when}.": "WoW Forever 출시: {when}.",
+ "WoW Forever launches in {time} ({when} your time).": "WoW Forever 출시까지 {time} 남았습니다 (내 시간 기준 {when}).",
+ "Addon": "애드온",
+ "What both do": "둘 다 하는 일",
+ "Vanguard module": "Vanguard 모듈",
+ "Notes": "참고",
+ "{n} addons": {
+  "other": "애드온 {n}개"
+ },
+ "When one of these is loaded, Vanguard says so once in chat, and its card under <strong>/vg → {modules}</strong> offers to turn Vanguard's part off or keep both. Nothing changes until you choose.": "이 중 하나가 로드되면 Vanguard가 채팅에 한 번 알리고, <strong>/vg → {modules}</strong>의 카드에서 Vanguard 쪽을 끌지 둘 다 유지할지 묻습니다. 선택하기 전에는 아무것도 바뀌지 않습니다.",
+ "Only this part of the module": "모듈의 이 부분만",
+ "These answers on Troubleshooting might already fix it:": "문제 해결의 이 답변이 이미 도움이 될 수 있습니다:",
+ "New releases are also in the <a href=\"/changelog/feed.xml\">release feed</a>, for feed readers and Discord bots.": "새 버전은 <a href=\"/changelog/feed.xml\">릴리스 피드</a>에도 올라옵니다. 피드 리더와 Discord 봇에서 쓸 수 있습니다.",
+ "For writers and video makers": "기자와 영상 제작자를 위해",
+ "For writers and video makers covering Vanguard: the facts to quote, the artwork, and where to send readers.": "Vanguard를 소개하는 기자와 영상 제작자를 위한 정보: 인용할 사실, 이미지, 독자를 안내할 곳.",
+ "What it is": "소개",
+ "Made by": "제작자",
+ "Price": "가격",
+ "Free": "무료",
+ "Get it": "받는 곳",
+ "News and questions": "소식과 질문",
+ "The crest (SVG, 1024 × 1024)": "문장 (SVG, 1024 × 1024)",
+ "The share card (PNG, 1200 × 630)": "공유 카드 (PNG, 1200 × 630)",
+ "<a href=\"/screenshots/\">{n} in-game screenshots</a>: click one for the full-size file": {
+  "other": "<a href=\"/screenshots/\">게임 내 스크린샷 {n}장</a>: 클릭하면 원본 크기 파일이 열립니다"
+ },
+ "You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.": "문장, 공유 카드, 스크린샷은 Vanguard에 관한 기사와 영상에 사용할 수 있습니다. 그 밖의 용도는 먼저 Discord에서 문의해 주세요.",
+ "Privacy": "개인정보",
+ "This site sets no cookies and loads no analytics, ads or tracking scripts.": "이 사이트는 쿠키를 사용하지 않으며 분석, 광고, 추적 스크립트를 불러오지 않습니다.",
+ "Your browser keeps two choices of yours on your own device: the language you picked and whether to show what's coming in the next release.": "브라우저는 내 기기에 두 가지 선택만 저장합니다: 고른 언어, 그리고 다음 버전에 나올 내용을 표시할지 여부.",
+ "The site is hosted on Cloudflare Pages. Like any host, Cloudflare sees the requests your browser makes, under its own privacy policy.": "이 사이트는 Cloudflare Pages에서 호스팅됩니다. 다른 호스트와 마찬가지로 Cloudflare는 자체 개인정보 처리방침에 따라 브라우저의 요청을 봅니다.",
+ "The Feedback page loads Cloudflare Turnstile to stop spam reports. What a report holds and how long anything is kept is under <a href=\"/feedback/#privacy\">Where your report goes</a>.": "피드백 페이지는 스팸 보고를 막기 위해 Cloudflare Turnstile을 불러옵니다. 보고서에 담기는 내용과 보관 기간은 <a href=\"/feedback/#privacy\">보고서가 가는 곳</a>에 있습니다.",
+ "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "CurseForge, Wago, Ko-fi, Discord, X 링크는 해당 사이트로 이동하며, 각 사이트에는 자체 개인정보 처리방침이 있습니다."
 }

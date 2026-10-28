@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Checks every page for sideways scrolling, failed requests and console errors at
-// 390px and 360px wide, that every page but Feedback fits one screen as it
-// opens (1280x800 and 390x844, every section folded), that the Menu button
+// 390px and 360px wide, that every reference page fits one screen as it
+// opens (1280x800 and 390x844, every section folded; see OPEN_PAGES), that the Menu button
 // opens the nav drawer at 390px, checks the Commands and Settings search, and takes
 // full-page screenshots of Home, Install, Features, Commands, Settings,
 // Feedback, Troubleshooting and Changelog at 1280px and 390px.
@@ -11,7 +11,7 @@
 // It also checks the skip link with the keyboard on every page: the first Tab
 // must focus it, and Enter must move focus to <main id="main">.
 // When the build publishes other languages (SITE_LOCALES, or `locales` in
-// site.config.json), it checks each of them too: every page fits one screen,
+// site.config.json), it checks each of them too: every reference page fits one screen,
 // nothing scrolls sideways, the search speaks that language, the language
 // select (and at 390px the header's language button) opens the same page in it,
 // and a browser that asks for the language is offered it once.
@@ -44,6 +44,9 @@ function edgePaths() {
 
 const CANDIDATES = [process.env.CHROME_PATH, ...edgePaths(), "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "C:/Program Files/Google/Chrome/Application/chrome.exe"].filter(Boolean);
 const outDir = path.resolve(root, process.env.SHOTS_DIR || "shots");
+// The pages that show their content open instead of fitting one screen: Home, Install, Getting
+// started and Screenshots (Cliff, 2026-10-28), and Feedback, whose form is the page.
+const OPEN_PAGES = new Set(["/", "/install/", "/start/", "/screenshots/", "/feedback/"]);
 const SHOOT = [["home", "/"], ["install", "/install/"], ["features", "/features/"], ["commands", "/commands/"], ["settings", "/settings/"], ["feedback", "/feedback/"], ["help", "/help/"], ["changelog", "/changelog/"], ["start", "/start/"], ["profiles", "/profiles/"]];
 
 // The first browser binary that exists.
@@ -394,7 +397,7 @@ async function checkLanguage(browser, base, loc, failures) {
   for (const [width, height] of [[1280, 800], [390, 844]]) {
     const page = await browser.newPage({ viewport: { width, height } });
     await stubFeedbackApi(page);
-    for (const n of NAV.filter((x) => x.path !== "/feedback/")) {
+    for (const n of NAV.filter((x) => !OPEN_PAGES.has(x.path))) {
       await page.goto(`${base}/${loc.code}${n.path}`, { waitUntil: "load" });
       await page.evaluate(() => document.fonts.ready);
       await fitsOneScreen(page, `/${loc.code}${n.path} at ${width}x${height}`, failures);
@@ -455,7 +458,7 @@ async function main() {
     for (const [width, height] of [[1280, 800], [390, 844]]) {
       const page = await browser.newPage({ viewport: { width, height } });
       await stubFeedbackApi(page);
-      for (const n of NAV.filter((x) => x.path !== "/feedback/")) {
+      for (const n of NAV.filter((x) => !OPEN_PAGES.has(x.path))) {
         await page.goto(base + n.path, { waitUntil: "load" });
         await page.evaluate(() => document.fonts.ready);
         await fitsOneScreen(page, `${n.path} at ${width}x${height}`, failures);

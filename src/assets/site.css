@@ -183,6 +183,15 @@ a.tile strong { display: block; color: var(--accent); font-size: 1.1rem; margin-
 .notice.todo { border-left-color: var(--warn); border-style: dashed; border-left-style: solid; }
 .notice.bad { border-left-color: var(--bad); }
 .notice > :last-child { margin-bottom: 0; }
+/* The launch-day notice above every page (site.config.json `notice`), blank on other days. */
+.site-notice { background: color-mix(in oklab, var(--warn) 18%, var(--panel)); border-bottom: 1px solid var(--warn); }
+.site-notice p { margin: 0 auto; max-width: 1200px; padding: 8px 16px; font-weight: 600; text-align: center; }
+/* The Feedback form's Troubleshooting suggestions under a bug's summary. */
+.fb-faq { margin: -4px 0 12px; padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--panel); border-radius: var(--r-2); }
+.fb-faq p { margin: 0 0 4px; }
+.fb-faq ul { margin: 0; padding-left: 1.2em; }
+.fb-faq li { padding: 2px 0; }
+table.overlaps th[scope="row"] code { white-space: nowrap; }
 .notice strong:first-child { color: var(--text); }
 .notice::before { content: ""; position: absolute; left: 16px; right: 16px; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 60%, transparent), transparent); }
 .notice.early { margin: 0 0 var(--sp-3); font-size: var(--fs-sm); padding: 8px 12px; }
@@ -350,6 +359,7 @@ table.stack { margin: 0 0 1em; }
   table.stack tr { border: 1px solid var(--divider); border-radius: var(--r-2); padding: 8px 10px; margin: 0 0 8px; }
   table.stack td { border: 0; padding: 2px 0; }
   table.stack td[data-label]::before { content: attr(data-label) ": "; color: var(--text2); font-size: var(--fs-sm); }
+  table.stack td:empty { display: none; }
 }
 
 .shot-fig { margin: var(--sp-3) 0; }
@@ -433,6 +443,7 @@ table.stack { margin: 0 0 1em; }
 .hero-actions .cf-cta.is-soon { background: color-mix(in oklab, var(--bg) 70%, transparent); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 .hero-actions .button { padding: 11px 20px; font-size: 1.05rem; }
 .hero-meta { margin: 8px 0 0; font-size: var(--fs-sm); color: var(--text); text-shadow: 0 1px 8px var(--bg), 0 0 2px var(--bg); }
+.hero-countdown { margin: 0; font-size: var(--fs-sm); font-weight: 600; color: var(--accent); text-shadow: 0 1px 8px var(--bg), 0 0 2px var(--bg); font-variant-numeric: tabular-nums; }
 
 @media (max-width: 559px) { .hero { min-height: 280px; padding: 26px 16px 40px; } .hero-orn { margin: 6px auto 8px; } .hero-actions { margin-top: 12px; } }
 

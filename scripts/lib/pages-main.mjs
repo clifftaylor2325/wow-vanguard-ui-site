@@ -150,7 +150,23 @@ function homeTiles(loc) {
 </div>`;
 }
 
-export function homePage(model, loc = EN) {
+// How long the Home countdown stays after WoW Forever's launch, saying the game is live.
+const LIVE_FOR_MS = 7 * 24 * 3600 * 1000;
+
+// The Home countdown to WoW Forever's launch (site.config.json `launch`): the launch time in UTC
+// as built, which assets/site.js turns into the time left and the reader's own clock, then "is
+// live" for a week, then nothing. "" without a launch time, or once that week is over at build time.
+export function launchCountdown(site, loc = EN) {
+  const at = Date.parse(site?.launch || "");
+  if (!at || site.now > at + LIVE_FOR_MS) return "";
+  const when = `${new Intl.DateTimeFormat(loc.english ? "en-US" : loc.lang, { dateStyle: "long", timeStyle: "short", timeZone: "UTC" }).format(at)} UTC`;
+  const live = loc.p("WoW Forever is live.");
+  const text = site.now >= at ? live : loc.p("WoW Forever launches {when}.", { when: esc(when) });
+  const attrs = `data-launch="${new Date(at).toISOString()}" data-until="${new Date(at + LIVE_FOR_MS).toISOString()}" data-soon="${esc(loc.p("WoW Forever launches in {time} ({when} your time)."))}" data-live="${esc(live)}"`;
+  return `<p class="hero-countdown" ${attrs}>${text}</p>`;
+}
+
+export function homePage(model, loc = EN, site = null) {
   const { rel } = model;
   const relMods = model.modules.filter((m) => m.inRel);
   const highlights = HIGHLIGHTS.map((k) => model.modules.find((m) => m.key === k)).filter((m) => m && m.inRel && m.desc);
@@ -171,6 +187,7 @@ ${heroArt()}
   <p class="hero-tagline">${esc(localTagline(model, loc))}</p>
   <div class="hero-actions">${storeCtas({ size: "lg", loc })}<a class="button ghost" href="/features/">${loc.p("See the features")}</a></div>
   <p class="hero-meta">${heroFacts(model, n, loc)}</p>
+  ${launchCountdown(site, loc)}
 </div>
 </section>
 
@@ -636,6 +653,33 @@ function featureSearchBox(model, loc) {
 </div>`;
 }
 
+// One row of the other-addons table: the addon's folder name, what it and Vanguard both do, the
+// module whose part Vanguard offers to turn off, and the card's notes (a part only, a reload).
+function overlapRow(o, model, loc) {
+  const mm = model.modules.find((m) => m.key === o.module);
+  const mod = mm ? `<a href="/features/#${esc(mm.id)}">${esc(loc.addon(mm.name))}</a>` : esc(o.module);
+  const notes = [o.part ? loc.p("Only this part of the module") : "", o.reload ? reloadBadge(loc) : "", o.also ? esc(loc.addon(o.also)) : "", o.inRel ? "" : nextBadge(loc)].filter(Boolean).join(" ");
+  const cell = (label, html) => `<td data-label="${esc(label)}">${html}</td>`;
+  return `<tr${o.inRel ? "" : ' data-avail="next"'}><th scope="row"><code>${esc(o.addon)}</code></th>${cell(loc.p("What both do"), esc(loc.addon(o.what)))}${cell(loc.p("Vanguard module"), mod)}${cell(loc.p("Notes"), notes)}</tr>`;
+}
+
+// The other addons Vanguard notices at login (Modules/Coexist.lua), by module and then name: what
+// the Coexist module says it does, then the table. "" when the addon has no such list.
+function otherAddons(model, loc) {
+  const info = model.modules.find((m) => m.key === "Coexist");
+  if (!info || !model.overlaps.length) return "";
+  const byModule = (o) => loc.addon(model.modules.find((m) => m.key === o.module)?.name || o.module);
+  const rows = [...model.overlaps].sort((a, b) => byModule(a).localeCompare(byModule(b)) || a.addon.localeCompare(b.addon));
+  const head = [loc.p("Addon"), loc.p("What both do"), loc.p("Vanguard module"), loc.p("Notes")].map((h) => `<th scope="col">${h}</th>`).join("");
+  const n = rows.filter((o) => o.inRel).length;
+  return disclosure({ id: "other-addons", title: esc(loc.addon(info.name)), meta: loc.pn({ one: "{n} addon", other: "{n} addons" }, n), body: `<p>${esc(loc.addon(info.desc))}</p>
+<p>${loc.p("When one of these is loaded, Vanguard says so once in chat, and its card under <strong>/vg → {modules}</strong> offers to turn Vanguard's part off or keep both. Nothing changes until you choose.", { modules: esc(loc.addon("Modules")) })}</p>
+<div class="table-wrap"><table class="stack overlaps"><thead><tr>${head}</tr></thead><tbody>
+${rows.map((o) => overlapRow(o, model, loc)).join("\n")}
+</tbody></table></div>
+${sourceNote(loc, ["Modules/Coexist.lua (CX.OVERLAPS)"])}` });
+}
+
 // The Features page: one card per module, grouped by area, in the page's language
 // (the names and first lines are the addon's own, from its Modules page).
 export function featuresPage(model, loc = EN) {
@@ -643,7 +687,7 @@ export function featuresPage(model, loc = EN) {
   const tail = model.same
     ? loc.p(`The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version; <a href="/settings/">Settings</a> shows exactly which options each release has.`)
     : loc.p(`The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version, so v{version} may not have every detail yet; <a href="/settings/">Settings</a> shows exactly which options each release has.`, { version: esc(model.version) });
-  const body = [pageHero(loc.t("title./features/"), featuresLede(loc)), featuresIntro(model, loc), featureSearchBox(model, loc), `<div id="mod-list" class="dis-grid">${groups.map((g) => areaSection(g, model, loc)).join("\n")}</div>`,
+  const body = [pageHero(loc.t("title./features/"), featuresLede(loc)), featuresIntro(model, loc), featureSearchBox(model, loc), `<div id="mod-list" class="dis-grid">${groups.map((g) => areaSection(g, model, loc)).join("\n")}\n${otherAddons(model, loc)}</div>`,
     `<p class="small">${tail}</p>`];
   return { path: "/features/", title: "Features", description: loc.text("feat.description"), body: body.join("\n"), translated: true };
 }

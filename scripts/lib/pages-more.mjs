@@ -6,8 +6,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { root } from "./config.mjs";
 import { SHOT_GROUPS } from "./shots-content.mjs";
-import { shotFigure, esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, nextBadge, reloadBadge, supportOn, supportAsk, followLine } from "./html.mjs";
-import { src, sourceNote, dateET, says, saysIf, label } from "./pages-main.mjs";
+import { shotFigure, esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, nextBadge, reloadBadge, supportOn, supportAsk, followLine, CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE } from "./html.mjs";
+import { src, sourceNote, dateET, says, saysIf, label, localTagline } from "./pages-main.mjs";
 import { FACTS, SECTIONS, ENGLISH_HELP } from "./help-content.mjs";
 import { EN } from "./i18n-site.mjs";
 import { RELEASE_NOTES, NEXT_RELEASE } from "./changelog-content.mjs";
@@ -414,6 +414,15 @@ export function helpPage(model, read, loc = EN) {
 
 // ------------------------------------------------------------------ Feedback
 
+// The Troubleshooting questions the page shows (the same entries, in the page's language and in
+// English, with their links), for the Feedback form's suggestions under the summary.
+export function faqQuestions(model, read, loc = EN) {
+  const words = loc.pages?.help ?? ENGLISH_HELP;
+  const facts = helpFacts(model, read, loc);
+  return SECTIONS.flatMap((s) => sourcedEntries(s, facts)).map((e) => ({ q: words.entries[e.id].q, en: e.q, href: loc.href(`/help/#${e.id}`) }));
+}
+
+
 // The "Part of Vanguard" options: the addon's modules, grouped as on the
 // Features page, then the four general choices. Values are module keys; the
 // Function reads the same list from site-data.json. Each option carries its English name in
@@ -508,6 +517,7 @@ ${pasteBox(model, loc)}
 <p class="err" id="fb-kind-err" hidden></p>
 </fieldset>
 ${field("title", P("Short summary"), { required: true, hint: P("For example: Raid frames go blank after a reload."), loc })}
+<div class="fb-faq" id="fb-faq" role="status" hidden><p class="hint">${P("These answers on Troubleshooting might already fix it:")}</p><ul></ul></div>
 <fieldset class="fb-group" data-kind="bug">
 <legend class="sr-only">${P("Bug report")}</legend>
 ${field("report", P("Paste your /vg report (or /vg status + /vg errors)"), { area: true, rows: 8, hint: reportHint(model, loc), loc })}
@@ -678,6 +688,7 @@ export function feedbackPage(model, read, loc = EN) {
 <div class="notice todo fb-nojs" role="note"><p>${loc.p("<strong>The form needs JavaScript.</strong> Turn JavaScript on to send a report from this page. Until then, get your report ready with the steps and templates below, and keep it.")}</p></div>
 <div id="fb-status" class="notice fb-alert fb-needs-js" role="status" hidden></div>
 ${feedbackForm(model, loc)}
+<script type="application/json" id="fb-faq-data">${JSON.stringify(faqQuestions(model, read, loc)).replace(/</g, "\\u003c")}</script>
 ${feedbackSteps(loc)}
 </section>
 ${privacyNote(loc)}
@@ -752,8 +763,42 @@ export function changelogPage(model, loc = EN) {
   const rels = model.releases.releases.slice().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   const body = [pageHero(loc.t("title./changelog/"), loc.p("Newest first: what each Vanguard release changed, in plain words.")),
     supportAsk("changelog", loc.p("Vanguard is free. If these releases are useful to you,"), undefined, loc.p("Say thanks on Ko-fi")),
-    ...rels.map((r) => releaseSection(r, model, loc)), nextSection(model, loc), `<p class="small">${loc.p("Every line comes from the changes merged into the addon for that release.")}</p>`];
+    ...rels.map((r) => releaseSection(r, model, loc)), nextSection(model, loc), `<p class="small">${loc.p("Every line comes from the changes merged into the addon for that release.")} ${loc.p(`New releases are also in the <a href="/changelog/feed.xml">release feed</a>, for feed readers and Discord bots.`)}</p>`];
   return { path: "/changelog/", title: "Changelog", description: loc.p("What changed in each Vanguard release, newest first, and what's coming next."), body: body.join("\n"), translated: true };
+}
+
+// A release's notes for the feed: each group as a heading and its list (feed readers don't fold).
+function feedNotes(r, loc) {
+  const own = RELEASE_NOTES[r.tagName];
+  const list = (items) => `<ul>${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
+  if (own?.groups) return own.groups.map((g) => `<h3>${esc(loc.p(g.title))}</h3>${list(g.items.map((i) => `<strong>${esc(loc.p(i.label))}:</strong> ${esc(loc.p(i.text))}`))}`).join("");
+  const notes = own?.map((n) => loc.p(n.text)) || notesOf(r.body);
+  return notes.length ? list(notes.map(esc)) : `<p>${loc.p("No notes.")}</p>`;
+}
+
+// The release feed (Atom) at /changelog/feed.xml in each language: one entry per release, newest
+// first, with the Changelog's notes, so a feed reader or a Discord feed bot picks up each release.
+export function changelogFeed(model, site, loc = EN) {
+  const rels = model.releases.releases.slice().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  const page = `${site.url}${loc.href("/changelog/")}`;
+  const entry = (r) => `<entry>
+<title>Vanguard ${esc(r.tagName)}</title>
+<link href="${esc(page)}#rel-${esc(r.tagName)}"/>
+<id>${esc(page)}#rel-${esc(r.tagName)}</id>
+<updated>${esc(r.publishedAt)}</updated>
+<content type="html">${esc(feedNotes(r, loc))}</content>
+</entry>`;
+  return `<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="${esc(loc.lang)}">
+<title>Vanguard · ${esc(loc.text("title./changelog/"))}</title>
+<link href="${esc(page)}feed.xml" rel="self"/>
+<link href="${esc(page)}"/>
+<id>${esc(page)}</id>
+<updated>${esc(rels[0]?.publishedAt || "")}</updated>
+<author><name>${esc(site.author)}</name></author>
+${rels.map(entry).join("\n")}
+</feed>
+`;
 }
 
 // ------------------------------------------------------------------ Credits
@@ -794,6 +839,43 @@ function creditsSupport(loc) {
 <p class="small">${loc.p("Supporting is never needed to use any part of Vanguard.")}</p>`;
 }
 
+// Credits' section for writers and video makers: the facts to quote, the artwork and the
+// screenshots, what they may be used for, and where to ask.
+function creditsPress(model, site, loc) {
+  const link = (url, name) => (url ? `<a href="${esc(url)}" rel="noopener">${esc(name)}</a>` : "");
+  const stores = [link(CURSEFORGE_URL, "CurseForge"), link(WAGO_URL, "Wago")].filter(Boolean).join(" · ");
+  const news = [link(DISCORD_URL, "Discord"), link(X_URL, `X (${X_HANDLE})`)].filter(Boolean).join(" · ");
+  const n = SHOT_GROUPS.reduce((t, g) => t + g.shots.length, 0);
+  return `<p>${loc.p("For writers and video makers covering Vanguard: the facts to quote, the artwork, and where to send readers.")}</p>
+<dl class="facts">
+  <dt>${loc.p("What it is")}</dt><dd>${esc(localTagline(model, loc))}</dd>
+  <dt>${loc.p("Made by")}</dt><dd>${esc(site.author)}</dd>
+  <dt>${loc.p("Current release")}</dt><dd>${esc(model.version)} (${esc(dateET(model.release.publishedAt, loc))})</dd>
+  <dt>${loc.p("Price")}</dt><dd>${loc.p("Free")}</dd>
+  ${stores ? `<dt>${loc.p("Get it")}</dt><dd>${stores}</dd>` : ""}
+  ${news ? `<dt>${loc.p("News and questions")}</dt><dd>${news}</dd>` : ""}
+</dl>
+<ul>
+  <li><a href="/assets/vanguard-crest.svg">${loc.p("The crest (SVG, 1024 × 1024)")}</a></li>
+  <li><a href="/assets/og-image.png">${loc.p("The share card (PNG, 1200 × 630)")}</a></li>
+  <li>${loc.pn({ one: `<a href="/screenshots/">{n} in-game screenshot</a>: click one for the full-size file`, other: `<a href="/screenshots/">{n} in-game screenshots</a>: click one for the full-size file` }, n)}</li>
+</ul>
+<p class="small">${loc.p("You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.")}</p>`;
+}
+
+// What this website keeps about a visit: no cookies or trackers, the two choices kept in the
+// browser, what Cloudflare sees as the host, and the feedback form's own rules.
+function creditsPrivacy(loc) {
+  const items = [
+    "This site sets no cookies and loads no analytics, ads or tracking scripts.",
+    "Your browser keeps two choices of yours on your own device: the language you picked and whether to show what's coming in the next release.",
+    "The site is hosted on Cloudflare Pages. Like any host, Cloudflare sees the requests your browser makes, under its own privacy policy.",
+    `The Feedback page loads Cloudflare Turnstile to stop spam reports. What a report holds and how long anything is kept is under <a href="/feedback/#privacy">Where your report goes</a>.`,
+    "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.",
+  ];
+  return `<ul>\n${items.map((i) => `<li>${loc.p(i)}</li>`).join("\n")}\n</ul>`;
+}
+
 export function creditsPage(model, site, loc = EN) {
   const lic = licenseSummary(model.rel.license);
   const nextCredits = section(model.next.readme, "Credits");
@@ -812,6 +894,8 @@ export function creditsPage(model, site, loc = EN) {
 ${disclosure({ id: "license", title: loc.p("License"), open: true, body: creditsLicense(model, lic, loc) })}
 ${bullets.length ? disclosure({ id: "credits", title: loc.p("Fonts, libraries and art"), body: `<p>${listed}</p><ul${en}>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` }) : ""}
 ${supportOn().length ? disclosure({ id: "support", title: loc.p("Support Vanguard"), body: creditsSupport(loc) }) : ""}
+${disclosure({ id: "press", title: loc.p("For writers and video makers"), body: creditsPress(model, site, loc) })}
+${disclosure({ id: "privacy", title: loc.p("Privacy"), body: creditsPrivacy(loc) })}
 ${disclosure({ id: "site", title: loc.p("This website"), body: `<p>${loc.p(`This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href="/fonts/OFL.txt">license text</a>. Its colors are Vanguard's own theme colors.`)}</p>
 <p>${loc.p("Vanguard is an addon for WoW Forever.")}</p>
 ${sourceNote(loc, ["LICENSE", "README.md (License, Credits)", "Media/Fonts/OFL.txt"])}` })}`,

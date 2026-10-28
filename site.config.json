@@ -6,5 +6,7 @@
   "cacheDir": ".cache",
   "outDir": "dist",
   "siteUrl": "https://vanguardui.com",
-  "locales": ["de", "fr", "es", "es-mx", "it", "pt-br", "ru", "ko", "zh-cn", "zh-tw"]
+  "locales": ["de", "fr", "es", "es-mx", "it", "pt-br", "ru", "ko", "zh-cn", "zh-tw"],
+  "launch": "2026-11-04T23:00:00Z",
+  "notice": ""
 }

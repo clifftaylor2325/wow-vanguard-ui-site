@@ -1142,5 +1142,39 @@
  "This website": "本网站",
  "This site uses Fira Sans Condensed, the same font as the addon, under the SIL Open Font License 1.1: <a href=\"/fonts/OFL.txt\">license text</a>. Its colors are Vanguard's own theme colors.": "本站使用 Fira Sans Condensed，与插件相同的字体，采用 SIL Open Font License 1.1：<a href=\"/fonts/OFL.txt\">许可证文本</a>。它的颜色是 Vanguard 自己的主题颜色。",
  "Vanguard is an addon for WoW Forever.": "Vanguard 是适用于 WoW Forever 的插件。",
- "a profile named after the character.": "一个以角色命名的配置文件。"
+ "a profile named after the character.": "一个以角色命名的配置文件。",
+ "WoW Forever is live.": "WoW Forever 已上线。",
+ "WoW Forever launches {when}.": "WoW Forever 将于 {when} 上线。",
+ "WoW Forever launches in {time} ({when} your time).": "WoW Forever 还有 {time} 上线（你的时间 {when}）。",
+ "Addon": "插件",
+ "What both do": "两者都做的事",
+ "Vanguard module": "Vanguard 模块",
+ "Notes": "备注",
+ "{n} addons": {
+  "other": "{n} 个插件"
+ },
+ "When one of these is loaded, Vanguard says so once in chat, and its card under <strong>/vg → {modules}</strong> offers to turn Vanguard's part off or keep both. Nothing changes until you choose.": "加载了其中之一时，Vanguard 会在聊天中提示一次，并在 <strong>/vg → {modules}</strong> 的卡片里让你选择关闭 Vanguard 的这部分或两者都保留。在你选择之前什么都不会改变。",
+ "Only this part of the module": "仅模块的这一部分",
+ "These answers on Troubleshooting might already fix it:": "故障排除中的这些答案也许已经能解决：",
+ "New releases are also in the <a href=\"/changelog/feed.xml\">release feed</a>, for feed readers and Discord bots.": "新版本也会发布在<a href=\"/changelog/feed.xml\">版本订阅源</a>中，供订阅阅读器和 Discord 机器人使用。",
+ "For writers and video makers": "致作者和视频创作者",
+ "For writers and video makers covering Vanguard: the facts to quote, the artwork, and where to send readers.": "写 Vanguard 的作者和视频创作者可以在这里找到：可引用的事实、图片素材，以及该把读者引向哪里。",
+ "What it is": "简介",
+ "Made by": "作者",
+ "Price": "价格",
+ "Free": "免费",
+ "Get it": "获取",
+ "News and questions": "新闻与提问",
+ "The crest (SVG, 1024 × 1024)": "徽记（SVG，1024 × 1024）",
+ "The share card (PNG, 1200 × 630)": "分享卡片（PNG，1200 × 630）",
+ "<a href=\"/screenshots/\">{n} in-game screenshots</a>: click one for the full-size file": {
+  "other": "<a href=\"/screenshots/\">{n} 张游戏内截图</a>：点击任意一张查看原尺寸文件"
+ },
+ "You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.": "你可以在介绍 Vanguard 的文章和视频中使用徽记、分享卡片和截图。其他用途请先在 Discord 询问。",
+ "Privacy": "隐私",
+ "This site sets no cookies and loads no analytics, ads or tracking scripts.": "本站不设置 Cookie，也不加载任何分析、广告或跟踪脚本。",
+ "Your browser keeps two choices of yours on your own device: the language you picked and whether to show what's coming in the next release.": "你的浏览器只会在你自己的设备上保存你的两个选择：所选语言，以及是否显示下一版本的内容。",
+ "The site is hosted on Cloudflare Pages. Like any host, Cloudflare sees the requests your browser makes, under its own privacy policy.": "本站托管在 Cloudflare Pages 上。和任何托管服务一样，Cloudflare 会按其隐私政策看到你的浏览器发出的请求。",
+ "The Feedback page loads Cloudflare Turnstile to stop spam reports. What a report holds and how long anything is kept is under <a href=\"/feedback/#privacy\">Where your report goes</a>.": "反馈页面会加载 Cloudflare Turnstile 以阻止垃圾报告。报告包含什么、各项内容保存多久，请见<a href=\"/feedback/#privacy\">你的报告去哪了</a>。",
+ "Links to CurseForge, Wago, Ko-fi, Discord and X take you to those sites, which have their own privacy policies.": "指向 CurseForge、Wago、Ko-fi、Discord 和 X 的链接会带你前往这些网站，它们有各自的隐私政策。"
 }
