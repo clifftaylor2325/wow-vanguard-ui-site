@@ -78,7 +78,7 @@ export function followLine(text, { x = X_URL, discord = DISCORD_URL } = {}) {
 // url is set (an https:// address): then the sidebar gets a Support button (to the Support page)
 // and the Credits page a Support section. Donations stay on the website, never in the addon itself.
 export const SUPPORT = [
-  { name: "Ko-fi", url: "https://ko-fi.com/cliftontaylor", what: "a one-off tip" },
+  { name: "Ko-fi", url: "https://ko-fi.com/cliffhearthvale", what: "a one-off tip" },
 ];
 
 // The support links that are switched on (their url is set).
