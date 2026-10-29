@@ -128,6 +128,9 @@ export const SECTIONS = [
     { id: "perf", q: "Is Vanguard slowing my game down?",
       a: `<p><code>/vg perf</code> shows Vanguard's CPU time and memory now, and its ten busiest functions. {perfRecipe}:</p><ol class="steps"><li>Type <code>/vg perf cpu</code>, then <code>/reload</code>.</li><li>Play a while (a raid pull is the hard case).</li><li>Type <code>/vg perf</code> and read the numbers.</li><li>Type <code>/vg perf cpu</code> and <code>/reload</code> again. Measuring has a cost: {perfSlows}.</li></ol><p>No performance numbers are published yet.</p>`,
       src: ["README.md (Commands: /vg perf)", "Core/Perf.lua"] },
+    { id: "retail", q: "Does Vanguard work on retail WoW?",
+      a: `<p>Vanguard is made for WoW Forever. It also loads on retail WoW, but retail isn't supported yet: the classes and systems only retail has (such as Mythic+, delves and housing) aren't covered, and some parts may not work there.</p><p>Full retail support is planned for Vanguard 0.8.0. Until then, if you play retail and something breaks, please tell us on the <a href="/feedback/">Feedback page</a> and say you're on retail.</p>`,
+      src: ["Vanguard.toc (## Interface)"] },
   ] },
 ];
 
