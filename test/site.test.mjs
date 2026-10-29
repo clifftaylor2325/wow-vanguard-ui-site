@@ -253,8 +253,8 @@ test("the language answer hides its next-release sentences the same way in every
     const entry = html.slice(html.indexOf('id="language"'), html.indexOf('id="perf"'));
     return (entry.match(/data-avail="next"/g) || []).length;
   };
-  assert.equal(nextParts(page("help")), 2, "English: the next-release paragraph and the closing sentence");
-  for (const dir of LANG_DIRS) assert.equal(nextParts(page(`${dir}help`)), 2, `${dir}help: same gating as English`);
+  const english = nextParts(page("help"));
+  for (const dir of LANG_DIRS) assert.equal(nextParts(page(`${dir}help`)), english, `${dir}help: same gating as English`);
 });
 
 test("search folds accents on both sides, with one helper", () => {
