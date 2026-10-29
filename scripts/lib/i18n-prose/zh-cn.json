@@ -126,7 +126,6 @@
  "While you're moving frames, <code>/vg grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/vg snap on|off</code> makes frames snap to each other. <code>/vg frames</code> lists the frames you can move, and <code>/vg reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.": "移动框体时，<code>/vg grid [size|on|off]</code> 会显示网格（8 到 256 像素），<code>/vg snap on|off</code> 让框体互相吸附。<code>/vg frames</code> 列出可以移动的框体，<code>/vg reset &lt;frame|all&gt;</code> 会把一个框体（或全部框体）放回原处。战斗中无法解锁框体。",
  "Pick an accent color": "选择强调色",
  "Keep the game's version of something": "保留游戏自带的某个部分",
- "The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version, so v{version} may not have every detail yet; <a href=\"/settings/\">Settings</a> shows exactly which options each release has.": "每个模块的名称和第一行与插件在“模块”页面上显示的相同。<strong>更多</strong>下的较长文字描述的是模块在最新版本中的样子，所以 v{version} 可能还没有全部细节；<a href=\"/settings/\">设置</a>会准确显示每个版本有哪些选项。",
  "Unit frames": "单位框体",
  "The game's own boss frames are hidden.": "游戏自带的首领框体被隐藏。",
  "The player and target frames are sized for a 1080p screen at the 80% UI scale that first-run setup picks.": "玩家和目标框体的尺寸针对 1080p 屏幕和首次运行设置所选的 80% 界面缩放设计。",
@@ -489,7 +488,6 @@
  "<strong>{n}</strong> in-game screenshots": {
   "other": "<strong>{n}</strong> 张游戏截图"
  },
- "Shots of things only the next release has hide with the rest of it": "只有下一版本才有的内容的截图会与其余内容一起隐藏",
  "The same pictures sit beside their module on <a href=\"/features/\">Features</a>": "同样的图片也出现在<a href=\"/features/\">功能</a>中它们对应的模块旁",
  "First look": "初见",
  "{n} shots": {
@@ -719,7 +717,6 @@
  "Can't copy text from chat? Type out the lines that matter, or describe them.": "无法从聊天框复制文本？请手动输入重要的几行，或者描述它们。",
  "Bug report template": "错误报告模板",
  "Copy template": "复制模板",
- "Before you ask, check <a href=\"/features/\">Features</a>: it may already be there, or written for the next release (turn on <strong>Show what's coming</strong> in the sidebar to see those).": "提问之前，请先查看<a href=\"/features/\">功能</a>：它可能已经有了，或者已写进下一个版本（在侧边栏开启<strong>显示下一版本的新内容</strong>即可看到）。",
  "Tell us what would make Vanguard better for you. Please answer:": "告诉我们什么能让 Vanguard 对你更好。请回答：",
  "<strong>What you want.</strong>": "<strong>你想要什么。</strong>",
  "<strong>Which part of Vanguard it touches</strong>: a module from <a href=\"/features/\">Features</a>, a <a href=\"/commands/\">command</a> or a <a href=\"/settings/\">setting</a>.": "<strong>它涉及 Vanguard 的哪个部分</strong>：<a href=\"/features/\">功能</a>中的一个模块、一个<a href=\"/commands/\">命令</a>或一项<a href=\"/settings/\">设置</a>。",
@@ -1128,7 +1125,6 @@
  "Every line comes from the changes merged into the addon for that release.": "每一行都来自该版本合并进插件的更改。",
  "What changed in each Vanguard release, newest first, and what's coming next.": "每个 Vanguard 版本改变了什么，最新的在前，以及接下来会有什么。",
  "Vanguard is made by {author}.": "Vanguard 由 {author} 制作。",
- "As listed in the addon's README for the next release:": "如插件 README 中为下一个版本所列：",
  "Vanguard's license and the fonts, libraries and art it uses.": "Vanguard 的许可证，以及它使用的字体、库和美术。",
  "License": "许可证",
  "From the v{version} README:": "来自 v{version} 的 README：",
@@ -1182,5 +1178,21 @@
  "Open the {area} page": "打开“{area}”页面",
  "<a href=\"/features/\">Every area is on Features</a>": "<a href=\"/features/\">所有分类都在“功能”页</a>",
  "Vanguard's {area} modules: what each one does, and its settings and commands.": "Vanguard 的{area}模块：每个模块的作用，以及它的设置和命令。",
- "Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands.": "Vanguard 这一部分的每个模块，用插件自己的话来说明。打开卡片上的<strong>更多</strong>查看它的设置和命令。"
+ "Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands.": "Vanguard 这一部分的每个模块，用插件自己的话来说明。打开卡片上的<strong>更多</strong>查看它的设置和命令。",
+ "The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version; <a href=\"/settings/\">Settings</a> shows exactly which options each release has.": "每个模块的名称和第一行与插件在“模块”页面上显示的相同。<strong>更多</strong>下的较长文字描述的是模块在最新版本中的样子；<a href=\"/settings/\">设置</a>会准确显示每个版本有哪些选项。",
+ "Before you ask, check <a href=\"/features/\">Features</a>: it may already be there.": "提问之前，请先查看<a href=\"/features/\">功能</a>：它可能已经有了。",
+ "Language": "语言",
+ "Vanguard's own text shows in your client's language: German, French, Spanish, Italian, Brazilian Portuguese, Russian, Korean and Chinese. The translations are machine-drafted, so report a wrong line with /vg feedback or on the Feedback page. Commands and the What's new notes stay English.": "Vanguard 自己的文字会以你客户端的语言显示：德语、法语、西班牙语、意大利语、巴西葡萄牙语、俄语、韩语和中文。这些翻译由机器起草，如发现有误的语句，请用 /vg feedback 或在“反馈”页面报告。命令和“更新内容”说明保持英文。",
+ "Panel texture": "面板材质",
+ "A Panel texture choice (General, Look) draws a texture over every floating window; Flat is the default.": "“面板材质”选项（常规、外观）会在每个浮动窗口上绘制一层材质；默认为“扁平”。",
+ "Community": "社区",
+ "The Feedback page in the options has a Community card with Vanguard's Discord and X links to copy.": "选项中的“反馈”页面有一张“社区”卡片，可复制 Vanguard 的 Discord 和 X 链接。",
+ "Options pages show their cards as tabs, so the long pages fit one screen, and Reset this page sits beside the page title. Every module switch says Reload to apply, and searching for reload finds them.": "选项页面以标签页显示各卡片，让长页面也能放进一屏，“重置此页面”位于页面标题旁边。每个模块开关都标有“重载以应用”，搜索“重载”即可全部找到。",
+ "Fit and layout": "适配与布局",
+ "Text fits its buttons, menus and windows at any text size and in longer translations. On narrow or short screens, default frame spots move just enough to stay on screen and clear of each other; wider screens are unchanged.": "在任何文字大小和更长的翻译下，文字都能放进按钮、菜单和窗口。在窄屏或矮屏上，框体的默认位置只移动到足以留在屏幕内且彼此不重叠的程度；更宽的屏幕保持不变。",
+ "Clear buttons": "“清除”按钮",
+ "Clearing loot reserves, a talent plan or saved chat asks first.": "清除拾取预留、天赋规划或已保存的聊天前会先询问。",
+ "Bug and stability hunts": "错误排查与稳定性排查",
+ "Fixes from two bug hunts, a clean-code review and twelve stability hunts across combat, frames, chat, quests, bags, the auction house, mail, profiles and options.": "来自两轮错误排查、一次代码整洁审查，以及十二轮覆盖战斗、框体、聊天、任务、背包、拍卖行、邮件、配置文件和选项的稳定性排查的修复。",
+ "As listed in the addon's README:": "如插件 README 中所列："
 }

@@ -126,7 +126,6 @@
  "While you're moving frames, <code>/vg grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/vg snap on|off</code> makes frames snap to each other. <code>/vg frames</code> lists the frames you can move, and <code>/vg reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.": "移動框架時，<code>/vg grid [size|on|off]</code> 會顯示格線（8 到 256 像素），<code>/vg snap on|off</code> 則讓框架彼此吸附。<code>/vg frames</code> 會列出你可以移動的框架，<code>/vg reset &lt;frame|all&gt;</code> 則把一個框架（或全部）放回原位。戰鬥中無法解除框架鎖定。",
  "Pick an accent color": "挑選強調色",
  "Keep the game's version of something": "保留遊戲內建的版本",
- "The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version, so v{version} may not have every detail yet; <a href=\"/settings/\">Settings</a> shows exactly which options each release has.": "每個模組的名稱和第一行，與插件在它的模組頁面上顯示的相同。<strong>更多</strong>底下較長的文字描述的是最新版本中的模組，所以 v{version} 可能還沒有每一項細節；<a href=\"/settings/\">設定</a>頁面會準確列出每個版本有哪些選項。",
  "Unit frames": "單位框架",
  "The game's own boss frames are hidden.": "遊戲內建的首領框架會被隱藏。",
  "The player and target frames are sized for a 1080p screen at the 80% UI scale that first-run setup picks.": "玩家和目標框架的大小是針對 1080p 螢幕、首次執行設定所選的 80% 介面縮放而定。",
@@ -489,7 +488,6 @@
  "<strong>{n}</strong> in-game screenshots": {
   "other": "<strong>{n}</strong> 張遊戲截圖"
  },
- "Shots of things only the next release has hide with the rest of it": "只有下一版才有的東西的截圖，會和其餘內容一起隱藏",
  "The same pictures sit beside their module on <a href=\"/features/\">Features</a>": "同樣的圖片也放在<a href=\"/features/\">功能</a>頁面中各自模組的旁邊",
  "First look": "初見",
  "{n} shots": {
@@ -719,7 +717,6 @@
  "Can't copy text from chat? Type out the lines that matter, or describe them.": "無法從聊天視窗複製文字？請把重要的行打出來，或用文字描述它們。",
  "Bug report template": "錯誤回報範本",
  "Copy template": "複製範本",
- "Before you ask, check <a href=\"/features/\">Features</a>: it may already be there, or written for the next release (turn on <strong>Show what's coming</strong> in the sidebar to see those).": "提問之前，請先查看<a href=\"/features/\">功能</a>：它可能已經有了，或已經寫在下一版中（開啟側邊欄中的<strong>顯示下一版的新內容</strong>即可看到）。",
  "Tell us what would make Vanguard better for you. Please answer:": "告訴我們怎樣能讓 Vanguard 對你更好。請回答：",
  "<strong>What you want.</strong>": "<strong>你想要什麼。</strong>",
  "<strong>Which part of Vanguard it touches</strong>: a module from <a href=\"/features/\">Features</a>, a <a href=\"/commands/\">command</a> or a <a href=\"/settings/\">setting</a>.": "<strong>它涉及 Vanguard 的哪個部分</strong>：<a href=\"/features/\">功能</a>中的某個模組、某個<a href=\"/commands/\">指令</a>或某項<a href=\"/settings/\">設定</a>。",
@@ -1128,7 +1125,6 @@
  "Every line comes from the changes merged into the addon for that release.": "每一行都來自該版本合併進插件的變更。",
  "What changed in each Vanguard release, newest first, and what's coming next.": "每個 Vanguard 版本變更了什麼，由新到舊，以及接下來會有什麼。",
  "Vanguard is made by {author}.": "Vanguard 由 {author} 製作。",
- "As listed in the addon's README for the next release:": "如下一版插件 README 所列：",
  "Vanguard's license and the fonts, libraries and art it uses.": "Vanguard 的授權，以及它使用的字型、函式庫和美術。",
  "License": "授權",
  "From the v{version} README:": "來自 v{version} 的 README：",
@@ -1182,5 +1178,21 @@
  "Open the {area} page": "開啟「{area}」頁面",
  "<a href=\"/features/\">Every area is on Features</a>": "<a href=\"/features/\">所有分類都在「功能」頁</a>",
  "Vanguard's {area} modules: what each one does, and its settings and commands.": "Vanguard 的{area}模組：每個模組的作用，以及它的設定和指令。",
- "Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands.": "Vanguard 這一部分的每個模組，用插件自己的話來說明。打開卡片上的<strong>更多</strong>查看它的設定和指令。"
+ "Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands.": "Vanguard 這一部分的每個模組，用插件自己的話來說明。打開卡片上的<strong>更多</strong>查看它的設定和指令。",
+ "The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version; <a href=\"/settings/\">Settings</a> shows exactly which options each release has.": "每個模組的名稱和第一行，與插件在它的模組頁面上顯示的相同。<strong>更多</strong>底下較長的文字描述的是最新版本中的模組；<a href=\"/settings/\">設定</a>頁面會準確列出每個版本有哪些選項。",
+ "Before you ask, check <a href=\"/features/\">Features</a>: it may already be there.": "提問之前，請先查看<a href=\"/features/\">功能</a>：它可能已經有了。",
+ "Language": "語言",
+ "Vanguard's own text shows in your client's language: German, French, Spanish, Italian, Brazilian Portuguese, Russian, Korean and Chinese. The translations are machine-drafted, so report a wrong line with /vg feedback or on the Feedback page. Commands and the What's new notes stay English.": "Vanguard 本身的文字會以你用戶端的語言顯示：德文、法文、西班牙文、義大利文、巴西葡萄牙文、俄文、韓文和中文。這些翻譯由機器起草，如發現有誤的語句，請用 /vg feedback 或在意見回饋頁面回報。指令和「更新內容」說明維持英文。",
+ "Panel texture": "面板材質",
+ "A Panel texture choice (General, Look) draws a texture over every floating window; Flat is the default.": "「面板材質」選項（一般、外觀）會在每個浮動視窗上繪製一層材質；預設為「扁平」。",
+ "Community": "社群",
+ "The Feedback page in the options has a Community card with Vanguard's Discord and X links to copy.": "選項中的「意見回饋」頁面有一張「社群」卡片，可複製 Vanguard 的 Discord 和 X 連結。",
+ "Options pages show their cards as tabs, so the long pages fit one screen, and Reset this page sits beside the page title. Every module switch says Reload to apply, and searching for reload finds them.": "選項頁面以分頁顯示各卡片，讓長頁面也能放進一個畫面，「重置此頁面」位於頁面標題旁。每個模組開關都標示「重新載入以套用」，搜尋「重新載入」即可全部找到。",
+ "Fit and layout": "適配與版面",
+ "Text fits its buttons, menus and windows at any text size and in longer translations. On narrow or short screens, default frame spots move just enough to stay on screen and clear of each other; wider screens are unchanged.": "在任何文字大小和較長的翻譯下，文字都能放進按鈕、選單和視窗。在窄或矮的螢幕上，框架的預設位置只移動到足以留在螢幕內且彼此不重疊的程度；較寬的螢幕維持不變。",
+ "Clear buttons": "「清除」按鈕",
+ "Clearing loot reserves, a talent plan or saved chat asks first.": "清除拾取預留、天賦規劃或已儲存的聊天前會先詢問。",
+ "Bug and stability hunts": "錯誤與穩定性排查",
+ "Fixes from two bug hunts, a clean-code review and twelve stability hunts across combat, frames, chat, quests, bags, the auction house, mail, profiles and options.": "來自兩輪錯誤排查、一次程式碼整潔審查，以及十二輪涵蓋戰鬥、框架、聊天、任務、背包、拍賣場、郵件、設定檔和選項的穩定性排查的修正。",
+ "As listed in the addon's README:": "如插件 README 所列："
 }

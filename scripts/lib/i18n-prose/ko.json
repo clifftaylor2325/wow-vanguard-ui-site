@@ -126,7 +126,6 @@
  "While you're moving frames, <code>/vg grid [size|on|off]</code> shows a grid (8 to 256 px) and <code>/vg snap on|off</code> makes frames snap to each other. <code>/vg frames</code> lists the frames you can move, and <code>/vg reset &lt;frame|all&gt;</code> puts one frame (or all of them) back. You can't unlock frames during combat.": "프레임을 옮기는 동안 <code>/vg grid [size|on|off]</code>는 격자(8~256px)를 표시하고 <code>/vg snap on|off</code>는 프레임끼리 달라붙게 합니다. <code>/vg frames</code>는 옮길 수 있는 프레임을 나열하고 <code>/vg reset &lt;frame|all&gt;</code>은 프레임 하나(또는 전부)를 원래대로 되돌립니다. 전투 중에는 프레임의 잠금을 풀 수 없습니다.",
  "Pick an accent color": "강조색 고르기",
  "Keep the game's version of something": "게임 기본 UI 유지하기",
- "The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version, so v{version} may not have every detail yet; <a href=\"/settings/\">Settings</a> shows exactly which options each release has.": "각 모듈의 이름과 첫 줄은 애드온의 모듈 페이지에 나오는 그대로입니다. <strong>더 보기</strong> 아래의 긴 설명은 최신 버전 기준의 모듈 내용이므로 v{version}에는 일부 내용이 아직 없을 수 있습니다. 각 버전에 정확히 어떤 옵션이 있는지는 <a href=\"/settings/\">설정</a>에서 확인하세요.",
  "Unit frames": "개체창",
  "The game's own boss frames are hidden.": "게임 기본 우두머리 프레임은 숨겨집니다.",
  "The player and target frames are sized for a 1080p screen at the 80% UI scale that first-run setup picks.": "플레이어와 대상 프레임은 첫 실행 설정에서 고르는 UI 크기 80%의 1080p 화면에 맞춘 크기입니다.",
@@ -489,7 +488,6 @@
  "<strong>{n}</strong> in-game screenshots": {
   "other": "게임 스크린샷 <strong>{n}</strong>장"
  },
- "Shots of things only the next release has hide with the rest of it": "다음 버전에만 있는 것의 사진은 나머지와 함께 숨겨집니다",
  "The same pictures sit beside their module on <a href=\"/features/\">Features</a>": "같은 사진이 <a href=\"/features/\">기능</a> 페이지의 해당 모듈 옆에도 있습니다",
  "First look": "처음 보기",
  "{n} shots": {
@@ -719,7 +717,6 @@
  "Can't copy text from chat? Type out the lines that matter, or describe them.": "대화창에서 텍스트를 복사할 수 없나요? 중요한 줄을 직접 적거나 설명해 주세요.",
  "Bug report template": "버그 보고서 양식",
  "Copy template": "양식 복사",
- "Before you ask, check <a href=\"/features/\">Features</a>: it may already be there, or written for the next release (turn on <strong>Show what's coming</strong> in the sidebar to see those).": "요청하기 전에 <a href=\"/features/\">기능</a> 페이지를 확인하세요. 이미 있거나 다음 버전용으로 작성되어 있을 수 있습니다(사이드바의 <strong>다음 버전에 추가될 내용 보기</strong>를 켜면 볼 수 있습니다).",
  "Tell us what would make Vanguard better for you. Please answer:": "Vanguard를 더 좋게 만들 의견을 알려 주세요. 다음에 답해 주세요:",
  "<strong>What you want.</strong>": "<strong>원하는 것.</strong>",
  "<strong>Which part of Vanguard it touches</strong>: a module from <a href=\"/features/\">Features</a>, a <a href=\"/commands/\">command</a> or a <a href=\"/settings/\">setting</a>.": "<strong>Vanguard의 어느 부분과 관련되는지</strong>: <a href=\"/features/\">기능</a>의 모듈, <a href=\"/commands/\">명령어</a> 또는 <a href=\"/settings/\">설정</a>.",
@@ -1128,7 +1125,6 @@
  "Every line comes from the changes merged into the addon for that release.": "모든 줄은 해당 릴리스에서 애드온에 병합된 변경 사항에서 가져옵니다.",
  "What changed in each Vanguard release, newest first, and what's coming next.": "각 Vanguard 릴리스의 변경 내용을 최신순으로, 그리고 다음에 올 내용.",
  "Vanguard is made by {author}.": "Vanguard는 {author}이(가) 만들었습니다.",
- "As listed in the addon's README for the next release:": "다음 릴리스의 애드온 README에 나열된 대로:",
  "Vanguard's license and the fonts, libraries and art it uses.": "Vanguard의 라이선스와 사용하는 글꼴, 라이브러리, 그래픽.",
  "License": "라이선스",
  "From the v{version} README:": "v{version} README에서:",
@@ -1182,5 +1178,21 @@
  "Open the {area} page": "{area} 페이지 열기",
  "<a href=\"/features/\">Every area is on Features</a>": "<a href=\"/features/\">모든 영역은 기능 페이지에 있습니다</a>",
  "Vanguard's {area} modules: what each one does, and its settings and commands.": "Vanguard의 {area} 모듈: 각 모듈이 하는 일과 설정, 명령어.",
- "Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands.": "Vanguard의 이 영역에 있는 모든 모듈을 애드온의 말 그대로 보여 줍니다. 카드의 <strong>더 보기</strong>를 열면 설정과 명령어가 나옵니다."
+ "Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands.": "Vanguard의 이 영역에 있는 모든 모듈을 애드온의 말 그대로 보여 줍니다. 카드의 <strong>더 보기</strong>를 열면 설정과 명령어가 나옵니다.",
+ "The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version; <a href=\"/settings/\">Settings</a> shows exactly which options each release has.": "각 모듈의 이름과 첫 줄은 애드온의 모듈 페이지에 나오는 그대로입니다. <strong>더 보기</strong> 아래의 긴 설명은 최신 버전 기준의 모듈 내용입니다. 각 버전에 정확히 어떤 옵션이 있는지는 <a href=\"/settings/\">설정</a>에서 확인하세요.",
+ "Before you ask, check <a href=\"/features/\">Features</a>: it may already be there.": "요청하기 전에 <a href=\"/features/\">기능</a> 페이지를 확인하세요. 이미 있을 수 있습니다.",
+ "Language": "언어",
+ "Vanguard's own text shows in your client's language: German, French, Spanish, Italian, Brazilian Portuguese, Russian, Korean and Chinese. The translations are machine-drafted, so report a wrong line with /vg feedback or on the Feedback page. Commands and the What's new notes stay English.": "Vanguard 자체 문구는 클라이언트 언어로 표시됩니다: 독일어, 프랑스어, 스페인어, 이탈리아어, 브라질 포르투갈어, 러시아어, 한국어, 중국어. 번역은 기계로 초안을 만든 것이므로, 잘못된 문구는 /vg feedback 명령이나 피드백 페이지로 알려 주세요. 명령어와 새로운 소식 노트는 영어로 유지됩니다.",
+ "Panel texture": "패널 텍스처",
+ "A Panel texture choice (General, Look) draws a texture over every floating window; Flat is the default.": "패널 텍스처(일반, 외형)를 선택하면 모든 떠 있는 창 위에 텍스처가 그려집니다. 기본값은 평면입니다.",
+ "Community": "커뮤니티",
+ "The Feedback page in the options has a Community card with Vanguard's Discord and X links to copy.": "옵션의 의견 보내기 페이지에는 Vanguard의 Discord와 X 링크를 복사할 수 있는 커뮤니티 카드가 있습니다.",
+ "Options pages show their cards as tabs, so the long pages fit one screen, and Reset this page sits beside the page title. Every module switch says Reload to apply, and searching for reload finds them.": "옵션 페이지는 카드를 탭으로 보여 주므로 긴 페이지도 한 화면에 들어가며, 페이지 제목 옆에 ‘이 페이지 초기화’가 있습니다. 모든 모듈 스위치에는 ‘적용하려면 UI 재시작’이라고 표시되며, ‘재시작’으로 검색하면 모두 찾을 수 있습니다.",
+ "Fit and layout": "맞춤과 배치",
+ "Text fits its buttons, menus and windows at any text size and in longer translations. On narrow or short screens, default frame spots move just enough to stay on screen and clear of each other; wider screens are unchanged.": "텍스트는 어떤 글자 크기에서도, 더 긴 번역에서도 버튼, 메뉴, 창 안에 맞게 들어갑니다. 좁거나 낮은 화면에서는 기본 프레임 위치가 화면 안에 머물고 서로 겹치지 않을 만큼만 움직이며, 더 넓은 화면은 그대로입니다.",
+ "Clear buttons": "지우기 버튼",
+ "Clearing loot reserves, a talent plan or saved chat asks first.": "전리품 예약, 특성 계획 또는 저장된 대화를 지우기 전에 먼저 확인을 묻습니다.",
+ "Bug and stability hunts": "버그 및 안정성 점검",
+ "Fixes from two bug hunts, a clean-code review and twelve stability hunts across combat, frames, chat, quests, bags, the auction house, mail, profiles and options.": "두 번의 버그 점검, 클린 코드 검토, 그리고 전투, 프레임, 대화, 퀘스트, 가방, 경매장, 우편, 프로필, 옵션 전반에 걸친 열두 번의 안정성 점검에서 나온 수정 사항입니다.",
+ "As listed in the addon's README:": "애드온 README에 나열된 대로:"
 }
