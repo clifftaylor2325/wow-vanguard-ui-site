@@ -347,10 +347,26 @@ RELEASE_NOTES["v0.7.4"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.7.5"] = { groups: [
+    { id: "new", title: "New", items: [
+      { label: "Language", text: "Vanguard's own text shows in your client's language: German, French, Spanish, Italian, Brazilian Portuguese, Russian, Korean and Chinese. The translations are machine-drafted, so report a wrong line with /vg feedback or on the Feedback page. Commands and the What's new notes stay English.", from: [655, 656, 657, 658, 659, 660, 661, 663, 664, 667, 669, 670] },
+      { label: "Panel texture", text: "A Panel texture choice (General, Look) draws a texture over every floating window; Flat is the default.", from: [648] },
+      { label: "Community", text: "The Feedback page in the options has a Community card with Vanguard's Discord and X links to copy.", from: [677] },
+    ] },
+    { id: "improved", title: "Improved", items: [
+      { label: "Options window", text: "Options pages show their cards as tabs, so the long pages fit one screen, and Reset this page sits beside the page title. Every module switch says Reload to apply, and searching for reload finds them.", from: [690, 691, 653] },
+      { label: "Fit and layout", text: "Text fits its buttons, menus and windows at any text size and in longer translations. On narrow or short screens, default frame spots move just enough to stay on screen and clear of each other; wider screens are unchanged.", from: [662, 665, 666, 668, 671, 672, 673, 674, 675, 676, 678, 679, 680, 681, 682, 683, 684, 685, 686, 687, 688, 689] },
+      { label: "Clear buttons", text: "Clearing loot reserves, a talent plan or saved chat asks first.", from: [652] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Bug and stability hunts", text: "Fixes from two bug hunts, a clean-code review and twelve stability hunts across combat, frames, chat, quests, bags, the auction house, mail, profiles and options.", from: [645, 649, 650, 651, 692, 693, 694, 695, 696, 697, 698, 700, 701, 702, 703, 704, 705] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.7.4 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.7.5 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.7.4",
+  after: "v0.7.5",
   groups: [],
 };
