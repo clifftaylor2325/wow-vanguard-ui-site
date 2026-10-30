@@ -487,13 +487,6 @@
  "Posts go after 10 minutes (5 or 20 if you like), and a newer post from the same player replaces the older one.": "Gli annunci spariscono dopo 10 minuti (5 o 20 se preferisci), e un annuncio più recente dello stesso giocatore sostituisce il più vecchio.",
  "In dungeons and raids, where the game hides chat from addons, nothing is read.": "Nelle spedizioni e nelle incursioni, dove il gioco nasconde la chat agli addon, nulla viene letto.",
  "Experimental: it has not been seen working in the game yet, so the board may stay empty. WoW Forever has no Dungeon Finder, so groups form in chat. The board lists each player's latest looking-for-more or looking-for-group post from the numbered channels and yell: the dungeon with its level range, the roles it names, who posted it and how long ago. Click a row to open a whisper; nothing is ever sent for you.": "Sperimentale: non è ancora stato visto funzionare nel gioco, quindi la bacheca potrebbe restare vuota. WoW Forever non ha un Cercagruppi, quindi i gruppi si formano in chat. La bacheca elenca l’ultimo annuncio di ogni giocatore in cerca di altri o in cerca di gruppo dai canali numerati e dalle urla: la spedizione con il suo intervallo di livelli, i ruoli che nomina, chi l’ha pubblicato e da quanto. Clicca una riga per aprire un sussurro; nulla viene mai inviato per te.",
- "Real in-game screenshots of Vanguard in WoW Forever.": "Vere schermate di Vanguard in WoW Forever, catturate nel gioco.",
- "Real captures from the game, not mock-ups. Click one to see it full size.": "Vere catture dal gioco, non simulazioni. Cliccane una per vederla a grandezza naturale.",
- "<strong>{n}</strong> in-game screenshots": {
-  "one": "<strong>{n}</strong> schermata dal gioco",
-  "many": "<strong>{n}</strong> schermate dal gioco",
-  "other": "<strong>{n}</strong> schermate dal gioco"
- },
  "The same pictures sit beside their module on <a href=\"/features/\">Features</a>": "Le stesse immagini stanno accanto al loro modulo nelle <a href=\"/features/\">Funzionalità</a>",
  "First look": "Primo sguardo",
  "{n} shots": {
@@ -544,7 +537,6 @@
  "A raid of 10 (/vg preview 10).": "Un’incursione da 10 (/vg preview 10).",
  "In the field": "Sul campo",
  "Nameplates and combat tools.": "Barre dei nomi e strumenti di combattimento.",
- "Taken in WoW Forever with the default Slate and brass look. Names of other players are blurred or cropped out.": "Catturata in WoW Forever con l’aspetto predefinito Ardesia e ottone. I nomi degli altri giocatori sono sfocati o ritagliati.",
  "<strong>{reload}</strong> or <strong>{later}</strong>": "<strong>{reload}</strong> o <strong>{later}</strong>",
  "Share one Vanguard layout across characters, or move it to another PC.": "Condividi una disposizione di Vanguard tra più personaggi, o spostala su un altro PC.",
  "A profile holds all of Vanguard's settings and frame positions. Profiles are saved for your whole account, and each character uses one of them. The first one is called <strong>{name}</strong>.": "Un profilo contiene tutte le impostazioni di Vanguard e le posizioni dei riquadri. I profili sono salvati per tutto il tuo account, e ogni personaggio ne usa uno. Il primo si chiama <strong>{name}</strong>.",
@@ -1173,11 +1165,6 @@
  "News and questions": "Novità e domande",
  "The crest (SVG, 1024 × 1024)": "Lo stemma (SVG, 1024 × 1024)",
  "The share card (PNG, 1200 × 630)": "La scheda di condivisione (PNG, 1200 × 630)",
- "<a href=\"/screenshots/\">{n} in-game screenshots</a>: click one for the full-size file": {
-  "one": "<a href=\"/screenshots/\">{n} screenshot dal gioco</a>: fai clic per il file a dimensione piena",
-  "many": "<a href=\"/screenshots/\">{n} screenshot dal gioco</a>: fai clic su uno per il file a dimensione piena",
-  "other": "<a href=\"/screenshots/\">{n} screenshot dal gioco</a>: fai clic su uno per il file a dimensione piena"
- },
  "You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.": "Puoi usare lo stemma, la scheda di condivisione e gli screenshot in articoli e video su Vanguard. Per qualsiasi altro uso, chiedi prima su Discord.",
  "Privacy": "Privacy",
  "This site sets no cookies and loads no analytics, ads or tracking scripts.": "Questo sito non imposta cookie e non carica script di analisi, pubblicità o tracciamento.",
@@ -1208,5 +1195,8 @@
  "Clearing loot reserves, a talent plan or saved chat asks first.": "Svuotare le prenotazioni del bottino, un piano dei talenti o la chat salvata chiede prima conferma.",
  "Bug and stability hunts": "Cacce ai bug e all’instabilità",
  "Fixes from two bug hunts, a clean-code review and twelve stability hunts across combat, frames, chat, quests, bags, the auction house, mail, profiles and options.": "Correzioni da due cacce ai bug, una revisione del codice pulito e dodici cacce all’instabilità tra combattimento, riquadri, chat, missioni, borse, casa d’aste, posta, profili e opzioni.",
- "As listed in the addon's README:": "Come elencato nel README dell’addon:"
+ "As listed in the addon's README:": "Come elencato nel README dell’addon:",
+ "Screenshot coming at launch": "Schermata in arrivo al lancio",
+ "New in-game screenshots arrive at launch": "Nuove schermate di gioco in arrivo al lancio",
+ "New captures from the game arrive at WoW Forever's launch. Until then, each caption says what its picture will show.": "Le nuove schermate dal gioco arrivano al lancio di WoW Forever. Fino ad allora, ogni didascalia dice cosa mostrerà la sua immagine."
 }

@@ -480,11 +480,19 @@ export const SHOT_SIZES = {
   card: "(max-width: 899px) calc(100vw - 32px), 560px",
 };
 
+// A screenshot waiting on a retake: a frame the shot's size (an empty SVG sets the ratio, so
+// no inline style is needed) saying a new one comes at launch, with the shot's caption.
+function shotPlaceholder(s, { caption, loc }) {
+  const box = `<div class="shot-placeholder" role="img" aria-label="${esc(loc.p(s.alt))}"><svg viewBox="0 0 ${s.w} ${s.h}" aria-hidden="true"></svg><span>${esc(loc.p("Screenshot coming at launch"))}</span></div>`;
+  return `<figure class="shot-fig"${s.next ? ' data-avail="next"' : ""}>${box}${caption ? `<figcaption>${esc(loc.p(s.caption))}</figcaption>` : ""}</figure>`;
+}
+
 // A real in-game screenshot as a figure that opens the full-size image (a `shot` from
 // scripts/lib/shots-content.mjs). A shot wider than SMALL_SHOT_W also offers its smaller copy,
 // so a phone or a thumbnail doesn't load the full size. A shot that shows something only the
-// next release has hides with the rest of it.
+// next release has hides with the rest of it. A shot waiting on a retake is a placeholder.
 export function shotFigure(s, { caption = true, loc = EN, sizes = "card" } = {}) {
+  if (s.retake) return shotPlaceholder(s, { caption, loc });
   const full = `/assets/shots/${esc(s.file)}.webp`;
   const set = s.w > SMALL_SHOT_W ? ` srcset="/assets/shots/${esc(s.file)}-${SMALL_SHOT_W}w.webp ${SMALL_SHOT_W}w, ${full} ${s.w}w" sizes="${SHOT_SIZES[sizes]}"` : "";
   const img = `<img src="${full}"${set} width="${s.w}" height="${s.h}" alt="${esc(loc.p(s.alt))}" loading="lazy" decoding="async">`;

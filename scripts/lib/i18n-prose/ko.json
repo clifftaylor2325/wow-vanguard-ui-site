@@ -483,11 +483,6 @@
  "Posts go after 10 minutes (5 or 20 if you like), and a newer post from the same player replaces the older one.": "글은 10분 뒤(원하면 5분 또는 20분)에 사라지며, 같은 플레이어의 새 글이 이전 글을 대체합니다.",
  "In dungeons and raids, where the game hides chat from addons, nothing is read.": "게임이 애드온에 대화를 숨기는 던전과 공격대에서는 아무것도 읽지 않습니다.",
  "Experimental: it has not been seen working in the game yet, so the board may stay empty. WoW Forever has no Dungeon Finder, so groups form in chat. The board lists each player's latest looking-for-more or looking-for-group post from the numbered channels and yell: the dungeon with its level range, the roles it names, who posted it and how long ago. Click a row to open a whisper; nothing is ever sent for you.": "실험적 기능: 아직 게임에서 작동하는 것을 확인하지 못해 게시판이 비어 있을 수 있습니다. WoW Forever에는 던전 찾기가 없으므로 파티는 대화로 구성됩니다. 게시판은 번호 채널과 외치기에서 각 플레이어의 최신 파티원 모집 또는 파티 구함 글을 나열합니다. 던전과 레벨 범위, 언급된 역할, 글쓴이, 얼마나 전에 올렸는지가 나옵니다. 줄을 클릭하면 귓속말이 열리며, 대신 보내지는 것은 없습니다.",
- "Real in-game screenshots of Vanguard in WoW Forever.": "WoW Forever의 Vanguard 실제 게임 스크린샷.",
- "Real captures from the game, not mock-ups. Click one to see it full size.": "가상 이미지가 아닌 실제 게임 캡처입니다. 클릭하면 원본 크기로 볼 수 있습니다.",
- "<strong>{n}</strong> in-game screenshots": {
-  "other": "게임 스크린샷 <strong>{n}</strong>장"
- },
  "The same pictures sit beside their module on <a href=\"/features/\">Features</a>": "같은 사진이 <a href=\"/features/\">기능</a> 페이지의 해당 모듈 옆에도 있습니다",
  "First look": "처음 보기",
  "{n} shots": {
@@ -536,7 +531,6 @@
  "A raid of 10 (/vg preview 10).": "10인 공격대(/vg preview 10).",
  "In the field": "현장에서",
  "Nameplates and combat tools.": "이름표와 전투 도구.",
- "Taken in WoW Forever with the default Slate and brass look. Names of other players are blurred or cropped out.": "기본 점판암과 황동 스타일로 WoW Forever에서 촬영했습니다. 다른 플레이어의 이름은 흐리게 처리하거나 잘라 냈습니다.",
  "<strong>{reload}</strong> or <strong>{later}</strong>": "<strong>{reload}</strong> 또는 <strong>{later}</strong>",
  "Share one Vanguard layout across characters, or move it to another PC.": "여러 캐릭터가 Vanguard 배치 하나를 공유하거나 다른 PC로 옮기세요.",
  "A profile holds all of Vanguard's settings and frame positions. Profiles are saved for your whole account, and each character uses one of them. The first one is called <strong>{name}</strong>.": "프로필에는 Vanguard의 모든 설정과 프레임 위치가 들어 있습니다. 프로필은 계정 전체에 저장되며 각 캐릭터는 그중 하나를 씁니다. 첫 번째 프로필의 이름은 <strong>{name}</strong>입니다.",
@@ -1161,9 +1155,6 @@
  "News and questions": "소식과 질문",
  "The crest (SVG, 1024 × 1024)": "문장 (SVG, 1024 × 1024)",
  "The share card (PNG, 1200 × 630)": "공유 카드 (PNG, 1200 × 630)",
- "<a href=\"/screenshots/\">{n} in-game screenshots</a>: click one for the full-size file": {
-  "other": "<a href=\"/screenshots/\">게임 내 스크린샷 {n}장</a>: 클릭하면 원본 크기 파일이 열립니다"
- },
  "You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.": "문장, 공유 카드, 스크린샷은 Vanguard에 관한 기사와 영상에 사용할 수 있습니다. 그 밖의 용도는 먼저 Discord에서 문의해 주세요.",
  "Privacy": "개인정보",
  "This site sets no cookies and loads no analytics, ads or tracking scripts.": "이 사이트는 쿠키를 사용하지 않으며 분석, 광고, 추적 스크립트를 불러오지 않습니다.",
@@ -1194,5 +1185,8 @@
  "Clearing loot reserves, a talent plan or saved chat asks first.": "전리품 예약, 특성 계획 또는 저장된 대화를 지우기 전에 먼저 확인을 묻습니다.",
  "Bug and stability hunts": "버그 및 안정성 점검",
  "Fixes from two bug hunts, a clean-code review and twelve stability hunts across combat, frames, chat, quests, bags, the auction house, mail, profiles and options.": "두 번의 버그 점검, 클린 코드 검토, 그리고 전투, 프레임, 대화, 퀘스트, 가방, 경매장, 우편, 프로필, 옵션 전반에 걸친 열두 번의 안정성 점검에서 나온 수정 사항입니다.",
- "As listed in the addon's README:": "애드온 README에 나열된 대로:"
+ "As listed in the addon's README:": "애드온 README에 나열된 대로:",
+ "Screenshot coming at launch": "스크린샷은 출시 때 추가됩니다",
+ "New in-game screenshots arrive at launch": "새 게임 스크린샷은 출시 때 추가됩니다",
+ "New captures from the game arrive at WoW Forever's launch. Until then, each caption says what its picture will show.": "새 게임 화면은 WoW Forever 출시 때 추가됩니다. 그때까지는 각 설명이 그림에 담길 내용을 알려 줍니다."
 }

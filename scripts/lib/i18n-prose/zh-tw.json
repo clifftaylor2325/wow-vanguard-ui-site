@@ -483,11 +483,6 @@
  "Posts go after 10 minutes (5 or 20 if you like), and a newer post from the same player replaces the older one.": "貼文在 10 分鐘後消失（你也可以選 5 或 20 分鐘），同一位玩家較新的貼文會取代較舊的。",
  "In dungeons and raids, where the game hides chat from addons, nothing is read.": "在地城和團隊副本中，遊戲會對插件隱藏聊天，所以不會讀取任何東西。",
  "Experimental: it has not been seen working in the game yet, so the board may stay empty. WoW Forever has no Dungeon Finder, so groups form in chat. The board lists each player's latest looking-for-more or looking-for-group post from the numbered channels and yell: the dungeon with its level range, the roles it names, who posted it and how long ago. Click a row to open a whisper; nothing is ever sent for you.": "實驗性功能：尚未在遊戲中看過它運作，所以公告板可能保持空白。WoW Forever 沒有地城搜尋器，所以隊伍是在聊天中組成的。公告板會列出每位玩家在編號頻道和大喊中最新的徵求更多成員或徵求隊伍貼文：地城及其等級範圍、貼文提到的職責、發文者以及多久前發的。點擊一列可開啟密語；絕不會替你傳送任何東西。",
- "Real in-game screenshots of Vanguard in WoW Forever.": "Vanguard 在 WoW Forever 中的真實遊戲截圖。",
- "Real captures from the game, not mock-ups. Click one to see it full size.": "來自遊戲的真實擷圖，不是模擬圖。點擊一張可查看完整大小。",
- "<strong>{n}</strong> in-game screenshots": {
-  "other": "<strong>{n}</strong> 張遊戲截圖"
- },
  "The same pictures sit beside their module on <a href=\"/features/\">Features</a>": "同樣的圖片也放在<a href=\"/features/\">功能</a>頁面中各自模組的旁邊",
  "First look": "初見",
  "{n} shots": {
@@ -536,7 +531,6 @@
  "A raid of 10 (/vg preview 10).": "10 人團隊（/vg preview 10）。",
  "In the field": "實戰中",
  "Nameplates and combat tools.": "名條和戰鬥工具。",
- "Taken in WoW Forever with the default Slate and brass look. Names of other players are blurred or cropped out.": "在 WoW Forever 中以預設的石板與黃銅外觀拍攝。其他玩家的名稱已模糊處理或裁掉。",
  "<strong>{reload}</strong> or <strong>{later}</strong>": "<strong>{reload}</strong> 或 <strong>{later}</strong>",
  "Share one Vanguard layout across characters, or move it to another PC.": "在多個角色之間共用同一份 Vanguard 版面配置，或把它移到另一台電腦。",
  "A profile holds all of Vanguard's settings and frame positions. Profiles are saved for your whole account, and each character uses one of them. The first one is called <strong>{name}</strong>.": "設定檔保存 Vanguard 的所有設定和框架位置。設定檔是為你的整個帳號儲存的，每個角色使用其中一個。第一個叫做 <strong>{name}</strong>。",
@@ -1161,9 +1155,6 @@
  "News and questions": "消息與提問",
  "The crest (SVG, 1024 × 1024)": "徽記（SVG，1024 × 1024）",
  "The share card (PNG, 1200 × 630)": "分享卡片（PNG，1200 × 630）",
- "<a href=\"/screenshots/\">{n} in-game screenshots</a>: click one for the full-size file": {
-  "other": "<a href=\"/screenshots/\">{n} 張遊戲內截圖</a>：點擊任一張查看原尺寸檔案"
- },
  "You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.": "你可以在介紹 Vanguard 的文章和影片中使用徽記、分享卡片和截圖。其他用途請先在 Discord 詢問。",
  "Privacy": "隱私",
  "This site sets no cookies and loads no analytics, ads or tracking scripts.": "本站不設定 Cookie，也不載入任何分析、廣告或追蹤指令碼。",
@@ -1194,5 +1185,8 @@
  "Clearing loot reserves, a talent plan or saved chat asks first.": "清除拾取預留、天賦規劃或已儲存的聊天前會先詢問。",
  "Bug and stability hunts": "錯誤與穩定性排查",
  "Fixes from two bug hunts, a clean-code review and twelve stability hunts across combat, frames, chat, quests, bags, the auction house, mail, profiles and options.": "來自兩輪錯誤排查、一次程式碼整潔審查，以及十二輪涵蓋戰鬥、框架、聊天、任務、背包、拍賣場、郵件、設定檔和選項的穩定性排查的修正。",
- "As listed in the addon's README:": "如插件 README 所列："
+ "As listed in the addon's README:": "如插件 README 所列：",
+ "Screenshot coming at launch": "截圖將在上線時提供",
+ "New in-game screenshots arrive at launch": "新的遊戲截圖將在上線時提供",
+ "New captures from the game arrive at WoW Forever's launch. Until then, each caption says what its picture will show.": "新的遊戲畫面將在 WoW Forever 上線時提供。在此之前，每則說明會告訴你圖中將展示的內容。"
 }

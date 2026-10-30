@@ -489,14 +489,6 @@
  "Posts go after 10 minutes (5 or 20 if you like), and a newer post from the same player replaces the older one.": "Объявления исчезают через 10 минут (5 или 20, если хотите), а более новое объявление от того же игрока заменяет старое.",
  "In dungeons and raids, where the game hides chat from addons, nothing is read.": "В подземельях и рейдах, где игра скрывает чат от аддонов, ничего не читается.",
  "Experimental: it has not been seen working in the game yet, so the board may stay empty. WoW Forever has no Dungeon Finder, so groups form in chat. The board lists each player's latest looking-for-more or looking-for-group post from the numbered channels and yell: the dungeon with its level range, the roles it names, who posted it and how long ago. Click a row to open a whisper; nothing is ever sent for you.": "Экспериментально: работа в игре ещё не наблюдалась, так что доска может оставаться пустой. В WoW Forever нет поиска подземелий, поэтому группы собираются в чате. Доска перечисляет последнее объявление каждого игрока «ищу ещё» или «ищу группу» из нумерованных каналов и крика: подземелье с диапазоном уровней, названные роли, кто написал и как давно. Щёлкните по строке, чтобы открыть шёпот; за вас ничего не отправляется.",
- "Real in-game screenshots of Vanguard in WoW Forever.": "Настоящие игровые скриншоты Vanguard в WoW Forever.",
- "Real captures from the game, not mock-ups. Click one to see it full size.": "Настоящие снимки из игры, а не макеты. Щёлкните по одному, чтобы увидеть его в полном размере.",
- "<strong>{n}</strong> in-game screenshots": {
-  "one": "<strong>{n}</strong> игровой скриншот",
-  "few": "<strong>{n}</strong> игровых скриншота",
-  "many": "<strong>{n}</strong> игровых скриншотов",
-  "other": "<strong>{n}</strong> игрового скриншота"
- },
  "The same pictures sit beside their module on <a href=\"/features/\">Features</a>": "Те же картинки лежат рядом со своим модулем на странице «<a href=\"/features/\">Возможности</a>»",
  "First look": "Первый взгляд",
  "{n} shots": {
@@ -548,7 +540,6 @@
  "A raid of 10 (/vg preview 10).": "Рейд из 10 человек (/vg preview 10).",
  "In the field": "В поле",
  "Nameplates and combat tools.": "Индикаторы здоровья и боевые инструменты.",
- "Taken in WoW Forever with the default Slate and brass look. Names of other players are blurred or cropped out.": "Снято в WoW Forever с видом по умолчанию «Сланец и латунь». Имена других игроков размыты или обрезаны.",
  "<strong>{reload}</strong> or <strong>{later}</strong>": "<strong>{reload}</strong> или <strong>{later}</strong>",
  "Share one Vanguard layout across characters, or move it to another PC.": "Используйте одно расположение Vanguard на нескольких персонажах или перенесите его на другой ПК.",
  "A profile holds all of Vanguard's settings and frame positions. Profiles are saved for your whole account, and each character uses one of them. The first one is called <strong>{name}</strong>.": "Профиль содержит все настройки Vanguard и положения рамок. Профили сохраняются для всей вашей учётной записи, и каждый персонаж использует один из них. Первый называется <strong>{name}</strong>.",
@@ -1179,12 +1170,6 @@
  "News and questions": "Новости и вопросы",
  "The crest (SVG, 1024 × 1024)": "Герб (SVG, 1024 × 1024)",
  "The share card (PNG, 1200 × 630)": "Карточка для ссылок (PNG, 1200 × 630)",
- "<a href=\"/screenshots/\">{n} in-game screenshots</a>: click one for the full-size file": {
-  "one": "<a href=\"/screenshots/\">{n} скриншот из игры</a>: нажмите на него, чтобы открыть файл в полном размере",
-  "few": "<a href=\"/screenshots/\">{n} скриншота из игры</a>: нажмите на любой, чтобы открыть файл в полном размере",
-  "many": "<a href=\"/screenshots/\">{n} скриншотов из игры</a>: нажмите на любой, чтобы открыть файл в полном размере",
-  "other": "<a href=\"/screenshots/\">{n} скриншота из игры</a>: нажмите на любой, чтобы открыть файл в полном размере"
- },
  "You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.": "Герб, карточку для ссылок и скриншоты можно использовать в статьях и видео о Vanguard. Для всего остального сначала спросите в Discord.",
  "Privacy": "Конфиденциальность",
  "This site sets no cookies and loads no analytics, ads or tracking scripts.": "Этот сайт не ставит cookie и не загружает скрипты аналитики, рекламы или отслеживания.",
@@ -1215,5 +1200,8 @@
  "Clearing loot reserves, a talent plan or saved chat asks first.": "Очистка резервов добычи, плана талантов или сохранённого чата сначала спрашивает подтверждение.",
  "Bug and stability hunts": "Охота на ошибки и за стабильностью",
  "Fixes from two bug hunts, a clean-code review and twelve stability hunts across combat, frames, chat, quests, bags, the auction house, mail, profiles and options.": "Исправления по итогам двух охот на ошибки, проверки чистоты кода и двенадцати охот за стабильностью в бою, рамках, чате, заданиях, сумках, аукционе, почте, профилях и настройках.",
- "As listed in the addon's README:": "Как указано в README аддона:"
+ "As listed in the addon's README:": "Как указано в README аддона:",
+ "Screenshot coming at launch": "Скриншот появится к запуску",
+ "New in-game screenshots arrive at launch": "Новые скриншоты из игры появятся к запуску",
+ "New captures from the game arrive at WoW Forever's launch. Until then, each caption says what its picture will show.": "Новые снимки из игры появятся к запуску WoW Forever. А пока каждая подпись говорит, что будет на снимке."
 }
