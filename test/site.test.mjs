@@ -21,6 +21,7 @@ import { publishedLocales, EN } from "../scripts/lib/i18n-site.mjs";
 import { extractAddon, extractPages } from "../scripts/lib/extract.mjs";
 import { buildModel, AREAS } from "../scripts/lib/model.mjs";
 import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
+import { SHOT_GROUPS, shotByFile } from "../scripts/lib/shots-content.mjs";
 
 const cfg = loadConfig();
 if (!fs.existsSync(path.join(cfg.sourcePath, ".git"))) {
@@ -379,10 +380,21 @@ test("Home and Install have the CurseForge call to action", () => {
 test("the home page decoration is hidden from screen readers and the layout section is a real screenshot", () => {
   const html = page("");
   assert.ok(/<div class="hero-art" aria-hidden="true">/.test(html), "hero decoration must be aria-hidden");
-  assert.ok(/<img src="\/assets\/shots\/01-hud-overview\.webp"[^>]* alt="[^"]+"/.test(html), "the layout section shows the real screenshot, with alt text");
+  const shot = shotByFile("01-hud-overview");
+  const shown = shot.retake ? /<div class="shot-placeholder" role="img" aria-label="[^"]+">/ : /<img src="\/assets\/shots\/01-hud-overview\.webp"[^>]* alt="[^"]+"/;
+  assert.ok(shown.test(html), "the layout section shows the real screenshot (or its placeholder while it waits on a retake), with alt text");
   assert.ok(!/class="mock"/.test(html), "no illustration standing in for a screenshot");
   const own = new RegExp(`https?://(?!vanguard-ui\\.pages\\.dev|${cfg.siteUrl.replace(/^https?:\/\//, "").replace(/\./g, "\\.")})[^"']+\\.(png|jpe?g|webp|gif|svg|woff2?|ttf|otf)`, "i");
   assert.ok(!own.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8") + html), "no external images or fonts (the site's own Open Graph image is fine)");
+});
+
+test("a screenshot waiting on a retake is a placeholder with its caption, linking no old file", () => {
+  const html = page("screenshots");
+  for (const s of SHOT_GROUPS.flatMap((g) => g.shots).filter((x) => x.retake)) {
+    assert.ok(!html.includes(`/assets/shots/${s.file}.webp`), `${s.file}: the old file is not shown`);
+    assert.ok(html.includes(`<svg viewBox="0 0 ${s.w} ${s.h}"`), `${s.file}: the placeholder keeps the shot's shape`);
+    assert.ok(html.includes(esc(s.caption)), `${s.file}: its caption stays`);
+  }
 });
 
 test("every page carries its canonical URL and the Open Graph card, with the crest's image shipped", () => {

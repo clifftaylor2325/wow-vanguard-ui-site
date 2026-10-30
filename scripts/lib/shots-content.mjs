@@ -1,8 +1,11 @@
 // The screenshots on the Screenshots page and beside the features they show.
 // Every file is a real in-game capture (no mock renders) from src/assets/shots/, cropped or
 // blurred where a real player's name or the game's own help line was in frame. `next` marks a
-
+// shot of something only the next release has, which hides with the rest of the next
 // release until the reader switches it on. Captions describe only what is in the picture.
+// `retake` marks a shot whose file no longer matches Vanguard (Cliff retakes them at WoW
+// Forever's launch): it shows as a placeholder with its caption until the new file lands
+// in src/assets/shots/ and the mark comes off.
 export const SHOT_GROUPS = [
   {
     "id": "first-look",
@@ -15,7 +18,8 @@ export const SHOT_GROUPS = [
         "h": 899,
         "alt": "The default layout",
         "caption": "The default layout: your frames either side of your character, the action bars, the quest tracker and the info strip under the minimap, and the bag and menu bar in the corner.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "02-setup-wizard",
@@ -23,7 +27,8 @@ export const SHOT_GROUPS = [
         "h": 525,
         "alt": "The first-run setup wizard, step 1",
         "caption": "The first-run setup wizard, step 1: pick a layout, or keep the one you have.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "03-options-general",
@@ -31,7 +36,8 @@ export const SHOT_GROUPS = [
         "h": 815,
         "alt": "The options window",
         "caption": "The options window (/vg): General, with a live preview at the top and the page list on the left.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "04-options-modules",
@@ -39,7 +45,8 @@ export const SHOT_GROUPS = [
         "h": 815,
         "alt": "The Modules page",
         "caption": "The Modules page: every part is a module you can switch off, and an off module costs nothing.",
-        "next": false
+        "next": false,
+        "retake": true
       }
     ]
   },
@@ -54,7 +61,8 @@ export const SHOT_GROUPS = [
         "h": 899,
         "alt": "Unlock mode",
         "caption": "Unlock mode (/vg unlock): a handle on every frame, a grid, and Exit without saving or Save and lock at the top.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "06-mover-popover",
@@ -62,7 +70,8 @@ export const SHOT_GROUPS = [
         "h": 525,
         "alt": "Right-click a handle for its anchor, offsets, scale, opacity and whether it matches another frame's width or height",
         "caption": "Right-click a handle for its anchor, offsets, scale, opacity and whether it matches another frame's width or height.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "07a-profile-picker",
@@ -70,7 +79,8 @@ export const SHOT_GROUPS = [
         "h": 815,
         "alt": "The profile picker in the options header, with the backups Vanguard keeps beside each profile",
         "caption": "The profile picker in the options header, with the backups Vanguard keeps beside each profile.",
-        "next": false
+        "next": false,
+        "retake": true
       }
     ]
   },
@@ -85,7 +95,8 @@ export const SHOT_GROUPS = [
         "h": 875,
         "alt": "Slate and brass, the default",
         "caption": "Slate and brass, the default.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "08a-theme-contrast",
@@ -93,7 +104,8 @@ export const SHOT_GROUPS = [
         "h": 836,
         "alt": "High contrast",
         "caption": "High contrast: opaque panels and white text.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "08b-theme-vellum",
@@ -101,7 +113,8 @@ export const SHOT_GROUPS = [
         "h": 834,
         "alt": "Vellum and ink",
         "caption": "Vellum and ink: a warm dark with cream text.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "08c-theme-classic",
@@ -109,7 +122,8 @@ export const SHOT_GROUPS = [
         "h": 827,
         "alt": "Classic look",
         "caption": "Classic look: dark leather and bronze.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "08d-theme-midnight",
@@ -117,7 +131,8 @@ export const SHOT_GROUPS = [
         "h": 823,
         "alt": "Midnight",
         "caption": "Midnight.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "08e-theme-obsidian",
@@ -125,7 +140,8 @@ export const SHOT_GROUPS = [
         "h": 823,
         "alt": "Obsidian",
         "caption": "Obsidian.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "08f-theme-moss",
@@ -133,7 +149,8 @@ export const SHOT_GROUPS = [
         "h": 818,
         "alt": "Moss",
         "caption": "Moss.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "08g-theme-ember",
@@ -141,7 +158,8 @@ export const SHOT_GROUPS = [
         "h": 848,
         "alt": "Ash and ember",
         "caption": "Ash and ember.",
-        "next": false
+        "next": false,
+        "retake": true
       }
     ]
   },
@@ -156,7 +174,8 @@ export const SHOT_GROUPS = [
         "h": 464,
         "alt": "The combined backpack, in sections with a Sort button and a search box",
         "caption": "The combined backpack, in sections with a Sort button and a search box.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "11-bag-menu-bar",
@@ -164,7 +183,8 @@ export const SHOT_GROUPS = [
         "h": 182,
         "alt": "The bag and menu bar in the corner",
         "caption": "The bag and menu bar in the corner: a bar on each bag slot shows how full it is.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "12-game-windows",
@@ -172,7 +192,8 @@ export const SHOT_GROUPS = [
         "h": 843,
         "alt": "The character pane in Vanguard's look, with durability on each slot",
         "caption": "The character pane in Vanguard's look, with durability on each slot.",
-        "next": false
+        "next": false,
+        "retake": true
       }
     ]
   },
@@ -187,7 +208,8 @@ export const SHOT_GROUPS = [
         "h": 934,
         "alt": "A merchant's window",
         "caption": "A merchant's window.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "15-quest-dialog",
@@ -195,7 +217,8 @@ export const SHOT_GROUPS = [
         "h": 429,
         "alt": "The quest dialog, above your frames",
         "caption": "The quest dialog, above your frames.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "16-quest-log",
@@ -203,7 +226,8 @@ export const SHOT_GROUPS = [
         "h": 632,
         "alt": "The quest log, with zones folded and the chosen quest's text and buttons",
         "caption": "The quest log, with zones folded and the chosen quest's text and buttons.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "17-quest-tracker",
@@ -211,7 +235,8 @@ export const SHOT_GROUPS = [
         "h": 195,
         "alt": "The quest tracker",
         "caption": "The quest tracker under the info strip, with its objectives and a quest item button.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "18-trainer-train-all",
@@ -219,7 +244,8 @@ export const SHOT_GROUPS = [
         "h": 798,
         "alt": "A profession trainer, with Train all beside Train",
         "caption": "A profession trainer, with Train all beside Train.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "37-flight-timer",
@@ -227,7 +253,8 @@ export const SHOT_GROUPS = [
         "h": 560,
         "alt": "The flight timer counting down to landing, above your action bars",
         "caption": "The flight timer counting down to landing, above your action bars.",
-        "next": false
+        "next": false,
+        "retake": true
       }
     ]
   },
@@ -242,7 +269,8 @@ export const SHOT_GROUPS = [
         "h": 573,
         "alt": "Party frames growing up from just above your player frame",
         "caption": "Party frames growing up from just above your player frame (shown with /vg preview).",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "21-raid-preview-25",
@@ -250,7 +278,8 @@ export const SHOT_GROUPS = [
         "h": 507,
         "alt": "A raid of 25, with roles, a dead and an offline tile",
         "caption": "A raid of 25, with roles, a dead and an offline tile (/vg preview 25).",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "21b-raid-preview-40",
@@ -258,7 +287,8 @@ export const SHOT_GROUPS = [
         "h": 439,
         "alt": "A raid of 40 drawn smaller so it fits",
         "caption": "A raid of 40 drawn smaller so it fits (/vg preview 40).",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "21c-raid-preview-10",
@@ -266,7 +296,8 @@ export const SHOT_GROUPS = [
         "h": 550,
         "alt": "A raid of 10",
         "caption": "A raid of 10 (/vg preview 10).",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "22-click-casting",
@@ -274,7 +305,8 @@ export const SHOT_GROUPS = [
         "h": 852,
         "alt": "Click casting",
         "caption": "Click casting: keys while hovering a frame, and a Try it tile.",
-        "next": false
+        "next": false,
+        "retake": true
       }
     ]
   },
@@ -289,7 +321,8 @@ export const SHOT_GROUPS = [
         "h": 836,
         "alt": "Nameplates on enemies",
         "caption": "Nameplates on enemies: level, a quest mark and your target's marker.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "32e-nameplates-cast",
@@ -297,7 +330,8 @@ export const SHOT_GROUPS = [
         "h": 300,
         "alt": "A nameplate with a cast bar",
         "caption": "A nameplate with a cast bar under it.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "35-vanguard-meter-dps",
@@ -305,7 +339,8 @@ export const SHOT_GROUPS = [
         "h": 187,
         "alt": "The Vanguard meter showing damage per second",
         "caption": "The Vanguard meter showing damage per second.",
-        "next": false
+        "next": false,
+        "retake": true
       },
       {
         "file": "36-cooldown-gaps",
@@ -313,7 +348,8 @@ export const SHOT_GROUPS = [
         "h": 276,
         "alt": "The cooldown gaps row",
         "caption": "The cooldown gaps row: icons for what the game's Cooldown Manager misses.",
-        "next": false
+        "next": false,
+        "retake": true
       }
     ]
   }
@@ -323,4 +359,9 @@ export const SHOT_GROUPS = [
 export function shotByFile(file) {
   for (const g of SHOT_GROUPS) for (const s of g.shots) if (s.file === file) return s;
   return null;
+}
+
+// The shots whose file is current, not waiting on a retake.
+export function readyShots() {
+  return SHOT_GROUPS.flatMap((g) => g.shots).filter((s) => !s.retake);
 }

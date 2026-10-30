@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { root } from "./config.mjs";
-import { SHOT_GROUPS } from "./shots-content.mjs";
+import { SHOT_GROUPS, readyShots } from "./shots-content.mjs";
 import { shotFigure, esc, md, badge, pageHero, disclosure, glance, nextOnly, NEXT_BADGE, nextBadge, reloadBadge, supportOn, supportAsk, followLine, CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE } from "./html.mjs";
 import { src, sourceNote, dateET, says, saysIf, label, localTagline } from "./pages-main.mjs";
 import { FACTS, SECTIONS, ENGLISH_HELP } from "./help-content.mjs";
@@ -845,7 +845,7 @@ function creditsPress(model, site, loc) {
   const link = (url, name) => (url ? `<a href="${esc(url)}" rel="noopener">${esc(name)}</a>` : "");
   const stores = [link(CURSEFORGE_URL, "CurseForge"), link(WAGO_URL, "Wago")].filter(Boolean).join(" · ");
   const news = [link(DISCORD_URL, "Discord"), link(X_URL, `X (${X_HANDLE})`)].filter(Boolean).join(" · ");
-  const n = SHOT_GROUPS.reduce((t, g) => t + g.shots.length, 0);
+  const n = readyShots().length;
   return `<p>${loc.p("For writers and video makers covering Vanguard: the facts to quote, the artwork, and where to send readers.")}</p>
 <dl class="facts">
   <dt>${loc.p("What it is")}</dt><dd>${esc(localTagline(model, loc))}</dd>
@@ -858,7 +858,7 @@ function creditsPress(model, site, loc) {
 <ul>
   <li><a href="/assets/vanguard-crest.svg">${loc.p("The crest (SVG, 1024 × 1024)")}</a></li>
   <li><a href="/assets/og-image.png">${loc.p("The share card (PNG, 1200 × 630)")}</a></li>
-  <li>${loc.pn({ one: `<a href="/screenshots/">{n} in-game screenshot</a>: click one for the full-size file`, other: `<a href="/screenshots/">{n} in-game screenshots</a>: click one for the full-size file` }, n)}</li>
+  ${n ? `<li>${loc.pn({ one: `<a href="/screenshots/">{n} in-game screenshot</a>: click one for the full-size file`, other: `<a href="/screenshots/">{n} in-game screenshots</a>: click one for the full-size file` }, n)}</li>` : ""}
 </ul>
 <p class="small">${loc.p("You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.")}</p>`;
 }
@@ -958,15 +958,17 @@ function shotGroup(g, loc) {
 
 // The Screenshots page: real in-game captures, grouped by what they show.
 export function screenshotsPage(model, loc = EN) {
-  const n = SHOT_GROUPS.reduce((t, g) => t + g.shots.length, 0);
+  const n = readyShots().length;
+  const count = n ? loc.pn({ one: "<strong>{n}</strong> in-game screenshot", other: "<strong>{n}</strong> in-game screenshots" }, n) : loc.p("New in-game screenshots arrive at launch");
+  const lead = n ? loc.p("Real captures from the game, not mock-ups. Click one to see it full size.") : loc.p("New captures from the game arrive at WoW Forever's launch. Until then, each caption says what its picture will show.");
   return {
     path: "/screenshots/",
     title: "Screenshots",
-    description: loc.p("Real in-game screenshots of Vanguard in WoW Forever."),
+    description: n ? loc.p("Real in-game screenshots of Vanguard in WoW Forever.") : loc.p("New in-game screenshots arrive at launch"),
     translated: true,
-    body: `${pageHero(loc.t("title./screenshots/"), loc.p("Real captures from the game, not mock-ups. Click one to see it full size."))}
-${glance([loc.pn({ one: "<strong>{n}</strong> in-game screenshot", other: "<strong>{n}</strong> in-game screenshots" }, n), ...(model && !model.same ? [loc.p("Shots of things only the next release has hide with the rest of it")] : []), loc.p(`The same pictures sit beside their module on <a href="/features/">Features</a>`)])}
+    body: `${pageHero(loc.t("title./screenshots/"), lead)}
+${glance([count, ...(model && !model.same ? [loc.p("Shots of things only the next release has hide with the rest of it")] : []), loc.p(`The same pictures sit beside their module on <a href="/features/">Features</a>`)])}
 <div class="dis-grid">${SHOT_GROUPS.map((g) => shotGroup(g, loc)).join("\n")}</div>
-<p class="small">${loc.p("Taken in WoW Forever with the default Slate and brass look. Names of other players are blurred or cropped out.")}</p>`,
+${n ? `<p class="small">${loc.p("Taken in WoW Forever with the default Slate and brass look. Names of other players are blurred or cropped out.")}</p>` : ""}`,
   };
 }
