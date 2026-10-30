@@ -63,7 +63,7 @@ export const PAGES_RU = {
       "perf": { q: "Vanguard замедляет мою игру?",
         a: `<p><code>/vg perf</code> показывает текущее время ЦП и память Vanguard, а также десять самых нагруженных функций. Чтобы самому измерить нагрузку на ЦП (в README: «{perfRecipe}»):</p><ol class="steps"><li>Введите <code>/vg perf cpu</code>, затем <code>/reload</code>.</li><li>Поиграйте какое-то время (рейдовый пулл — трудный случай).</li><li>Введите <code>/vg perf</code> и посмотрите на числа.</li><li>Снова введите <code>/vg perf cpu</code> и <code>/reload</code>. У измерения есть цена; в README сказано: «{perfSlows}».</li></ol><p>Данные о производительности пока не опубликованы.</p>` },
       "retail": { q: "Работает ли Vanguard в Retail WoW?",
-        a: `<p>Vanguard сделан для WoW Forever. Он загружается и в Retail WoW, но Retail пока не поддерживается: классы и системы, которые есть только в Retail (например, эпохальные+ подземелья, вылазки и жилища), не охвачены, и что-то может не работать.</p><p>Полная поддержка Retail запланирована в Vanguard 0.8.0. До тех пор, если вы играете в Retail и что-то не работает, сообщите нам на <a href="/feedback/">странице отзывов</a> и укажите, что играете в Retail.</p>` },
+        a: `<p>Vanguard сделан для WoW Forever. Он загружается и в Retail WoW, но Retail пока не поддерживается: классы и системы, которые есть только в Retail (например, эпохальные+ подземелья, вылазки и жилища), не охвачены, и что-то может не работать.</p><p>Полная поддержка Retail запланирована в одной из следующих версий. До тех пор, если вы играете в Retail и что-то не работает, сообщите нам на <a href="/feedback/">странице отзывов</a> и укажите, что играете в Retail.</p>` },
     },
   },
   support: {
@@ -141,7 +141,7 @@ export const PAGES_KO = {
       "perf": { q: "Vanguard 때문에 게임이 느려지나요?",
         a: `<p><code>/vg perf</code>는 지금 Vanguard의 CPU 시간과 메모리, 가장 바쁜 함수 10개를 보여 줍니다. CPU 비용을 직접 재려면(README: “{perfRecipe}”):</p><ol class="steps"><li><code>/vg perf cpu</code>를 입력한 다음 <code>/reload</code>를 입력하세요.</li><li>잠시 플레이하세요(공격대 풀링이 어려운 경우입니다).</li><li><code>/vg perf</code>를 입력하고 숫자를 읽으세요.</li><li><code>/vg perf cpu</code>와 <code>/reload</code>를 다시 입력하세요. 측정에는 대가가 있습니다. README에는 “{perfSlows}”라고 나옵니다.</li></ol><p>아직 공개된 성능 수치는 없습니다.</p>` },
       "retail": { q: "Vanguard는 리테일 WoW에서도 작동하나요?",
-        a: `<p>Vanguard는 WoW Forever용으로 만들어졌습니다. 리테일 WoW에서도 불러와지지만, 리테일은 아직 지원하지 않습니다. 리테일에만 있는 직업과 시스템(쐐기돌 던전, 구렁, 하우징 등)은 다루지 않으며, 일부 기능이 작동하지 않을 수 있습니다.</p><p>리테일 정식 지원은 Vanguard 0.8.0에 계획되어 있습니다. 그전까지 리테일에서 플레이하다가 문제가 생기면 <a href="/feedback/">피드백 페이지</a>에 알려 주시고, 리테일에서 플레이 중이라고 적어 주세요.</p>` },
+        a: `<p>Vanguard는 WoW Forever용으로 만들어졌습니다. 리테일 WoW에서도 불러와지지만, 리테일은 아직 지원하지 않습니다. 리테일에만 있는 직업과 시스템(쐐기돌 던전, 구렁, 하우징 등)은 다루지 않으며, 일부 기능이 작동하지 않을 수 있습니다.</p><p>리테일 정식 지원은 이후 버전에 계획되어 있습니다. 그전까지 리테일에서 플레이하다가 문제가 생기면 <a href="/feedback/">피드백 페이지</a>에 알려 주시고, 리테일에서 플레이 중이라고 적어 주세요.</p>` },
     },
   },
   support: {
@@ -219,7 +219,7 @@ export const PAGES_ZH_CN = {
       "perf": { q: "Vanguard 会拖慢我的游戏吗？",
         a: `<p><code>/vg perf</code> 显示 Vanguard 当前的 CPU 时间和内存，以及它最忙的十个函数。要自己测量 CPU 开销（README：“{perfRecipe}”）：</p><ol class="steps"><li>输入 <code>/vg perf cpu</code>，然后输入 <code>/reload</code>。</li><li>玩一会儿（团队开怪是最吃力的情况）。</li><li>输入 <code>/vg perf</code> 并查看数字。</li><li>再次输入 <code>/vg perf cpu</code> 和 <code>/reload</code>。测量本身也有开销，README 中写道：“{perfSlows}”。</li></ol><p>目前还没有发布性能数据。</p>` },
       "retail": { q: "Vanguard 能在正式服 WoW 上使用吗？",
-        a: `<p>Vanguard 是为 WoW Forever 制作的。它也能在正式服 WoW 上加载，但目前还不支持正式服：正式服独有的职业和系统（例如史诗钥石地下城、地下堡和住宅）尚未覆盖，部分功能可能无法使用。</p><p>完整的正式服支持计划在 Vanguard 0.8.0 推出。在此之前，如果你在正式服上遇到问题，请在<a href="/feedback/">反馈页面</a>告诉我们，并注明你在玩正式服。</p>` },
+        a: `<p>Vanguard 是为 WoW Forever 制作的。它也能在正式服 WoW 上加载，但目前还不支持正式服：正式服独有的职业和系统（例如史诗钥石地下城、地下堡和住宅）尚未覆盖，部分功能可能无法使用。</p><p>完整的正式服支持计划在之后的版本推出。在此之前，如果你在正式服上遇到问题，请在<a href="/feedback/">反馈页面</a>告诉我们，并注明你在玩正式服。</p>` },
     },
   },
   support: {
@@ -297,7 +297,7 @@ export const PAGES_ZH_TW = {
       "perf": { q: "Vanguard 會拖慢我的遊戲嗎？",
         a: `<p><code>/vg perf</code> 會顯示 Vanguard 目前的 CPU 時間和記憶體，以及它最忙碌的十個函式。想自己測量 CPU 負擔（README：「{perfRecipe}」）：</p><ol class="steps"><li>輸入 <code>/vg perf cpu</code>，然後輸入 <code>/reload</code>。</li><li>玩一陣子（團隊拉怪是最吃重的情況）。</li><li>輸入 <code>/vg perf</code> 並查看數字。</li><li>再次輸入 <code>/vg perf cpu</code> 和 <code>/reload</code>。測量本身也有負擔，README 寫道：「{perfSlows}」。</li></ol><p>目前還沒有公布效能數據。</p>` },
       "retail": { q: "Vanguard 能在正式版 WoW 上使用嗎？",
-        a: `<p>Vanguard 是為 WoW Forever 打造的。它也能在正式版 WoW 上載入，但目前還不支援正式版：正式版獨有的職業和系統（例如傳奇鑰石地城、探究和住宅）尚未涵蓋，部分功能可能無法運作。</p><p>完整的正式版支援預計在 Vanguard 0.8.0 推出。在那之前，如果你在正式版上遇到問題，請到<a href="/feedback/">意見回饋頁面</a>告訴我們，並註明你在玩正式版。</p>` },
+        a: `<p>Vanguard 是為 WoW Forever 打造的。它也能在正式版 WoW 上載入，但目前還不支援正式版：正式版獨有的職業和系統（例如傳奇鑰石地城、探究和住宅）尚未涵蓋，部分功能可能無法運作。</p><p>完整的正式版支援預計在之後的版本推出。在那之前，如果你在正式版上遇到問題，請到<a href="/feedback/">意見回饋頁面</a>告訴我們，並註明你在玩正式版。</p>` },
     },
   },
   support: {

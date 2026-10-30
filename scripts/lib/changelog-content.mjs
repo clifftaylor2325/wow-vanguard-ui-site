@@ -363,10 +363,25 @@ RELEASE_NOTES["v0.7.5"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.8.0"] = { groups: [
+    { id: "new", title: "New", items: [
+      { label: "Your keys", text: "A Your keys tab on the Action bars page draws your keyboard and mouse and shows what every key does, with the Shift, Ctrl and Alt keys on their own tabs.", from: [712] },
+      { label: "Key setup", text: "On WoW Forever, Set up keys (on the Your keys tab) suggests keys for your class and role, shows every change on the keyboard and lists it with a tick box before anything moves, and can put your old keys back. Place new spells as I learn them puts each spell you learn on its key for you.", from: [711, 713, 715, 717, 719] },
+      { label: "Click-casting starter layouts", text: "On WoW Forever, the Click casting page has starter layouts for every class, with two healer layouts for priests, druids, paladins and shamans, and an Undo.", from: [718] },
+    ] },
+    { id: "improved", title: "Improved", items: [
+      { label: "Calm HUD", text: "Calm HUD quiets the whole HUD out of combat, not only the unit frames: on the General page's Calm HUD card each part dims, hides until the mouse is over it, or is left as it is.", from: [714, 719] },
+      { label: "Click casting", text: "Click casting keeps a list for each talent group on WoW Forever. A binding the game's own click settings won't run is marked on the grid, and an older list with the unit menu on Middle click gets a notice with Swap them.", from: [716] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Game windows and HUD", text: "Fixes from two hunts on the game's own windows and HUD pieces: text left in the game's parchment colours, art the game shows again on hover, raw bar colours, and the spellbook and achievements windows.", from: [707, 708, 709, 710] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.7.5 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.8.0 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.7.5",
+  after: "v0.8.0",
   groups: [],
 };
