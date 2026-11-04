@@ -88,7 +88,7 @@ test("Features lists every addon Vanguard notices at login, with the module it o
 test("Credits has the press and privacy sections, and the crest drawing ships", () => {
   const credits = html("credits");
   assert.ok(credits.includes('id="press"') && credits.includes('id="privacy"'));
-  assert.ok(credits.includes('href="/assets/vanguard-crest.svg"') && fs.existsSync(path.join(dist, "assets", "vanguard-crest.svg")));
+  assert.ok(credits.includes('href="/assets/vanguard-crest.png"') && fs.existsSync(path.join(dist, "assets", "vanguard-crest.png")));
   assert.match(credits, /This site sets no cookies/);
 });
 

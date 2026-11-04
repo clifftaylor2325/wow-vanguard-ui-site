@@ -3,7 +3,7 @@
 // release metadata); the prose around them only restates what those sources say.
 import { shotByFile } from "./shots-content.mjs";
 import { supportAsk, esc, md, slug, badge, nextBadge, reloadBadge, avail, shotFigure, ornament, heroFrame, pageHero, storeCtas, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
-import { crestSvg } from "./brand.mjs";
+import { crestImg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerOf, readmeSays } from "./features-content.mjs";
 import { EN } from "./i18n-site.mjs";
@@ -180,7 +180,7 @@ export function homePage(model, loc = EN, site = null) {
     body: `<section class="hero" aria-labelledby="hero-title">
 ${heroArt()}
 <div class="hero-inner">
-  ${crestSvg({ full: true, cls: "hero-crest", label: loc.p("Vanguard's crest: two swords crossed behind a brass shield that bears a V") })}
+  ${crestImg({ cls: "hero-crest", label: loc.p("Vanguard's crest: a navy shield with a brass rim that bears a gold V") })}
   <p class="hero-kicker">${loc.p("An addon for WoW&nbsp;Forever")}</p>
   <h1 id="hero-title" class="hero-title">Vanguard</h1>
   ${ornament("hero-orn")}
