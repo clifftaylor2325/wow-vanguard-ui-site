@@ -423,11 +423,11 @@ test("the crest is the brand mark on every page and sits above the Home title", 
   const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
   for (const d of dirs) {
     const header = page(d).match(/<header class="site-header">[\s\S]*?<\/header>/)[0];
-    assert.ok(/<a class="brand" href="\/"><svg class="brand-mark" viewBox="215 115 594 870" aria-hidden="true"/.test(header), `/${d}: the header's brand mark is not the crest`);
+    assert.ok(/<a class="brand" href="\/"><img class="brand-mark" src="\/assets\/crest\.webp" width="198" height="255" alt=""/.test(header), `/${d}: the header's brand mark is not the crest`);
   }
   const home = page("");
-  assert.ok(/<svg class="hero-crest" viewBox="215 115 594 870" role="img" aria-label="Vanguard's crest[^"]*"/.test(home), "Home's hero has no labelled crest");
-  assert.equal((home.match(/<clipPath id="vg-crest-letter">/g) || []).length, 1, "the engraved V's clip is defined once on Home");
+  assert.ok(/<img class="hero-crest" src="\/assets\/crest\.webp" width="198" height="255" alt="Vanguard's crest[^"]*"/.test(home), "Home's hero has no labelled crest");
+  assert.ok(fs.existsSync(path.join(dist, "assets", "crest.webp")), "the crest picture is shipped");
 });
 
 test("player-facing copy describes the early release honestly", () => {

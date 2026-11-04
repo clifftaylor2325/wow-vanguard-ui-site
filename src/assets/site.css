@@ -85,7 +85,7 @@ hr { border: 0; border-top: 1px solid var(--divider); margin: 2em 0; }
 .site-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 70%, transparent) 30%, var(--accent) 50%, color-mix(in oklab, var(--accent) 70%, transparent) 70%, transparent); opacity: 0.7; pointer-events: none; }
 .header-inner { max-width: var(--shell-max); margin: 0 auto; min-height: var(--header-h); padding: 0 var(--sp-4); display: flex; align-items: center; gap: var(--sp-4); }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 600; font-size: 1.25rem; }
-.brand-mark { width: 22px; height: 32px; flex: none; }
+.brand-mark { width: 25px; height: 32px; flex: none; }
 .lang-menu + .nav-toggle { margin-left: 0; }
 /* The language button: a globe and the code, opening this page's languages under it. Under
    900px only; wider, the select at the sidebar's foot is always in view. */
@@ -503,7 +503,7 @@ table.stack { margin: 0 0 1em; }
 
 .hero-inner { position: relative; max-width: 900px; min-width: 0; }
 /* The crest above the title: sized by the viewport so the hero still opens on one screen. */
-.hero-crest { display: block; width: auto; height: clamp(64px, 9vh, 92px); margin: 0 auto 2px; filter: drop-shadow(0 6px 18px color-mix(in oklab, var(--bg) 70%, transparent)); }
+.hero-crest { display: block; width: auto; height: clamp(72px, 11vh, 112px); margin: 0 auto 2px; filter: drop-shadow(0 6px 18px color-mix(in oklab, var(--bg) 70%, transparent)); }
 .hero-kicker { margin: 0 0 6px; font-size: 0.85rem; letter-spacing: 0.3em; text-transform: uppercase; color: color-mix(in oklab, var(--accent) 70%, var(--text)); }
 .hero-title { margin: 0; font-weight: 600; font-size: clamp(2.8rem, 10vw, 5.5rem); line-height: 0.95; letter-spacing: 0.015em; color: var(--accent); text-shadow: 0 2px 30px color-mix(in oklab, var(--accent) 35%, transparent); }
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
@@ -520,7 +520,7 @@ table.stack { margin: 0 0 1em; }
 @media (max-width: 559px) {
   /* A shorter hero on a phone, so the shortcuts and the screenshot start on the first screen. */
   .hero { min-height: 0; padding: 18px 14px 30px; }
-  .hero-crest { height: 52px; }
+  .hero-crest { height: 60px; }
   .hero-kicker { font-size: 0.75rem; }
   .hero-orn { margin: 4px auto 6px; }
   .hero-tagline { font-size: 1.15rem; margin-bottom: 6px; }

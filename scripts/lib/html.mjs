@@ -1,6 +1,6 @@
 // HTML helpers and the shared page layout (header, sidebar nav, footer).
 
-import { crestSvg } from "./brand.mjs";
+import { crestImg } from "./brand.mjs";
 import { EN, scriptStrings, localiseLinks } from "./i18n-site.mjs";
 
 // Escapes text for HTML.
@@ -194,8 +194,8 @@ ${body}
 </details>`;
 }
 
-// The Vanguard crest, as the small inline mark beside the brand name (scripts/lib/brand.mjs).
-const MARK = crestSvg({ cls: "brand-mark" });
+// The Vanguard crest, as the small mark beside the brand name (scripts/lib/brand.mjs).
+const MARK = crestImg({ cls: "brand-mark" });
 
 // One nav link, marked when it's the page being shown.
 function navLink(n, path, loc) {

@@ -25,9 +25,10 @@ import { publishedLocales, siteLocale, addonTranslations, alternates, PROSE_USED
 
 const FEEDBACK_SHARED = ["fields.js", "sanitize.js", "report.js", "body.js", "fill.js"];
 
-// The brand files shipped under /assets/: the rasters, and the crest drawing for the Credits press
-// section (the social preview stays in src/, for GitHub's settings).
-const BRAND_FILES = ["og-image.png", "apple-touch-icon.png", "favicon-32.png", "vanguard-crest.svg"];
+// The brand files shipped under /assets/: the crest picture for the header and Home, the favicons,
+// the share card, and the large crest for the Credits press section (the social preview stays in
+// src/, for GitHub's settings).
+const BRAND_FILES = ["og-image.png", "apple-touch-icon.png", "favicon-32.png", "vanguard-crest.png", "crest.webp"];
 
 // The site names the author by their in-game name; the addon's text still carries the older names.
 const SITE_AUTHOR = "Cliff Hearthvale";
@@ -170,10 +171,10 @@ function main() {
 
   fs.rmSync(cfg.outDir, { recursive: true, force: true });
   write("assets/theme.css", theme.css);
-  write("assets/favicon.svg", faviconSvg(theme.vars));
-  // The crest as raster, for the places that can't take SVG or CSS: the Open Graph image, the
-  // iOS home-screen icon and the PNG favicon fallback (src/assets/brand/, made from the crest);
-  // and the full crest drawing, for writers who cover Vanguard.
+  write("assets/favicon.svg", faviconSvg());
+  // The crest's rasters (src/assets/brand/, made from the addon's painted crest): the header and
+  // Home picture, the Open Graph image, the iOS home-screen icon, the PNG favicon fallback, and
+  // the large crest for writers who cover Vanguard.
   for (const f of BRAND_FILES) write(`assets/${f}`, fs.readFileSync(path.join(root, "src/assets/brand", f)));
   // The screenshots (webp, cropped and blurred where a player's name was in frame).
   for (const f of fs.readdirSync(path.join(root, "src/assets/shots"))) write(`assets/shots/${f}`, fs.readFileSync(path.join(root, "src/assets/shots", f)));

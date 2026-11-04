@@ -856,7 +856,7 @@ function creditsPress(model, site, loc) {
   ${news ? `<dt>${loc.p("News and questions")}</dt><dd>${news}</dd>` : ""}
 </dl>
 <ul>
-  <li><a href="/assets/vanguard-crest.svg">${loc.p("The crest (SVG, 1024 × 1024)")}</a></li>
+  <li><a href="/assets/vanguard-crest.png">${loc.p("The crest (PNG, 1024 × 1024)")}</a></li>
   <li><a href="/assets/og-image.png">${loc.p("The share card (PNG, 1200 × 630)")}</a></li>
   ${n ? `<li>${loc.pn({ one: `<a href="/screenshots/">{n} in-game screenshot</a>: click one for the full-size file`, other: `<a href="/screenshots/">{n} in-game screenshots</a>: click one for the full-size file` }, n)}</li>` : ""}
 </ul>
