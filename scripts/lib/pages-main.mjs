@@ -45,7 +45,7 @@ export function curseforgeBox(model, { heading = true, loc = EN } = {}) {
   <dl class="facts">
     <dt>${loc.p("Current release")}</dt><dd>${loc.p("{version} (release {tag})", { version: esc(model.version), tag: esc(release.tag) })}</dd>
     <dt>${loc.p("Published")}</dt><dd>${esc(dateET(release.publishedAt, loc))}</dd>
-    <dt>${loc.p("Game")}</dt><dd>${loc.p("WoW Forever (the addon declares Interface {iface})", { iface: esc(model.rel.meta.Interface) })}</dd>
+    <dt>${loc.p("Game")}</dt><dd>${loc.p("WoW Forever and Retail (the addon declares Interface {iface})", { iface: esc(model.rel.meta.Interface) })}</dd>
   </dl>
 </section>`;
 }
@@ -58,10 +58,22 @@ export function foreverInterface(meta) {
   return String(meta.Interface || "").split(/\s*,\s*/).find((n) => /^\d+$/.test(n) && Number(n) < 20000) || "";
 }
 
+// The Retail client's interface number among those the TOC declares ("120105"), or "".
+export function retailInterface(meta) {
+  return String(meta.Interface || "").split(/\s*,\s*/).find((n) => /^\d+$/.test(n) && Number(n) >= 100000) || "";
+}
+
+// Home's "Built for" words: WoW Forever, and Retail too when the TOC declares a Retail interface.
+function builtFor(meta, loc) {
+  const iface = foreverInterface(meta);
+  const retail = retailInterface(meta);
+  if (iface && retail) return loc.p("Built for WoW Forever and Retail (Interface {iface} and {retail})", { iface: esc(iface), retail: esc(retail) });
+  return iface ? loc.p("Built for WoW Forever (Interface {iface})", { iface: esc(iface) }) : loc.p("Built for WoW Forever");
+}
+
 // Home's facts line: which client, which release and when, how many modules.
 function heroFacts(model, moduleCount, loc) {
-  const iface = foreverInterface(model.rel.meta);
-  const client = iface ? loc.p("Built for WoW Forever (Interface {iface})", { iface: esc(iface) }) : loc.p("Built for WoW Forever");
+  const client = builtFor(model.rel.meta, loc);
   const released = loc.p("v{version}, released {date}", { version: esc(model.version), date: esc(dateET(model.release.publishedAt, loc)) });
   return `${client} · ${released} · ${loc.pn({ one: "{n} module", other: "{n} modules" }, moduleCount)}`;
 }
@@ -224,12 +236,19 @@ ${WAGO_URL ? `  <li>${loc.p(`<strong>From Wago Addons:</strong> <a href="{url}" 
 ${listed ? "" : `<p class="small">${loc.p("To be confirmed: the exact steps for the WoW Forever client in the CurseForge app will be written here once Vanguard is listed.")}</p>`}`;
 }
 
+// The by-hand step that says where the folder goes: the README's AddOns path, with the
+// Retail client folder it names; without that line, a plain pointer to the AddOns folder.
+function installFolder(where, loc) {
+  if (!where) return loc.p("<strong>Put the <code>Vanguard</code> folder in your AddOns folder</strong>, the <code>Interface/AddOns</code> folder of your game client.");
+  return loc.p("<strong>Put the <code>Vanguard</code> folder in your AddOns folder.</strong> The addon's README says: unzip the <code>Vanguard</code> folder into <code>{path}</code>. On Retail the client folder is <code>{retail}</code>; on WoW Forever it is your Forever client's folder, the one with <code>Interface/AddOns</code> in it.", { path: esc(where[1]), retail: esc(where[2]) });
+}
+
 // Installing from the zip by hand.
 function installByHand(where, loc) {
   return `<p>${loc.p("For when you take the file from Vanguard's {stores} page instead of using an app.", { stores: storesOr(loc) })}</p>
 <ol class="steps">
   <li>${loc.p("<strong>Unzip the file.</strong> Inside is one folder called <code>Vanguard</code>.")}</li>
-  <li>${loc.p("<strong>Put the <code>Vanguard</code> folder in your AddOns folder.</strong> The addon's README says: unzip the <code>Vanguard</code> folder into <code>{path}</code> ({where}). The exact AddOns folder for the WoW Forever client (on Windows and macOS) is still being confirmed; until then, use the folder of your Forever client that has <code>Interface/AddOns</code> in it.", { path: esc(where ? where[1] : "Interface/AddOns/"), where: where ? esc(where[2]) : loc.p("your Forever client's AddOns folder") })}</li>
+  <li>${installFolder(where, loc)}</li>
   <li>${loc.p("<strong>Turn it on at character select:</strong> open <strong>AddOns</strong> and tick <strong>Vanguard</strong>, then log in.")}</li>
   <li>${loc.p(`Type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.`)}</li>
 </ol>
@@ -259,7 +278,7 @@ function installRemove(loc) {
 
 export function installPage(model, loc = EN) {
   const { rel } = model;
-  const where = rel.readme.match(/unzip the `(?:Vanguard|ForeverUI)` folder into `([^`]+)`\s*\(([^)]+)\)/);
+  const where = rel.readme.match(/unzip the `Vanguard` folder into your client's AddOns folder: `([^`]+)`, where the client folder is [^`]*`([^`]+)` for Retail/);
   const listed = !!CURSEFORGE_URL;
   return {
     path: "/install/",

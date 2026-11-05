@@ -15,8 +15,8 @@ export const MORE = {
     check: ["buffs in rows left of the minimap with timers", "your debuffs on a new row under them (edged in their type's color)", "right-click a buff to cancel it", "Weapon enchants (poisons, stones, oils, and a shaman's imbues", "sit in front of the buffs"], from: "Your buffs and debuffs" },
   ComboPoints: { more: "Combo points for rogues and druids, above the player frame.",
     check: ["Combo points for rogues and druids above the player frame"], from: "Unit frames" },
-  ClassBars: { more: "Shamans get their totems under the player frame (icon and time left; right-click one to destroy it), and druids their mana while bear or cat form shows rage or energy.",
-    check: ["shamans get their totems (icon and time left; right-click one to destroy it)", "druids get their mana while bear or cat form shows rage or energy"], from: "Unit frames" },
+  ClassBars: { more: "Shamans get their totems above the player frame (icon and time left; right-click one to destroy it), and druids their mana under it while bear or cat form shows rage or energy.",
+    check: ["Above it (clear of", "shamans get their totems (icon and time left; right-click one to destroy it", "under it, druids get their mana while bear or cat form shows rage or energy"], from: "Unit frames" },
   PowerTicks: { more: "A spark on your power bar counts down the five-second rule after each mana spell, or crosses the bar with every two-second energy tick.",
     check: ["a spark counts down the five-second rule after each mana spell, or crosses the bar with every two-second energy tick"], from: "Combat timers" },
   SwingTimer: { more: "One row per hand: main hand, off hand, and ranged for a hunter's Auto Shot. It's on for warriors, rogues, hunters, paladins, shamans and druids, dims while your target is out of reach, and can be set to always or never.",
@@ -47,8 +47,8 @@ export const MORE = {
     check: ["on a see-through band along its top edge and the coordinates on one along its bottom", "so both read over bright ground", "brass diamonds on its corners", "Tracking, mail, dungeon difficulty, the addon compartment and the group finder eye move onto the square minimap's corners"], from: "Everything else; The game's extras, tidied" },
   InfoStrip: { more: "Two columns of plain figures: durability beside free bag slots, gold on its own row, fps and latency beside ammo or soul shards, and the time with the day and date beside a calendar button. While you level, more rows add your XP per hour, the time to your next level and your gold per hour. A row can show your DPS in the last fight (off until you turn it on). Each part can be turned off.",
     check: ["two columns of plain figures, one pair a row", "Durability (\"100% durability\"; orange at 25% or less, red at 10% or less) beside your free bag slots", "gold on its own row", "ammo (for any class whose ranged weapon needs it, where the game says so, else hunters, warriors and rogues; red at none) (soul shards for warlocks", "with a calendar button at its right end", "While you level, a fifth row adds your XP per hour this session beside the time to your next level at that pace, and a sixth your gold per hour", "A seventh row can show your DPS in the last fight", "(off until you turn it on;", "Each part can be turned off"], from: "Strip under the minimap" },
-  AfkScreen: { more: "While you're away, the screen dims to a card with your name in your class color, your level and class, the zone, how long you've been away, the time and your XP bar. Moving or a fight brings everything back.",
-    check: ["the screen dims to a card with your name in your class color, level and class, the zone", "the time and your XP bar", "Moving or a fight brings everything back"], from: "AFK screen" },
+  AfkScreen: { more: "While you're away, a painted scene for your faction fills the screen, with your name in your class color, your level and class, the zone, how long you've been away, the time and your XP bar. Moving or a fight brings everything back.",
+    check: ["a painted scene for your faction fills the screen", "with your name in your class color, level and class, the zone", "the time and your XP bar", "Moving or a fight brings everything back"], from: "AFK screen" },
   MenuStrip: { more: "The game's bag and menu buttons share one bar in the bottom-right corner, each on its own framed slot, with a thin bar showing how full each bag is. The game's double XP bar, durability figure and clock are hidden while Vanguard shows its own.",
     check: ["The bag buttons and the micro menu share one bar in the bottom-right corner", "Every button sits on a slot 24 pixels wide", "Each bag's slot has a thin bar along its bottom showing how full that bag is", "no more double XP bar", "and so are the clock and calendar button while the info strip shows them", "the armoured-man durability figure whenever the info strip is on"], from: "The game's extras, tidied" },
   Chat: { more: "Vanguard's skin on the chat, which starts in a spot at the bottom left under the frames. Chat has its own Small, Medium or Large text size on top of Vanguard's text size.",
@@ -80,7 +80,7 @@ export const MORE = {
   QuestTracker: { more: "Each quest you watch, with its level in its difficulty color, its objectives as rows (muted gray with a check when done) or \"{ui:Ready to turn in}\", and its quest item as a button beside it. Left-click a quest to open it, Shift-click to point the arrow at it, right-click to stop watching it, and order it as the game does or nearest first.",
     check: ["each quest you watch as \"[12] Title\" in its difficulty color", "its objectives as rows like the quest log's", "once done it turns muted gray with a check before it) or \"Ready to turn in\"", "its usable quest item as a button beside it", "Left-click a quest to open it", "Shift-click to point the arrow at it", "right-click to stop watching it", "order it as the game does", "or nearest first"], from: "Quest tracker" },
   QuestLog: { more: "Your quests under their zones (click a zone to fold it), with the chosen quest's text, objectives and rewards, and Track, Share, Abandon and Map buttons. The game's quest log key and /vg quests open it.",
-    check: ["your quests under their zones (each zone a small-capitals header with a chevron: click it to fold the zone", "the chosen quest's text, its objectives as rows", "Track/Untrack", "Share (in a group) and Map along the right, and Abandon", "the game's quest log key", "`/vg quests`) open Vanguard's own"], from: "Quest log" },
+    check: ["your quests under their zones", "each zone a small-capitals header with a chevron: click it to fold the zone", "the chosen quest's text, its objectives as rows", "Track/Untrack", "Share (in a group) and Map along the right, and Abandon", "the game's quest log key", "`/vg quests`) open Vanguard's own"], from: "Quest log" },
   QuestAuto: { more: "Accept quests (and quests a party member shares with you, on its own switch), turn in finished ones and skip the chatter when an NPC has just one quest for you. It never picks a reward for you unless you also switch on taking the one that sells for most. Hold Shift while talking to skip it.",
     check: ["accept quests a party member shares with you (its own switch", "turn in finished ones (it never chooses among rewards for you, unless you also switch on \"take the one that sells for most\"", "skip the chatter when an NPC has just one quest for you", "hold Shift while talking to skip it"], from: "Quest automation" },
   GameAlerts: { more: "Loss of control and the talking head on flat panels (or the talking head hidden). On a Hardcore realm, death notices take the theme's font and red. If you like, a rare that shows up on your minimap is announced once, out of combat.",
@@ -90,7 +90,7 @@ export const MORE = {
   InstancePrep: { more: "Stepping into a dungeon or raid, a card lists what you're short of: ammo, soul shards, your class's reagents, food and drink, bandages, potions, worn gear and your stocked items. A ready check or /vg prep always shows it, saying \"{ui:Everything's packed.}\" when nothing is short.",
     check: ["a card at the door listing what you're short of", "Stepping into a dungeon or raid, it lists what is low", "ammo (hunters), soul shards (warlocks), your class's reagents", "food and drink, bandages, potions, durability under 50%, and anything on your Keep-stocked list", "A ready check (or `/vg prep`) always shows it, saying \"Everything's packed.\" when nothing is short"], from: "Instance prep" },
   GameTools: { more: "The game's Cooldown Manager gets square icons and the theme's font, with its rows between the player and target frames. The game's damage meter gets a flat panel above the bag and menu bar.",
-    check: ["the game's Cooldown Manager", "gets square icons in thin borders with the theme font", "its rows sit between the player and target frames", "The game's damage meter gets a flat panel with theme bars and text", "above the bag and menu bar"], from: "The game's tools" },
+    check: ["the game's Cooldown Manager", "gets square icons in thin borders", "with the theme font", "its rows sit between the player and target frames", "The game's damage meter gets a flat panel with theme bars and text", "above the bag and menu bar"], from: "The game's tools" },
   FightHistory: { more: "A row of bars under the damage meter, one per fight, as tall as its share of your best. Hover it for each fight's length, your DPS and your place in a group; /vg fights prints the same. Fights are forgotten when you log out.",
     check: ["a sparkline of your DPS over the last 20 fights", "under the damage meter", "Each fight is one bar, as tall as its share of your best", "with its length, your DPS and, in a group, your place", "`/vg fights` prints the same", "forgotten when you log out"], from: "Fight history" },
   Windows: { more: "Character, merchant, mail, trade, loot and roll windows, the game menu, the ready check, popups, the spellbook, the breath bar and more get a flat Vanguard panel, title and buttons, and so do the windows that load later, like the auction house and professions.",
@@ -150,7 +150,7 @@ export const LONGER = {
   ClassBars: [
     R("The game keeps totems and a druid's mana inside its own player frame, which Vanguard replaces, so they get bars of their own.", "the game keeps both inside its own player frame, which Vanguard replaces"),
     C("The druid mana bar is a thin bar in the mana color just under the player frame, shown only while you're in a form.", "Modules/ClassBars.lua", "-- The thin mana bar just under the player frame, in the mana color.", "CB.manaHolder:SetShown(CB.InForm())"),
-    C("Each class gets only its own bar.", "Modules/ClassBars.lua", "if class == \"SHAMAN\" and settings.totems then", "if class == \"DRUID\" and settings.druidMana then"),
+    C("Each class gets only its own bar.", "Modules/ClassBars.lua", "if class == \"SHAMAN\" and settings.totems then", "if CB.MANA_CLASSES[class] and settings.druidMana then"),
   ],
   PowerTicks: [
     C("The mana spark is timed from your spells, not your mana: only a spell that costs mana starts the five seconds again.", "Modules/PowerTicks.lua", "-- One of your spells went off: a mana spell starts the five seconds again.", "PT.CostsMana(spellID) then PT.Start() end"),
@@ -214,7 +214,7 @@ export const LONGER = {
   ],
   DataBars: [
     RC("Hover a bar to see its numbers: your level, XP and rested XP, or the watched faction's name and progress.", ["over thin XP and reputation bars", "hover the XP bar for what is left in the level"], "Modules/DataBars.lua", "text = \"hover\"", "\"Level {level}  {cur} / {max} ({percent}%)\"", "-- Shows the bar's text only while hovered (text = \"hover\"), or always."),
-    RC("The XP bar shows rested XP as a lighter strip and hides at the level cap; the reputation bar takes its standing's color and shows only while you watch a faction.", ["over thin XP and reputation bars", "hover the XP bar for what is left in the level"], "Modules/DataBars.lua", "-- The rested overlay: a lighter strip from the left edge", "-- Fills the XP bar, or hides it at max level", "-- Fills the reputation bar in its standing color, or hides it with no watched"),
+    RC("The XP bar shows rested XP as a lighter strip and hides at the level cap; the reputation bar takes its standing's color and shows only while you watch a faction.", ["over thin XP and reputation bars", "hover the XP bar for what is left in the level"], "Modules/DataBars.lua", "-- The rested overlay: a lighter strip from the left edge", "-- Fills the XP bar", "or hides it at max level", "-- Fills the reputation bar in its standing color, or hides it with no watched"),
     R("They're always shown unless you pick another visibility (On mouseover, In combat, Hidden or the action bars' row of conditions), one setting for both.", "On mouseover, In combat, Hidden or the action bars' row of conditions", "so are the XP and reputation bars, which share one setting"),
   ],
   QuestHistory: [
@@ -233,9 +233,8 @@ export const LONGER = {
     R("Where the client lists no pets it says so and stays quiet.", "Where the client lists no pets it says so and stays quiet"),
   ],
   ChatWindows: [
-    R("Each chat window that is showing has a Width and a Height slider, set instead of dragging its corner.", "each chat window that is showing has a Width and a Height slider (set instead of dragging its corner"),
+    R("The main chat window (docked tabs share its size) and each floating window that is showing have a Width and a Height slider, set instead of dragging its corner.", "the main window (docked tabs share its size) and each floating window that is showing have a Width and a Height slider (set instead of dragging its corner"),
     R("Lock chat windows is the game's own lock for all of them.", "Lock chat windows is the game's lock for all of them"),
-    R("Sliders for a window in a hidden tab appear once its tab is showing and the page is reopened.", "Sliders for a window in a hidden tab appear once its tab is showing and the page is reopened"),
   ],
   QuestArrow: [
     R("A small panel at the top centre shows an arrow in your accent that turns toward the nearest unfinished objective among the quests you watch, with the quest's title and the distance in yards.", "an arrow in your accent that turns toward the nearest unfinished objective among the quests you watch, the quest's title and the distance in yards"),
@@ -346,17 +345,17 @@ export const LONGER = {
     R("A quest item's button shows its cooldown, and a red tint while the target is out of range.", "with its cooldown, a red tint while the target is out of range"),
     R("In combat the counts and text keep updating, and the item buttons take their new places when combat ends.", "In combat the counts and text keep updating", "they take their new places when combat ends"),
     R("With Questie loaded, Questie's own tracker shows instead and Vanguard's stays out of the way, so there are never two; With Questie loaded, under Quests, picks Vanguard's instead.", "Questie loaded, Questie's own tracker shows instead and Vanguard's stays out of the way, so there are never two", "With Questie loaded under Quests picks Vanguard's instead"),
-    R("The game's tracker is hidden while it shows; switch it off to get the game's back, in Vanguard's look.", "The game's tracker is hidden while it shows; switch it off to get the game's back (in Vanguard's look"),
+    R("The game's tracker is hidden while it shows; switch it off to get the game's back, in Vanguard's look.", "The game's tracker is hidden while it shows", "switch it off to get the game's back (in Vanguard's look"),
   ],
   QuestLog: [
     R("The quest log button on the bag and menu bar opens it too, and clicking a quest in the tracker opens it here.", "the quest log button on the bag and menu bar", "Clicking a quest in the tracker opens it here"),
-    R("A quest ready to turn in gets a check, Abandon goes through the game's own confirmation, and Ctrl-click marks several quests to abandon at once.", "with a check when ready to turn in", "Abandon (through the game's own confirmation", "a danger button) alone at the far left", "Ctrl-click quests to mark several"),
+    R("A quest ready to turn in gets a check, Abandon goes through the game's own confirmation, and Ctrl-click marks several quests to abandon at once.", "with a check when ready to turn in", "Abandon (through the game's own confirmation", "alone at the far left", "Ctrl-click quests to mark several"),
     R("A long list and a long quest text scroll with the mouse wheel.", "a long list, and a long quest text, scroll with the mouse wheel"),
     R("Switch it off under /vg → Quests to keep the game's.", "Switch it off under `/vg` → Quests to keep the game's"),
   ],
   QuestAuto: [
     R("Each part is off until you switch it on, under /vg → Quests.", "each off until you switch it on, under `/vg` → Quests"),
-    R("Each says in chat what it did.", "Each says in chat what it did"),
+    R("Accepting and turning in say in chat what they did.", "Accepting and turning in say in chat what they did"),
   ],
   AfkScreen: [
     R("It shows when you type /afk or the game marks you idle.", "(`/afk`, or the game marks you idle)"),
@@ -381,7 +380,7 @@ export const LONGER = {
     R("While the Forever beta loses saved settings between sessions, other characters won't be remembered from one session to the next.", "While the Forever beta loses saved settings between sessions, other characters won't be remembered from one session to the next."),
   ],
   Upgrades: [
-    R("Rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands, and an empty slot is always an upgrade; gear you can't wear is left alone.", "rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands, and an empty slot is always an upgrade; gear you can't wear is left alone"),
+    R("Rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands, and an empty slot is always an upgrade; gear you can't wear is left alone.", "rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands", "and an empty slot is always an upgrade; gear you can't wear is left alone"),
     R("The default weights are a starting point for Forever's vanilla-style stats, not simulated values.", "The default weights are a starting point for Forever's vanilla-style stats, not simulated values"),
     R("/vg weights shows the weights in use, /vg weights set changes one, and export and import share them as a string; each profile keeps its own.", "`/vg weights` shows the ones in use", "`/vg weights set AGI 1.2` changes one", "`export`/`import` share them as a string. Each profile keeps its own."),
     R("The auction house's Upgrades list, under Auction helper, judges listings by the same weights.", "auction house's Upgrades list (under Auction helper) judges listings by the same weights"),
@@ -427,7 +426,7 @@ export const LONGER = {
     R("The sell price is left out where the game already shows a price.", "(unless the game already shows a price)"),
   ],
   TalentPlanner: [
-    R("A rank the plan can never reach, because a talent it hangs from or its row's points are missing from the plan, is marked red.", "a rank the plan can never reach (a talent it hangs from, or its row's points, missing from the plan) is marked red"),
+    R("A rank the plan can never reach, because a talent it hangs from or its row's points are missing from the plan, is marked red.", "a rank the plan can never reach (a talent it hangs from, or its row's points, missing from the plan", "is marked red"),
     R("At a level-up, chat names the next pick, and \"Spend planned points by itself\" (off until you tick it) buys them without asking.", "At a level-up chat names the next pick", "\"Spend planned points by itself\" (under `/vg` → Talents, off until you tick it) buys and applies them without asking"),
     R("Plans are kept per character and spec, and /vg talents export and import share one as a string for your class.", "Plans are kept per character and spec (Primary, Secondary)", "`export` and `import` share it as a string (for your class only)"),
   ],
