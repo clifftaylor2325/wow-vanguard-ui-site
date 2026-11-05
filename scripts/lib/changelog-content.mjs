@@ -378,10 +378,31 @@ RELEASE_NOTES["v0.8.0"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.9.0"] = { groups: [
+    { id: "new", title: "New", items: [
+      { label: "Retail", text: "Vanguard now supports Retail 12.1.5 as well as WoW Forever, from the same download. The parts made for WoW Forever's own rules (key setup, the talent planner, spell ranks, the swing timer and a few more) stay off on Retail, with their pages and commands.", from: [744, 745, 746, 747, 756] },
+      { label: "Retail class bars", text: "On Retail, class bars show holy power, soul shards, chi, Arcane charges, essence, runes, a Brewmaster's stagger, a Devourer's soul fragments and Ebon Might. Combo points light a charged point, and the cast bar marks each stage of an empowered cast.", from: [752] },
+      { label: "Retail quest tracker", text: "On Retail, the quest tracker groups campaign quests and adds scenarios, delves with their tier, world quests, bonus objectives, the Traveler's Log, Endeavors, collections and achievements.", from: [751, 753] },
+      { label: "Mythic+", text: "A Mythic+ block in the tracker shows the key's timer, deaths, affixes, bosses and enemy forces. The dungeon card shows your keystone, and Situations gains Mythic+ and Delve.", from: [755] },
+      { label: "Retail windows", text: "Retail's group finder, Adventure Guide, Mythic+ tab, character pane, warband bank, Great Vault, expansion page, transmog, Trading Post, housing, delve and profession windows wear the Vanguard look. An optional info strip line shows your Great Vault progress.", from: [749, 750, 753, 754] },
+      { label: "In-combat mark", text: "Crossed swords and a red edge on your frame, and a red edge on your target's while it fights. It is on at first; the switch is on the Unit frames page.", from: [757] },
+    ] },
+    { id: "improved", title: "Improved", items: [
+      { label: "Painted art", text: "The painted shield is Vanguard's icon, setup and What's new open under a painted welcome banner, two painted panel textures (Bedded slate and Vellum) join the Panel texture choice, and the AFK screen shows a painted scene for your faction.", from: [722, 723, 730, 731, 732, 736, 737, 739] },
+      { label: "Window ornaments", text: "Window ornaments are larger and show in full on every Vanguard window and every game window it skins, with an ornate ring on the round minimap. Muted text is a little brighter.", from: [738, 743] },
+      { label: "Layout", text: "On tall screens the bars and HUD rise as one block to sit under your character. A Cooldown Manager row wider than its spot shrinks to fit, and a Loot / Trade chat tab shows its whole name.", from: [733, 734, 735] },
+      { label: "Options window", text: "The Raid frames page's cards open on their main settings, with a More settings line that shows the rest.", from: [759] },
+      { label: "Language", text: "The new text is translated in all ten languages. The translations are machine-drafted, so report a wrong line with /vg feedback.", from: [756, 757, 760] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Bug hunts", text: "Fixes from twenty-three bug hunts across both clients, 240 in all: key setup, click casting, action bar flyouts, frames and raid marks, quests and the arrow, nameplates, the Calm HUD, chat links, bags and the bank, merchants, mail and auctions, profiles and setup, and the Retail windows. The merchant's Stack button and Cancel on Your auctions now ask first when they cost gold.", from: [742, 757, 760] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.8.0 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.9.0 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.8.0",
+  after: "v0.9.0",
   groups: [],
 };

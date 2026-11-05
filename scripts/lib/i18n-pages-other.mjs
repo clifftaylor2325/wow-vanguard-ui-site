@@ -63,7 +63,7 @@ export const PAGES_RU = {
       "perf": { q: "Vanguard замедляет мою игру?",
         a: `<p><code>/vg perf</code> показывает текущее время ЦП и память Vanguard, а также десять самых нагруженных функций. Чтобы самому измерить нагрузку на ЦП (в README: «{perfRecipe}»):</p><ol class="steps"><li>Введите <code>/vg perf cpu</code>, затем <code>/reload</code>.</li><li>Поиграйте какое-то время (рейдовый пулл — трудный случай).</li><li>Введите <code>/vg perf</code> и посмотрите на числа.</li><li>Снова введите <code>/vg perf cpu</code> и <code>/reload</code>. У измерения есть цена; в README сказано: «{perfSlows}».</li></ol><p>Данные о производительности пока не опубликованы.</p>` },
       "retail": { q: "Работает ли Vanguard в Retail WoW?",
-        a: `<p>Vanguard сделан для WoW Forever. Он загружается и в Retail WoW, но Retail пока не поддерживается: классы и системы, которые есть только в Retail (например, эпохальные+ подземелья, вылазки и жилища), не охвачены, и что-то может не работать.</p><p>Полная поддержка Retail запланирована в одной из следующих версий. До тех пор, если вы играете в Retail и что-то не работает, сообщите нам на <a href="/feedback/">странице отзывов</a> и укажите, что играете в Retail.</p>` },
+        a: `<p>Да. Начиная с v0.9.0 Vanguard поддерживает Retail 12.1.5 наравне с WoW Forever, из одной и той же загрузки: в Retail он ставится в папку AddOns клиента <code>_retail_</code>. Части, сделанные под собственные правила WoW Forever (настройка клавиш, планировщик талантов, ранги заклинаний, таймер ударов и еще несколько), в Retail выключены, и их страницы, переключатели и команды там не показываются.</p><p>Поддержка Retail новая, поэтому если что-то не работает, сообщите нам на <a href="/feedback/">странице отзывов</a> и укажите, что играете в Retail.</p>` },
     },
   },
   support: {
@@ -141,7 +141,7 @@ export const PAGES_KO = {
       "perf": { q: "Vanguard 때문에 게임이 느려지나요?",
         a: `<p><code>/vg perf</code>는 지금 Vanguard의 CPU 시간과 메모리, 가장 바쁜 함수 10개를 보여 줍니다. CPU 비용을 직접 재려면(README: “{perfRecipe}”):</p><ol class="steps"><li><code>/vg perf cpu</code>를 입력한 다음 <code>/reload</code>를 입력하세요.</li><li>잠시 플레이하세요(공격대 풀링이 어려운 경우입니다).</li><li><code>/vg perf</code>를 입력하고 숫자를 읽으세요.</li><li><code>/vg perf cpu</code>와 <code>/reload</code>를 다시 입력하세요. 측정에는 대가가 있습니다. README에는 “{perfSlows}”라고 나옵니다.</li></ol><p>아직 공개된 성능 수치는 없습니다.</p>` },
       "retail": { q: "Vanguard는 리테일 WoW에서도 작동하나요?",
-        a: `<p>Vanguard는 WoW Forever용으로 만들어졌습니다. 리테일 WoW에서도 불러와지지만, 리테일은 아직 지원하지 않습니다. 리테일에만 있는 직업과 시스템(쐐기돌 던전, 구렁, 하우징 등)은 다루지 않으며, 일부 기능이 작동하지 않을 수 있습니다.</p><p>리테일 정식 지원은 이후 버전에 계획되어 있습니다. 그전까지 리테일에서 플레이하다가 문제가 생기면 <a href="/feedback/">피드백 페이지</a>에 알려 주시고, 리테일에서 플레이 중이라고 적어 주세요.</p>` },
+        a: `<p>네. v0.9.0부터 Vanguard는 WoW Forever와 함께 리테일 12.1.5도 같은 다운로드로 지원합니다. 리테일에서는 <code>_retail_</code> 클라이언트의 AddOns 폴더에 넣으세요. WoW Forever 고유의 규칙에 맞춰 만든 부분(키 설정, 특성 계획기, 주문 등급, 평타 타이머 등 몇 가지)은 리테일에서 꺼져 있으며, 해당 페이지와 스위치, 명령어도 표시되지 않습니다.</p><p>리테일 지원은 새로 추가되었으니 문제가 생기면 <a href="/feedback/">피드백 페이지</a>에서 리테일에서 플레이 중이라고 함께 알려 주세요.</p>` },
     },
   },
   support: {
@@ -219,7 +219,7 @@ export const PAGES_ZH_CN = {
       "perf": { q: "Vanguard 会拖慢我的游戏吗？",
         a: `<p><code>/vg perf</code> 显示 Vanguard 当前的 CPU 时间和内存，以及它最忙的十个函数。要自己测量 CPU 开销（README：“{perfRecipe}”）：</p><ol class="steps"><li>输入 <code>/vg perf cpu</code>，然后输入 <code>/reload</code>。</li><li>玩一会儿（团队开怪是最吃力的情况）。</li><li>输入 <code>/vg perf</code> 并查看数字。</li><li>再次输入 <code>/vg perf cpu</code> 和 <code>/reload</code>。测量本身也有开销，README 中写道：“{perfSlows}”。</li></ol><p>目前还没有发布性能数据。</p>` },
       "retail": { q: "Vanguard 能在正式服 WoW 上使用吗？",
-        a: `<p>Vanguard 是为 WoW Forever 制作的。它也能在正式服 WoW 上加载，但目前还不支持正式服：正式服独有的职业和系统（例如史诗钥石地下城、地下堡和住宅）尚未覆盖，部分功能可能无法使用。</p><p>完整的正式服支持计划在之后的版本推出。在此之前，如果你在正式服上遇到问题，请在<a href="/feedback/">反馈页面</a>告诉我们，并注明你在玩正式服。</p>` },
+        a: `<p>可以。从 v0.9.0 起，Vanguard 在支持 WoW Forever 的同时也支持正式服 12.1.5，用的是同一个下载：在正式服上，把它放进 <code>_retail_</code> 客户端的 AddOns 文件夹。为 WoW Forever 自身规则做的部分（按键设置、天赋规划器、法术等级、近战计时条等几项）在正式服上保持关闭，它们的页面、开关和命令也不会出现。</p><p>正式服支持是新加入的，如果那里出了问题，请在<a href="/feedback/">反馈页面</a>告诉我们，并说明你在玩正式服。</p>` },
     },
   },
   support: {
@@ -297,7 +297,7 @@ export const PAGES_ZH_TW = {
       "perf": { q: "Vanguard 會拖慢我的遊戲嗎？",
         a: `<p><code>/vg perf</code> 會顯示 Vanguard 目前的 CPU 時間和記憶體，以及它最忙碌的十個函式。想自己測量 CPU 負擔（README：「{perfRecipe}」）：</p><ol class="steps"><li>輸入 <code>/vg perf cpu</code>，然後輸入 <code>/reload</code>。</li><li>玩一陣子（團隊拉怪是最吃重的情況）。</li><li>輸入 <code>/vg perf</code> 並查看數字。</li><li>再次輸入 <code>/vg perf cpu</code> 和 <code>/reload</code>。測量本身也有負擔，README 寫道：「{perfSlows}」。</li></ol><p>目前還沒有公布效能數據。</p>` },
       "retail": { q: "Vanguard 能在正式版 WoW 上使用嗎？",
-        a: `<p>Vanguard 是為 WoW Forever 打造的。它也能在正式版 WoW 上載入，但目前還不支援正式版：正式版獨有的職業和系統（例如傳奇鑰石地城、探究和住宅）尚未涵蓋，部分功能可能無法運作。</p><p>完整的正式版支援預計在之後的版本推出。在那之前，如果你在正式版上遇到問題，請到<a href="/feedback/">意見回饋頁面</a>告訴我們，並註明你在玩正式版。</p>` },
+        a: `<p>可以。從 v0.9.0 起，Vanguard 在支援 WoW Forever 的同時也支援正式版 12.1.5，用的是同一個下載：在正式版上，把它放進 <code>_retail_</code> 用戶端的 AddOns 資料夾。為 WoW Forever 自身規則做的部分（按鍵設定、天賦規劃器、法術等級、近戰計時條等幾項）在正式版上保持關閉，它們的頁面、開關和指令也不會出現。</p><p>正式版支援是新加入的，如果那裡出了問題，請在<a href="/feedback/">意見回饋頁面</a>告訴我們，並說明你在玩正式版。</p>` },
     },
   },
   support: {

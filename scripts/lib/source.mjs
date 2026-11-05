@@ -44,7 +44,7 @@ export function gitReader(repoPath, ref) {
 export function tocFiles(tocText) {
   return tocText
     .split(/\r?\n/)
-    .map((l) => l.trim())
+    .map((l) => l.trim().replace(/(\s*\[[^\]]*\])+$/, ""))
     .filter((l) => l && !l.startsWith("#") && /\.lua$/i.test(l))
     .map((l) => l.replace(/\\/g, "/"));
 }
