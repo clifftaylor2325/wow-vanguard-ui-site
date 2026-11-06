@@ -1218,5 +1218,14 @@
  "Shamans get their totems above the player frame (icon and time left; right-click one to destroy it), and druids their mana under it while bear or cat form shows rage or energy.": "萨满的图腾显示在玩家框体上方（图标和剩余时间；右键点击可摧毁），德鲁伊在熊形态或猎豹形态显示怒气或能量时则在下方显示法力。",
  "The main chat window (docked tabs share its size) and each floating window that is showing have a Width and a Height slider, set instead of dragging its corner.": "主聊天窗口（停靠的标签共用它的大小）和每个正在显示的浮动窗口都有一个“宽度”滑块和一个“高度”滑块，用来代替拖动它的角落。",
  "Accepting and turning in say in chat what they did.": "接受和交还任务会在聊天框中说明做了什么。",
- "While you're away, a painted scene for your faction fills the screen, with your name in your class color, your level and class, the zone, how long you've been away, the time and your XP bar. Moving or a fight brings everything back.": "你离开期间，你所在阵营的手绘场景会铺满屏幕，上面是以职业颜色显示的你的名字、你的等级和职业、区域、你离开了多久、时间和你的经验条。移动或战斗会让一切恢复。"
+ "While you're away, a painted scene for your faction fills the screen, with your name in your class color, your level and class, the zone, how long you've been away, the time and your XP bar. Moving or a fight brings everything back.": "你离开期间，你所在阵营的手绘场景会铺满屏幕，上面是以职业颜色显示的你的名字、你的等级和职业、区域、你离开了多久、时间和你的经验条。移动或战斗会让一切恢复。",
+ "Gear upgrades weigh stats per class. On WoW Forever a druid picks Feral or Balance and a shaman Elemental or Enhancement under Damage style, and changed weights stay with their class. Caps on hit, expertise and defense mean a stat past its cap counts for nothing, and Import stat weights takes a guide site's weights string.": "装备提升按职业计算属性权重。在 WoW Forever 上，德鲁伊在伤害类型中选择野性或平衡，萨满选择元素或增强，修改过的权重会留在各自职业上。命中、精准和防御有了上限，超过上限的属性不再有用；导入属性权重可以接受攻略网站的权重字符串。",
+ "Stance and pet buttons": "姿态和宠物按钮",
+ "Stance and pet buttons stay on their spots in a fight, and keybind mode binds them too.": "姿态和宠物按钮在战斗中保持原位，按键设置模式也会为它们绑定按键。",
+ "Click casting works on the main tank and party pet tiles, and Import asks before it replaces the bindings you have.": "点击施法可用于主坦克和小队宠物格子，导入在替换你现有的绑定前会先询问。",
+ "Raid frames and nameplates": "团队框体和姓名板",
+ "A thin bright line marks a shield that runs past a full health bar, and your focus's nameplate gets a quieter border and diamond.": "一条细亮线标出超出满生命条的护盾，你的焦点目标姓名板使用更低调的边框和菱形。",
+ "Colours and theme": "颜色和主题",
+ "Colours and the theme agree across every module: 41 fixes, from cast bar times and combo point pips to the Dead and Offline words and Safer colours.": "每个模块的颜色和主题都已统一：41 项修复，从施法条时间和连击点，到死亡和离线字样以及更安全的颜色。",
+ "Fixes from four more bug hunts: raid tiles read Offline, ready checks and missing buffs right, nameplates show every aura the game flags for them without dark squares round the icons, Retail's right-click menus wear the theme, and Quiet gives back red errors and zone names once it is off.": "来自另外四轮错误排查的修复：团队格子正确显示离线、就位确认和缺少的增益，姓名板显示游戏为其标记的每个光环且图标周围不再有暗色方块，正式服的右键菜单换上主题，安静模式关闭后会恢复红色错误和区域名称。"
 }
