@@ -51,9 +51,7 @@ jobs:
 
       - run: npm run check
         env:
-          # The addon repo is public, so the run's own token reads it. If it goes private,
-          # put back secrets.ADDON_READ_TOKEN here (README.md, Deploying).
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.ADDON_READ_TOKEN || github.token }}
 
   shots:
     # Every page in a real browser: no sideways scroll on phones, one screen
@@ -78,9 +76,7 @@ jobs:
 
       - run: npm run build
         env:
-          # The addon repo is public, so the run's own token reads it. If it goes private,
-          # put back secrets.ADDON_READ_TOKEN here (README.md, Deploying).
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.ADDON_READ_TOKEN || github.token }}
 
       - run: npm run shots
         env:
