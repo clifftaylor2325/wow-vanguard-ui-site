@@ -399,10 +399,23 @@ RELEASE_NOTES["v0.9.0"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.9.1"] = { groups: [
+    { id: "improved", title: "Improved", items: [
+      { label: "Gear upgrades", text: "Gear upgrades weigh stats per class. On WoW Forever a druid picks Feral or Balance and a shaman Elemental or Enhancement under Damage style, and changed weights stay with their class. Caps on hit, expertise and defense mean a stat past its cap counts for nothing, and Import stat weights takes a guide site's weights string.", from: [767] },
+      { label: "Stance and pet buttons", text: "Stance and pet buttons stay on their spots in a fight, and keybind mode binds them too.", from: [766] },
+      { label: "Click casting", text: "Click casting works on the main tank and party pet tiles, and Import asks before it replaces the bindings you have.", from: [766] },
+      { label: "Raid frames and nameplates", text: "A thin bright line marks a shield that runs past a full health bar, and your focus's nameplate gets a quieter border and diamond.", from: [766] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Colours and theme", text: "Colours and the theme agree across every module: 41 fixes, from cast bar times and combo point pips to the Dead and Offline words and Safer colours.", from: [765] },
+      { label: "Bug hunts", text: "Fixes from four more bug hunts: raid tiles read Offline, ready checks and missing buffs right, nameplates show every aura the game flags for them without dark squares round the icons, Retail's right-click menus wear the theme, and Quiet gives back red errors and zone names once it is off.", from: [763, 764, 766] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.9.0 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.9.1 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.9.0",
+  after: "v0.9.1",
   groups: [],
 };
