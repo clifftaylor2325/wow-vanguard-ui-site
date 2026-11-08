@@ -412,10 +412,25 @@ RELEASE_NOTES["v0.9.1"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.9.2"] = { groups: [
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Nameplates", text: "Nameplates no longer fill the error list with an “aura icon pixels” error in a dungeon or anywhere the game keeps some plates for itself: Vanguard leaves the aura icons on those plates alone.", from: [769] },
+    ] },
+] };
+
+RELEASE_NOTES["v0.9.3"] = { groups: [
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Bars and keys", text: "A flyout dragged onto a bar in a fight no longer raises an error, a WoW Forever flyout shows each spell once, and a character with no forms gets no empty stance boxes.", from: [773, 779] },
+      { label: "Profiles and layout", text: "Pixel-perfect follows the screen, unlock and Edit Mode keep each other's moves, and a profile another character already restored from a newer backup is offered instead of being overwritten.", from: [773, 774, 775, 777, 778] },
+      { label: "Bags and town", text: "The sell list and the craft queue are each character's own, auction posts, prices and bid wins count right, and bag search and quality borders behave.", from: [773, 775, 778, 779, 781] },
+      { label: "Quests and chat", text: "Quest item buttons work in a fight, Close this tab gives its chat back to the main window, and on Retail the quest tracker handles recipes, recrafts and scenario spells.", from: [774, 776, 777, 781] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.9.1 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.9.3 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.9.1",
+  after: "v0.9.3",
   groups: [],
 };
