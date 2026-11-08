@@ -1227,5 +1227,13 @@
  "A thin bright line marks a shield that runs past a full health bar, and your focus's nameplate gets a quieter border and diamond.": "一条细亮线标出超出满生命条的护盾，你的焦点目标姓名板使用更低调的边框和菱形。",
  "Colours and theme": "颜色和主题",
  "Colours and the theme agree across every module: 41 fixes, from cast bar times and combo point pips to the Dead and Offline words and Safer colours.": "每个模块的颜色和主题都已统一：41 项修复，从施法条时间和连击点，到死亡和离线字样以及更安全的颜色。",
- "Fixes from four more bug hunts: raid tiles read Offline, ready checks and missing buffs right, nameplates show every aura the game flags for them without dark squares round the icons, Retail's right-click menus wear the theme, and Quiet gives back red errors and zone names once it is off.": "来自另外四轮错误排查的修复：团队格子正确显示离线、就位确认和缺少的增益，姓名板显示游戏为其标记的每个光环且图标周围不再有暗色方块，正式服的右键菜单换上主题，安静模式关闭后会恢复红色错误和区域名称。"
+ "Fixes from four more bug hunts: raid tiles read Offline, ready checks and missing buffs right, nameplates show every aura the game flags for them without dark squares round the icons, Retail's right-click menus wear the theme, and Quiet gives back red errors and zone names once it is off.": "来自另外四轮错误排查的修复：团队格子正确显示离线、就位确认和缺少的增益，姓名板显示游戏为其标记的每个光环且图标周围不再有暗色方块，正式服的右键菜单换上主题，安静模式关闭后会恢复红色错误和区域名称。",
+ "Nameplates no longer fill the error list with an “aura icon pixels” error in a dungeon or anywhere the game keeps some plates for itself: Vanguard leaves the aura icons on those plates alone.": "在地下城或游戏自行保留部分姓名板的地方，姓名板不再用“aura icon pixels”错误刷满错误列表：Vanguard 不再改动这些姓名板上的光环图标。",
+ "Bars and keys": "动作条与按键",
+ "Profiles and layout": "配置与布局",
+ "Quests and chat": "任务与聊天",
+ "A flyout dragged onto a bar in a fight no longer raises an error, a WoW Forever flyout shows each spell once, and a character with no forms gets no empty stance boxes.": "战斗中拖到动作条上的弹出菜单不再报错，WoW Forever 的弹出菜单每个法术只显示一次，没有形态的角色不再出现空的姿态框。",
+ "Pixel-perfect follows the screen, unlock and Edit Mode keep each other's moves, and a profile another character already restored from a newer backup is offered instead of being overwritten.": "像素完美跟随屏幕，解锁与编辑模式互相保留对方的移动，另一个角色已从更新备份恢复的配置会被提供给你，而不是被覆盖。",
+ "The sell list and the craft queue are each character's own, auction posts, prices and bid wins count right, and bag search and quality borders behave.": "出售清单和制造队列归每个角色所有，拍卖上架、价格和竞拍得标计算正确，背包搜索和品质边框表现正常。",
+ "Quest item buttons work in a fight, Close this tab gives its chat back to the main window, and on Retail the quest tracker handles recipes, recrafts and scenario spells.": "任务物品按钮在战斗中可用，“关闭此标签”会把它的聊天还给主窗口；在 Retail 上，任务追踪支持配方、重新制作和场景法术。"
 }
