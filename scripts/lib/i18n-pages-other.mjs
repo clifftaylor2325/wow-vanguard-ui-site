@@ -16,7 +16,9 @@ export const PAGES_RU = {
       glanceReport: `Ничего не помогло? <a href="/feedback/">Отправьте отчёт</a>`,
       questions: { one: "{n} вопрос", few: "{n} вопроса", many: "{n} вопросов", other: "{n} вопроса" },
       knownTitle: "Известные проблемы",
-      known: `<p>Пока ни одна известная проблема не подтверждена. Vanguard — ранняя версия: ещё не всё проверено в игре, и некоторые функции дорабатываются, поэтому, если что-то выглядит не так, сообщите нам на <a href="/feedback/">странице отзывов</a>.</p>
+      knownNone: "Для этой версии их нет в списке.",
+      known: `<p>Vanguard — новый аддон, и делает его один человек. Это известные проблемы текущей версии, словами самого аддона. Если что-то ещё выглядит не так, введите в игре <code>/vg feedback</code> (команда сама составит отчёт) или напишите на <a href="/feedback/">странице отзывов</a>.</p>
+{list}
 <div class="notice info"><p><strong>Здесь нет вашего случая?</strong> Или решение не помогло? Сообщите об этом там же и приложите все строки <code>/vg status</code>.</p></div>`,
       ask: "Проблема решена?",
       thanks: "Скажите спасибо на Ko-fi",
@@ -94,7 +96,9 @@ export const PAGES_KO = {
       glanceReport: `해결되지 않나요? <a href="/feedback/">보고서를 보내 주세요</a>`,
       questions: { other: "질문 {n}개" },
       knownTitle: "알려진 문제",
-      known: `<p>아직 확인된 알려진 문제는 없습니다. Vanguard는 초기 버전이라 아직 게임에서 모두 확인하지 못했고 일부 기능은 다듬는 중입니다. 이상해 보이는 것이 있으면 <a href="/feedback/">피드백 페이지</a>에서 알려 주세요.</p>
+      knownNone: "이 버전에는 등록된 문제가 없습니다.",
+      known: `<p>Vanguard는 새로 나온 애드온이며 한 사람이 만듭니다. 아래는 현재 버전의 알려진 문제로, 애드온의 문구 그대로입니다. 그 밖에 이상한 점이 있으면 게임에서 <code>/vg feedback</code>을 입력하세요. 보고서를 대신 작성해 줍니다. 또는 <a href="/feedback/">피드백 페이지</a>를 이용하세요.</p>
+{list}
 <div class="notice info"><p><strong>여기에 없나요?</strong> 아니면 해결 방법이 통하지 않았나요? 그곳에 함께 알려 주시고, <code>/vg status</code>의 모든 줄을 넣어 주세요.</p></div>`,
       ask: "문제가 해결되었나요?",
       thanks: "Ko-fi에서 고마움을 전하세요",
@@ -172,7 +176,9 @@ export const PAGES_ZH_CN = {
       glanceReport: `都没用？<a href="/feedback/">发送报告</a>`,
       questions: { other: "{n} 个问题" },
       knownTitle: "已知问题",
-      known: `<p>目前还没有确认的已知问题。Vanguard 是早期版本：还没有全部在游戏中检查过，有些功能还在打磨，所以如果有什么看起来不对，请在<a href="/feedback/">反馈页面</a>告诉我们。</p>
+      knownNone: "此版本没有列出已知问题。",
+      known: `<p>Vanguard 是一个新插件，由一个人制作。以下是当前版本的已知问题，使用插件自己的原文。如果还有其他不对劲的地方，请在游戏中输入 <code>/vg feedback</code>，它会替你写好报告，或者使用<a href="/feedback/">反馈页面</a>。</p>
+{list}
 <div class="notice info"><p><strong>这里没有？</strong>或者办法没用？也请在那里报告，并附上 <code>/vg status</code> 的每一行。</p></div>`,
       ask: "问题解决了？",
       thanks: "在 Ko-fi 上道谢",
@@ -250,7 +256,9 @@ export const PAGES_ZH_TW = {
       glanceReport: `都沒用？<a href="/feedback/">送出回報</a>`,
       questions: { other: "{n} 個問題" },
       knownTitle: "已知問題",
-      known: `<p>目前還沒有確認的已知問題。Vanguard 是早期版本：還沒有全部在遊戲中檢查過，有些功能還在打磨，所以如果有什麼看起來不對，請到<a href="/feedback/">意見回饋頁面</a>告訴我們。</p>
+      knownNone: "此版本沒有列出已知問題。",
+      known: `<p>Vanguard 是一個新插件，由一個人製作。以下是目前版本的已知問題，使用插件自己的原文。如果還有其他不對勁的地方，請在遊戲中輸入 <code>/vg feedback</code>，它會替你寫好報告，或者使用<a href="/feedback/">意見回饋頁面</a>。</p>
+{list}
 <div class="notice info"><p><strong>這裡沒有？</strong>或是方法沒用？也請在那裡回報，並附上 <code>/vg status</code> 的每一行。</p></div>`,
       ask: "問題解決了嗎？",
       thanks: "到 Ko-fi 說聲謝謝",

@@ -46,7 +46,7 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
    - `Core/Modules.lua`, `Modules/*.lua` and `Core/Options.lua`: modules, their descriptions, and every options page, row, default, range and reload flag
    - `Core/Theme.lua`: the theme colors and accent presets (they become `assets/theme.css`)
    - `Core/Setup.lua`: the setup wizard
-   - `README.md`, the `.toc` file and the release: feature text, tagline, version, interface and release notes
+   - `README.md`, the `.toc` file and the release: feature text, the tagline (the TOC Notes line up to its colon, in every language), Troubleshooting's Known issues (the README's `## Known issues` list), version, interface and release notes
 3. `scripts/lib/model.mjs` merges the two refs. The current release is the default and gets no label. Anything only the pinned source has is tagged **Next release** and carries `data-avail="next"`, which hides it until the reader turns on **Show what's coming in the next release** (the switch at the foot of the sidebar, and the same box in the Commands and Settings search forms; the choice is kept in the browser as `vg-show-next`). Something only the release has (removed or renamed since) is tagged **v<release> only**, with the release's own version number. Without JavaScript everything shows. The site never presents next-release features as part of the current release.
 4. Two pages have hand-written words, kept traceable:
    - Troubleshooting & FAQ (`scripts/lib/help-content.mjs`): every message an answer quotes is read from the addon at build time, each with its file. An answer whose message can't be found in the code is left off the page instead of guessed.
@@ -193,7 +193,7 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 
 `DISCORD_URL` in `scripts/lib/html.mjs` holds the Vanguard Discord invite. While it is set, every page's sidebar has a Discord button above its page list, next to the Support button (`navCommunity()`; on a phone they are in the Menu drawer), and the footer links it next to the stores; set it to `null` and both go away.
 
-The footer stays at two lines: a one-sentence note on who makes Vanguard and that it is an early release, then the links line (`footerLinks()`): current release · CurseForge · Wago · Discord · copyright.
+The footer stays at two lines: a one-sentence note on who makes Vanguard, then the links line (`footerLinks()`): current release · CurseForge · Wago · Discord · copyright.
 
 ## Tests
 

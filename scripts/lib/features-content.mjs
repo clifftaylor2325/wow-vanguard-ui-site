@@ -63,8 +63,8 @@ export const MORE = {
     check: ["phrases that ring a sound and show a toast you can click to whisper the sender", "Add phrases (\"LFM\"", "tick the channels to watch", "the whisper sound plays and a small accent-edged toast", "for 8 seconds; click it to whisper them", "your own lines (your name, alone or with your realm) never ring"], from: "Chat watch" },
   MinimapButtons: { more: "Other addons' round minimap buttons are gathered into a drawer beside the map. The small \"...\" button on the map's left edge opens it.",
     check: ["other addons' round minimap buttons are gathered into a drawer beside the map; the small \"...\" button on the map's left edge opens and closes it"], from: "Minimap drawer" },
-  AutoAccept: { more: "Accept summons (one offered in a fight is taken when it ends), accept resurrections, decline duel requests, and loot faster. Each one is off until you switch it on, and the first three say in chat what they did.",
-    check: ["each off until you switch it on, under Game windows", "accept summons (one offered in a fight is taken when the fight ends", "accept resurrections", "decline duel requests (duels to the death too; each says in chat what it did", "and faster auto-loot"], from: "Auto-accept" },
+  AutoAccept: { more: "Accept summons (one offered in a fight is taken when it ends), accept resurrections, and loot faster. Each one is off until you switch it on.",
+    check: ["each off until you switch it on, under Game windows", "accept summons (one offered in a fight is taken when the fight ends", "accept resurrections", "and faster auto-loot"], from: "Auto-accept" },
   Waypoints: { more: "Type /way with coordinates, such as /way 45.2 61.8, to put a waypoint on the map you're on, and the game's own navigation arrow points to it. While the world map is open, a line along its bottom shows your coordinates and the cursor's.",
     check: ["`/way 45.2 61.8` puts a waypoint on the map you're on and the game's own navigation arrow points to it", "While the world map is open, a line along its bottom shows your coordinates and the cursor's"], from: "Waypoints" },
   Inventory: { more: "Vanguard remembers what each of your characters on a realm and side carries and keeps in the bank, and an item's tooltip lists who else has it under the count of your own.",
@@ -92,7 +92,7 @@ export const MORE = {
   GameTools: { more: "The game's Cooldown Manager gets square icons and the theme's font, with its rows between the player and target frames. The game's damage meter gets a flat panel above the bag and menu bar.",
     check: ["the game's Cooldown Manager", "gets square icons in thin borders", "with the theme font", "its rows sit between the player and target frames", "The game's damage meter gets a flat panel with theme bars and text", "above the bag and menu bar"], from: "The game's tools" },
   FightHistory: { more: "A row of bars under the damage meter, one per fight, as tall as its share of your best. Hover it for each fight's length, your DPS and your place in a group; /vg fights prints the same. Fights are forgotten when you log out.",
-    check: ["a sparkline of your DPS over the last 20 fights", "under the damage meter", "Each fight is one bar, as tall as its share of your best", "with its length, your DPS and, in a group, your place", "`/vg fights` prints the same", "forgotten when you log out"], from: "Fight history" },
+    check: ["a sparkline of your DPS over the last 20 fights", "under the damage meter", "Each fight is one bar, as tall as its share of your best", "with its length, your DPS and, in a group, your place", "`/vg fights` prints the same", "when you log out"], from: "Fight history" },
   Windows: { more: "Character, merchant, mail, trade, loot and roll windows, the game menu, the ready check, popups, the spellbook, the breath bar and more get a flat Vanguard panel, title and buttons, and so do the windows that load later, like the auction house and professions.",
     check: [", merchant, mail", "trade, loot and roll windows, the game menu, the ready check, popups, the spellbook and the breath and fatigue bars get a flat Vanguard panel reaching a little past the window", "the windows that load later (auction house, professions"], from: "Game windows" },
   DataBars: { more: "Thin experience and reputation bars under the action bars. The game's own XP bar is hidden while Vanguard's shows.",
@@ -262,7 +262,7 @@ export const LONGER = {
   ],
   Quiet: [
     R("Each switch is off until you turn it on, under Game windows.", "each off until you switch it on, under Game windows"),
-    R("It can decline guild invites, group invites from strangers and Battle.net friend requests, saying in chat what it did.", "decline guild invites (the game's invite window closes)", "decline group invites from people who are not friends, Battle.net friends or guildmates", "decline Battle.net friend requests (each says in chat what it did"),
+    R("It can decline guild invites, group invites from strangers and Battle.net friend requests, saying in chat what it did.", "decline guild invites (the game's invite window closes)", "decline group invites from people who are not friends, Battle.net friends or guildmates", "decline Battle.net friend requests (each decline says in chat what it did"),
     R("It can also release your spirit at once in a battleground, hide the red error line and the zone names that fade in, and zoom the camera further out.", "release your spirit at once when you die in a battleground", "hide the red error line", "a furthest camera zoom of 1.5, 2 or 2.6 times"),
   ],
   ChatFilter: [
@@ -380,9 +380,9 @@ export const LONGER = {
     R("While the Forever beta loses saved settings between sessions, other characters won't be remembered from one session to the next.", "While the Forever beta loses saved settings between sessions, other characters won't be remembered from one session to the next."),
   ],
   Upgrades: [
-    R("Rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands, and an empty slot is always an upgrade; gear you can't wear is left alone.", "rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands", "and an empty slot is always an upgrade; gear you can't wear is left alone"),
+    R("Rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands, and an empty slot is always an upgrade; gear you can't wear is left alone.", "rings and trinkets compare with the weaker of the two you wear", "a two-hander with both hands", "and an empty slot is always an upgrade; gear you can't wear is left alone"),
     R("The default weights are a starting point for Forever's vanilla-style stats, not simulated values.", "The default weights are a starting point for Forever's vanilla-style stats, not simulated values"),
-    R("/vg weights shows the weights in use, /vg weights set changes one, and export and import share them as a string; each profile keeps its own.", "`/vg weights` shows the ones in use", "`/vg weights set AGI 1.2` changes one", "`export`/`import` share them as a string. Each profile keeps its own."),
+    R("/vg weights shows the weights in use, /vg weights set changes one, and export and import share them as a string; each profile keeps its own.", "`/vg weights` shows the ones in use", "`/vg weights set AGI 1.2` changes one", "`export`/`import` share them as a string. Each profile keeps its own"),
     R("The auction house's Upgrades list, under Auction helper, judges listings by the same weights.", "auction house's Upgrades list (under Auction helper) judges listings by the same weights"),
   ],
   BossDocks: [
@@ -428,7 +428,7 @@ export const LONGER = {
   TalentPlanner: [
     R("A rank the plan can never reach, because a talent it hangs from or its row's points are missing from the plan, is marked red.", "a rank the plan can never reach (a talent it hangs from, or its row's points, missing from the plan", "is marked red"),
     R("At a level-up, chat names the next pick, and \"Spend planned points by itself\" (off until you tick it) buys them without asking.", "At a level-up chat names the next pick", "\"Spend planned points by itself\" (under `/vg` → Talents, off until you tick it) buys and applies them without asking"),
-    R("Plans are kept per character and spec, and /vg talents export and import share one as a string for your class.", "Plans are kept per character and spec (Primary, Secondary)", "`export` and `import` share it as a string (for your class only)"),
+    R("Plans are kept per character and spec, and /vg talents export and import share one as a string for your class.", "Plans are kept per character and spec (Primary, Secondary)", "`export` and `import` share it as a string (for your class only"),
   ],
   Nameplates: [
     R("The level is colored by how hard the unit is for you, and your target also gets a 2-pixel accent glow.", "the level (colored by how hard the unit is for you)", "a 2-pixel accent glow"),
@@ -439,7 +439,7 @@ export const LONGER = {
   Situations: [
     R("One situation holds at a time: the first of PvP, Instance, Raid, Party, Resting and Solo.", "One situation holds at a time, the first of PvP"),
     R("/vg situation record raid starts recording, and /vg situation stop saves it.", "`/vg situation record raid`", "**Stop recording and save** (`/vg situation stop`"),
-    R("Only what you changed is kept, and only frames' spot, scale, opacity and anchors, the info strip, menu bar and XP bar visibility, the info strip's parts and the nameplates' levels, threat colors, target border and quest marks, and the Calm HUD can be recorded.", "only what you changed is kept", "An override can hold any frame's spot, scale and opacity, what it's anchored to, the sizes it matches and its own size, the info strip's, menu bar's and XP bars' visibility, the info strip's blocks, the nameplates' levels, threat colors, target border and quest marks, and the Calm HUD, and the Situations page lists them; nothing else is recorded"),
+    R("Only what you changed is kept, and only frames' spot, scale, opacity and anchors, the info strip, menu bar and XP bar visibility, the info strip's parts and the nameplates' levels, threat colors, target border and quest marks, and the Calm HUD can be recorded.", "only what you changed is kept", "An override can hold any frame's spot, scale and opacity", "the nameplates' levels, threat colors, target border and quest marks, and the Calm HUD, and the Situations page lists them; nothing else is recorded"),
     R("Your profile is always saved and exported with your own values, and profiles carry their situations.", "your profile is always saved and exported with your own values", "Profiles carry their overrides"),
   ],
 };
@@ -545,7 +545,7 @@ Object.assign(LONGER, {
   SpellRanks: [
     R("/vg ranks lists those buttons and what each would become; nothing changes.", "`/vg ranks` lists those buttons", "and what each would become (nothing changes)"),
     R("Swapping works out of combat only, and never with something on your cursor.", "out of combat only and never with something on your cursor"),
-    R("Trainer memory is kept for your class and the whole account, and a level-up says what comes next too.", "for your class and the whole account", "a level-up says the same"),
+    R("Trainer memory is kept for your class and the whole account, and a level-up says what comes next too.", "for your class and side, for the whole account", "a level-up says the same"),
     R("No rank or level table ships with Vanguard: it reads only your spellbook and the trainers' windows.", "no rank or level table ships with Vanguard"),
   ],
   QuestGuide: [

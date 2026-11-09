@@ -72,7 +72,17 @@ function releaseDefault(row, old) {
   return defaultLabel({ ...row, default: old.default }) ?? defaultLabel(old);
 }
 
-// Merged options pages, rows tagged with where they exist and their defaults per version.
+// A next-release row with its tip (the longer caption it was renamed from, or a game setting's note) and the
+// release's caption for it: its own, or that old caption when the release still used it.
+function withTip(r, tips) {
+  const name = r.caption.replace(/ \(reload\)$/, "");
+  const was = tips?.renamed?.get(name);
+  const tip = was || tips?.game?.get(name);
+  return tip ? { ...r, tip, was: was || null } : r;
+}
+
+// Merged options pages, rows tagged with where they exist and their defaults per version. A row the next release
+// renamed (O.RENAMED) is one row: the new name, the old caption as its tip, in both releases.
 function mergePages(rel, next) {
   const pages = [];
   const relByKey = new Map(rel.pages.map((p) => [p.key, p]));
@@ -80,12 +90,15 @@ function mergePages(rel, next) {
   for (const np of next.pages) {
     const rp = relByKey.get(np.key);
     const relRows = new Map((rp?.rows || []).map((r) => [rowKey(r), r]));
-    const rows = np.rows.map((r) => {
-      const old = relRows.get(rowKey(r));
-      return { ...r, inNext: true, inRel: !!old, relDefault: old ? releaseDefault(r, old) : null, nextDefault: defaultLabel(r) };
+    const nextRows = np.rows.map((r) => withTip(r, next.rowTips));
+    const relKey = (r) => (r.was && relRows.has(`${r.kind}|${r.was}`) ? `${r.kind}|${r.was}` : rowKey(r));
+    const rows = nextRows.map((r) => {
+      const old = relRows.get(relKey(r));
+      return { ...r, reload: r.reload || !!old?.reload, inNext: true, inRel: !!old, relDefault: old ? releaseDefault(r, old) : null, nextDefault: defaultLabel(r) };
     });
+    const matched = new Set(nextRows.map(relKey));
     for (const r of rp?.rows || []) {
-      if (!np.rows.some((x) => rowKey(x) === rowKey(r))) rows.push({ ...r, inNext: false, inRel: true, relDefault: defaultLabel(r), nextDefault: null });
+      if (!matched.has(rowKey(r))) rows.push({ ...r, inNext: false, inRel: true, relDefault: defaultLabel(r), nextDefault: null });
     }
     pages.push({ key: np.key, title: np.title, id: slug(np.title), inRel: !!rp, inNext: true, rows, relTitle: rp?.title });
   }

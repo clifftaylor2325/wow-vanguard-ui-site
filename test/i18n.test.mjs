@@ -359,8 +359,9 @@ function noSwitchers(h) {
 }
 
 // A page without its <main> and its language switchers: the shell the language owns.
+// The footer's machine-translation line is page prose (checked with the other prose), not a shell word.
 function shell(h) {
-  return noSwitchers(h).replace(/<main[\s\S]*<\/main>/, "").replace(/<head>[\s\S]*<\/head>/, "");
+  return noSwitchers(h).replace(/<main[\s\S]*<\/main>/, "").replace(/<head>[\s\S]*<\/head>/, "").replace(/<p class="small lang-draft">[\s\S]*?<\/p>/, "");
 }
 
 // True when the text holds the phrase as whole words.

@@ -54,7 +54,9 @@ export const HELP_PAGE = {
   glanceReport: `Nothing here helps? <a href="/feedback/">Send a report</a>`,
   questions: { one: "{n} question", other: "{n} questions" },
   knownTitle: "Known issues",
-  known: `<p>No known issues have been confirmed yet. Vanguard is an early release: not everything has been checked in the game yet, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.</p>
+  knownNone: "None are listed for this version.",
+  known: `<p>Vanguard is new and made by one person. These are the problems known in the current version, in the addon's own words. If something else looks wrong, type <code>/vg feedback</code> in the game, which writes the report for you, or use the <a href="/feedback/">Feedback page</a>.</p>
+{list}
 <div class="notice info"><p><strong>Not covered here?</strong> Or the fix didn't help? Report it there as well, and include every line of <code>/vg status</code>.</p></div>`,
   ask: "Problem solved?",
   thanks: "Say thanks on Ko-fi",
@@ -103,7 +105,7 @@ export const SECTIONS = [
   { id: "forever", title: "WoW Forever, setup and errors", entries: [
     { id: "renamed", q: "Where did ForeverUI go?",
       a: `<p>It's Vanguard now: the same addon, renamed because another, unrelated addon is published as ForeverUI. The commands are <code>/vg</code> and <code>/vanguard</code> instead of <code>/fui</code>. Your settings don't move over by themselves: before updating, type <code>/fui export</code> and keep the text; after updating, <code>/vg import</code> it. See <a href="/install/#renamed">Install &amp; Update</a>.</p>`,
-      src: ["README.md (Formerly ForeverUI)"] },
+      src: ["README.md (Coming from ForeverUI)"] },
     { id: "settings-lost", q: "My settings reset every time I start the game",
       a: `<p>The addon's code notes that WoW Forever beta builds older than {fixedBuild} lose addon settings at every launch, and break the raid frames, click casting and bar paging. Update the game. On an older build, <code>/vg status</code> says: “{buildWarn}”.</p>`,
       src: ["Core/Slash.lua (FIXED_BUILD, status)"] },

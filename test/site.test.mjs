@@ -18,7 +18,8 @@ import { featuresPage, startsOff } from "../scripts/lib/pages-main.mjs";
 import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
 import { publishedLocales, EN } from "../scripts/lib/i18n-site.mjs";
-import { extractAddon, extractPages } from "../scripts/lib/extract.mjs";
+import * as EXTRACT from "../scripts/lib/extract.mjs";
+const { extractAddon, extractPages } = EXTRACT;
 import { buildModel, AREAS } from "../scripts/lib/model.mjs";
 import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
 import { SHOT_GROUPS, shotByFile } from "../scripts/lib/shots-content.mjs";
@@ -437,8 +438,43 @@ test("player-facing copy describes the early release honestly", () => {
     .filter((f) => banned.test(fs.readFileSync(f, "utf8")))
     .map((f) => path.relative(dist, f));
   assert.deepEqual(bad, [], `old unverified wording found in dist/: ${bad.join(", ")}`);
-  assert.match(page(""), /Not everything has been checked in the game yet, and some features are still being polished/);
-  assert.doesNotMatch(page(""), /None of this has been checked in game yet/);
+  assert.match(page(""), /<strong>Vanguard is new and made by one person\.<\/strong>/);
+  assert.doesNotMatch(page(""), /None of this has been checked in game yet|early release/);
+  for (const d of LANG_DIRS) assert.doesNotMatch(page(`${d}install`).match(/<footer[\s\S]*<\/footer>/)[0], /early release|still being checked/, `/${d}: the footer repeats the trust line`);
+});
+
+test("the Install page says nothing only a developer needs: no file names, interface numbers or saved-variable names", () => {
+  for (const d of LANG_DIRS) {
+    const main = page(`${d}install`).match(/<main[\s\S]*<\/main>/)[0];
+    for (const word of ["README", "scripts/", "SMOKE-TEST", "SavedVariables", "VanguardDB", "16001", "120105", "Vanguard.toc"]) assert.ok(!main.includes(word), `/${d}install says ${word}`);
+  }
+});
+
+test("a translated page carries the machine-translation line once, in its footer; English pages none", () => {
+  for (const d of LANG_DIRS) {
+    for (const p of ["", "install", "help", "changelog"]) {
+      const n = (page(`${d}${p}`).match(/class="small lang-draft"/g) || []).length;
+      assert.equal(n, d ? 1 : 0, `/${d}${p} has ${n} machine-translation lines`);
+    }
+  }
+  assert.match(page("de/").match(/<footer[\s\S]*<\/footer>/)[0], /<p class="small lang-draft">[^<]*<a href="\/de\/feedback\/">/, "the line is not in /de/'s footer, linking the German Feedback page");
+});
+
+test("Troubleshooting's Known issues lists the README's Known issues, in the addon's words", () => {
+  const readme = execFileSync("git", ["show", `${cfg.sourceRef}:README.md`], { cwd: cfg.sourcePath }).toString();
+  const relReadme = execFileSync("git", ["show", `${meta.current}:README.md`], { cwd: cfg.sourcePath }).toString();
+  const listOf = (text) => (text.match(/^## Known issues\s*\n([\s\S]*?)(?=^## )/m) || ["", ""])[1].split("\n").filter((l) => l.startsWith("- "));
+  const items = listOf(relReadme).length ? listOf(relReadme) : listOf(readme);
+  for (const d of LANG_DIRS) {
+    const known = page(`${d}help`).match(/<ul class="known"[^>]*>([\s\S]*?)<\/ul>/);
+    if (!items.length) {
+      assert.ok(!known, `/${d}help lists known issues neither README has`);
+      continue;
+    }
+    assert.ok(known, `/${d}help has no Known issues list`);
+    assert.equal((known[1].match(/<li>/g) || []).length, items.length, `/${d}help lists a different number of known issues`);
+    if (d) assert.ok(known[0].startsWith('<ul class="known" lang="en">'), `/${d}help: the addon's English list is not marked as English`);
+  }
 });
 
 test("pages are well formed: one h1, skip link, shared nav and footer", () => {
@@ -1012,4 +1048,20 @@ test("the language select is not restored by the browser, and site.js sets it ba
   const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
   assert.match(js, /addEventListener\("pageshow"/, "a pageshow handler puts the select back");
   assert.ok(js.includes("defaultSelected") && js.includes("sel.selectedIndex = i"), "...on the option the page marks selected");
+});
+
+// A setting the next release renamed (Core/OptionsNames.lua, O.RENAMED) is one row: the short name, with the caption
+// it had as its tip, and never a second "v<release> only" row under the old caption.
+test("a renamed setting is one row: its short name, with the old caption as its tip", () => {
+  const { extractRowTips } = EXTRACT;
+  const { renamed } = extractRowTips(gitReader(cfg.sourcePath, cfg.sourceRef));
+  const html = page("settings");
+  const at = (name) => `class="opt-cap">${esc(name)} <`;
+  const shown = [...renamed].filter(([name]) => html.includes(at(name)));
+  if (renamed.size) assert.ok(shown.length >= renamed.size / 2, `only ${shown.length} of ${renamed.size} renamed rows found on /settings/`);
+  for (const [name, old] of shown) {
+    const row = html.slice(html.indexOf(at(name))).split("</th>")[0];
+    assert.ok(row.includes(`<span class="opt-tip">${esc(old.replace(/ \(reload\)$/, ""))}</span>`), `"${name}" lacks its old caption as a tip`);
+    assert.ok(!html.includes(`class="opt-cap">${esc(old)} <span class="badge old">`), `"${old}" is still listed as its own release-only row`);
+  }
 });
