@@ -16,7 +16,8 @@ export const PAGES_DE = {
       glanceReport: `Nichts hilft? <a href="/feedback/">Schick einen Bericht</a>`,
       questions: { one: "{n} Frage", other: "{n} Fragen" },
       knownTitle: "Bekannte Probleme",
-      known: `<p>Bisher ist kein Problem bestätigt. Vanguard ist eine frühe Version: Noch ist nicht alles im Spiel geprüft, und manche Funktionen werden noch verfeinert. Wenn dir also etwas seltsam vorkommt, sag es uns bitte auf der <a href="/feedback/">Feedback-Seite</a>.</p>
+      known: `<p>Vanguard ist neu und wird von einer Person gemacht. Das sind die bekannten Probleme der aktuellen Version, in den Worten des Addons. Wenn dir etwas anderes seltsam vorkommt, tippe im Spiel <code>/vg feedback</code>, das den Bericht für dich schreibt, oder nutze die <a href="/feedback/">Feedback-Seite</a>.</p>
+{list}
 <div class="notice info"><p><strong>Nicht dabei?</strong> Oder hat die Lösung nicht geholfen? Melde es ebenfalls dort, und füge jede Zeile von <code>/vg status</code> bei.</p></div>`,
       ask: "Problem gelöst?",
       thanks: "Bedanke dich auf Ko-fi",
@@ -94,7 +95,8 @@ export const PAGES_FR = {
       glanceReport: `Rien n’y fait ? <a href="/feedback/">Envoyez un rapport</a>`,
       questions: { one: "{n} question", other: "{n} questions", many: "{n} questions" },
       knownTitle: "Problèmes connus",
-      known: `<p>Aucun problème connu n’a encore été confirmé. Vanguard est une version précoce : tout n’a pas encore été vérifié en jeu, et certaines fonctions sont encore en cours de finition. Si quelque chose vous semble anormal, dites-le-nous sur la <a href="/feedback/">page Feedback</a>.</p>
+      known: `<p>Vanguard est nouveau et fait par une seule personne. Voici les problèmes connus de la version actuelle, dans les mots de l’addon. Si autre chose vous semble anormal, tapez <code>/vg feedback</code> en jeu, qui rédige le rapport pour vous, ou utilisez la <a href="/feedback/">page Feedback</a>.</p>
+{list}
 <div class="notice info"><p><strong>Votre cas n’est pas traité ici ?</strong> Ou la solution n’a pas aidé ? Signalez-le aussi là-bas, avec toutes les lignes de <code>/vg status</code>.</p></div>`,
       ask: "Problème résolu ?",
       thanks: "Dites merci sur Ko-fi",
@@ -172,7 +174,8 @@ export const PAGES_ES = {
       glanceReport: `¿Nada te sirve? <a href="/feedback/">Envía un informe</a>`,
       questions: { one: "{n} pregunta", other: "{n} preguntas", many: "{n} preguntas" },
       knownTitle: "Problemas conocidos",
-      known: `<p>Todavía no se ha confirmado ningún problema conocido. Vanguard es una versión temprana: aún no se ha comprobado todo en el juego y algunas funciones se siguen puliendo, así que si algo no se ve bien, cuéntanoslo en la <a href="/feedback/">página de Feedback</a>.</p>
+      known: `<p>Vanguard es nuevo y lo hace una sola persona. Estos son los problemas conocidos de la versión actual, con las palabras del propio addon. Si otra cosa no se ve bien, escribe <code>/vg feedback</code> en el juego, que redacta el informe por ti, o usa la <a href="/feedback/">página de Feedback</a>.</p>
+{list}
 <div class="notice info"><p><strong>¿No aparece aquí?</strong> ¿O la solución no ha servido? Infórmalo allí también e incluye todas las líneas de <code>/vg status</code>.</p></div>`,
       ask: "¿Problema resuelto?",
       thanks: "Da las gracias en Ko-fi",
@@ -264,7 +267,8 @@ export const PAGES_IT = {
       glanceReport: `Niente ti aiuta? <a href="/feedback/">Invia una segnalazione</a>`,
       questions: { one: "{n} domanda", other: "{n} domande", many: "{n} domande" },
       knownTitle: "Problemi noti",
-      known: `<p>Finora non è stato confermato nessun problema noto. Vanguard è una versione iniziale: non tutto è stato ancora verificato nel gioco e alcune funzioni sono ancora in rifinitura, quindi se qualcosa non ti sembra a posto, diccelo nella <a href="/feedback/">pagina Feedback</a>.</p>
+      known: `<p>Vanguard è nuovo ed è fatto da una sola persona. Questi sono i problemi noti della versione attuale, con le parole dell’addon. Se qualcos’altro non va, scrivi <code>/vg feedback</code> nel gioco, che compila la segnalazione per te, oppure usa la <a href="/feedback/">pagina Feedback</a>.</p>
+{list}
 <div class="notice info"><p><strong>Non trovi il tuo caso?</strong> O la soluzione non ha aiutato? Segnalalo lì, e includi ogni riga di <code>/vg status</code>.</p></div>`,
       ask: "Problema risolto?",
       thanks: "Ringrazia su Ko-fi",
@@ -342,7 +346,8 @@ export const PAGES_PT_BR = {
       glanceReport: `Nada ajudou? <a href="/feedback/">Envie um relatório</a>`,
       questions: { one: "{n} pergunta", other: "{n} perguntas", many: "{n} perguntas" },
       knownTitle: "Problemas conhecidos",
-      known: `<p>Nenhum problema conhecido foi confirmado ainda. O Vanguard é uma versão inicial: nem tudo foi verificado no jogo ainda, e alguns recursos ainda estão sendo refinados, então, se algo parecer errado, conte para a gente na <a href="/feedback/">página de Feedback</a>.</p>
+      known: `<p>O Vanguard é novo e feito por uma só pessoa. Estes são os problemas conhecidos da versão atual, nas palavras do próprio addon. Se outra coisa parecer errada, digite <code>/vg feedback</code> no jogo, que escreve o relatório por você, ou use a <a href="/feedback/">página de Feedback</a>.</p>
+{list}
 <div class="notice info"><p><strong>Não está aqui?</strong> Ou a solução não ajudou? Relate lá também e inclua todas as linhas de <code>/vg status</code>.</p></div>`,
       ask: "Problema resolvido?",
       thanks: "Agradeça no Ko-fi",

@@ -45,18 +45,12 @@ export function curseforgeBox(model, { heading = true, loc = EN } = {}) {
   <dl class="facts">
     <dt>${loc.p("Current release")}</dt><dd>${loc.p("{version} (release {tag})", { version: esc(model.version), tag: esc(release.tag) })}</dd>
     <dt>${loc.p("Published")}</dt><dd>${esc(dateET(release.publishedAt, loc))}</dd>
-    <dt>${loc.p("Game")}</dt><dd>${loc.p("WoW Forever and Retail (the addon declares Interface {iface})", { iface: esc(model.rel.meta.Interface) })}</dd>
+    <dt>${loc.p("Game")}</dt><dd>${loc.p("WoW Forever, and Retail too")}</dd>
   </dl>
 </section>`;
 }
 
 // ------------------------------------------------------------------ Home
-
-// The Forever client's interface number among those the TOC declares ("16001" from
-// "16001, 120105, 120007"): Forever's game version 1.60.1 encodes below 20000.
-export function foreverInterface(meta) {
-  return String(meta.Interface || "").split(/\s*,\s*/).find((n) => /^\d+$/.test(n) && Number(n) < 20000) || "";
-}
 
 // The Retail client's interface number among those the TOC declares ("120105"), or "".
 export function retailInterface(meta) {
@@ -64,11 +58,9 @@ export function retailInterface(meta) {
 }
 
 // Home's "Built for" words: WoW Forever, and Retail too when the TOC declares a Retail interface.
+// The interface numbers stay off the page: they mean nothing to a player.
 function builtFor(meta, loc) {
-  const iface = foreverInterface(meta);
-  const retail = retailInterface(meta);
-  if (iface && retail) return loc.p("Built for WoW Forever and Retail (Interface {iface} and {retail})", { iface: esc(iface), retail: esc(retail) });
-  return iface ? loc.p("Built for WoW Forever (Interface {iface})", { iface: esc(iface) }) : loc.p("Built for WoW Forever");
+  return retailInterface(meta) ? loc.p("Built for WoW Forever, and Retail too") : loc.p("Built for WoW Forever");
 }
 
 // Home's facts line: which client, which release and when, how many modules.
@@ -84,13 +76,19 @@ export function tagline(readme) {
   return m ? m[1].trim() : "";
 }
 
-// The tagline in the page's language, with its closing stop: the addon's own translated TOC Notes
-// line (## Notes-deDE) up to its colon, which says the same (the full-width "：" of Chinese ends
-// with "。"); English from the README.
+// The addon's TOC Notes line in the page's language (## Notes, ## Notes-deDE), the English one
+// when the language has none.
+function tocNotes(model, loc) {
+  return String((loc.english ? "" : model.next.meta[`Notes-${loc.addonLocale}`]) || model.next.meta.Notes || "");
+}
+
+// The tagline in the page's language, with its closing stop: the addon's own TOC Notes line up to
+// its colon, so every language says the same (the full-width "：" of Chinese ends with "。");
+// the README's opening words when a Notes line has no colon.
 export function localTagline(model, loc) {
-  const notes = String(model.next.meta[`Notes-${loc.addonLocale}`] || "");
+  const notes = tocNotes(model, loc);
   const colon = notes.search(/[:：]/);
-  if (loc.english || colon < 0) return `${tagline(model.next.readme) || tagline(model.rel.readme)}.`;
+  if (colon < 0) return `${tagline(model.next.readme) || tagline(model.rel.readme)}.`;
   return `${notes.slice(0, colon).trim()}${notes[colon] === "：" ? "。" : "."}`;
 }
 
@@ -183,7 +181,7 @@ export function homePage(model, loc = EN, site = null) {
   const relMods = model.modules.filter((m) => m.inRel);
   const highlights = HIGHLIGHTS.map((k) => model.modules.find((m) => m.key === k)).filter((m) => m && m.inRel && m.desc);
   const n = relMods.length;
-  const description = loc.english ? rel.meta.Notes : model.next.meta[`Notes-${loc.addonLocale}`] || rel.meta.Notes;
+  const description = tocNotes(model, loc) || rel.meta.Notes;
   return {
     path: "/",
     title: "Vanguard",
@@ -207,7 +205,7 @@ ${homeTiles(loc)}
 
 ${disclosure({ id: "mock-h", title: loc.p("The layout at a glance"), open: "always", body: layoutShot(loc) })}
 
-<div class="notice info early"><p>${loc.p(`<strong>Vanguard is an early release.</strong> Not everything has been checked in the game yet, and some features are still being polished, so if something looks off, please tell us on the <a href="/feedback/">Feedback page</a>.`)}</p></div>
+<div class="notice info early"><p>${loc.p(`<strong>Vanguard is new and made by one person.</strong> If something looks wrong, type <code>/vg feedback</code> in the game and it writes the report for you, or use the <a href="/feedback/">Feedback page</a>. The <a href="/help/#known-issues">known issues</a> are on Troubleshooting.`)}</p></div>
 
 ${disclosure({ id: "hl-h", title: loc.p("What's in v{version}", { version: esc(model.version) }), meta: loc.pn({ one: "{n} module", other: "{n} modules" }, n), body: `<p>${loc.p(`A few of its modules, in the words the addon uses on its own Modules page. <a href="/features/">All {n} are on Features</a>, and each can be turned off under <strong>/vg → {modules}</strong>.`, { n, modules: esc(loc.addon("Modules")) })}</p>
 <ul class="feats">${highlights.map((m) => highlightCard(m, model.version, loc)).join("\n")}</ul>` })}`,
@@ -240,7 +238,7 @@ ${listed ? "" : `<p class="small">${loc.p("To be confirmed: the exact steps for 
 // Retail client folder it names; without that line, a plain pointer to the AddOns folder.
 function installFolder(where, loc) {
   if (!where) return loc.p("<strong>Put the <code>Vanguard</code> folder in your AddOns folder</strong>, the <code>Interface/AddOns</code> folder of your game client.");
-  return loc.p("<strong>Put the <code>Vanguard</code> folder in your AddOns folder.</strong> The addon's README says: unzip the <code>Vanguard</code> folder into <code>{path}</code>. On Retail the client folder is <code>{retail}</code>; on WoW Forever it is your Forever client's folder, the one with <code>Interface/AddOns</code> in it.", { path: esc(where[1]), retail: esc(where[2]) });
+  return loc.p("<strong>Put the <code>Vanguard</code> folder in your AddOns folder:</strong> <code>{path}</code>. On Retail the client folder is <code>{retail}</code>; on WoW Forever it is your Forever client's folder, the one with <code>Interface/AddOns</code> in it.", { path: esc(where[1]), retail: esc(where[2]) });
 }
 
 // Installing from the zip by hand.
@@ -251,12 +249,11 @@ function installByHand(where, loc) {
   <li>${installFolder(where, loc)}</li>
   <li>${loc.p("<strong>Turn it on at character select:</strong> open <strong>AddOns</strong> and tick <strong>Vanguard</strong>, then log in.")}</li>
   <li>${loc.p(`Type <code>/vg</code> in chat to open the options. See <a href="/start/">Getting started</a>.`)}</li>
-</ol>
-${sourceNote(loc, ["README.md (Install)", "scripts/package.mjs (zip layout)", "docs/SMOKE-TEST.md (step 1.2)"])}`;
+</ol>`;
 }
 
 // Updating, and the note for players coming from ForeverUI.
-function installUpdate(rel, loc) {
+function installUpdate(loc) {
   return `<p>${loc.p("<strong>With the {stores} app:</strong> update Vanguard there when a new version is out.", { stores: storesOr(loc) })}</p>
 <p>${loc.p("<strong>By hand:</strong>")}</p>
 <ol class="steps">
@@ -264,10 +261,9 @@ function installUpdate(rel, loc) {
   <li>${loc.p("Delete the old <code>Vanguard</code> folder from your AddOns folder.")}</li>
   <li>${loc.p("Unzip the new version and put its <code>Vanguard</code> folder in the same place.")}</li>
 </ol>
-<p>${loc.p("Your settings are kept. Vanguard saves them in the game's SavedVariables (<code>{account}</code> for the account, <code>{character}</code> for each character), not in the addon folder.", { account: esc(rel.meta.SavedVariables), character: esc(rel.meta.SavedVariablesPerCharacter) })}</p>
+<p>${loc.p("Your settings are kept: the game saves them outside the addon folder, so a new <code>Vanguard</code> folder doesn't touch them.")}</p>
 <div class="notice" id="renamed"><p>${loc.p("<strong>Coming from ForeverUI?</strong> Vanguard was called ForeverUI up to v0.3.0. It was renamed because another, unrelated addon is published under that name. The settings file is named after the addon, so your settings don't move over by themselves: before you update, type <code>/fui export</code> in game and keep the text; after updating, type <code>/vg import</code> and paste it (text from ForeverUI imports fine). Then delete the old <code>ForeverUI</code> folder from your AddOns folder.")}</p></div>
-<p>${loc.p(`The <a href="/changelog/">Changelog</a> says what changed in each release.`)}</p>
-${sourceNote(loc, ["Vanguard.toc (SavedVariables)"])}`;
+<p>${loc.p(`The <a href="/changelog/">Changelog</a> says what changed in each release.`)}</p>`;
 }
 
 // Uninstalling, or keeping the game's version of one part.
@@ -289,7 +285,7 @@ export function installPage(model, loc = EN) {
 ${curseforgeBox(model, { loc })}
 ${disclosure({ id: "curseforge", title: loc.p("Install through CurseForge"), open: "always", body: installStores(listed, loc) })}
 ${disclosure({ id: "by-hand", title: loc.p("If you install by hand"), open: "always", body: installByHand(where, loc) })}
-${disclosure({ id: "update", title: loc.p("Update"), body: installUpdate(rel, loc) })}
+${disclosure({ id: "update", title: loc.p("Update"), body: installUpdate(loc) })}
 ${disclosure({ id: "uninstall", title: loc.p("Uninstall"), body: installRemove(loc) })}
 ${supportAsk("install", loc.p("Vanguard is free and built by one person. If it saved you an evening of setting up your UI,"), undefined, loc.p("Say thanks on Ko-fi"))}`,
   };
@@ -1033,7 +1029,8 @@ function settingsCounts(model, loc) {
   const { pages, version } = model;
   const count = (f) => pages.reduce((n, p) => n + p.rows.filter((r) => r.kind !== "header" && r.kind !== "text" && f(r)).length, 0);
   const release = loc.n("set.inRelease", count((r) => r.inRel), { version: esc(version) });
-  const next = model.same ? "" : nextOnly(` · ${loc.t("set.inNext", { n: count((r) => r.inNext) })}`);
+  const differs = pages.some((p) => p.rows.some((r) => r.inRel !== r.inNext));
+  const next = model.same || !differs ? "" : nextOnly(` · ${loc.t("set.inNext", { n: count((r) => r.inNext) })}`);
   return `<p class="counts">${loc.t("set.countsLine", { parts: `${release}${next} · ${loc.n("set.pages", pages.length)}` })}</p>`;
 }
 

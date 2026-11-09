@@ -395,7 +395,8 @@ RELEASE_NOTES["v0.9.0"] = { groups: [
       { label: "Language", text: "The new text is translated in all ten languages. The translations are machine-drafted, so report a wrong line with /vg feedback.", from: [756, 757, 760] },
     ] },
     { id: "fixed", title: "Fixed", items: [
-      { label: "Bug hunts", text: "Fixes from twenty-three bug hunts across both clients, 240 in all: key setup, click casting, action bar flyouts, frames and raid marks, quests and the arrow, nameplates, the Calm HUD, chat links, bags and the bank, merchants, mail and auctions, profiles and setup, and the Retail windows. The merchant's Stack button and Cancel on Your auctions now ask first when they cost gold.", from: [742, 757, 760] },
+      { label: "Action bars", text: "Key setup places a ranked spell's top rank, a flyout such as a mage's portals opens Vanguard's own list, frames Vanguard hides stay hidden, and finished auto-complete quests complete from the tracker.", from: [742, 757, 760] },
+      { label: "Safety", text: "The merchant's Stack button and Cancel on Your auctions now ask first when they cost gold.", from: [757, 760] },
     ] },
 ] };
 
@@ -407,8 +408,8 @@ RELEASE_NOTES["v0.9.1"] = { groups: [
       { label: "Raid frames and nameplates", text: "A thin bright line marks a shield that runs past a full health bar, and your focus's nameplate gets a quieter border and diamond.", from: [766] },
     ] },
     { id: "fixed", title: "Fixed", items: [
-      { label: "Colours and theme", text: "Colours and the theme agree across every module: 41 fixes, from cast bar times and combo point pips to the Dead and Offline words and Safer colours.", from: [765] },
-      { label: "Bug hunts", text: "Fixes from four more bug hunts: raid tiles read Offline, ready checks and missing buffs right, nameplates show every aura the game flags for them without dark squares round the icons, Retail's right-click menus wear the theme, and Quiet gives back red errors and zone names once it is off.", from: [763, 764, 766] },
+      { label: "Colours and theme", text: "Colours and the theme agree across every module, from cast bar times and combo point pips to the Dead and Offline words and Safer colours.", from: [765] },
+      { label: "Raid frames", text: "Raid tiles read Offline, ready checks and missing buffs right, nameplates show every aura the game flags for them without dark squares round the icons, Retail's right-click menus wear the theme, and Quiet gives back red errors and zone names once it is off.", from: [763, 764, 766] },
     ] },
 ] };
 

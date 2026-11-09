@@ -393,9 +393,18 @@ function helpSection(s, facts, open, loc, words) {
   return disclosure({ id: s.id, title: esc(words.sections[s.id]), open, meta: questionCount(s.shown.length, loc, words), body });
 }
 
+// The README's Known issues, one item a line, in the addon's own words (so English on every page,
+// marked so); "" when the README has none.
+function knownList(readme, loc) {
+  const items = section(readme, "Known issues").split("\n").filter((l) => l.startsWith("- ")).map((l) => `<li>${md(l.slice(2))}</li>`);
+  return items.length ? `<ul class="known"${loc.english ? "" : ' lang="en"'}>${items.join("")}</ul>` : "";
+}
+
 // The closing part: known issues, then what to do when the page doesn't help.
-function helpFooter(words) {
-  return disclosure({ id: "known-issues", title: esc(words.page.knownTitle), body: words.page.known });
+function helpFooter(read, loc, words) {
+  const list = knownList(read.next("README.md") || "", loc);
+  if (!list && loc.english) console.warn("help: the README at this ref has no Known issues list");
+  return disclosure({ id: "known-issues", title: esc(words.page.knownTitle), body: words.page.known.replace("{list}", list) });
 }
 
 // The Troubleshooting & FAQ page in a language (help-content.mjs holds its English words and
@@ -408,7 +417,7 @@ export function helpPage(model, read, loc = EN) {
   if (loc.english) for (const s of sections) for (const e of s.entries) if (!s.shown.includes(e)) console.warn(`help: left off "${e.q}" (a quoted fact is not in the addon at this ref)`);
   const body = [pageHero(esc(loc.text("title./help/")), words.page.lede),
     glance([words.page.glanceStatus, words.page.glanceReport]),
-    ...sections.map((s, i) => helpSection(s, facts, i === 0, loc, words)), helpFooter(words), supportAsk("help", words.page.ask, undefined, words.page.thanks)];
+    ...sections.map((s, i) => helpSection(s, facts, i === 0, loc, words)), helpFooter(read, loc, words), supportAsk("help", words.page.ask, undefined, words.page.thanks)];
   return { path: "/help/", title: "Troubleshooting & FAQ", description: words.page.description, body: body.join("\n"), translated: true };
 }
 

@@ -437,8 +437,38 @@ test("player-facing copy describes the early release honestly", () => {
     .filter((f) => banned.test(fs.readFileSync(f, "utf8")))
     .map((f) => path.relative(dist, f));
   assert.deepEqual(bad, [], `old unverified wording found in dist/: ${bad.join(", ")}`);
-  assert.match(page(""), /Not everything has been checked in the game yet, and some features are still being polished/);
-  assert.doesNotMatch(page(""), /None of this has been checked in game yet/);
+  assert.match(page(""), /<strong>Vanguard is new and made by one person\.<\/strong>/);
+  assert.doesNotMatch(page(""), /None of this has been checked in game yet|early release/);
+  for (const d of LANG_DIRS) assert.doesNotMatch(page(`${d}install`).match(/<footer[\s\S]*<\/footer>/)[0], /early release|still being checked/, `/${d}: the footer repeats the trust line`);
+});
+
+test("the Install page says nothing only a developer needs: no file names, interface numbers or saved-variable names", () => {
+  for (const d of LANG_DIRS) {
+    const main = page(`${d}install`).match(/<main[\s\S]*<\/main>/)[0];
+    for (const word of ["README", "scripts/", "SMOKE-TEST", "SavedVariables", "VanguardDB", "16001", "120105", "Vanguard.toc"]) assert.ok(!main.includes(word), `/${d}install says ${word}`);
+  }
+});
+
+test("a translated page carries the machine-translation line once, at the top; English pages none", () => {
+  for (const d of LANG_DIRS) {
+    for (const p of ["", "install", "help", "changelog"]) {
+      const n = (page(`${d}${p}`).match(/class="small lang-draft"/g) || []).length;
+      assert.equal(n, d ? 1 : 0, `/${d}${p} has ${n} machine-translation lines`);
+    }
+  }
+  assert.match(page("de/").match(/<main[^>]*>\s*([\s\S]{0,80})/)[1], /^<p class="small lang-draft">/, "the line is not the first thing in /de/'s main");
+});
+
+test("Troubleshooting's Known issues lists the README's Known issues, in the addon's words", () => {
+  const readme = execFileSync("git", ["show", `${cfg.sourceRef}:README.md`], { cwd: cfg.sourcePath }).toString();
+  const items = (readme.match(/^## Known issues\s*\n([\s\S]*?)(?=^## )/m) || ["", ""])[1].split("\n").filter((l) => l.startsWith("- "));
+  assert.ok(items.length >= 1, "the README at the pinned source has no Known issues list");
+  for (const d of LANG_DIRS) {
+    const known = page(`${d}help`).match(/<ul class="known"[^>]*>([\s\S]*?)<\/ul>/);
+    assert.ok(known, `/${d}help has no Known issues list`);
+    assert.equal((known[1].match(/<li>/g) || []).length, items.length, `/${d}help lists a different number of known issues`);
+    if (d) assert.ok(known[0].startsWith('<ul class="known" lang="en">'), `/${d}help: the addon's English list is not marked as English`);
+  }
 });
 
 test("pages are well formed: one h1, skip link, shared nav and footer", () => {

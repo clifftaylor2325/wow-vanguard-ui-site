@@ -39,7 +39,7 @@ export const ENGLISH_STRINGS = {
   "menu": "Menu",
   "nextSwitch": "Show what's coming in the next release",
   "supportButton": "♥ Support",
-  "footer.about": "Vanguard is an addon for WoW Forever by {author}, an early release still being checked in game and polished.",
+  "footer.about": "Vanguard is an addon for WoW Forever by {author}.",
   "footer.release": "Current release: Vanguard {version}",
   "footer.soon": "coming soon on {store}",
   "lang.label": "Language",

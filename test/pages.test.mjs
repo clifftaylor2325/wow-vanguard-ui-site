@@ -179,7 +179,7 @@ test("/start/ and /profiles/: no GitHub username and no untested-style wording",
   }
 });
 
-test("/: the hero's facts line names the Forever and Retail interfaces, the release and its date", () => {
+test("/: the hero's facts line names the clients (no interface numbers), the release and its date", () => {
   const toc = show(REL, "Vanguard.toc");
   const ifaces = (toc.match(/^## Interface:\s*(.+)$/m) || [])[1].split(/\s*,\s*/);
   const iface = ifaces.find((n) => Number(n) < 20000);
@@ -188,6 +188,7 @@ test("/: the hero's facts line names the Forever and Retail interfaces, the rele
   const date = new Date(rel.publishedAt).toLocaleDateString("en-US", { timeZone: "America/New_York", year: "numeric", month: "long", day: "numeric" });
   const facts = text((html("").match(/<p class="hero-meta">([\s\S]*?)<\/p>/) || [])[1] || "");
   assert.ok(iface, "the TOC declares no Forever interface");
-  const client = retail ? `Built for WoW Forever and Retail (Interface ${iface} and ${retail})` : `Built for WoW Forever (Interface ${iface})`;
+  const client = retail ? "Built for WoW Forever, and Retail too" : "Built for WoW Forever";
   assert.equal(facts.startsWith(`${client} · ${REL}, released ${date} · `), true, facts);
+  assert.ok(!facts.includes(iface), `the facts line shows the interface number: ${facts}`);
 });
