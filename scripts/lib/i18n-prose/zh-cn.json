@@ -331,7 +331,7 @@
  "Turn each one on under Game windows.": "在“游戏窗口”下分别开启各项。",
  "Accepting a resurrection closes the game's prompt, whichever kind it was.": "接受复活会关闭游戏的提示，无论是哪一种。",
  "Faster auto-loot works while the game is auto-looting and takes every slot at once; an item still being rolled for stays in the loot window, and a bind-on-pickup item still asks first.": "更快的自动拾取在游戏自动拾取时生效，会一次拿走所有格子；仍在掷骰的物品会留在拾取窗口中，拾取后绑定的物品仍会先询问。",
- "Accept summons (one offered in a fight is taken when it ends), accept resurrections, decline duel requests, and loot faster. Each one is off until you switch it on, and the first three say in chat what they did.": "接受召唤（战斗中提供的召唤会在战斗结束时接受）、接受复活、拒绝决斗请求，以及更快地拾取。每一项在你开启之前都是关闭的，前三项会在聊天框中说明它们做了什么。",
+ "Accept summons (one offered in a fight is taken when it ends), accept resurrections, and loot faster. Each one is off until you switch it on.": "接受召唤（战斗中提供的召唤会在战斗结束时接受）、接受复活，以及更快地拾取。每一项在你开启之前都是关闭的。",
  "Loss of control (stunned, feared...) shows a little above your character and the talking head at the top left, under the raid tools; hiding the talking head is your choice under Combat tools.": "失去控制（昏迷、恐惧……）显示在你的角色稍上方，说话头像在左上角、团队工具下方；是否隐藏说话头像由你在“战斗工具”下决定。",
  "The rare announcement is off until you switch it on under Combat tools; it plays the raid warning sound with one chat line, out of combat and once per rare.": "稀有怪提示在你于“战斗工具”下开启之前是关闭的；它会在脱离战斗时播放团队警报音并发出一行聊天提示，每个稀有怪一次。",
  "Loss of control and the talking head on flat panels (or the talking head hidden). On a Hardcore realm, death notices take the theme's font and red. If you like, a rare that shows up on your minimap is announced once, out of combat.": "失去控制和说话头像显示在平面面板上（或隐藏说话头像）。在专家模式服务器上，死亡通知采用主题的字体和红色。如果你愿意，出现在你小地图上的稀有怪会在脱离战斗时被提示一次。",
