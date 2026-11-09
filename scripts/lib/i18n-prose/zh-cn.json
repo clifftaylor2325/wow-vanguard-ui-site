@@ -1237,5 +1237,7 @@
  "As listed in the addon's README for the next release:": "如插件 README 中为下一个版本所列：",
  "Shots of things only the next release has hide with the rest of it": "只有下一版本才有的内容的截图会与其余内容一起隐藏",
  "The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version, so v{version} may not have every detail yet; <a href=\"/settings/\">Settings</a> shows exactly which options each release has.": "每个模块的名称和第一行与插件在“模块”页面上显示的相同。<strong>更多</strong>下的较长文字描述的是模块在最新版本中的样子，所以 v{version} 可能还没有全部细节；<a href=\"/settings/\">设置</a>会准确显示每个版本有哪些选项。",
- "Before you ask, check <a href=\"/features/\">Features</a>: it may already be there, or written for the next release (turn on <strong>Show what's coming</strong> in the sidebar to see those).": "提问之前，请先查看<a href=\"/features/\">功能</a>：它可能已经有了，或者已写进下一个版本（在侧边栏开启<strong>显示下一版本的新内容</strong>即可看到）。"
+ "Before you ask, check <a href=\"/features/\">Features</a>: it may already be there, or written for the next release (turn on <strong>Show what's coming</strong> in the sidebar to see those).": "提问之前，请先查看<a href=\"/features/\">功能</a>：它可能已经有了，或者已写进下一个版本（在侧边栏开启<strong>显示下一版本的新内容</strong>即可看到）。",
+ "Keys, frames and quests": "按键、框体和任务",
+ "Raid tiles, nameplates and menus": "团队格子、姓名板和菜单"
 }

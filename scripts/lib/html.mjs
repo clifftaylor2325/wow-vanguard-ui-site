@@ -335,8 +335,9 @@ export function footerLinks(site, loc = EN, { curseforge = CURSEFORGE_URL, wago 
 }
 
 // The footer's two lines: who made Vanguard, then the links line.
-function footerLines(site, loc) {
+function footerLines(site, loc, translated) {
   return `<p>${loc.t("footer.about", { author: esc(site.author) })}</p>
+    ${draftLine(loc, translated)}
     ${footerLinks(site, loc)}`;
 }
 
@@ -381,11 +382,11 @@ function feedLink(loc) {
   return `<link rel="alternate" type="application/atom+xml" title="Vanguard · ${esc(loc.text("title./changelog/"))}" href="${loc.href("/changelog/feed.xml")}">\n`;
 }
 
-// One short line at the top of a translated page: the translation is a machine draft, and how to
+// One short line in a translated page's footer (the footer keeps the page fitting one screen): the translation is a machine draft, and how to
 // report a line that reads oddly. Nothing on English pages or on pages shown in English.
 function draftLine(loc, translated) {
   if (loc.english || !translated) return "";
-  return `<p class="small lang-draft">${loc.p(`This page is machine-translated from English, so a line may read oddly. Tell us on the <a href="/feedback/">Feedback page</a>.`)}</p>\n`;
+  return localiseLinks(`<p class="small lang-draft">${loc.p(`This page is machine-translated from English, so a line may read oddly. Tell us on the <a href="/feedback/">Feedback page</a>.`)}</p>`, loc);
 }
 
 export function layout({ path, title, description, body, site, scripts = [], loc = EN, alts = [], translated = false }) {
@@ -393,7 +394,7 @@ export function layout({ path, title, description, body, site, scripts = [], loc
   if (loc.english || !translated) description = SEO[path]?.description || description;
   const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">${loc.t("menu")}</button>`;
   const nav = `<nav class="nav sidebar" aria-label="${esc(loc.text("nav.label"))}" id="site-nav"><button class="nav-close" type="button">${loc.p("Close menu")}</button>${siteSearch(loc, "nav")}${navCommunity(loc)}${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
-  const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${menuPaths(localiseLinks(draftLine(loc, translated) + body, loc))}\n</main>`;
+  const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${menuPaths(localiseLinks(body, loc))}\n</main>`;
   // An asset's URL with the build's version query (the plain path if it has none).
   const asset = (p) => site.assets?.[p] || p;
   return `<!doctype html>
@@ -430,7 +431,7 @@ ${main}
 <footer class="site-footer">
   ${ornament("footer-orn")}
   <div class="footer-inner">
-    ${footerLines(site, loc)}
+    ${footerLines(site, loc, translated)}
   </div>
 </footer>
 ${scriptStrings(loc)}<script src="${esc(asset("/assets/site.js"))}" defer></script>

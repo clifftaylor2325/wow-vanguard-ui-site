@@ -243,7 +243,6 @@ table.overlaps th[scope="row"] code { white-space: nowrap; }
 .notice strong:first-child { color: var(--text); }
 .notice::before { content: ""; position: absolute; left: 16px; right: 16px; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 60%, transparent), transparent); }
 .notice.early { margin: 0 0 var(--sp-3); font-size: var(--fs-sm); padding: 8px 12px; }
-.lang-draft { margin: 0 0 var(--sp-3); }
 
 /* ------------------------------------------------------------------ Disclosures
    Every folded section: the heading is the summary, the Vanguard diamond is

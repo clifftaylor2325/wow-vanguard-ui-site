@@ -394,17 +394,20 @@ function helpSection(s, facts, open, loc, words) {
 }
 
 // The README's Known issues, one item a line, in the addon's own words (so English on every page,
-// marked so); "" when the README has none.
-function knownList(readme, loc) {
+// marked so); "" when the README has none. Only the README itself is read: the spec text after it
+// (feature pages, each opening with "# Title") never supplies the list.
+function knownList(spec, loc) {
+  const readme = String(spec || "").split(/\n(?=# )/)[0];
   const items = section(readme, "Known issues").split("\n").filter((l) => l.startsWith("- ")).map((l) => `<li>${md(l.slice(2))}</li>`);
   return items.length ? `<ul class="known"${loc.english ? "" : ' lang="en"'}>${items.join("")}</ul>` : "";
 }
 
 // The closing part: known issues, then what to do when the page doesn't help.
+// The list is the current release's; the source ref's while the release's README has none (0.9.3
+// and before), and a plain "none listed" line when neither has one.
 function helpFooter(read, loc, words) {
-  const list = knownList(read.next("README.md") || "", loc);
-  if (!list && loc.english) console.warn("help: the README at this ref has no Known issues list");
-  return disclosure({ id: "known-issues", title: esc(words.page.knownTitle), body: words.page.known.replace("{list}", list) });
+  const list = knownList(read.rel("README.md"), loc) || knownList(read.next("README.md"), loc);
+  return disclosure({ id: "known-issues", title: esc(words.page.knownTitle), body: words.page.known.replace("{list}", list || `<p>${words.page.knownNone}</p>`) });
 }
 
 // The Troubleshooting & FAQ page in a language (help-content.mjs holds its English words and

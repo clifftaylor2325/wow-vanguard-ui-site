@@ -449,22 +449,27 @@ test("the Install page says nothing only a developer needs: no file names, inter
   }
 });
 
-test("a translated page carries the machine-translation line once, at the top; English pages none", () => {
+test("a translated page carries the machine-translation line once, in its footer; English pages none", () => {
   for (const d of LANG_DIRS) {
     for (const p of ["", "install", "help", "changelog"]) {
       const n = (page(`${d}${p}`).match(/class="small lang-draft"/g) || []).length;
       assert.equal(n, d ? 1 : 0, `/${d}${p} has ${n} machine-translation lines`);
     }
   }
-  assert.match(page("de/").match(/<main[^>]*>\s*([\s\S]{0,80})/)[1], /^<p class="small lang-draft">/, "the line is not the first thing in /de/'s main");
+  assert.match(page("de/").match(/<footer[\s\S]*<\/footer>/)[0], /<p class="small lang-draft">[^<]*<a href="\/de\/feedback\/">/, "the line is not in /de/'s footer, linking the German Feedback page");
 });
 
 test("Troubleshooting's Known issues lists the README's Known issues, in the addon's words", () => {
   const readme = execFileSync("git", ["show", `${cfg.sourceRef}:README.md`], { cwd: cfg.sourcePath }).toString();
-  const items = (readme.match(/^## Known issues\s*\n([\s\S]*?)(?=^## )/m) || ["", ""])[1].split("\n").filter((l) => l.startsWith("- "));
-  assert.ok(items.length >= 1, "the README at the pinned source has no Known issues list");
+  const relReadme = execFileSync("git", ["show", `${meta.current}:README.md`], { cwd: cfg.sourcePath }).toString();
+  const listOf = (text) => (text.match(/^## Known issues\s*\n([\s\S]*?)(?=^## )/m) || ["", ""])[1].split("\n").filter((l) => l.startsWith("- "));
+  const items = listOf(relReadme).length ? listOf(relReadme) : listOf(readme);
   for (const d of LANG_DIRS) {
     const known = page(`${d}help`).match(/<ul class="known"[^>]*>([\s\S]*?)<\/ul>/);
+    if (!items.length) {
+      assert.ok(!known, `/${d}help lists known issues neither README has`);
+      continue;
+    }
     assert.ok(known, `/${d}help has no Known issues list`);
     assert.equal((known[1].match(/<li>/g) || []).length, items.length, `/${d}help lists a different number of known issues`);
     if (d) assert.ok(known[0].startsWith('<ul class="known" lang="en">'), `/${d}help: the addon's English list is not marked as English`);

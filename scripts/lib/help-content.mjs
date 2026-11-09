@@ -54,6 +54,7 @@ export const HELP_PAGE = {
   glanceReport: `Nothing here helps? <a href="/feedback/">Send a report</a>`,
   questions: { one: "{n} question", other: "{n} questions" },
   knownTitle: "Known issues",
+  knownNone: "None are listed for this version.",
   known: `<p>Vanguard is new and made by one person. These are the problems known in the current version, in the addon's own words. If something else looks wrong, type <code>/vg feedback</code> in the game, which writes the report for you, or use the <a href="/feedback/">Feedback page</a>.</p>
 {list}
 <div class="notice info"><p><strong>Not covered here?</strong> Or the fix didn't help? Report it there as well, and include every line of <code>/vg status</code>.</p></div>`,

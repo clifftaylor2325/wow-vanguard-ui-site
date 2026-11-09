@@ -1237,5 +1237,7 @@
  "As listed in the addon's README for the next release:": "다음 릴리스의 애드온 README에 나열된 대로:",
  "Shots of things only the next release has hide with the rest of it": "다음 버전에만 있는 것의 사진은 나머지와 함께 숨겨집니다",
  "The name and first line of each module are the ones the addon shows on its Modules page. The longer text under <strong>More</strong> describes the module as it is in the newest version, so v{version} may not have every detail yet; <a href=\"/settings/\">Settings</a> shows exactly which options each release has.": "각 모듈의 이름과 첫 줄은 애드온의 모듈 페이지에 나오는 그대로입니다. <strong>더 보기</strong> 아래의 긴 설명은 최신 버전 기준의 모듈 내용이므로 v{version}에는 일부 내용이 아직 없을 수 있습니다. 각 버전에 정확히 어떤 옵션이 있는지는 <a href=\"/settings/\">설정</a>에서 확인하세요.",
- "Before you ask, check <a href=\"/features/\">Features</a>: it may already be there, or written for the next release (turn on <strong>Show what's coming</strong> in the sidebar to see those).": "요청하기 전에 <a href=\"/features/\">기능</a> 페이지를 확인하세요. 이미 있거나 다음 버전용으로 작성되어 있을 수 있습니다(사이드바의 <strong>다음 버전에 추가될 내용 보기</strong>를 켜면 볼 수 있습니다)."
+ "Before you ask, check <a href=\"/features/\">Features</a>: it may already be there, or written for the next release (turn on <strong>Show what's coming</strong> in the sidebar to see those).": "요청하기 전에 <a href=\"/features/\">기능</a> 페이지를 확인하세요. 이미 있거나 다음 버전용으로 작성되어 있을 수 있습니다(사이드바의 <strong>다음 버전에 추가될 내용 보기</strong>를 켜면 볼 수 있습니다).",
+ "Keys, frames and quests": "키, 프레임과 퀘스트",
+ "Raid tiles, nameplates and menus": "공격대 타일, 이름표와 메뉴"
 }

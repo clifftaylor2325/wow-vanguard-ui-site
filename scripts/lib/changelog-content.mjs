@@ -395,7 +395,7 @@ RELEASE_NOTES["v0.9.0"] = { groups: [
       { label: "Language", text: "The new text is translated in all ten languages. The translations are machine-drafted, so report a wrong line with /vg feedback.", from: [756, 757, 760] },
     ] },
     { id: "fixed", title: "Fixed", items: [
-      { label: "Action bars", text: "Key setup places a ranked spell's top rank, a flyout such as a mage's portals opens Vanguard's own list, frames Vanguard hides stay hidden, and finished auto-complete quests complete from the tracker.", from: [742, 757, 760] },
+      { label: "Keys, frames and quests", text: "Key setup places a ranked spell's top rank, a flyout such as a mage's portals opens Vanguard's own list, frames Vanguard hides stay hidden, and finished auto-complete quests complete from the tracker.", from: [757, 760] },
       { label: "Safety", text: "The merchant's Stack button and Cancel on Your auctions now ask first when they cost gold.", from: [757, 760] },
     ] },
 ] };
@@ -409,7 +409,7 @@ RELEASE_NOTES["v0.9.1"] = { groups: [
     ] },
     { id: "fixed", title: "Fixed", items: [
       { label: "Colours and theme", text: "Colours and the theme agree across every module, from cast bar times and combo point pips to the Dead and Offline words and Safer colours.", from: [765] },
-      { label: "Raid frames", text: "Raid tiles read Offline, ready checks and missing buffs right, nameplates show every aura the game flags for them without dark squares round the icons, Retail's right-click menus wear the theme, and Quiet gives back red errors and zone names once it is off.", from: [763, 764, 766] },
+      { label: "Raid tiles, nameplates and menus", text: "Raid tiles read Offline, ready checks and missing buffs right, nameplates show every aura the game flags for them without dark squares round the icons, Retail's right-click menus wear the theme, and Quiet gives back red errors and zone names once it is off.", from: [763, 764, 766] },
     ] },
 ] };
 
