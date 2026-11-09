@@ -382,7 +382,7 @@ export const LONGER = {
   Upgrades: [
     R("Rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands, and an empty slot is always an upgrade; gear you can't wear is left alone.", "rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands", "and an empty slot is always an upgrade; gear you can't wear is left alone"),
     R("The default weights are a starting point for Forever's vanilla-style stats, not simulated values.", "The default weights are a starting point for Forever's vanilla-style stats, not simulated values"),
-    R("/vg weights shows the weights in use, /vg weights set changes one, and export and import share them as a string; each profile keeps its own.", "`/vg weights` shows the ones in use", "`/vg weights set AGI 1.2` changes one", "`export`/`import` share them as a string. Each profile keeps its own."),
+    R("/vg weights shows the weights in use, /vg weights set changes one, and export and import share them as a string; each profile keeps its own.", "`/vg weights` shows the ones in use", "`/vg weights set AGI 1.2` changes one", "`export`/`import` share them as a string. Each profile keeps its own"),
     R("The auction house's Upgrades list, under Auction helper, judges listings by the same weights.", "auction house's Upgrades list (under Auction helper) judges listings by the same weights"),
   ],
   BossDocks: [
@@ -428,7 +428,7 @@ export const LONGER = {
   TalentPlanner: [
     R("A rank the plan can never reach, because a talent it hangs from or its row's points are missing from the plan, is marked red.", "a rank the plan can never reach (a talent it hangs from, or its row's points, missing from the plan", "is marked red"),
     R("At a level-up, chat names the next pick, and \"Spend planned points by itself\" (off until you tick it) buys them without asking.", "At a level-up chat names the next pick", "\"Spend planned points by itself\" (under `/vg` → Talents, off until you tick it) buys and applies them without asking"),
-    R("Plans are kept per character and spec, and /vg talents export and import share one as a string for your class.", "Plans are kept per character and spec (Primary, Secondary)", "`export` and `import` share it as a string (for your class only)"),
+    R("Plans are kept per character and spec, and /vg talents export and import share one as a string for your class.", "Plans are kept per character and spec (Primary, Secondary)", "`export` and `import` share it as a string (for your class only"),
   ],
   Nameplates: [
     R("The level is colored by how hard the unit is for you, and your target also gets a 2-pixel accent glow.", "the level (colored by how hard the unit is for you)", "a 2-pixel accent glow"),
@@ -545,7 +545,7 @@ Object.assign(LONGER, {
   SpellRanks: [
     R("/vg ranks lists those buttons and what each would become; nothing changes.", "`/vg ranks` lists those buttons", "and what each would become (nothing changes)"),
     R("Swapping works out of combat only, and never with something on your cursor.", "out of combat only and never with something on your cursor"),
-    R("Trainer memory is kept for your class and the whole account, and a level-up says what comes next too.", "for your class and the whole account", "a level-up says the same"),
+    R("Trainer memory is kept for your class and the whole account, and a level-up says what comes next too.", "for your class and side, for the whole account", "a level-up says the same"),
     R("No rank or level table ships with Vanguard: it reads only your spellbook and the trainers' windows.", "no rank or level table ships with Vanguard"),
   ],
   QuestGuide: [

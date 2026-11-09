@@ -934,9 +934,18 @@ function wideRow(r, attrs, version, loc) {
 // The words the search box matches for a row: its page, caption and choices,
 // in English and in the page's language.
 function rowSearch(r, pageTitle, loc) {
-  const words = [pageTitle, r.caption, ...(r.choices || []).map((c) => c[1])];
+  const words = [pageTitle, r.caption, ...(r.tip ? [r.tip] : []), ...(r.choices || []).map((c) => c[1])];
   const own = loc.english ? [] : [...words.map((w) => loc.addon(w)), rowCaption(r, loc)].filter((w) => !words.includes(w));
-  return `${pageTitle} ${r.caption} ${(r.choices || []).map((c) => c[1]).join(" ")}${own.length ? ` ${own.join(" ")}` : ""}`;
+  return `${pageTitle} ${r.caption}${r.tip ? ` ${r.tip}` : ""} ${(r.choices || []).map((c) => c[1]).join(" ")}${own.length ? ` ${own.join(" ")}` : ""}`;
+}
+
+// A row's tip under its name, in the page's language, without the reload bracket the old caption carried (the
+// Needs reload tag says that); "" when it has none.
+function rowTip(r, loc) {
+  if (!r.tip) return "";
+  const text = loc.addon(r.tip);
+  const plain = / \(reload\)$/.test(r.tip) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
+  return `<span class="opt-tip">${esc(plain)}</span>`;
 }
 
 // One setting as a table row: the caption is the row header, with its reload and release tags
@@ -948,7 +957,7 @@ function optRow(r, version, pageTitle, id, loc) {
   const tags = [r.reload ? reloadBadge(loc) : "", badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
   const kind = KINDS.includes(r.kind) ? ` <span class="opt-kind">${loc.t(`kind.${r.kind}`)}</span>` : "";
   const cells = [valuesText(r, loc), defaultText(r, loc)].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
-  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${tags ? ` ${tags}` : ""}${kind}</th>${cells.join("")}</tr>`;
+  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${tags ? ` ${tags}` : ""}${kind}${rowTip(r, loc)}</th>${cells.join("")}</tr>`;
 }
 
 // The heading over rows the options window repeats, e.g. "The rows below repeat for each n from 1 to 8".

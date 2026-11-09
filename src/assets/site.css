@@ -402,6 +402,7 @@ caption { caption-side: top; text-align: left; padding: 0 0 8px; color: var(--te
 .opt-page .opt-table th[scope=col]:first-child { width: 40%; }
 .opt-page .opt-table th[scope=col]:last-child { width: 22%; }
 .opt-cap .badge { font-weight: 500; }
+.opt-tip { display: block; font-weight: 400; font-size: var(--fs-sm); color: var(--text2); }
 /* An open options page keeps its name in view while its long table scrolls. */
 @media (min-width: 900px) {
   .opt-page[open] > summary { position: sticky; top: var(--header-h); z-index: 3; background: var(--panel); }

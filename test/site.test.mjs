@@ -18,7 +18,8 @@ import { featuresPage, startsOff } from "../scripts/lib/pages-main.mjs";
 import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
 import { publishedLocales, EN } from "../scripts/lib/i18n-site.mjs";
-import { extractAddon, extractPages } from "../scripts/lib/extract.mjs";
+import * as EXTRACT from "../scripts/lib/extract.mjs";
+const { extractAddon, extractPages } = EXTRACT;
 import { buildModel, AREAS } from "../scripts/lib/model.mjs";
 import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
 import { SHOT_GROUPS, shotByFile } from "../scripts/lib/shots-content.mjs";
@@ -1047,4 +1048,20 @@ test("the language select is not restored by the browser, and site.js sets it ba
   const js = fs.readFileSync(path.join(dist, "assets/site.js"), "utf8");
   assert.match(js, /addEventListener\("pageshow"/, "a pageshow handler puts the select back");
   assert.ok(js.includes("defaultSelected") && js.includes("sel.selectedIndex = i"), "...on the option the page marks selected");
+});
+
+// A setting the next release renamed (Core/OptionsNames.lua, O.RENAMED) is one row: the short name, with the caption
+// it had as its tip, and never a second "v<release> only" row under the old caption.
+test("a renamed setting is one row: its short name, with the old caption as its tip", () => {
+  const { extractRowTips } = EXTRACT;
+  const { renamed } = extractRowTips(gitReader(cfg.sourcePath, cfg.sourceRef));
+  const html = page("settings");
+  const at = (name) => `class="opt-cap">${esc(name)} <`;
+  const shown = [...renamed].filter(([name]) => html.includes(at(name)));
+  if (renamed.size) assert.ok(shown.length >= renamed.size / 2, `only ${shown.length} of ${renamed.size} renamed rows found on /settings/`);
+  for (const [name, old] of shown) {
+    const row = html.slice(html.indexOf(at(name))).split("</th>")[0];
+    assert.ok(row.includes(`<span class="opt-tip">${esc(old.replace(/ \(reload\)$/, ""))}</span>`), `"${name}" lacks its old caption as a tip`);
+    assert.ok(!html.includes(`class="opt-cap">${esc(old)} <span class="badge old">`), `"${old}" is still listed as its own release-only row`);
+  }
 });

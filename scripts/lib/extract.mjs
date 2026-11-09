@@ -335,6 +335,18 @@ function visibilityChoices(reader) {
 
 // Options pages from Core/Options.lua PAGES and every AddPage({...}) in the
 // TOC's files: key, title, order, rows.
+// The options window's row tips from Core/OptionsNames.lua: O.RENAMED (a short name -> the longer caption it had, which
+// the window keeps as the row's tip) and O.GAME_SETTING_TIPS (a name -> its tip), each as Map English -> English.
+// Empty maps before the file existed. The reader has already unwrapped L["…"] to "…"; either form is read.
+export function extractRowTips(reader) {
+  const code = reader.read("Core/OptionsNames.lua") || "";
+  const table = (name) => {
+    const body = (code.match(new RegExp(`^O\\.${name} = \\{([\\s\\S]*?)^\\}`, "m")) || [])[1] || "";
+    return new Map([...body.matchAll(/\["((?:[^"\\]|\\.)*)"\]\s*=\s*(?:L\[)?"((?:[^"\\]|\\.)*)"/g)].map((m) => [m[1].replace(/\\"/g, '"'), m[2].replace(/\\"/g, '"')]));
+  };
+  return { renamed: table("RENAMED"), game: table("GAME_SETTING_TIPS") };
+}
+
 export function extractPages(reader, files, modules) {
   const visibility = visibilityChoices(reader);
   const pages = [];
@@ -536,6 +548,7 @@ export function extractAddon(reader) {
     moduleLinks: extractModuleLinks(reader),
     overlaps: extractOverlaps(reader),
     pages: extractPages(reader, files, modules),
+    rowTips: extractRowTips(reader),
     theme: extractTheme(reader),
     setup: extractSetup(reader),
     readme: specText(reader),
