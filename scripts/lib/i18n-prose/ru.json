@@ -1001,7 +1001,7 @@
  "Item tooltips list which of your other characters on the realm have the item, in their bags or bank. /vg inventory lists the characters remembered.": "Подсказки предметов перечисляют, у кого из ваших других персонажей на игровом мире есть этот предмет, в сумках или банке. /vg inventory перечисляет запомненных персонажей.",
  "Waypoints": "Путевые точки",
  "/way with coordinates puts a waypoint on the map you're on, and the game's own arrow points to it. While the world map is open, a line along its bottom shows your coordinates and the cursor's.": "/way с координатами ставит путевую точку на текущей карте, и на неё указывает собственная стрелка игры. Пока открыта карта мира, строка вдоль её низа показывает ваши координаты и координаты курсора.",
- "When another addon's quest tracker is loaded, it shows instead of Vanguard's, so there are never two.": "Если загружен список заданий другого аддона, показывается он вместо списка Vanguard, так что двух никогда не бывает.",
+ "When a quest addon Vanguard recognizes is loaded, that addon's tracker shows instead of Vanguard's, so there are never two.": "Если загружен аддон заданий, который распознаёт Vanguard, показывается список этого аддона вместо списка Vanguard, так что двух никогда не бывает.",
  "Boss mod docks": "Доки для модов боссов",
  "Two spots you can move for boss mods' timer bars. /vg dock lines up the bars of the boss mods it can dock, and for the others chat says where to drag their anchors.": "Два места, которые можно двигать, для полос таймеров модов боссов. /vg dock выравнивает по ним полосы тех модов боссов, которые может закрепить, а для остальных чат подсказывает, куда перетащить их якоря.",
  "Broker strip": "Полоса брокеров",

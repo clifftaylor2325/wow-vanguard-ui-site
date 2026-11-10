@@ -989,7 +989,7 @@
  "Item tooltips list which of your other characters on the realm have the item, in their bags or bank. /vg inventory lists the characters remembered.": "아이템 툴팁에 같은 서버의 내 다른 캐릭터 중 누구의 가방이나 은행에 그 아이템이 있는지 나열됩니다. /vg inventory는 기억된 캐릭터를 나열합니다.",
  "Waypoints": "지점",
  "/way with coordinates puts a waypoint on the map you're on, and the game's own arrow points to it. While the world map is open, a line along its bottom shows your coordinates and the cursor's.": "좌표와 함께 /way를 입력하면 현재 지도에 지점이 표시되고 게임 자체의 화살표가 그곳을 가리킵니다. 세계 지도가 열려 있는 동안 아래쪽 줄에 내 좌표와 커서의 좌표가 표시됩니다.",
- "When another addon's quest tracker is loaded, it shows instead of Vanguard's, so there are never two.": "다른 애드온의 퀘스트 추적기를 불러왔을 때는 Vanguard의 것 대신 그 추적기가 표시되므로 추적기가 둘이 되는 일은 없습니다.",
+ "When a quest addon Vanguard recognizes is loaded, that addon's tracker shows instead of Vanguard's, so there are never two.": "Vanguard가 인식하는 퀘스트 애드온을 불러왔을 때는 Vanguard의 것 대신 그 애드온의 추적기가 표시되므로 추적기가 둘이 되는 일은 없습니다.",
  "Boss mod docks": "우두머리 모드 자리",
  "Two spots you can move for boss mods' timer bars. /vg dock lines up the bars of the boss mods it can dock, and for the others chat says where to drag their anchors.": "우두머리 모드의 타이머 막대를 위한 옮길 수 있는 두 자리입니다. /vg dock은 연결할 수 있는 우두머리 모드의 막대를 그 자리에 정렬하며, 나머지는 대화창이 앵커를 어디로 끌어야 하는지 알려 줍니다.",
  "Broker strip": "브로커 띠",

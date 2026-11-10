@@ -989,7 +989,7 @@
  "Item tooltips list which of your other characters on the realm have the item, in their bags or bank. /vg inventory lists the characters remembered.": "物品浮動提示會列出你在該伺服器上的其他角色中，誰的背包或銀行裡有這個物品。/vg inventory 會列出被記住的角色。",
  "Waypoints": "路徑點",
  "/way with coordinates puts a waypoint on the map you're on, and the game's own arrow points to it. While the world map is open, a line along its bottom shows your coordinates and the cursor's.": "帶有座標的 /way 會在你所在的地圖上放置一個路徑點，並由遊戲自己的箭頭指向它。開啟世界地圖時，底部的一行會顯示你的座標和游標的座標。",
- "When another addon's quest tracker is loaded, it shows instead of Vanguard's, so there are never two.": "載入其他插件的任務追蹤器時，會顯示它而不是 Vanguard 的，所以不會同時出現兩個。",
+ "When a quest addon Vanguard recognizes is loaded, that addon's tracker shows instead of Vanguard's, so there are never two.": "載入 Vanguard 能辨識的任務插件時，會顯示該插件的追蹤器而不是 Vanguard 的，所以不會同時出現兩個。",
  "Boss mod docks": "首領插件停靠",
  "Two spots you can move for boss mods' timer bars. /vg dock lines up the bars of the boss mods it can dock, and for the others chat says where to drag their anchors.": "兩個可以移動的位置，供首領模組的計時條使用。/vg dock 會把它能停靠的首領模組的條與它們對齊，對於其餘的，聊天視窗會說明要把它們的錨點拖到哪裡。",
  "Broker strip": "Broker資訊列",

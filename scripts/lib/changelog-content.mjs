@@ -74,7 +74,7 @@ RELEASE_NOTES["v0.4.0"] = { groups: [
       { label: "Gear upgrades", text: "An item's tooltip says how it compares with what you wear (for example “Upgrade +12%”), an arrow marks upgrades in the combined bag and on quest rewards, and /vg weights shows or changes the stat weights for your class and role.", from: [119] },
       { label: "Other characters' items", text: "Item tooltips list which of your other characters on the realm have the item, in their bags or bank. /vg inventory lists the characters remembered.", from: [119] },
       { label: "Waypoints", text: "/way with coordinates puts a waypoint on the map you're on, and the game's own arrow points to it. While the world map is open, a line along its bottom shows your coordinates and the cursor's.", from: [119] },
-      { label: "Quest tracker", text: "When another addon's quest tracker is loaded, it shows instead of Vanguard's, so there are never two.", from: [119] },
+      { label: "Quest tracker", text: "When a quest addon Vanguard recognizes is loaded, that addon's tracker shows instead of Vanguard's, so there are never two.", from: [119] },
       { label: "Boss mod docks", text: "Two spots you can move for boss mods' timer bars. /vg dock lines up the bars of the boss mods it can dock, and for the others chat says where to drag their anchors.", from: [119] },
       { label: "Broker strip", text: "Other addons' data feeds (gold trackers, durability, guild counts) in a thin strip along the top edge of the screen. Pick up to four.", from: [119] },
       { label: "Auto-accept", text: "Faster auto-loot: when the game is auto-looting, every slot is taken at once. Items being rolled for and bind-on-pickup items still wait.", from: [119] },

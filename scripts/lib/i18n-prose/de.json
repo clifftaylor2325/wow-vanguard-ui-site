@@ -993,7 +993,7 @@
  "Item tooltips list which of your other characters on the realm have the item, in their bags or bank. /vg inventory lists the characters remembered.": "Gegenstands-Tooltips listen auf, welche deiner anderen Charaktere auf dem Realm den Gegenstand haben, in ihren Taschen oder der Bank. /vg inventory listet die gemerkten Charaktere auf.",
  "Waypoints": "Wegpunkte",
  "/way with coordinates puts a waypoint on the map you're on, and the game's own arrow points to it. While the world map is open, a line along its bottom shows your coordinates and the cursor's.": "/way mit Koordinaten setzt einen Wegpunkt auf die aktuelle Karte, und der eigene Pfeil des Spiels zeigt darauf. Solange die Weltkarte offen ist, zeigt eine Zeile an ihrem unteren Rand deine Koordinaten und die des Cursors.",
- "When another addon's quest tracker is loaded, it shows instead of Vanguard's, so there are never two.": "Ist der Quest-Tracker eines anderen Addons geladen, erscheint er statt dem von Vanguard, sodass es nie zwei gibt.",
+ "When a quest addon Vanguard recognizes is loaded, that addon's tracker shows instead of Vanguard's, so there are never two.": "Ist ein Quest-Addon geladen, das Vanguard erkennt, erscheint dessen Tracker statt dem von Vanguard, sodass es nie zwei gibt.",
  "Boss mod docks": "Bossmod-Andockstellen",
  "Two spots you can move for boss mods' timer bars. /vg dock lines up the bars of the boss mods it can dock, and for the others chat says where to drag their anchors.": "Zwei verschiebbare Stellen für die Timerleisten von Bossmods. /vg dock richtet die Leisten der Bossmods aus, die es andocken kann, und bei den übrigen sagt der Chat, wohin du ihre Anker ziehen kannst.",
  "Broker strip": "Broker-Leiste",
