@@ -5,11 +5,11 @@
 // module's `more` is dropped and only the addon's own one-line description
 // shows. `from` is never shown on the site.
 export const MORE = {
-  UnitFrames: { more: "Player, target, target of target, focus and party frames, plus up to five boss frames in a column from the top-left corner, each shown while its boss is in the fight. On WoW Forever they show levels colored by difficulty and health as a percent, and a diamond marks elite, rare and boss targets.",
-    check: ["player, target, target of target, focus and party frames", "boss frames (up to five, in a column from the top-left corner", "each shown while its boss is in the fight", "levels (colored by difficulty) and health as a percent", "a diamond marks elite, rare and boss targets"], from: "Unit frames" },
+  UnitFrames: { more: "Player, target, target of target, focus, focus target and party frames, plus up to five boss frames in a column from the top-left corner, each shown while its boss is in the fight. On WoW Forever they show levels colored by difficulty and health as a percent, and a diamond marks elite, rare and boss targets.",
+    check: ["player, target, target of target, focus, focus target and party frames", "boss frames (up to five, in a column from the top-left corner", "each shown while its boss is in the fight", "levels (colored by difficulty) and health as a percent", "a diamond marks elite, rare and boss targets"], from: "Unit frames" },
   CastBars: { more: "Cast bars for you, your target and your focus, with a spark, the seconds left, your latency at the end of your own cast, and a gray edge on a cast you can't interrupt.",
     check: ["Cast bars for you, your target and your focus, with a spark, the seconds left, your latency at the end of your own cast, and a gray edge on a cast you can't interrupt"], from: "Unit frames (cast bars)" },
-  FrameAuras: { more: "Debuffs sit under the target and focus frames: a crowd-control slot first, then yours, soonest to expire first. Turn \"Only your debuffs\" off to see everyone else's too, dimmed. The target's buffs sit above its frame.",
+  FrameAuras: { more: "Debuffs sit under the target and focus frames: a crowd-control slot first, then yours, soonest to expire first. Turn \"{ui:Only your debuffs}\" off to see everyone else's too, dimmed. The target's buffs sit above its frame.",
     check: ["Target and focus auras: debuffs under the frame", "a crowd-control slot, then yours soonest-first, then others' dimmed if you turn \"Only your debuffs\" off", "the target's buffs above it"], from: "Unit frames (target and focus auras)" },
   PlayerAuras: { more: "Your buffs sit in rows left of the minimap with timers, and your debuffs on a row under them, edged in their type's color. Right-click a buff to cancel it. Weapon enchants (poisons, stones, oils and a shaman's imbues) sit in front of the buffs.",
     check: ["buffs in rows left of the minimap with timers", "your debuffs on a new row under them (edged in their type's color)", "right-click a buff to cancel it", "Weapon enchants (poisons, stones, oils, and a shaman's imbues", "sit in front of the buffs"], from: "Your buffs and debuffs" },
@@ -71,8 +71,6 @@ export const MORE = {
     check: ["Vanguard remembers what each of your characters on a realm and side (and ruleset, where the game names one) carries and keeps in the bank, and an item's tooltip lists who else has it under the count of your own"], from: "Other characters' items" },
   Upgrades: { more: "An item's tooltip says how it compares with what you wear, such as \"Upgrade +12% (estimate)\" (an estimate because the default weights are not simulated values), an arrow marks upgrades in the combined bag, and another marks quest rewards that are upgrades. Items are scored by stat weights for your class and role.",
     check: ["an item's tooltip says how it compares with what you wear (\"Upgrade +12% (estimate) vs", "an arrow marks upgrades in the combined bag, and another marks quest rewards that are upgrades", "Items are scored by stat weights for your class and role"], from: "Gear upgrades" },
-  BossDocks: { more: "Two spots for boss mods' timer bars: the normal bars right of center above the action bars, and the big bars a timer moves to as it runs out, top center. In unlock mode they show as handles, so you move them with the rest of your layout.",
-    check: ["two spots for boss mods' timer bars", "the normal bars, right of center above the action bars", "the big bars a timer moves to as it runs out, top center", "shown as handles in unlock mode so you can move them with the rest of the layout"], from: "Boss mod docks" },
   BrokerStrip: { more: "Other addons' data feeds, the kind info-bar addons show (gold trackers, durability, guild counts and so on), in a thin strip along the top edge of the screen. Pick up to four.",
     check: ["the kind info-bar addons show: gold trackers, durability, guild counts and so on) in a thin strip along the top edge of the screen", "(up to four, in the order picked)"], from: "Broker strip" },
   QuestDialog: { more: "Talking to a quest giver opens Vanguard's own dialog instead of the game's quest and gossip windows: the NPC's portrait and name, the text, numbered lines, reward cards and the money and XP you'll get. Press a number to pick, Space or Enter for the main button and Escape to say goodbye.",
@@ -136,12 +134,10 @@ export const LONGER = {
   FrameAuras: [
     R("Each row wraps at the frame's width.", "each row wrapping at the frame's width"),
     R("Timer numbers are off by default, since the dark sweep shows the time left, and can be turned on.", "Timer numbers are off by default (the dark sweep shows time left) and can be turned on"),
-    R("With the Masque addon installed, Masque skins these icons instead, as a group with its own skin.", "Masque skins the buttons instead of Vanguard", "Target and focus auras), each with its own skin"),
   ],
   PlayerAuras: [
     R("They replace the game's buff frame, and you can move them with /vg unlock.", "replace the game's buff frame", "Move them with `/vg unlock`."),
     R("On WoW Forever a shaman's imbues show here too, which the game's own enchant cells miss.", "a shaman's imbues on WoW Forever, which the game's own enchant cells miss"),
-    R("With the Masque addon installed, your buffs, debuffs and weapon enchants are a Masque group with their own skin.", "Buffs and debuffs, with the weapon enchants"),
   ],
   ComboPoints: [
     C("Five small pips light up in the energy color, and the row shows only while you have points on your target.", "Modules/ComboPoints.lua", "CP.MAX = 5", "\"energy\")", "CP.bar:SetShown(count > 0)"),
@@ -163,7 +159,7 @@ export const LONGER = {
   ],
   UnitExtras: [
     R("Each one shows only where your client answers.", "Each shows only where the client answers"),
-    C("The threat number sits just above the top-right corner of the target frame, and the mood glyph in the pet frame's top-right corner.", "Modules/UnitExtras.lua", "UX.threat:SetPoint(\"BOTTOMRIGHT\", target, \"TOPRIGHT\"", "-- The mood glyph in the pet frame's top-right corner, following your pet", "UX.happy:SetPoint(\"TOPRIGHT\", pet, \"TOPRIGHT\""),
+    C("The threat number sits above the target frame, toward its top-right corner, and the mood glyph in the pet frame's top-right corner.", "Modules/UnitExtras.lua", "-- The threat text above the target frame, clear of its corner diamond,", "UX.threat:SetPoint(\"BOTTOMRIGHT\", UF.Crown(target), \"TOPRIGHT\"", "-- The mood glyph in the pet frame's top-right corner, following your pet", "UX.happy:SetPoint(\"TOPRIGHT\", pet, \"TOPRIGHT\""),
   ],
   PartyExtras: [
     R("Turn it on under Unit frames in /vg.", "off until you turn it on under Unit frames"),
@@ -206,7 +202,6 @@ export const LONGER = {
     R("The bottom bars stack with bar 1 on top, and a bar with bigger buttons or more rows pushes the ones above it up.", "The bottom bars stack with bar 1 on top", "pushes the ones above it up"),
     R("In keybind mode (/vg keybind), hover a button and press a key, the middle or a side mouse button, or roll the wheel to bind it. Backspace or Delete clears a button's keys, and chat says when a key is taken from something else. It works out of combat only.", "Keybind mode (`/vg keybind`", "and press a key, the middle or a side mouse button, or roll the wheel", "Backspace or Delete clears them", "chat says from what", "It works out of combat only"),
     R("The right-edge bars (4 and 5) start off, and show on mouseover once you turn them on.", "The right-edge bars (4 and 5) start off; turned on, they show on mouseover"),
-    R("With the Masque addon installed, Masque skins the buttons instead.", "With the Masque addon installed, Masque skins the buttons instead of Vanguard"),
   ],
   SpecialBars: [
     R("They get their own spots because the game's spot for them lies over the bar stack.", "(the game's own spot for them lies over the bar stack)"),
@@ -227,11 +222,6 @@ export const LONGER = {
     R("A spell that is not on a Vanguard bar, or an icon whose spell the client will not name, shows no text and raises no error.", "A spell that is not on a Vanguard bar", "shows no text and raises no error"),
     R("It follows your bars and bindings as you change them, in combat too, and has no fades or sounds.", "It follows your bars and bindings as you change them, in combat too, and has no fades or sounds"),
   ],
-  PetStable: [
-    R("/vg pets lists your pets, the one out first, with level, family, loyalty, happiness and how far each is to the next level.", "`/vg pets` lists your pets, the one out first, with level, family, loyalty, happiness and how far each is to the next level"),
-    R("Opening a stable master's window says in chat how many pets you have and what the next slot costs.", "opening a stable master's window says in chat how many pets you have and what the next slot costs"),
-    R("Where the client lists no pets it says so and stays quiet.", "Where the client lists no pets it says so and stays quiet"),
-  ],
   ChatWindows: [
     R("The main chat window (docked tabs share its size) and each floating window that is showing have a Width and a Height slider, set instead of dragging its corner.", "the main window (docked tabs share its size) and each floating window that is showing have a Width and a Height slider (set instead of dragging its corner"),
     R("Lock chat windows is the game's own lock for all of them.", "Lock chat windows is the game's lock for all of them"),
@@ -247,7 +237,7 @@ export const LONGER = {
     R("Without the client's quest spots or minimap scale, no marks are drawn.", "without them, or without the client's minimap scale, no marks are drawn"),
   ],
   CharacterExtras: [
-    R("Each gear slot of the character pane shows its item level along the top edge, and durability stays along the bottom.", "each gear slot of the character pane shows its item level along the top edge (durability stays along the bottom)"),
+    R("Each gear slot of the character pane shows its item level along the top edge, and durability stays along the bottom.", "each gear slot of the character pane shows its item level along the top edge","durability stays along the bottom"),
     R("A switch, off until you turn it on, marks a worn piece with a ! when its slot can take an enchant and it has none.", "a switch (off until you turn it on) marks a worn piece of uncommon quality or better with a `!` when its slot can take an enchant"),
     R("/vg gear prints your average item level, your melee damage per second and swing time from the game's own figures, and the pieces missing an enchant.", "`/vg gear` (or the \"Show my gear summary in chat\" button) prints your average item level, your melee damage per second (the character sheet's figure) and swing time from the game's own figures, and the pieces missing an enchant"),
   ],
@@ -259,6 +249,11 @@ export const LONGER = {
   ChatBubbles: [
     R("Inside instances the game keeps its own bubbles, because the engine does not let addons touch them there.", "inside instances the game keeps its own bubbles (the engine does not let addons touch them there)"),
     R("Chat bubbles can be turned off under Modules (a reload applies it).", "`/vg` → Modules → Chat bubbles turns it off (reload)"),
+  ],
+  HudText: [
+    C("The game's red error line and the zone and subzone names shown as you enter a place are drawn in Vanguard's font, with the theme's drop shadow in place of the game's thick outline.", "Modules/HudText.lua", "T.FontObjects(T.FONT_OBJECTS.hud)", "-- The HUD text in the theme font, with the theme's drop shadow in place of the game's", "-- thick outline so it reads over the world."),
+    C("The game's scrolling combat text, when you turn it on in the game's options, takes the theme font too.", "Modules/HudText.lua", "T.FontObjects(T.FONT_OBJECTS.combatText)", "-- The scrolling combat text in the theme font"),
+    C("The floating damage numbers over your target follow, unless the theme font is the game's own.", "Modules/HudText.lua", "DAMAGE_TEXT_FONT = path", "path == STANDARD_TEXT_FONT"),
   ],
   Quiet: [
     R("Each switch is off until you turn it on, under Game windows.", "each off until you switch it on, under Game windows"),
@@ -344,7 +339,6 @@ export const LONGER = {
   QuestTracker: [
     R("A quest item's button shows its cooldown, and a red tint while the target is out of range.", "with its cooldown (none while the client hides its numbers), a red tint while the target is out of range"),
     R("In combat the counts and text keep updating, and the item buttons take their new places when combat ends.", "In combat the counts and text keep updating", "they take their new places when combat ends"),
-    R("With Questie loaded, Questie's own tracker shows instead and Vanguard's stays out of the way, so there are never two; With Questie loaded, under Quests, picks Vanguard's instead.", "Questie loaded, Questie's own tracker shows instead and Vanguard's stays out of the way, so there are never two", "With Questie loaded under Quests picks Vanguard's instead"),
     R("The game's tracker is hidden while it shows; switch it off to get the game's back, in Vanguard's look.", "The game's tracker is hidden while it shows", "switch it off to get the game's back (in Vanguard's look"),
   ],
   QuestLog: [
@@ -370,7 +364,6 @@ export const LONGER = {
   ],
   Waypoints: [
     R("Name a zone and a title too, as in /way Elwynn Forest 42 65 Inn, and /way clear removes the waypoint.", "`/way Elwynn Forest 42 65 Inn` names a zone", "`/way clear` removes it"),
-    R("If another addon such as TomTom already has /way, use /vg way instead.", "`/way` is Vanguard's only while no other addon (TomTom, say) has it; `/vg way` always works"),
     R("All three are on by default, under Map.", "All three are on by default, under Map."),
   ],
   Inventory: [
@@ -380,15 +373,10 @@ export const LONGER = {
     R("While the Forever beta loses saved settings between sessions, other characters won't be remembered from one session to the next.", "While the Forever beta loses saved settings between sessions, other characters won't be remembered from one session to the next."),
   ],
   Upgrades: [
-    R("Rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands, and an empty slot is always an upgrade; gear you can't wear is left alone.", "rings and trinkets compare with the weaker of the two you wear", "a two-hander with both hands", "and an empty slot is always an upgrade; gear you can't wear is left alone"),
+    R("Rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands, and an empty slot is always an upgrade, except the off hand while you wear a two-hander; gear you can't wear is left alone.", "rings and trinkets compare with the weaker of the two you wear", "a two-hander with both hands", "an empty slot is always an upgrade, except the off hand while you wear a two-hander", "gear you can't wear left alone"),
     R("The default weights are a starting point for Forever's vanilla-style stats, not simulated values.", "The default weights are a starting point for Forever's vanilla-style stats, not simulated values"),
     R("/vg weights shows the weights in use, /vg weights set changes one, and export and import share them as a string; each profile keeps its own.", "`/vg weights` shows the ones in use", "`/vg weights set AGI 1.2` changes one", "`export`/`import` share them as a string. Each profile keeps its own"),
     R("The auction house's Upgrades list, under Auction helper, judges listings by the same weights.", "auction house's Upgrades list (under Auction helper) judges listings by the same weights"),
-  ],
-  BossDocks: [
-    R("/vg dock lines Deadly Boss Mods' bars up with them through DBM's own settings.", "`/vg dock`, or the button under Combat tools → Boss mods", "lines Deadly Boss Mods' bars up with them through DBM's own settings"),
-    R("For BigWigs, chat says where the spots are so you can drag its anchors there.", "for BigWigs, which has no such setting, chat says where the spots are so you can drag its anchors there"),
-    R("Nothing moves on its own, and nothing moves in combat.", "Nothing moves on its own, and nothing moves in combat."),
   ],
   BrokerStrip: [
     R("Each feed shows its icon and text, its own tooltip on hover, and takes your clicks.", "each shows its icon", "its own tooltip on hover", "and takes your clicks"),
@@ -470,14 +458,12 @@ export function longerGaps(readme) {
 Object.assign(MORE, {
   GroupThreat: { more: "A small movable panel lists up to five members of your party or raid by their threat on your target, highest first, in the threat colors once a member has aggro. It shows only in a group with a hostile target, and hides itself when the game hides threat values.",
     check: ["a small movable panel (`/vg unlock`", "listing up to five members of your party or raid by their threat on your target, highest first", "(in the threat colors once a member has aggro)", "It shows only in a group with a hostile target", "the panel hides itself and never compares or adds up a hidden value"], from: "Group threat" },
-  Legacy: { more: "Forever's account-wide perk tree has 16 points. /vg legacy probe lists, read only, what the client has for the system. A perk planner (off until you switch it on) keeps a list of the perks you mean to take, never over 16 points in all.",
-    check: ["Forever's account-wide perk tree of 16 points", "`/vg legacy probe` lists, read only and out of combat, what the client has for the system", "(off until you switch it on under Town and gear) keeps a list of the perks you mean to take for the whole account", "never over 16 points in all"], from: "Legacy" },
   CooldownGaps: { more: "A small, display-only row of icons for what the game's Cooldown Manager misses: the on-use trinkets you wear, items and spells you choose, your pet's abilities and totems you have down. It adds to the game's manager and never replaces it. Off until you switch it on, and it needs a reload.",
     check: ["a small, display-only row of icons for what the game's Cooldown Manager misses", "off until you tick \"Gaps row\" on the Cooldowns page (a reload applies it)", "It adds to the game's manager and never replaces it", "It shows the on-use trinkets you wear", "your pet's abilities from the pet bar, and totems you have down"], from: "Cooldown gaps" },
   CooldownGlow: { more: "A Cooldown Manager icon whose aura is in the last part of its time gets the accent glow ring, for spells that lack the game's own pandemic flag, heal-over-time spells especially. Off until you switch it on, and you choose the share.",
     check: ["a Cooldown Manager icon whose aura has less than that share of its time left gets the accent glow ring, for spells that lack the game's own pandemic flag", "(off until switched on:", "heal-over-time spells especially"], from: "Cooldown Manager glow" },
-  CraftQueue: { more: "A list of crafts to make, kept for each character. Queue the recipe on display in a profession window, see the reagents you're still short of, and open the next recipe with its count typed in; you press Create. It also notes profession cooldowns and ranks the recipes that pay best. Nothing is bought, posted or crafted for you.",
-    check: ["a list of crafts to make, each character's own", "`/vg craft add [n]` queues n (up to 999) of the recipe on display", "`/vg craft next` opens the first recipe with its count typed in the cost panel's Crafts box, and you press Create", "It also notes each profession cooldown it sees", "ranks the recipes you know whose prices are all known", "Nothing is bought, posted or crafted for you"], from: "Craft queue" },
+  CraftQueue: { more: "A list of crafts to make, shown in a small panel beside the profession window and kept for each character. Queue the recipe on display in a profession window, see the reagents you're still short of, and open the next recipe with its count typed in; you press Create. It also notes profession cooldowns and ranks the recipes that pay best. Nothing is bought, posted or crafted for you.",
+    check: ["a list of crafts to make, shown in a small panel", "beside the profession window", "each character's own whatever profile it uses", "`/vg craft add [n]` queues n (up to 999) of the recipe on display", "`/vg craft next` opens the first recipe with its count typed in the cost panel's Crafts box, and you press Create", "It also notes each profession cooldown it sees", "ranks the recipes you know whose prices are all known", "Nothing is bought, posted or crafted for you"], from: "Craft queue" },
   MailTools: { more: "A panel beside the mail window, with a search box and a filter (All, Money, Items, Sales), lists the inbox mails that hold the words you typed, with a Take button for each one's money and first item. Presets fill the Send Mail tab for your alts. Nothing is taken, attached or sent without your click.",
     check: ["a panel with a search box and a filter button (All, Money, Items, Sales) lists the inbox mails that hold every word you typed", "takes a mail's money and its first item, one click each", "Presets send items to your alts", "Nothing is taken, attached or sent without your click"], from: "Mail tools" },
   Rolls: { more: "A small panel lists the group's /roll results, highest first, with the top roll in your accent color. Where the client has the loot history, it also lists the last four items the group rolled for, with each member's choice and roll. Nothing rolls for you.",
@@ -488,10 +474,10 @@ Object.assign(MORE, {
     check: ["both switches start off, under Town and gear", "**Bar notice** says in chat, once and out of combat", "`/vg ranks swap` puts the newest rank on them", "**Trainer memory** remembers", "`/vg trainers next` lists what the next five levels bring and where to learn it"], from: "Spell ranks" },
   QuestGuide: { more: "Quest help from the client's own data only, never a community quest database: a New mark on quests new in WoW Forever when the client flags them, quest-start pins on the world map, and an arrow that follows the quest you Shift-click in the tracker.",
     check: ["from the client's own data only, never a community quest database", "a **New** mark in your accent", "after the title of quests new in WoW Forever", "**quest-start pins** on the world map, a small gold \"!\"", "Shift-click a quest in the tracker and the game's own quest marker follows it"], from: "Quest guidance" },
-  OfficerLoot: { more: "For a raid leader or officer: a soft-reserve list kept on this character, and a group roster panel. A roll by a player who reserved the item being rolled for is marked [SR] in the roll tracker. Nothing is synced or sent for you.",
-    check: ["for a raid leader or officer, a soft-reserve list and a group roster", "The list is kept on this character (not in the profile, not synced)", "a roll by a player who reserved the item being rolled for is marked \"[SR]\" after their name", "off until switched on: `/vg loot on`"], from: "Officer loot tools" },
-  Coexist: { more: "At login Vanguard notices addons that do a job one of its modules also does, such as bag addons like Bagnon or AdiBags, or Plater for nameplates, and says so once in chat. The Modules page then offers Turn off or Keep both for each.",
-    check: ["at login Vanguard notices addons that do a job one of its modules also does", "bag addons such as Bagnon, AdiBags, ArkInventory, BetterBags, Baganator and Sorted", "nameplate addons such as Plater", "says so once in chat", "**Turn off** or **Keep both** for each", "an answer isn't asked again in that profile"], from: "Other addons" },
+  OfficerLoot: { more: "For a raid leader or officer: a soft-reserve list kept on this character. A roll by a player who reserved the item being rolled for is marked [SR] in the roll tracker. Nothing is synced or sent for you.",
+    check: ["for a raid leader or officer, a soft-reserve list", "The list is kept on this character (not in the profile, not synced)", "a roll by a player who reserved the item being rolled for is marked \"[SR]\" after their name", "off until switched on: `/vg loot on`"], from: "Officer loot tools" },
+  Coexist: { more: "At login Vanguard notices addons that do a job one of its modules also does (bag, nameplate, action bar and unit frame addons among them), and says so once in chat. The Modules page then offers Turn off or Keep both for each.",
+    check: ["at login Vanguard notices addons that do a job one of its modules also does", "(bag, nameplate, action bar, unit frame", "says so once in chat", "**Turn off** or **Keep both** for each", "an answer isn't asked again in that profile"], from: "Other addons" },
   GroupBoard: { more: "Experimental: it has not been seen working in the game yet, so the board may stay empty. WoW Forever has no Dungeon Finder, so groups form in chat. The board lists each player's latest looking-for-more or looking-for-group post from the numbered channels and yell: the dungeon with its level range, the roles it names, who posted it and how long ago. Click a row to open a whisper; nothing is ever sent for you.",
     check: ["WoW Forever has no Dungeon Finder, so groups form in chat", "lists each player's latest looking-for-more or looking-for-group post on a board, newest first", "Click a row and the chat box opens a whisper to them with a message filled in", "Nothing is ever sent for you"], from: "Group board" },
 });
@@ -501,11 +487,6 @@ Object.assign(LONGER, {
     R("It is off until you turn it on under Unit frames, and it needs a reload.", "off until you turn it on under Unit frames, then reload"),
     R("Each line is a name and a percentage, such as “Name 87%”.", "as \"Name  87%\""),
     R("It updates in combat, since nothing in it is protected.", "updates in combat since nothing in it is protected"),
-  ],
-  Legacy: [
-    R("Open the Legacy window once before you run the probe.", "open the Legacy window once first"),
-    R("You type the perks in by hand with /vg legacy plan add <points> <name>, and remove or clear them.", "`/vg legacy plan add <points> <name>`", "`remove <name>`, `clear`"),
-    R("Nothing in the game's tree is changed, and no perk or challenge names are built in.", "Nothing in the game's tree is changed, and no perk or challenge names are built in."),
   ],
   CooldownGaps: [
     R("Choose items with /vg gaps add and spells with /vg gaps spell add, each by link or by name.", "`/vg gaps add <item>`: a link, an ID or a name", "`/vg gaps spell add <spell>`: a link, an ID or a name"),
@@ -552,7 +533,6 @@ Object.assign(LONGER, {
     R("Each part has its own switch under {ui:Quests} → {ui:Finding your way}.", "each part switched under `/vg` → Quests → Finding your way"),
     R("Without a quest flag from the client, nothing is marked.", "without one nothing is marked"),
     R("Hover a pin for the quest, and click it to point the arrow there.", "(hover one for the quest", "click it to point the arrow there"),
-    R("Pins aren't drawn on a map where the game's own map already shows quest offers, or while Questie or OpenMap is loaded.", "Vanguard draws none on a map where the game's own map already shows quest offers, or while Questie or OpenMap is loaded"),
   ],
   OfficerLoot: [
     R("/vg loot add <player> <item> adds a reserve, /vg loot list prints them, and /vg loot clear asks first, then forgets them.", "`/vg loot add <player> <item>` adds a reserve", "`/vg loot list` prints them by item and `/vg loot clear`", "asks first, saying how many reserves go", "then forgets them"),

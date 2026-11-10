@@ -460,6 +460,25 @@ function keepScreenHint(m) {
   return owner ? named.replace("{owner}", owner) : undefined;
 }
 
+// Core/SetupGuide.lua (from 0.9.4): what each guided step asks and its rows, read as the addon writes
+// them. A row's mark: "yes" when it is recommended outright, "some" when the role or the client decides
+// (recommend is a function), "" when it is offered and not recommended. Null before the file existed.
+function extractGuide(reader) {
+  const text = reader.read("Core/SetupGuide.lua");
+  if (!text) return null;
+  const rowsAt = text.indexOf("G.ROWS = {");
+  const rowsBlock = rowsAt < 0 ? "" : text.slice(rowsAt, text.indexOf("\n}\n", rowsAt));
+  const steps = {};
+  for (const [, key, body] of rowsBlock.matchAll(/\n  (\w+) = \{\n([\s\S]*?)\n  \},/g)) {
+    steps[key] = { rows: [...body.matchAll(/\{ key = "(\w+)", caption = "([^"]+)"([\s\S]*?)(?=\n    \{ key = |$)/g)].map((m) => ({ key: m[1], caption: m[2], mark: /recommend = true/.test(m[3]) ? "yes" : /recommend = \w+/.test(m[3]) ? "some" : "" })) };
+  }
+  const qAt = text.indexOf("local QUESTIONS = {");
+  const qBlock = qAt < 0 ? "" : text.slice(qAt, text.indexOf("\n}", qAt));
+  for (const [, key, q] of qBlock.matchAll(/\n  (\w+) = "([^"]+)"/g)) if (steps[key]) steps[key].question = q;
+  const line = (name) => (text.match(new RegExp(`local ${name} = "([^"]+)"`)) || [])[1] || null;
+  return { steps, doneChanged: line("DONE_CHANGED"), doneSame: line("DONE_SAME") };
+}
+
 // Core/Setup.lua: steps, layouts, screen presets (with the hint each shows), styles and texts. Null before it existed.
 export function extractSetup(reader) {
   const m = luaFile(reader, "Core/Setup.lua");
@@ -467,6 +486,8 @@ export function extractSetup(reader) {
   // STEPS holds page keys named by NAMES once a new character's profile step came in; before that, the names.
   const names = /local NAMES\s*=/.test(m.code) ? plain(findTable(m, "local NAMES")) : null;
   const steps = plain(findTable(m, "local STEPS")).map((k) => (names && names[k]) || k);
+  const stepKeys = plain(findTable(m, "local STEPS"));
+  const guide = extractGuide(reader);
   const layouts = plain(findTable(m, "S.LAYOUTS"));
   const screens = plain(findTable(m, "S.SCREENS"));
   const styles = plain(findTable(m, "S.STYLES"));
@@ -509,7 +530,7 @@ export function extractSetup(reader) {
   const caption = oldCaption || (namedCaption && positional(namedCaption));
   const title = (m.code.match(/"title",\s*"text",\s*"([^"]+)"/) || m.code.match(/ns\.WindowTitle\(f,\s*"([^"]+)"/) || [])[1];
   const sentences = { hint: named || null, caption: namedCaption || null, keep: keepNamed, owner: keepOwner };
-  return { steps, layouts, screens, styles, keepText, pixelText, keepHint, questions, profileQuestion, profileName, again, later, moveLines, combat, reloadModule, reloadTile, keepBelow, yourScreen, caption, title, named: sentences };
+  return { steps, stepKeys, guide, layouts, screens, styles, keepText, pixelText, keepHint, questions, profileQuestion, profileName, again, later, moveLines, combat, reloadModule, reloadTile, keepBelow, yourScreen, caption, title, named: sentences };
 }
 
 // ---------------------------------------------------------------- everything

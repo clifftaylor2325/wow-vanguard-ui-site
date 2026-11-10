@@ -428,10 +428,65 @@ RELEASE_NOTES["v0.9.3"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.9.4"] = { groups: [
+    { id: "new", title: "New", items: [
+      { label: "Guided setup", text: "Setup now walks you through Vanguard's recommended settings in four more steps, Comfort, Game settings, Helpers and Combat, with the rows recommended for your role marked. Move things and All set follow, listing what the run changed and offering Undo setup to put your settings and the game's back. Running setup again starts every row on what you have now.", from: [794] },
+      { label: "Setup paintings", text: "Every setup step sits under a painting: the dusk banner, then your faction's scene, then the camp at night.", from: [794] },
+      { label: "Quiet the game", text: "One place under Game windows for declining duels, guild invites, group invites from strangers and friend requests, releasing at once in battlegrounds, and hiding the errors the action bar already shows. Auto-accept now only accepts, and the choices you had carry over.", from: [792] },
+    ] },
+    { id: "improved", title: "Improved", items: [
+      { label: "Options", text: "Long setting names are short, with the old sentence as the row's tip, and a card you fold open or closed stays that way for that character. Features that used to be typed get buttons, such as listing your fights, your sell list and your craft queue, and a setting that is the game's own says so in its name.", from: [790] },
+      { label: "Speed", text: "Logging in is quicker, because raid tile aura icons and nameplate frames are made when first needed. Raid frames, nameplates and the meter do less work in a fight, saved auction prices stop growing past a set size, and /vg perf shows more about boss fights.", from: [791] },
+      { label: "Quests and mail", text: "A quest held on the arrow stays held through a reload, and Take all stops at the first item with no free bag slot.", from: [793] },
+      { label: "Merchants and the auction house", text: "Clicking a price alert shows the Buy page from any tab, and the merchant's Stack and Max line names what stops a buy: gold, stock or bag room.", from: [787] },
+      { label: "Gear upgrades", text: "A one-hand weapon is compared with the weaker hand while you wear a weapon in each, a WoW Forever shaman in the tank role weighs tank stats, and trainer memory is kept per faction.", from: [787, 793] },
+      { label: "Frames and the meter", text: "The interrupt mark follows the interrupt you can use in your stance, click casting's “Also on your unit frames” leaves the boss frames out, a WoW Forever paladin's buff watch counts Blessing of Sanctuary, and the meter's Deaths report says when each death happened.", from: [793] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Saved settings", text: "The notice that your saved settings didn't load no longer comes back at every login when nothing was lost, and Keep these settings answers it when it does show.", from: [785] },
+      { label: "Errors", text: "A part of Vanguard that fails ten times in a session is paused instead of repeating the error, /vg errors lists paused parts and the actions the game blocked, and the Feedback page has a button to resume them. On WoW Forever, nameplates no longer raise an “aura icon pixels” error out in the world.", from: [788, 784] },
+      { label: "Game windows", text: "A game window a patch has reshaped keeps the game's own look instead of raising errors, and every other window is still skinned.", from: [792] },
+      { label: "In a fight", text: "Dragging an action off a bar button, dropping one onto it and placing a newly learned spell do nothing in a fight, and work again when it ends.", from: [788] },
+      { label: "Profiles", text: "A profile brought over from Retail no longer makes WoW Forever's gear upgrades weigh item level, and restoring lost settings keeps the right backup.", from: [787] },
+      { label: "Chat", text: "Close this tab on a tab that shows a channel points you to the tab's own menu, which gives the channel back to the main window.", from: [793] },
+    ] },
+] };
+
+RELEASE_NOTES["v0.9.5"] = { groups: [
+    { id: "new", title: "New", items: [
+      { label: "HUD looks", text: "Your frames now point away from you as shields, with their bars filling toward you, and a crest on a rail between your frame and your target's (swords while you fight). Three more looks, Hairline, Rimmed and Tabs, sit beside Plain under General, HUD look, and setup offers the Shield look as a recommended choice.", from: [796, 809] },
+      { label: "HUD layouts", text: "Two layouts under General, Where the frames stand: The keep, a wall of frames at the foot of a wide screen, and Standards, tall banners either side of your character. Setup's layout step offers both.", from: [830] },
+      { label: "Unit frames", text: "Width and height sliders for each frame, more ways to show health, incoming heal and shield bars, a row of status marks (leader, tank or healer, resting, PvP), portraits under the Hairline, Rimmed and Tabs looks, and a frame for your focus's target.", from: [823, 833] },
+      { label: "Nameplates and auras", text: "Plate size, aura counts, icon size and text sizes are sliders that apply at once, your target's plate can be drawn larger, and a switch (off until you turn it on) shows only the name on units you can't attack. Target and focus auras get sliders too, and Target's buffs shows All, Important or Yours.", from: [801, 804] },
+      { label: "Tooltips", text: "A player's tooltip adds their guild, rank, realm and role, yours shows your equipped item level, one switch adds Item ID and Spell ID, and each kind of tooltip gets its own position.", from: [799, 807] },
+      { label: "Action bars", text: "Macro names, Key text and Button spacing apply without a reload, Auto-attack and Auto Shot buttons flash while the attack runs, and Your keys shows the function row, a number pad and a layout choice (Automatic, QWERTZ or AZERTY).", from: [818, 828] },
+      { label: "State cues", text: "One switch under General, Motion and sound adds a pulse round your frame at the pull, a breathing ring on a proc button, a flash when a cooldown ends and a ring at low health. The cues follow Reduce motion.", from: [824] },
+      { label: "Town and talents", text: "A craft queue panel beside the profession window, a group board that scrolls, and an order for your talent plan (Order... on the planner's bar) that Spend planned follows.", from: [828] },
+    ] },
+    { id: "improved", title: "Improved", items: [
+      { label: "Look", text: "Window and page titles are a size larger, the options header shows the painted crest and the Vanguard wordmark, a swatch beside the accent presets sets the accent to your class colour, and the game's own text in windows Vanguard does not skin takes the theme font.", from: [805] },
+      { label: "Options", text: "The Modules page says so when its Show choice leaves nothing to list, and a page's card fades in when you change pages.", from: [805] },
+      { label: "Language", text: "Most texts that were still English now have translations in the ten other languages, as machine drafts. The chat filter's word lists and the group board's phrases come per language, and a language with none shows no Gold selling, Boosting or Recruiting switch, with a note.", from: [829, 819] },
+      { label: "Quests", text: "Use the game's quest windows for now hands the quest and gossip windows back to the game at once, and holding a key hands back one talk. Zones you folded in the game's quest log stay folded, and Pick the reward that sells for most leaves the choice to you when a reward is a gear upgrade.", from: [815, 806] },
+      { label: "Applied at once", text: "Raid tile width and height are sliders that resize the tiles without a reload, and the minimap's coordinates switch applies at once.", from: [815] },
+      { label: "Retired", text: "Pet stable and the Legacy helper are gone, the two boss timer spots are movers under /vg unlock (and /vg dock is gone), and the officer roster is on the Raid frames page.", from: [820] },
+      { label: "Group play", text: "A stranger you whispered in the last ten minutes may invite you, and gear upgrades give no verdict to an off-hand item while you wear a two-hander alone.", from: [806, 797] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Nameplate auras", text: "Aura icons on nameplates no longer show dark blocks or an “aura icon pixels” error where the game has closed a plate to addons.", from: [808, 821] },
+      { label: "Profiles and setup", text: "/vg profile matches a name in any case and asks before making a new profile, /vg profile copy and delete ask first, and Undo setup restores the profile it backed up without overwriting one it did not make.", from: [860] },
+      { label: "Chat", text: "An empty saved keyword no longer makes the chat filter catch every line, a damaged entry in a saved list no longer stops Chat watch, and a chat report under the game's chat restriction says why it could not be sent.", from: [860] },
+      { label: "Quests", text: "Abandon acts on the quest its row shows, and the game's quest tracker text stays hidden when the game brings its tracker back in a fight.", from: [860] },
+      { label: "Town and auction house", text: "Return all never tries a mail the game deletes, Keep stocked never asks for more than one purchase allows, Train all does nothing at a pet trainer, selling junk skips locked items and items in an equipment set, and a remembered bank is no longer replaced by an empty answer. At the auction house, Confirm posts only the item the sale was set up for, and a second click on Cancel doesn't repeat it.", from: [860] },
+      { label: "In a fight", text: "The game menu's Vanguard button and the quest log button leave the game's window to close after the fight, your buff row stays put when a weapon enchant comes or goes, and a dropdown opened in a fight puts no click catcher over the screen.", from: [797, 810, 860] },
+      { label: "Windows and bars", text: "Game windows, the fight recap, the damage meter and the minimap cope with values the game hides from addons, and one frame, nameplate or options row that fails no longer leaves the rest unpainted. The character pane's item levels read the item's detailed level.", from: [860, 810] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.9.3 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.9.5 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.9.3",
+  after: "v0.9.5",
   groups: [],
 };

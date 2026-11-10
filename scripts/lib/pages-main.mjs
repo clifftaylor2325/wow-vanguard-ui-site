@@ -409,19 +409,79 @@ ${setup.pixelText ? `${row(A(setup.pixelText), loc.p("Leaves the game's UI scale
 <p>${loc.p("The UI scale a preset sets is the game's own UI scale (the one in the game's graphics settings). It changes once you're out of combat, and choosing a preset turns off <strong>{pixel}</strong> under <strong>{general} → {look}</strong>.", { pixel, ...pageNames(loc) })} ${A(setup.reloadTile)}</p>`;
 }
 
-// Steps 3 and 4: the look, and moving frames.
-function wizardLookMoveSteps(setup, w, loc) {
+// A wizard step's number: its place in the addon's list of steps (a release before the list named its
+// steps by key falls back to the number the step always had).
+function stepNumber(setup, key, fallback) {
+  const at = (setup.stepKeys || []).indexOf(key);
+  return at < 0 ? fallback : at + 1;
+}
+
+// A step's heading, numbered from the addon's own list of steps.
+function stepHeading(setup, key, fallback, id, loc, w) {
+  const n = stepNumber(setup, key, fallback);
+  return `<h3 id="${id}">${loc.p("Step {n} · {name}", { n, name: w.A(setup.steps[n - 1]) })}</h3>`;
+}
+
+// Step 3: the look.
+function wizardLookStep(setup, w, loc) {
   const { A, lab } = w;
-  return `<h3 id="setup-look">${loc.p("Step 3 · {name}", { name: A(setup.steps[2]) })}</h3>
+  return `${stepHeading(setup, "look", 3, "setup-look", loc, w)}
 <ul>
   <li>${loc.p(`<strong>{accent}:</strong> click a swatch to change the accent color right away. They're the same colors as in <a href="#accent">Pick an accent color</a> below.`, { accent: lab(w.S, "Core/Setup.lua", "Accent") })}</li>
   <li>${loc.p("<strong>{style}:</strong> three small raid tiles, each drawn in its style. Click one to switch to it right away: {styles}.", { style: lab(w.S, "Core/Setup.lua", "Raid frame style"), styles: setup.styles.map((x) => `<strong>${A(x[2])}</strong> (${A(x[1])})`).join(", ") })}</li>
 </ul>
+`;
+}
 
-<h3 id="setup-move">${loc.p("Step 4 · {name}", { name: A(setup.steps[3]) })}</h3>
+// A guided row's mark: recommended outright, recommended by your role or client, or only offered.
+function guideMark(row, loc) {
+  const marks = { yes: "recommended", some: "recommended depending on your role or your client", "": "offered, not recommended" };
+  return loc.p(marks[row.mark]);
+}
+
+// The guided steps (Comfort, Game settings, Helpers, Combat), from Core/SetupGuide.lua: what each asks and its
+// rows, each caption quoted from the addon and marked as the addon marks it.
+function wizardGuideSteps(setup, w, loc) {
+  if (!setup.guide) return "";
+  const { A, say } = w;
+  const text = w.G;
+  const use = w.lab(text, "Core/SetupGuide.lua", "Use recommended");
+  const steps = ["comfort", "game", "helpers", "combat"].filter((k) => setup.guide.steps[k]);
+  const one = (key) => {
+    const g = setup.guide.steps[key];
+    const rows = g.rows.map((r) => `<li>${say(text, "Core/SetupGuide.lua", r.caption)} <em>(${guideMark(r, loc)})</em></li>`).join("\n");
+    return `${stepHeading(setup, key, 0, `setup-${key}`, loc, w)}
+<p>${loc.p("It asks: “{question}”", { question: A(g.question) })}</p>
+<ul>
+${rows}
+</ul>`;
+  };
+  const first = loc.p("The first run starts Vanguard's own rows on their recommended value and the game's own settings on what the game has now. When you run setup again, every row starts on what you have now, so clicking through changes nothing. A switch only stages your pick: leaving the step applies the picks that differ from what is set, after a backup of your profile.");
+  const useLine = loc.p("<strong>{use}</strong> under a step's rows gives every row that has a recommendation its recommended value; a row that is only offered stays as you picked it.", { use });
+  return `${steps.map(one).join("\n\n")}
+<p>${first}</p>
+<p>${useLine}</p>
+`;
+}
+
+// Step 8: moving frames.
+function wizardMoveStep(setup, w, loc) {
+  const { A } = w;
+  return `${stepHeading(setup, "move", 4, "setup-move", loc, w)}
 <p>${loc.p("On this step your frames are unlocked, and the wizard says:")}</p>
 <ul>${setup.moveLines.map((l) => `<li>“${A(l)}”</li>`).join("")}</ul>
 <p>${loc.p("Arrow keys are <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd>; hold <kbd>Shift</kbd> to move 10 px at a time.")}</p>
+`;
+}
+
+// The last step, All set: its line with and without changes, and Undo setup.
+function wizardDoneStep(setup, w, loc) {
+  const g = setup.guide;
+  if (!g || !g.doneChanged || !stepNumber(setup, "done", 0)) return "";
+  const { A, lab } = w;
+  const undo = lab(w.G, "Core/SetupGuide.lua", "Undo setup");
+  return `${stepHeading(setup, "done", 0, "setup-done", loc, w)}
+<p>${loc.p("It lists what the run changed under the line “{changed}”, or says “{same}” when it changed nothing. While there is a change, <strong>{undo}</strong> sits under the list; it asks first, then puts back what this run changed and the profile as it was.", { changed: A(g.doneChanged), same: A(g.doneSame), undo })}</p>
 `;
 }
 
@@ -446,22 +506,21 @@ function wizardProfileStep(setup, w, loc) {
 `;
 }
 
-// Finishing: the clicks, what Done and Skip do, and the reload question.
+// Finishing: what Done and Skip do, and the reload question.
 function wizardFinish(setup, w, loc) {
   const { A, lab } = w;
   const S = w.S;
-  const next = lab(S, "Core/Setup.lua", "Next"), done = lab(S, "Core/Setup.lua", "Done");
-  const clicks = loc.p("With the defaults it takes four clicks: <strong>{next}</strong>, <strong>{next}</strong>, <strong>{next}</strong>, <strong>{done}</strong>.", { next, done });
+  const done = lab(S, "Core/Setup.lua", "Done");
   const reloadAsk = (why) => {
     says(w.D, "Core/Dialog.lua", " Reload the UI now to apply it?");
     return esc(namedText("{why} Reload the UI now to apply it?", { why: loc.addon(why) }, `${why} Reload the UI now to apply it?`, loc));
   };
   const healing = A(setup.layouts.find((l) => l.key === "healing")?.text || "");
   const ends = setup.later
-    ? `<p>${clicks} ${loc.p("<strong>{done}</strong> finishes it, and so does <strong>{skip}</strong>; both lock your frames again, and chat says “{again}”", { done, skip: lab(S, "Core/Setup.lua", "Skip setup"), again: A(setup.again) })}</p>
+    ? `<p>${loc.p("<strong>{done}</strong> finishes it, and so does <strong>{skip}</strong>; both lock your frames again, and chat says “{again}”", { done, skip: lab(S, "Core/Setup.lua", "Skip setup"), again: A(setup.again) })}</p>
 <p>${loc.p("The window's close button and <kbd>Escape</kbd> only close it. Until it's finished, it opens again at your next login, and chat says “{later}”", { later: A(setup.later) })}</p>
 <p>${loc.p("To run it again, type <code>/vg setup</code> or click <strong>{run}</strong> under <strong>{general} → {layout}</strong> in <code>/vg</code>.", { run: lab(w.O, "Core/Options.lua", "Run setup"), ...pageNames(loc) })}</p>`
-    : `<p>${clicks} ${loc.p("<strong>{done}</strong>, the window's close button and <kbd>Escape</kbd> all end the wizard and lock your frames again. It doesn't come back by itself; type <code>/vg setup</code> to run it again.", { done })}</p>`;
+    : `<p>${loc.p("<strong>{done}</strong>, the window's close button and <kbd>Escape</kbd> all end the wizard and lock your frames again. It doesn't come back by itself; type <code>/vg setup</code> to run it again.", { done })}</p>`;
   return `<h3 id="setup-finish">${loc.p("Finishing")}</h3>
 ${ends}
 <p>${loc.p("If setup changed something that needs a reload, it then asks, with <strong>{reload}</strong> and <strong>{later}</strong> buttons:", { reload: lab(w.D, "Core/Dialog.lua", "Reload"), later: lab(w.D, "Core/Dialog.lua", "Later") })}</p>
@@ -477,14 +536,17 @@ ${shotFigure(shotByFile("02-setup-wizard"), { loc })}`;
 function wizardSection(setup, inRel, read, loc) {
   if (!setup) return "";
   const S = read.next("Core/Setup.lua");
-  const w = { ...setupWords(S, loc), S, D: read.next("Core/Dialog.lua"), O: read.next("Core/Options.lua") };
+  const w = { ...setupWords(S, loc), S, G: read.next("Core/SetupGuide.lua"), D: read.next("Core/Dialog.lua"), O: read.next("Core/Options.lua") };
   const body = `${wizardIntro(setup, inRel, w, loc)}
 
 ${wizardLayoutStep(setup, w, loc)}
 
 ${wizardScreenStep(setup, w, loc)}
 
-${wizardLookMoveSteps(setup, w, loc)}
+${wizardLookStep(setup, w, loc)}
+${wizardGuideSteps(setup, w, loc)}
+${wizardMoveStep(setup, w, loc)}
+${wizardDoneStep(setup, w, loc)}
 ${wizardProfileStep(setup, w, loc)}${wizardFinish(setup, w, loc)}`;
   return disclosure({ id: "setup-wizard", title: loc.p("The setup wizard"), open: "always", next: !inRel, meta: inRel ? loc.pn({ one: "{n} step", other: "{n} steps" }, setup.steps.length) : nextBadge(loc), body });
 }

@@ -243,7 +243,7 @@ test("Troubleshooting quotes a message with values by its Locales key, the value
     ["This character will use profile {profile} after the reload.", "TEST-ONLY Profil {profile}"],
     ["Profile {profile} uses Edit Mode layout {layout}, which this account doesn't have.", "TEST-ONLY {layout} fehlt für {profile}"],
     ["{count} errors caught this session: click to list them", "TEST-ONLY {count} Fehler"],
-    ["opens the errors Vanguard caught this session, with stacks and counts, in the copy window (for a bug report); clear empties the list", "TEST-ONLY Fehlerliste"],
+    ["opens the errors Vanguard caught this session, with stacks and counts, in the copy window (for a bug report); clear empties the list; resume runs parts paused after repeated errors again", "TEST-ONLY Fehlerliste"],
   ]);
   const html = helpPage(model, read, siteLocale(DE, t)).body;
   assert.ok(html.includes("„TEST-ONLY Profil &lt;name&gt;“"), "the profile switch message");
