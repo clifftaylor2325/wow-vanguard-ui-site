@@ -408,7 +408,7 @@ test("a screenshot waiting on a retake is a placeholder with its caption, linkin
   for (const s of SHOT_GROUPS.flatMap((g) => g.shots).filter((x) => x.retake)) {
     assert.ok(!html.includes(`/assets/shots/${s.file}.webp`), `${s.file}: the old file is not shown`);
     assert.ok(html.includes(`<svg viewBox="0 0 ${s.w} ${s.h}"`), `${s.file}: the placeholder keeps the shot's shape`);
-    assert.ok(html.includes(esc(s.caption)), `${s.file}: its caption stays`);
+    assert.ok(html.includes(esc(s.caption.replace(/\{ui:([^}]+)\}/g, "$1"))), `${s.file}: its caption stays`);
   }
 });
 
