@@ -94,7 +94,7 @@ function mergePages(rel, next) {
     const relKey = (r) => (r.was && relRows.has(`${r.kind}|${r.was}`) ? `${r.kind}|${r.was}` : rowKey(r));
     const rows = nextRows.map((r) => {
       const old = relRows.get(relKey(r));
-      return { ...r, reload: r.reload || !!old?.reload, inNext: true, inRel: !!old, relDefault: old ? releaseDefault(r, old) : null, nextDefault: defaultLabel(r) };
+      return { ...r, reload: r.reload || !!old?.reload, inNext: true, inRel: !!old, relDefault: old ? releaseDefault(r, old) : null, nextDefault: defaultLabel(r), relChoices: old?.choices, relRange: old?.range };
     });
     const matched = new Set(nextRows.map(relKey));
     for (const r of rp?.rows || []) {

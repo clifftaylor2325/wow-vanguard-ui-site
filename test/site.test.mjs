@@ -14,12 +14,12 @@ import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYR
 import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
-import { featuresPage, startsOff } from "../scripts/lib/pages-main.mjs";
+import { featuresPage, startsOff, startPage, settingsPage } from "../scripts/lib/pages-main.mjs";
 import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
 import { publishedLocales, EN } from "../scripts/lib/i18n-site.mjs";
 import * as EXTRACT from "../scripts/lib/extract.mjs";
-const { extractAddon, extractPages } = EXTRACT;
+const { extractAddon, extractPages, specReader } = EXTRACT;
 import { buildModel, AREAS } from "../scripts/lib/model.mjs";
 import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
 import { SHOT_GROUPS, shotByFile } from "../scripts/lib/shots-content.mjs";
@@ -731,6 +731,50 @@ test("the Features 'Off until you switch it on' labels match the addon defaults"
   const shown = Object.keys(info).filter((k) => featureCardOf(html, k).includes("Off until you switch it on"));
   assert.ok(expected.length >= 1, "no module starts off: the defaults weren't read");
   assert.deepEqual(shown.sort(), expected.sort());
+});
+
+// A model whose current release is the previous tag (v0.9.4), behind the pinned source, with its page readers; null when the clone has no such tag.
+function behindModel() {
+  const old = meta.releases.find((x) => x.tagName !== meta.current && x.tagName === "v0.9.4");
+  if (!old) return null;
+  let relReader;
+  try { relReader = gitReader(cfg.sourcePath, old.tagName); } catch { return null; }
+  const nextReader = gitReader(cfg.sourcePath, cfg.sourceRef);
+  const model = buildModel({ rel: extractAddon(relReader), next: extractAddon(nextReader), release: { tag: old.tagName, publishedAt: old.publishedAt }, releases: meta });
+  return { model, read: { rel: specReader(relReader), next: specReader(nextReader) } };
+}
+
+// With the release behind the source, the wizard is the release's, and what only the next release adds is tagged.
+test("Getting started tags the wizard layouts only the next release has", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const { model, read } = behind;
+  const onlyNext = model.next.setup.layouts.filter((l) => !model.rel.setup.layouts.some((o) => o.key === l.key));
+  assert.ok(onlyNext.length >= 1, "the pins have a layout the release lacks");
+  const body = startPage(model, read).body;
+  const table = body.slice(body.indexOf('id="setup-layout"'), body.indexOf('id="setup-screen"'));
+  for (const l of onlyNext) {
+    const row = table.match(new RegExp(`<tr[^>]*>(?:(?!</tr>)[\\s\\S])*${esc(l.text)}[\\s\\S]*?</tr>`))?.[0] || "";
+    assert.match(row, /^<tr data-avail="next">/, `${l.text} is tagged as next release only`);
+    assert.ok(row.includes("badge next"), `${l.text} carries the Next release badge`);
+  }
+  for (const l of model.rel.setup.layouts) assert.ok(!new RegExp(`<tr data-avail="next"><td[^>]*><strong>${esc(l.text)}</strong>`).test(table), `${l.text} is in the release, so untagged`);
+});
+
+// With the release behind the source, a current row lists the release's choices; a choice the next release adds is tagged.
+test("Settings lists a current row's release choices, with the next release's new ones tagged", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const { model, read } = behind;
+  const rows = model.pages.flatMap((p) => p.rows).filter((r) => r.inRel && r.inNext && r.relChoices && r.choices && r.choices.some((c) => !r.relChoices.some((o) => o[0] === c[0])));
+  assert.ok(rows.length >= 1, "a row gained a choice between the release and the pins");
+  const html = settingsPage(model, read).body;
+  for (const r of rows) {
+    const added = r.choices.filter((c) => !r.relChoices.some((o) => o[0] === c[0]));
+    for (const c of added) {
+      assert.ok(html.includes(`<span data-avail="next"> / ${esc(c[1])}</span>`), `${c[1]} is tagged as next release only`);
+    }
+  }
 });
 
 // A made-up module with these switch defaults, as startsOff reads it.
