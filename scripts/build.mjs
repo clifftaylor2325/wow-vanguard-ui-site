@@ -158,6 +158,30 @@ function warnSkippedRows(rel, next) {
   }
 }
 
+// While the current release is the pinned source, the lines the pages show only when it is behind (a next-release note,
+// the "Other" area) are never looked up. Looking each page up once more with the release before this one as the current
+// release records them, so the prose check (test/i18n.test.mjs, scripts/prose.mjs) sees every line before a bump needs it.
+function lookUpBehindProse({ meta, release, next, read, site }) {
+  const older = meta.releases.find((r, i) => meta.releases[i - 1]?.tagName === release.tag);
+  if (!older) return;
+  const reader = gitReader(cfg.sourcePath, older.tagName);
+  const rel = publicAddon(extractAddon(reader));
+  const model = buildModel({ rel, next, release: { tag: older.tagName, publishedAt: older.publishedAt }, releases: meta });
+  const behind = { rel: specReader(reader), next: read.next };
+  const loc = siteLocale();
+  startPage(model, behind, loc);
+  featuresPage(model, loc);
+  screenshotsPage(model, loc);
+  commandsPage(model, loc);
+  settingsPage(model, behind, loc);
+  profilesPage(model, behind, loc);
+  helpPage(model, behind, loc);
+  feedbackPage(model, behind, loc);
+  changelogPage(model, loc);
+  creditsPage(model, site, loc);
+  areaPages(model, loc);
+}
+
 // Entry point.
 function main() {
   need(fs.existsSync(path.join(cfg.sourcePath, ".git")), `no addon clone at ${cfg.sourcePath}; run \`npm run fetch\` or set FUI_SRC`);
@@ -228,6 +252,7 @@ function main() {
     write(path.join(loc.prefix, "changelog", "feed.xml"), changelogFeed(model, site, loc));
   }
 
+  if (model.same) lookUpBehindProse({ meta: releases, release, next, read: { rel: read.rel, next: read.next }, site });
   writeProse(locales);
   const data = {
     source: { release: release.tag, releaseCommit: rel.commit, nextCommit: next.commit },

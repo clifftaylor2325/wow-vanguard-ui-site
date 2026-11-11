@@ -189,6 +189,22 @@ test("a prose translation keeps every {ui:Text} of its English line", () => {
   assert.match(proseProblems("Click {ui:Reload now}.", "Klick „Neu laden“.", "de", words).join(), /slots\} differ/);
 });
 
+test("a plural translation keeps the English slots, and every form keeps the entities", () => {
+  const en = { one: "{n} change for {who}", other: "{n} changes for {who}" };
+  assert.deepEqual(proseProblems(en, { one: "ein Eintrag für {who}", other: "{n} Einträge für {who}" }, "de", words), [], "one form may leave out {n}");
+  assert.match(proseProblems(en, { one: "ein Eintrag für {wer}", other: "{n} Einträge für {who}" }, "de", words).join(), /slots\} differ/);
+  assert.match(proseProblems(en, { one: "ein Eintrag für {who}", other: "{n} Einträge" }, "de", words).join(), /slots\} differ/);
+  assert.match(proseProblems("WoW&nbsp;Forever", "WoW Forever", "de", words).join(), /entities differ/);
+  assert.deepEqual(proseProblems("WoW&nbsp;Forever &amp; you", "WoW&nbsp;Forever &amp; du", "de", words), []);
+});
+
+// The lines a page shows only while the release is behind the pinned source are looked up too (the build runs the pages once more
+// with the release before this one), so a translation for each is checked before a bump needs it.
+test("the prose check covers the lines that show only while the release is behind the source", () => {
+  for (const line of ["+ {n} next release", "Other modules", "As listed in the addon's README for the next release:"]) assert.ok(used.has(line), `${line} is looked up`);
+  for (const loc of publishedLocales(cfg.locales).slice(1)) assert.ok(proseOf(loc.code).has("Other modules"), `${loc.code} translates it`);
+});
+
 // The addon's own words, as the Locales files hold them: every English text the addon translates.
 const addonKeys = [...addonTranslations([relReader, nextReader], "deDE").keys()];
 

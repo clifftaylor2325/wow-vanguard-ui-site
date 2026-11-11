@@ -473,7 +473,7 @@ function areaOptions(model, loc) {
   if (rest.length) groups.push(["Other modules", rest]);
   const opt = (value, label, english) => `<option value="${esc(value)}" data-en="${esc(english)}">${esc(label)}</option>`;
   return [`<option value="">${loc.p("Choose one")}</option>`,
-    ...groups.filter(([, mods]) => mods.length).map(([title, mods]) => `<optgroup label="${esc(loc.p(title))}">${mods.map((m) => opt(m.key, loc.addon(m.name), m.name)).join("")}</optgroup>`),
+    ...groups.filter(([, mods]) => mods.length).map(([title, mods]) => `<optgroup label="${esc(title === "Other modules" ? loc.p(title) : loc.t(`area.${title}`))}">${mods.map((m) => opt(m.key, loc.addon(m.name), m.name)).join("")}</optgroup>`),
     `<optgroup label="${esc(loc.p("Something else"))}">${FALLBACK_AREAS.map(([v, l]) => opt(v, loc.p(l), l)).join("")}</optgroup>`].join("\n");
 }
 

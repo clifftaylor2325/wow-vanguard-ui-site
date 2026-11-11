@@ -391,15 +391,19 @@ export function alternates(locales, path, base = "") {
 export function proseProblems(english, translation, lang, words) {
   const forms = (v) => (typeof v === "string" ? [v] : Object.values(v ?? {}));
   const en = forms(english).at(-1);
-  const sorted = (s, re) => (s.match(re) || []).sort().join(" ");
+  const sorted = (s, re, drop) => (s.match(re) || []).filter((m) => m !== drop).sort().join(" ");
   const slotRe = /\{(?:ui:[^}]+|\w+)\}/g;
+  const plural = typeof english !== "string";
   const out = [];
-  if (typeof english !== typeof translation) out.push(typeof english === "string" ? "a plain text, not plural forms" : "plural forms, one per category");
-  else if (typeof english !== "string" && Object.keys(translation).sort().join() !== new Intl.PluralRules(lang).resolvedOptions().pluralCategories.sort().join()) out.push(`one form per ${lang} plural category`);
+  if (typeof english !== typeof translation) out.push(plural ? "plural forms, one per category" : "a plain text, not plural forms");
+  else if (plural && Object.keys(translation).sort().join() !== new Intl.PluralRules(lang).resolvedOptions().pluralCategories.sort().join()) out.push(`one form per ${lang} plural category`);
   for (const t of forms(translation)) {
+    // A plural form may leave out {n} (one: "a module"); every other slot stays.
+    const drop = plural ? "{n}" : null;
     if (!t.trim()) out.push("empty");
-    else if (sorted(t, slotRe) !== sorted(en, slotRe) && typeof english === "string") out.push(`{slots} differ: ${t}`);
+    else if (sorted(t, slotRe, drop) !== sorted(en, slotRe, drop)) out.push(`{slots} differ: ${t}`);
     else if (sorted(t, /<[^>]+>/g) !== sorted(en, /<[^>]+>/g)) out.push(`tags differ: ${t}`);
+    else if (sorted(t, /&#?\w+;/g) !== sorted(en, /&#?\w+;/g)) out.push(`entities differ: ${t}`);
     else if (commandsIn(t, words).join("\n") !== commandsIn(en, words).join("\n")) out.push(`/vg commands differ: ${t}`);
   }
   return out;

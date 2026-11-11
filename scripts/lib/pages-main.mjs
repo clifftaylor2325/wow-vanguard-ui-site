@@ -723,8 +723,8 @@ function areaSection([area, list], model, loc) {
   const rel = list.filter((m) => m.inRel).length;
   const mods = (n) => loc.pn({ one: "{n} module", other: "{n} modules" }, n);
   const meta = rel === list.length ? mods(rel) : `${mods(rel)}${nextOnly(` ${loc.p("+ {n} next release", { n: list.length - rel })}`)}`;
-  const page = `<p class="small area-page"><a href="${areaPath(area)}">${loc.p("Open the {area} page", { area: esc(loc.p(area)) })}</a></p>`;
-  return disclosure({ id: `area-${slug(area)}`, title: esc(loc.p(area)), meta, next: rel === 0, cls: "area", body: `${page}\n<div class="mods">${list.map((m) => featureCard(m, model, loc)).join("\n")}</div>` });
+  const page = `<p class="small area-page"><a href="${areaPath(area)}">${loc.p("Open the {area} page", { area: esc(loc.t(`area.${area}`)) })}</a></p>`;
+  return disclosure({ id: `area-${slug(area)}`, title: esc(loc.t(`area.${area}`)), meta, next: rel === 0, cls: "area", body: `${page}\n<div class="mods">${list.map((m) => featureCard(m, model, loc)).join("\n")}</div>` });
 }
 
 // An area's own page's path, under Features.
@@ -735,13 +735,13 @@ function areaPath(area) {
 // One feature area as a page of its own (/features/unit-frames/): every module card in it, open,
 // for a link to just that part of Vanguard. The cards are the same as on Features.
 function areaPage([area, list], model, loc) {
-  const name = esc(loc.p(area));
+  const name = esc(loc.t(`area.${area}`));
   const rel = list.filter((m) => m.inRel).length;
   const facts = [loc.pn({ one: "{n} module", other: "{n} modules" }, rel), rel < list.length ? nextOnly(loc.p("+ {n} next release", { n: list.length - rel })) : "", loc.p(`<a href="/features/">Every area is on Features</a>`)];
   return {
     path: areaPath(area),
-    title: loc.p(area),
-    description: loc.p("Vanguard's {area} modules: what each one does, and its settings and commands.", { area: loc.p(area) }),
+    title: loc.t(`area.${area}`),
+    description: loc.p("Vanguard's {area} modules: what each one does, and its settings and commands.", { area: loc.t(`area.${area}`) }),
     translated: true,
     body: `${pageHero(name, loc.p("Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands."))}
 ${glance(facts)}
