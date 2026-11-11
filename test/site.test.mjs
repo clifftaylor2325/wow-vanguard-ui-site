@@ -709,7 +709,9 @@ test("no module on Features is shown by its key with an empty description", () =
   for (const key of ["HudText", "Coexist", "QuestArrow"]) assert.ok(info[key], `${key} is read from its own file`);
   const bare = Object.keys(info).filter((key) => { const card = featureCardOf(html, key); return card && card.includes("<p></p>"); });
   assert.deepEqual(bare, []);
-  assert.match(html, /<h2 id="other-addons-list">Other addons<\/h2>/, "the other-addons table is headed by the module's name");
+  assert.match(html, /<h2 id="other-addons">Other addons<\/h2>/, "the other-addons table keeps the id it was published with");
+  assert.ok(html.includes('<article class="card mod" id="other-addons-module"'), "the module card takes the other id");
+  assert.equal(html.split('id="other-addons"').length, 2, "one element owns #other-addons");
 });
 
 // Each Features card quotes the addon's one-liner for that module word for word.

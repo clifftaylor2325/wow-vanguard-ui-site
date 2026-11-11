@@ -109,6 +109,15 @@ function mergePages(rel, next) {
   return pages;
 }
 
+// Section ids on Features that are published links and stay theirs (the overlaps table's heading), so a module of the same name takes another.
+const SECTION_IDS = new Set(["other-addons"]);
+
+// The card id of a module: its name as an id, unless a section of the page already owns it.
+function cardId(name) {
+  const id = slug(name);
+  return SECTION_IDS.has(id) ? `${id}-module` : id;
+}
+
 // Merged modules with their display name, description, area, settings pages and commands.
 function mergeModules(rel, next, pages, commands) {
   const relNames = new Set(rel.modules.map((m) => m.name));
@@ -119,7 +128,7 @@ function mergeModules(rel, next, pages, commands) {
     const area = (AREAS.find(([, list]) => list.includes(key)) || ["Other"])[0];
     const onPages = pages.filter((p) => p.rows.some((r) => r.ref?.scope === key)).map((p) => ({ title: p.title, id: p.id }));
     const cmds = commands.entries.filter((e) => e.modules.includes(key)).map((e) => e.id);
-    return { key, name: info[0], desc: info[1], id: slug(info[0]), area, inRel: relNames.has(key), inNext: nextNames.has(key) || key in next.moduleInfo, pages: onPages, commands: cmds };
+    return { key, name: info[0], desc: info[1], id: cardId(info[0]), area, inRel: relNames.has(key), inNext: nextNames.has(key) || key in next.moduleInfo, pages: onPages, commands: cmds };
   });
 }
 
