@@ -1248,7 +1248,7 @@
  "Applied at once": "즉시 적용",
  "Raid tile width and height are sliders that resize the tiles without a reload, and the minimap's coordinates switch applies at once.": "공격대 타일의 너비와 높이는 다시 불러오지 않고 크기를 바꾸는 슬라이더이고, 미니맵 좌표 스위치는 즉시 적용됩니다.",
  "Retired": "제거됨",
- "Pet stable and the Legacy helper are gone, the two boss timer spots are movers under /vg unlock (and /vg dock is gone), and the officer tools' roster is on the {ui:Raid frames} page.": "마구간 도우미와 Legacy 도우미는 사라졌고, 우두머리 타이머 두 자리는 /vg unlock의 이동 요소이며(/vg dock은 없어짐), 임원 명단은 {ui:Raid frames} 페이지에 있습니다.",
+ "Pet stable and the Legacy helper are gone, the two boss timer spots are movers under /vg unlock (and /vg dock is gone), and the officer tools' roster is on the {ui:Raid frames} page.": "마구간 도우미와 Legacy 도우미는 사라졌고, 우두머리 타이머 두 자리는 /vg unlock의 이동 요소이며(/vg dock은 없어짐), 임원 도구의 명단 패널은 {ui:Raid frames} 페이지에 있습니다.",
  "Group play": "그룹 플레이",
  "A stranger you whispered in the last ten minutes may invite you, and gear upgrades give no verdict to an off-hand item while you wear a two-hander alone.": "최근 10분 안에 귓속말한 낯선 사람이 나를 초대할 수 있고, 양손 무기만 착용한 동안에는 장비 업그레이드이 보조 손 아이템에 판정을 내리지 않습니다.",
  "Nameplate auras": "이름표 오라",
