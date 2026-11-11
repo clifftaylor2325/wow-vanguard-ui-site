@@ -79,3 +79,9 @@ test("serve.mjs answers only for files inside the folder it serves", async () =>
   assert.equal(resolveInside(root, "/..%2f..%2fetc/passwd"), 403);
   assert.equal(resolveInside(root, "/%E0%A4%A"), 400, "a bad escape is a 400, not a crash");
 });
+
+// A caption that names a chat command names the one that does what the picture shows.
+test("the party frames caption names /vg preview party, the command that shows them", () => {
+  const caption = SHOT_GROUPS.flatMap((g) => g.shots).find((s) => s.file === "20-party-preview").caption;
+  assert.ok(caption.includes("/vg preview party)"), caption);
+});

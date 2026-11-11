@@ -268,7 +268,7 @@ export const SHOT_GROUPS = [
         "w": 379,
         "h": 573,
         "alt": "Party frames growing up from just above your player frame",
-        "caption": "Party frames growing up from just above your player frame (shown with /vg preview).",
+        "caption": "Party frames growing up from just above your player frame (shown with /vg preview party).",
         "next": false,
         "retake": true
       },

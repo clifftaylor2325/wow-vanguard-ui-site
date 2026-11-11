@@ -159,7 +159,7 @@
  "Turn it on under Unit frames in /vg.": "Schalte es in /vg unter Einheitenfenster ein.",
  "Each tile shows only while its unit exists.": "Jede Kachel erscheint nur, solange ihre Einheit existiert.",
  "Party frames growing up from just above your player frame": "Gruppenfenster, die direkt über deinem Spielerfenster nach oben wachsen",
- "Party frames growing up from just above your player frame (shown with /vg preview).": "Gruppenfenster, die direkt über deinem Spielerfenster nach oben wachsen (zu sehen mit /vg preview).",
+ "Party frames growing up from just above your player frame (shown with /vg preview party).": "Gruppenfenster, die direkt über deinem Spielerfenster nach oben wachsen (zu sehen mit /vg preview party).",
  "A small tile for each party member's pet and target, one row per member, above the party frames. They show only in a party.": "Eine kleine Kachel für den Begleiter und das Ziel jedes Gruppenmitglieds, eine Reihe pro Mitglied, über den Gruppenfenstern. Sie erscheinen nur in einer Gruppe.",
  "Raid and group": "Gruppe und Schlachtzug",
  "A party or a raid of 10 grows up from just above your player frame, centered on it. A bigger raid (25 or 40) moves to the left of your character and stacks its groups as rows.": "Eine Gruppe oder ein Schlachtzug mit 10 wächst direkt über deinem Spielerfenster nach oben, zentriert darauf. Ein größerer Schlachtzug (25 oder 40) wandert links von deiner Figur und stapelt seine Gruppen als Reihen.",

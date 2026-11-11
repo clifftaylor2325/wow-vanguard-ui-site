@@ -157,7 +157,7 @@
  "Turn it on under Unit frames in /vg.": "/vg의 개체창에서 켜세요.",
  "Each tile shows only while its unit exists.": "각 타일은 해당 개체가 있을 때만 표시됩니다.",
  "Party frames growing up from just above your player frame": "플레이어 프레임 바로 위에서 위쪽으로 늘어나는 파티 프레임",
- "Party frames growing up from just above your player frame (shown with /vg preview).": "플레이어 프레임 바로 위에서 위쪽으로 늘어나는 파티 프레임(/vg preview로 표시).",
+ "Party frames growing up from just above your player frame (shown with /vg preview party).": "플레이어 프레임 바로 위에서 위쪽으로 늘어나는 파티 프레임(/vg preview party로 표시).",
  "A small tile for each party member's pet and target, one row per member, above the party frames. They show only in a party.": "각 파티원의 소환수와 대상을 위한 작은 타일이 파티원마다 한 줄씩 파티 프레임 위에 놓입니다. 파티 중에만 표시됩니다.",
  "Raid and group": "공격대와 파티",
  "A party or a raid of 10 grows up from just above your player frame, centered on it. A bigger raid (25 or 40) moves to the left of your character and stacks its groups as rows.": "파티나 10인 공격대는 플레이어 프레임 바로 위에서 가운데 정렬되어 위쪽으로 늘어납니다. 더 큰 공격대(25인 또는 40인)는 캐릭터 왼쪽으로 옮겨져 파티가 행으로 쌓입니다.",

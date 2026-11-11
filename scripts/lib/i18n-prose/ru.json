@@ -163,7 +163,7 @@
  "Turn it on under Unit frames in /vg.": "Включите это в разделе «Рамки юнитов» в /vg.",
  "Each tile shows only while its unit exists.": "Каждая плитка видна, только пока существует её юнит.",
  "Party frames growing up from just above your player frame": "Рамки группы растут вверх от места чуть выше рамки игрока",
- "Party frames growing up from just above your player frame (shown with /vg preview).": "Рамки группы растут вверх от места чуть выше рамки игрока (показано командой /vg preview).",
+ "Party frames growing up from just above your player frame (shown with /vg preview party).": "Рамки группы растут вверх от места чуть выше рамки игрока (показано командой /vg preview party).",
  "A small tile for each party member's pet and target, one row per member, above the party frames. They show only in a party.": "Маленькая плитка для питомца и цели каждого члена группы, по одному ряду на члена, над рамками группы. Они видны только в группе.",
  "Raid and group": "Рейд и группа",
  "A party or a raid of 10 grows up from just above your player frame, centered on it. A bigger raid (25 or 40) moves to the left of your character and stacks its groups as rows.": "Группа или рейд из 10 человек растёт вверх от места чуть выше рамки игрока и центрируется на ней. Рейд побольше (25 или 40) сдвигается влево от вашего персонажа, а его группы складываются в ряды.",

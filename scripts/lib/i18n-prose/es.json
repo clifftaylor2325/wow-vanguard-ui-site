@@ -161,7 +161,7 @@
  "Turn it on under Unit frames in /vg.": "Actívalo en Marcos de unidad dentro de /vg.",
  "Each tile shows only while its unit exists.": "Cada casilla solo se muestra mientras existe su unidad.",
  "Party frames growing up from just above your player frame": "Marcos de grupo que crecen hacia arriba desde justo encima de tu marco de jugador",
- "Party frames growing up from just above your player frame (shown with /vg preview).": "Marcos de grupo que crecen hacia arriba desde justo encima de tu marco de jugador (se ven con /vg preview).",
+ "Party frames growing up from just above your player frame (shown with /vg preview party).": "Marcos de grupo que crecen hacia arriba desde justo encima de tu marco de jugador (se ven con /vg preview party).",
  "A small tile for each party member's pet and target, one row per member, above the party frames. They show only in a party.": "Una casilla pequeña para la mascota y el objetivo de cada miembro del grupo, una fila por miembro, sobre los marcos de grupo. Solo se muestran en grupo.",
  "Raid and group": "Banda y grupo",
  "A party or a raid of 10 grows up from just above your player frame, centered on it. A bigger raid (25 or 40) moves to the left of your character and stacks its groups as rows.": "Un grupo o una banda de 10 crece hacia arriba desde justo encima de tu marco de jugador, centrado en él. Una banda mayor (25 o 40) pasa a la izquierda de tu personaje y apila sus grupos en filas.",

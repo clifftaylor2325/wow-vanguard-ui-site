@@ -161,7 +161,7 @@
  "Turn it on under Unit frames in /vg.": "Activez-le dans Cadres d’unité sous /vg.",
  "Each tile shows only while its unit exists.": "Chaque case ne s’affiche que tant que son unité existe.",
  "Party frames growing up from just above your player frame": "Des cadres de groupe qui grandissent vers le haut depuis juste au-dessus de votre cadre du joueur",
- "Party frames growing up from just above your player frame (shown with /vg preview).": "Des cadres de groupe qui grandissent vers le haut depuis juste au-dessus de votre cadre du joueur (affichés avec /vg preview).",
+ "Party frames growing up from just above your player frame (shown with /vg preview party).": "Des cadres de groupe qui grandissent vers le haut depuis juste au-dessus de votre cadre du joueur (affichés avec /vg preview party).",
  "A small tile for each party member's pet and target, one row per member, above the party frames. They show only in a party.": "Une petite case pour le familier et la cible de chaque membre du groupe, une rangée par membre, au-dessus des cadres de groupe. Elles ne s’affichent qu’en groupe.",
  "Raid and group": "Raid et groupe",
  "A party or a raid of 10 grows up from just above your player frame, centered on it. A bigger raid (25 or 40) moves to the left of your character and stacks its groups as rows.": "Un groupe ou un raid de 10 grandit vers le haut depuis juste au-dessus de votre cadre du joueur, centré sur lui. Un raid plus grand (25 ou 40) passe à gauche de votre personnage et empile ses groupes en rangées.",

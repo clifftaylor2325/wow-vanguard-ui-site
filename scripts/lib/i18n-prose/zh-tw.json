@@ -157,7 +157,7 @@
  "Turn it on under Unit frames in /vg.": "在 /vg 的「單位框架」中開啟。",
  "Each tile shows only while its unit exists.": "每個方塊只會在其單位存在時顯示。",
  "Party frames growing up from just above your player frame": "隊伍框架從玩家框架正上方向上延伸",
- "Party frames growing up from just above your player frame (shown with /vg preview).": "隊伍框架從玩家框架正上方向上延伸（以 /vg preview 顯示）。",
+ "Party frames growing up from just above your player frame (shown with /vg preview party).": "隊伍框架從玩家框架正上方向上延伸（以 /vg preview party 顯示）。",
  "A small tile for each party member's pet and target, one row per member, above the party frames. They show only in a party.": "每位隊伍成員的寵物和目標各有一個小方塊，每位成員一列，位於隊伍框架上方。只會在隊伍中顯示。",
  "Raid and group": "團隊與隊伍",
  "A party or a raid of 10 grows up from just above your player frame, centered on it. A bigger raid (25 or 40) moves to the left of your character and stacks its groups as rows.": "隊伍或 10 人以下的團隊會從玩家框架正上方向上延伸，並以它為中心。較大的團隊（25 或 40 人）會移到角色左側，並把各小隊堆疊成列。",

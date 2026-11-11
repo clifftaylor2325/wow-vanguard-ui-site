@@ -161,7 +161,7 @@
  "Turn it on under Unit frames in /vg.": "Ligue em Quadros de unidade no /vg.",
  "Each tile shows only while its unit exists.": "Cada bloco só aparece enquanto a unidade existe.",
  "Party frames growing up from just above your player frame": "Quadros de grupo crescendo para cima, logo acima do seu quadro de jogador",
- "Party frames growing up from just above your player frame (shown with /vg preview).": "Quadros de grupo crescendo para cima, logo acima do seu quadro de jogador (mostrado com /vg preview).",
+ "Party frames growing up from just above your player frame (shown with /vg preview party).": "Quadros de grupo crescendo para cima, logo acima do seu quadro de jogador (mostrado com /vg preview party).",
  "A small tile for each party member's pet and target, one row per member, above the party frames. They show only in a party.": "Um pequeno bloco para o ajudante e o alvo de cada membro do grupo, uma linha por membro, acima dos quadros de grupo. Só aparecem num grupo.",
  "Raid and group": "Raide e grupo",
  "A party or a raid of 10 grows up from just above your player frame, centered on it. A bigger raid (25 or 40) moves to the left of your character and stacks its groups as rows.": "Um grupo ou uma raide de 10 cresce para cima, logo acima do seu quadro de jogador, centralizado nele. Uma raide maior (25 ou 40) vai para a esquerda do seu personagem e empilha os grupos em linhas.",

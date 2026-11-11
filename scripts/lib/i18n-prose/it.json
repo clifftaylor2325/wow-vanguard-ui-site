@@ -161,7 +161,7 @@
  "Turn it on under Unit frames in /vg.": "Attivalo in Riquadri delle unità in /vg.",
  "Each tile shows only while its unit exists.": "Ogni riquadro compare solo finché la sua unità esiste.",
  "Party frames growing up from just above your player frame": "Riquadri del gruppo che crescono verso l’alto da appena sopra il riquadro del giocatore",
- "Party frames growing up from just above your player frame (shown with /vg preview).": "Riquadri del gruppo che crescono verso l’alto da appena sopra il riquadro del giocatore (mostrati con /vg preview).",
+ "Party frames growing up from just above your player frame (shown with /vg preview party).": "Riquadri del gruppo che crescono verso l’alto da appena sopra il riquadro del giocatore (mostrati con /vg preview party).",
  "A small tile for each party member's pet and target, one row per member, above the party frames. They show only in a party.": "Un piccolo riquadro per il famiglio e il bersaglio di ogni membro del gruppo, una fila per membro, sopra i riquadri del gruppo. Compaiono solo in un gruppo.",
  "Raid and group": "Incursione e gruppo",
  "A party or a raid of 10 grows up from just above your player frame, centered on it. A bigger raid (25 or 40) moves to the left of your character and stacks its groups as rows.": "Un gruppo o un’incursione da 10 cresce verso l’alto da appena sopra il riquadro del giocatore, centrato su di esso. Un’incursione più grande (25 o 40) si sposta a sinistra del tuo personaggio e dispone i suoi gruppi in file.",
