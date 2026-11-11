@@ -389,6 +389,20 @@ test("the home page decoration is hidden from screen readers and the layout sect
   assert.ok(!own.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8") + html), "no external images or fonts (the site's own Open Graph image is fine)");
 });
 
+// While no shot is taken, the page promises no date (the launch has passed) and its search description says so too.
+test("the Screenshots page makes no launch promise while every shot waits on a retake", () => {
+  const shots = SHOT_GROUPS.flatMap((g) => g.shots);
+  if (shots.some((s) => !s.retake)) return;
+  for (const d of LANG_DIRS) {
+    const html = page(`${d}screenshots`);
+    assert.ok(!/at launch|zum Start|au lancement|en el lanzamiento|al lancio|no lançamento|к запуску|출시 때|上线时/.test(html), `${d || "en/"}: a launch promise is on the page`);
+  }
+  const en = page("screenshots");
+  const description = en.match(/<meta name="description" content="([^"]*)"/)[1];
+  assert.equal(description, "New in-game screenshots are on the way", "the description matches the page, not the stock one for a page of real shots");
+  assert.ok(!/Real in-game screenshots/.test(description));
+});
+
 test("a screenshot waiting on a retake is a placeholder with its caption, linking no old file", () => {
   const html = page("screenshots");
   for (const s of SHOT_GROUPS.flatMap((g) => g.shots).filter((x) => x.retake)) {

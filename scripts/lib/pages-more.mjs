@@ -979,12 +979,13 @@ function shotGroup(g, loc) {
 // The Screenshots page: real in-game captures, grouped by what they show.
 export function screenshotsPage(model, loc = EN) {
   const n = readyShots().length;
-  const count = n ? loc.pn({ one: "<strong>{n}</strong> in-game screenshot", other: "<strong>{n}</strong> in-game screenshots" }, n) : loc.p("New in-game screenshots arrive at launch");
-  const lead = n ? loc.p("Real captures from the game, not mock-ups. Click one to see it full size.") : loc.p("New captures from the game arrive at WoW Forever's launch. Until then, each caption says what its picture will show.");
+  const count = n ? loc.pn({ one: "<strong>{n}</strong> in-game screenshot", other: "<strong>{n}</strong> in-game screenshots" }, n) : loc.p("New in-game screenshots are on the way");
+  const lead = n ? loc.p("Real captures from the game, not mock-ups. Click one to see it full size.") : loc.p("New captures from the game are on the way. Until then, each caption says what its picture will show.");
   return {
     path: "/screenshots/",
     title: "Screenshots",
-    description: n ? loc.p("Real in-game screenshots of Vanguard in WoW Forever.") : loc.p("New in-game screenshots arrive at launch"),
+    description: n ? loc.p("Real in-game screenshots of Vanguard in WoW Forever.") : loc.p("New in-game screenshots are on the way"),
+    ownDescription: !n,
     translated: true,
     body: `${pageHero(loc.t("title./screenshots/"), lead)}
 ${glance([count, ...(model && !model.same ? [loc.p("Shots of things only the next release has hide with the rest of it")] : []), loc.p(`The same pictures sit beside their module on <a href="/features/">Features</a>`)])}

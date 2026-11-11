@@ -389,9 +389,9 @@ function draftLine(loc, translated) {
   return localiseLinks(`<p class="small lang-draft">${loc.p(`This page is machine-translated from English, so a line may read oddly. Tell us on the <a href="/feedback/">Feedback page</a>.`)}</p>`, loc);
 }
 
-export function layout({ path, title, description, body, site, scripts = [], loc = EN, alts = [], translated = false }) {
+export function layout({ path, title, description, body, site, scripts = [], loc = EN, alts = [], translated = false, ownDescription = false }) {
   const fullTitle = pageTitle(path, title, loc);
-  if (loc.english || !translated) description = SEO[path]?.description || description;
+  if (!ownDescription && (loc.english || !translated)) description = SEO[path]?.description || description;
   const toggle = `<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">${loc.t("menu")}</button>`;
   const nav = `<nav class="nav sidebar" aria-label="${esc(loc.text("nav.label"))}" id="site-nav"><button class="nav-close" type="button">${loc.p("Close menu")}</button>${siteSearch(loc, "nav")}${navCommunity(loc)}${localiseLinks(sidebarList(path, loc), loc)}${navFoot(site, alts, loc)}</nav>`;
   const main = `<main id="main" tabindex="-1"${loc.english || translated ? "" : ' lang="en"'}>\n${menuPaths(localiseLinks(body, loc))}\n</main>`;
@@ -489,9 +489,9 @@ export const SHOT_SIZES = {
 };
 
 // A screenshot waiting on a retake: a frame the shot's size (an empty SVG sets the ratio, so
-// no inline style is needed) saying a new one comes at launch, with the shot's caption.
+// no inline style is needed) saying a new one is coming, with the shot's caption.
 function shotPlaceholder(s, { caption, loc }) {
-  const box = `<div class="shot-placeholder" role="img" aria-label="${esc(loc.p(s.alt))}"><svg viewBox="0 0 ${s.w} ${s.h}" aria-hidden="true"></svg><span>${esc(loc.p("Screenshot coming at launch"))}</span></div>`;
+  const box = `<div class="shot-placeholder" role="img" aria-label="${esc(loc.p(s.alt))}"><svg viewBox="0 0 ${s.w} ${s.h}" aria-hidden="true"></svg><span>${esc(loc.p("Screenshot coming soon"))}</span></div>`;
   return `<figure class="shot-fig"${s.next ? ' data-avail="next"' : ""}>${box}${caption ? `<figcaption>${esc(loc.p(s.caption))}</figcaption>` : ""}</figure>`;
 }
 
