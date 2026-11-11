@@ -243,12 +243,12 @@ test("a prose line names no new addon control bare: it uses {ui:Text}", () => {
 // (the English term, and the word the file and the game use, in the comments). A new line uses the established word.
 const DRIFTED_TERMS = {
   ru: [/рамки персонажей/, /таймер ударов/, /кликкастинг/, /счётчик урона/, /панелей действий/, /Улучшения экипировки/, /странице отзывов/, /Другие аддоны»/],
-  ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /Retail/],
+  ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /퀘스트 일지/, /Retail/],
   es: [/página de Feedback/, /entrenador/],
   "es-mx": [/calabozo/, /«|»/],
   fr: [/page Feedback/, /minuteur de coups/],
   it: [/addestrator/, /ranghi degli/, /Silenzioso restituisce/, /registro dei tiri/, /targhette dei nomi/],
-  "pt-br": [/treinador/, /patentes/, /do mercador/, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/],
+  "pt-br": [/treinador/, /graduaç/, /do mercador/, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/],
   "zh-tw": [/框體/, /配置文件/],
 };
 
