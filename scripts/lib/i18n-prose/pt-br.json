@@ -630,7 +630,7 @@
  "Your reference is <strong class=\"fb-ref\" id=\"fb-ref\"></strong>. <span id=\"fb-done-dup\"></span>": "Sua referência é <strong class=\"fb-ref\" id=\"fb-ref\"></strong>. <span id=\"fb-done-dup\"></span>",
  "Keep it: quote it if you want to add something, or to have the report removed.": "Guarde-a: cite-a se quiser acrescentar algo ou pedir que o relatório seja removido.",
  "Send another": "Enviar outro",
- "Filled in from what you pasted. Check the fields, then Preview.": "Preenchido a partir do que você colou. Confira os campos e clique em Visualizar.",
+ "Filled in from what you pasted. Check the fields, then Preview.": "Preenchido a partir do que você colou. Confira os campos e clique em Prévia.",
  "The spam check couldn't load. Check your connection, then try again.": "Não foi possível carregar a verificação antispam. Confira sua conexão e tente de novo.",
  "Your contact details are not in the report: they're kept privately for 90 days.": "Seus dados de contato não ficam no relatório: eles são guardados de forma privada por 90 dias.",
  "The reference ({ref} above) is filled in when you send. If this matches a bug that's already been reported, your notes are added to that report instead.": "A referência ({ref} acima) é preenchida quando você envia. Se isso corresponder a um bug já relatado, suas anotações são adicionadas a esse relatório.",

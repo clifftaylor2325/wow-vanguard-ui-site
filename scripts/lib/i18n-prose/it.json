@@ -647,7 +647,7 @@
  "{label} is required.": "{label} è obbligatorio.",
  "{label} needs at least {min} characters.": "{label} richiede almeno {min} caratteri.",
  "{label} can be at most {max} characters (it has {length}).": "{label} può avere al massimo {max} caratteri (ne ha {length}).",
- "Choose Report a bug or Request a feature.": "Scegli Segnala un bug o Richiedi una funzione.",
+ "Choose Report a bug or Request a feature.": "Scegli Segnala un bug o Richiedi una funzionalità.",
  "Paste your report, or tick the box to say you couldn't get one.": "Incolla il tuo rapporto, oppure spunta la casella per indicare che non sei riuscito a ottenerlo.",
  "Choose the part of Vanguard it's about.": "Scegli la parte di Vanguard a cui si riferisce.",
  "Please tick this to say you understand where the report goes.": "Spunta questa casella per indicare che hai capito dove va il rapporto.",
