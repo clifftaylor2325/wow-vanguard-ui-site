@@ -415,7 +415,7 @@ export const LONGER = {
   ],
   TalentPlanner: [
     R("A rank the plan can never reach, because a talent it hangs from or its row's points are missing from the plan, is marked red.", "a rank the plan can never reach (a talent it hangs from, or its row's points, missing from the plan", "is marked red"),
-    R("At a level-up, chat names the next pick, and \"{ui:Spend planned} points by itself\" (off until you tick it) buys them without asking.", "At a level-up chat names the next pick", "\"Spend planned points by itself\" (under `/vg` → Talents, off until you tick it) buys and applies them without asking"),
+    R("At a level-up, chat names the next pick, and \"{ui:Spend planned points at a level-up}\" (off until you tick it) buys them without asking.", "At a level-up chat names the next pick", "\"Spend planned points by itself\" (under `/vg` → Talents, off until you tick it) buys and applies them without asking"),
     R("Plans are kept per character and spec, and /vg talents export and import share one as a string for your class.", "Plans are kept per character and spec (Primary, Secondary)", "`export` and `import` share it as a string (for your class only"),
   ],
   Nameplates: [
