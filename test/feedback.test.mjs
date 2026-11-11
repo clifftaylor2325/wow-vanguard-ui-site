@@ -161,6 +161,18 @@ test("parseFeedback: no block is null; a bad kind is blank; CRLF, chat around it
   assert.equal(open.report, "");
 });
 
+// The game sets a typed marker line off by one space (Core/Feedback.lua body()); the form takes it back and keeps reading.
+test("parseFeedback: a typed end marker or section line in an answer doesn't end or split the block", () => {
+  const typed = [`before`, `${FEEDBACK_END}`, `--- did ---`, `after`];
+  const body = typed.map((l) => (/^ *--- \w+ ---$/.test(l) || /^ *###/.test(l) ? ` ${l}` : l)).join("\n");
+  const block = [FEEDBACK_START, "kind: bug", "title: Typed markers", "--- did ---", body, "--- expected ---", "one", "--- happened ---", "two", "--- report ---", "Vanguard report", FEEDBACK_END].join("\n");
+  const f = parseFeedback(`${block}   \n`);
+  assert.equal(f.did, typed.join("\n"), "the typed lines come back as typed");
+  assert.equal(f.expected, "one");
+  assert.equal(f.happened, "two");
+  assert.equal(f.report, "Vanguard report", "the report after them is read, and a trailing space on the end line still ends the block");
+});
+
 // ------------------------------------------------------------- fingerprint
 
 test("normalize drops line numbers, addresses, counts and extra spaces", () => {
