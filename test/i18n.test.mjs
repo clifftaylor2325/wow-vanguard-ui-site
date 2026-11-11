@@ -239,6 +239,31 @@ test("a prose line names no new addon control bare: it uses {ui:Text}", () => {
   assert.deepEqual([...baseline].filter((k) => !bare.has(k)), [], "these are written {ui:Name} now: drop them from test/bare-names-baseline.json");
 });
 
+// One word per term in each language: the variants below were drafted later and drifted from the file's own word
+// (the English term, and the word the file and the game use, in the comments). A new line uses the established word.
+const DRIFTED_TERMS = {
+  ru: [/рамки персонажей/, /таймер ударов/, /кликкастинг/, /счётчик урона/, /панелей действий/, /Улучшения экипировки/, /странице отзывов/, /Другие аддоны»/],
+  ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /Retail/],
+  es: [/página de Feedback/, /entrenador/],
+  "es-mx": [/calabozo/, /«|»/],
+  fr: [/page Feedback/, /minuteur de coups/],
+  it: [/addestrator/, /ranghi degli/, /Silenzioso restituisce/, /registro dei tiri/, /targhette dei nomi/],
+  "pt-br": [/treinador/, /patentes/, /do mercador/, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/],
+  "zh-tw": [/框體/, /配置文件/],
+};
+
+test("a translation keeps its file's own word for a term, not a later variant", () => {
+  const problems = [];
+  for (const [code, patterns] of Object.entries(DRIFTED_TERMS)) {
+    for (const [line, tr] of proseOf(code)) {
+      const text = typeof tr === "string" ? tr : Object.values(tr).join(" ");
+      const plain = text.replace(/\{ui:[^}]+\}/g, "").replace(/\/vg [^ ]*/g, "");
+      for (const re of patterns) if (re.test(plain)) problems.push(`${code} ${re}: ${line.slice(0, 60)}`);
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
 test("the addon's words used in {ui:Text} need no HTML escaping", () => {
   const tokens = new Set([...used.keys()].flatMap((k) => [...k.matchAll(/\{ui:([^}]+)\}/g)].map((m) => m[1])));
   assert.ok(tokens.size > 10);
