@@ -360,7 +360,7 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
   const { m, defs } = ctx;
   const found = [];
   const lit = /\{\s*"(header|check|cycle|slider|button|text)"\s*,\s*/g;
-  const chk = /(?<!function\s)\bcheck\(\s*/g;
+  const chk = /(?<![\w.]|function\s)(?:O\.)?[Cc]heck\(\s*/g;
   const vis = /\b(?:visibilityRows|ns\.Visibility\.Rows)\(\s*(?=["'])/g;
   const ref = /\b[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*\b/g;
   for (const [re, type] of [[lit, "lit"], [chk, "check"], [vis, "vis"]]) {
@@ -374,6 +374,7 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
     const name = r[0];
     if (defs.has(name) && !stack.includes(name) && !/function\s+$/.test(m.bare.slice(Math.max(0, r.index - 12), r.index))) found.push({ at: r.index, type: "ref", name });
   }
+  for (const g of otherFileRefs(ctx, from, to, defs)) found.push(g);
   found.sort((a, b) => a.at - b.at);
   const rows = [];
   for (const f of found) {
@@ -381,6 +382,11 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
     const line = m.code.slice(lineStart, m.code.indexOf("\n", f.at));
     const loopHit = line.match(/\bfor\s+(\w+)\s*=\s*(\d+)\s*,\s*(\d+)\s+do\b/);
     const here = loopHit ? { variable: loopHit[1], from: Number(loopHit[2]), to: Number(loopHit[3]) } : loop;
+    if (f.type === "global") {
+      const g = ctx.globals.get(f.name);
+      if (!stack.includes(f.name)) rows.push(...expandRows(g.ctx, g.def.from, g.def.to, [...stack, f.name], here));
+      continue;
+    }
     if (f.type === "ref") {
       const b = defs.get(f.name);
       rows.push(...expandRows(ctx, b.from, b.to, [...stack, f.name], here));
@@ -406,6 +412,21 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
     }
   }
   return rows;
+}
+
+// The rows functions of other files that code[from..to) names (O.CalmRows(), ns.QuestGuide.Rows,
+// ns.GetModule("QuestArrow").Rows()): { at, type: "global", name } for each, by the names in ctx.globals.
+function otherFileRefs(ctx, from, to, defs) {
+  if (!ctx.globals) return [];
+  const { m } = ctx;
+  const found = [];
+  const named = /ns\.GetModule\("\w+"\)\.\w+|[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+/g;
+  named.lastIndex = from;
+  let r;
+  while ((r = named.exec(m.code)) && r.index < to) {
+    if (ctx.globals.has(r[0]) && !defs.has(r[0])) found.push({ at: r.index, type: "global", name: r[0] });
+  }
+  return found;
 }
 
 // The rows without a heading that has nothing under it (its rows were captions the extractor can't read).
@@ -450,34 +471,82 @@ export function extractRowTips(reader) {
 
 export function extractPages(reader, files, modules, skipped = []) {
   const visibility = visibilityChoices(reader);
-  const pages = [];
-  for (const file of files) {
-    const m = luaFile(reader, file);
-    if (!m) continue;
-    const defs = blocks(m);
-    const fileModule = (m.code.match(/ns\.Module\(\s*"(\w+)"/) || [])[1] || null;
-    const ctx = { m, defs, fileModule, visibility, skipped };
-    const tables = [];
-    if (file === "Core/Options.lua") {
-      const t = findTable(m, "local PAGES");
-      if (t) tables.push(...t.array);
-    }
-    for (const hit of m.bare.matchAll(/AddPage\(\s*\{/g)) tables.push(parseTable(m, hit.index + hit[0].length - 1));
-    for (const t of tables) {
-      if (!t?.fields) continue;
-      const f = t.fields;
-      const rowsV = f.rows;
-      if (!rowsV || typeof f.title !== "string") continue;
-      const title = f.title;
-      const key = typeof f.key === "string" ? f.key : f.key?.expr ? resolveConst(m, f.key.expr) : title.toLowerCase();
-      const range = rowsV.expr !== undefined ? [rowsV.from, rowsV.to] : [t.from, t.to];
-      const rows = withoutEmptyGroups(dedupe(expandRows(ctx, range[0], range[1])));
-      pages.push({ key, title, order: typeof f.order === "number" ? f.order : 999, file, rows });
-    }
-  }
+  const contexts = files.map((file) => pageContext(reader, file, visibility, skipped)).filter(Boolean);
+  const globals = rowFunctions(contexts);
+  for (const ctx of contexts) ctx.globals = globals;
+  const pages = contexts.flatMap((ctx) => filePages(ctx));
+  for (const ctx of contexts) addedRows(ctx, pages);
+  for (const p of pages) p.rows = withoutEmptyGroups(dedupe(p.rows));
   pages.sort((a, b) => a.order - b.order);
   applyDefaults(pages, modules, reader);
   return pages;
+}
+
+// One file's reading context for its option pages (null when the ref has no such file).
+function pageContext(reader, file, visibility, skipped) {
+  const m = luaFile(reader, file);
+  if (!m) return null;
+  const fileModule = (m.code.match(/ns\.Module\(\s*"(\w+)"/) || [])[1] || null;
+  return { file, m, defs: blocks(m), fileModule, visibility, skipped };
+}
+
+// The functions of any file that build option rows, by every name other files call them by (O.CalmRows,
+// ns.QuestGuide.Rows, ns.GetModule("QuestGuide").Rows): name -> { ctx, def }.
+function rowFunctions(contexts) {
+  const out = new Map();
+  const makesRows = /\{\s*"(?:header|check|cycle|slider|button|text)"\s*,|(?<![\w.])(?:O\.)?[Cc]heck\(/;
+  for (const ctx of contexts) {
+    for (const [name, def] of ctx.defs) {
+      if (def.kind !== "function" || !name.includes(".") || !makesRows.test(ctx.m.code.slice(def.from, def.to))) continue;
+      const last = name.split(".").pop();
+      const names = [name, ...(ctx.fileModule ? [`ns.${ctx.fileModule}.${last}`, `ns.GetModule("${ctx.fileModule}").${last}`] : [])];
+      for (const n of names) if (!out.has(n)) out.set(n, { ctx, def });
+    }
+  }
+  return out;
+}
+
+// The pages one file declares (Core/Options.lua's PAGES and every AddPage({...})): key, title, order, rows.
+function filePages(ctx) {
+  const { m, file } = ctx;
+  const tables = [];
+  if (file === "Core/Options.lua") {
+    const t = findTable(m, "local PAGES");
+    if (t) tables.push(...t.array);
+  }
+  for (const hit of m.bare.matchAll(/AddPage\(\s*\{/g)) tables.push(parseTable(m, hit.index + hit[0].length - 1));
+  const pages = [];
+  for (const t of tables) {
+    if (!t?.fields) continue;
+    const f = t.fields;
+    const rowsV = f.rows;
+    if (!rowsV || typeof f.title !== "string") continue;
+    const key = typeof f.key === "string" ? f.key : f.key?.expr ? resolveConst(m, f.key.expr) : f.title.toLowerCase();
+    const range = rowsV.expr !== undefined ? [rowsV.from, rowsV.to] : [t.from, t.to];
+    pages.push({ key, title: f.title, order: typeof f.order === "number" ? f.order : 999, file, rows: expandRows(ctx, range[0], range[1]) });
+  }
+  return pages;
+}
+
+// Rows a file adds to another file's page: ns.Options.AddRows("page", Fn[, true]) (after the page's own rows, or
+// before them with true), and ns.RetailRows(function() ... end) (on the Game windows page, above its Reset button).
+function addedRows(ctx, pages) {
+  const { m } = ctx;
+  for (const hit of m.code.matchAll(/(?:ns\.Options|O)\.AddRows\(\s*"(\w+)"\s*,\s*([\w.]+)\s*(,\s*true)?\s*\)/g)) {
+    const def = ctx.defs.get(hit[2]);
+    const page = pages.find((p) => p.key === hit[1]);
+    if (!def || !page) continue;
+    const rows = expandRows(ctx, def.from, def.to, [hit[2]]);
+    page.rows = hit[3] ? [...rows, ...page.rows] : [...page.rows, ...rows];
+  }
+  for (const hit of m.bare.matchAll(/ns\.RetailRows\(\s*function\s*\(/g)) {
+    const page = pages.find((p) => p.key === "windows");
+    if (!page) continue;
+    const open = m.bare.indexOf("(", hit.index);
+    const rows = expandRows(ctx, open, matchBracket(m.bare, m.bare.indexOf("(", hit.index)));
+    const at = page.rows.findIndex((r) => r.kind === "button" && r.caption === "Reset window positions");
+    page.rows.splice(at < 0 ? page.rows.length : at, 0, ...rows);
+  }
 }
 
 // The literal string a file-level `local NAME = "..."` holds.

@@ -835,6 +835,17 @@ test("Profiles tags the asks as next release when the release has none", () => {
   assert.equal((html.match(/<span data-avail="next"> <span class="badge next">Next release<\/span> It asks first/g) || []).length, 3, "every ask sits in a next-release span");
 });
 
+// Rows other files add to a page (ns.Options.AddRows, ns.RetailRows) and rows a page takes from another file's function are listed.
+test("Settings lists rows added with AddRows and RetailRows and rows named in other files", () => {
+  const next = extractAddon(gitReader(cfg.sourcePath, refs.next));
+  const caps = (key) => next.pages.find((p) => p.key === key).rows.map((r) => r.caption);
+  assert.ok(caps("windows").includes("Item level on gear slots"), "CharacterExtras adds its rows to Game windows");
+  assert.ok(caps("windows").indexOf("Group finder and PvP windows (reload)") < caps("windows").indexOf("Reset window positions"), "RetailRows come above the Reset button");
+  assert.ok(caps("map").includes("Arrow to a Ctrl-clicked waypoint") && caps("tools").includes("Soft-reserve list"));
+  assert.ok(caps("quests").includes("Show the quest arrow"), "a module's Rows() named from the Quests page");
+  assert.ok(caps("general").includes("Calm HUD out of combat"), "O.CalmRows() from another file");
+});
+
 // A made-up module with these switch defaults, as startsOff reads it.
 function offCase(defaults, desc = "Off until you switch it on.") {
   return startsOff({ key: "Made", desc }, { next: { modules: [{ name: "Made", defaults }] } });
@@ -1223,12 +1234,8 @@ test("a renamed setting is one row: its short name, with the old caption as its 
   const at = (name) => `class="opt-cap">${esc(name)} <`;
   const caption = (name) => (html.includes(at(name)) ? at(name) : `class="opt-cap">${esc(name)} (reload) <`);
   const shown = [...renamed].filter(([name]) => html.includes(caption(name)));
-  // Rows the addon's modules add to a page with ns.Options.AddRows / ns.RetailRows, or build in a way the extractor does not
-  // read yet: renamed, but not listed on /settings/. The list only shrinks; any other renamed row missing is a failure.
-  const NOT_LISTED = ["Calm HUD out of combat", "Item level on gear slots", "Mark missing enchants", "Numbered channels", "Put the list in the party chat box", "Put the list in the raid chat box", "Soft-reserve list", "Follow the nearest quest", "Mark quests new in WoW Forever", "Next step in the tracker", "Expansion and transmog windows", "Group finder and PvP windows", "Arrow to a Ctrl-clicked waypoint"];
   const missing = [...renamed.keys()].filter((name) => !html.includes(caption(name)));
-  assert.deepEqual(missing.filter((n) => !NOT_LISTED.includes(n)), [], "renamed rows missing from /settings/");
-  assert.deepEqual(NOT_LISTED.filter((n) => !missing.includes(n)), [], "listed now: take them off NOT_LISTED");
+  assert.deepEqual(missing, [], "renamed rows missing from /settings/");
   for (const [name, old] of shown) {
     const row = html.slice(html.indexOf(caption(name))).split("</th>")[0];
     assert.ok(row.includes(`<span class="opt-tip">${esc(old.replace(/ \(reload\)$/, ""))}</span>`), `"${name}" lacks its old caption as a tip`);
