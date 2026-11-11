@@ -82,6 +82,7 @@ export const ENGLISH_STRINGS = {
   "notFound.lede": "Try the {home}.",
   "notFound.home": "home page",
   "badge.next": "Next release",
+  "badge.retailOnly": "Retail only",
   "badge.old": "v{version} only",
   "badge.reload": "Needs reload",
   "source": "Source",

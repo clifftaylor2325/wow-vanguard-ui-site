@@ -14,6 +14,7 @@ import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYR
 import { helpPage, licenseSummary, profilesPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
+import { tocRetailOnly } from "../scripts/lib/source.mjs";
 import { featuresPage, startsOff, startPage, settingsPage } from "../scripts/lib/pages-main.mjs";
 import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
@@ -1243,4 +1244,15 @@ test("a renamed setting is one row: its short name, with the old caption as its 
     assert.ok(row.includes(`<span class="opt-tip">${esc(old.replace(/ \(reload\)$/, ""))}</span>`), `"${name}" lacks its old caption as a tip`);
     assert.ok(!html.includes(`class="opt-cap">${esc(old)} <span class="badge old">`), `"${old}" is still listed as its own release-only row`);
   }
+});
+
+// The rows a Retail-only file adds are marked "Retail only", read from the TOC's load flags rather than typed.
+test("Settings marks the rows from Retail-only files, and no other row", () => {
+  const toc = "Modules/A.lua\nModules/RetailWindows.lua [AllowLoadGameType standard] [ExcludeLoadGameType camelot]\nModules/Forever.lua [AllowLoadGameType camelot] [ExcludeLoadGameType standard]\n";
+  assert.deepEqual([...tocRetailOnly(toc)], ["Modules/RetailWindows.lua"]);
+  const html = page("settings");
+  const marked = [...html.matchAll(/<th scope="row" class="opt-cap">([^<]*?)(?: \(reload\))? (?:<span class="badge reload">[^<]*<\/span> )?<span class="badge plain">Retail only<\/span>/g)].map((m) => m[1]);
+  assert.deepEqual(marked, ["Group finder and PvP windows", "Great Vault window", "Great Vault progress on the info strip", "Expansion and transmog windows"]);
+  assert.equal((html.match(/Retail only/g) || []).length, 4);
+  assert.match(page("de/settings"), /Nur Retail/);
 });

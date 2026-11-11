@@ -1046,7 +1046,7 @@ function optRow(r, version, pageTitle, id, loc) {
   const attrs = `data-avail="${avail(r.inRel, r.inNext)}" data-search="${esc(rowSearch(r, pageTitle, loc))}"`;
   if (r.kind === "header" || r.kind === "text") return wideRow(r, attrs, version, loc);
   const loop = r.loop ? ` <span class="small">(${esc(r.loop.variable)} = ${loc.t("set.range", { min: r.loop.from, max: r.loop.to })})</span>` : "";
-  const tags = [r.reload ? reloadBadge(loc) : "", badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
+  const tags = [r.reload ? reloadBadge(loc) : "", r.clientOnly === "retail" ? `<span class="badge plain">${loc.t("badge.retailOnly")}</span>` : "", badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
   const kind = KINDS.includes(r.kind) ? ` <span class="opt-kind">${loc.t(`kind.${r.kind}`)}</span>` : "";
   const cells = [valuesText(r, loc), defaultText(r, loc)].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
   return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${tags ? ` ${tags}` : ""}${kind}${rowTip(r, loc)}</th>${cells.join("")}</tr>`;

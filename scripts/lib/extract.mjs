@@ -4,7 +4,7 @@
 // the setup wizard's choices. Extraction is deliberately narrow; the test
 // suite fails if anything the Lua defines doesn't reach the site.
 import { mask, findTable, blocks, parseTable, parseValue, splitTop, matchBracket, readString, plain } from "./lua.mjs";
-import { tocFiles, tocMeta } from "./source.mjs";
+import { tocFiles, tocMeta, tocRetailOnly } from "./source.mjs";
 
 // Reads and masks a Lua file (null when the ref doesn't have it).
 function luaFile(reader, file) {
@@ -472,6 +472,8 @@ export function extractRowTips(reader) {
 export function extractPages(reader, files, modules, skipped = []) {
   const visibility = visibilityChoices(reader);
   const contexts = files.map((file) => pageContext(reader, file, visibility, skipped)).filter(Boolean);
+  const retailOnly = tocRetailOnly(reader.read("Vanguard.toc") || reader.read("ForeverUI.toc") || "");
+  for (const ctx of contexts) ctx.retailOnly = retailOnly.has(ctx.file);
   const globals = rowFunctions(contexts);
   for (const ctx of contexts) ctx.globals = globals;
   const pages = contexts.flatMap((ctx) => filePages(ctx));
@@ -523,9 +525,14 @@ function filePages(ctx) {
     if (!rowsV || typeof f.title !== "string") continue;
     const key = typeof f.key === "string" ? f.key : f.key?.expr ? resolveConst(m, f.key.expr) : f.title.toLowerCase();
     const range = rowsV.expr !== undefined ? [rowsV.from, rowsV.to] : [t.from, t.to];
-    pages.push({ key, title: f.title, order: typeof f.order === "number" ? f.order : 999, file, rows: expandRows(ctx, range[0], range[1]) });
+    pages.push({ key, title: f.title, order: typeof f.order === "number" ? f.order : 999, file, rows: fromClient(ctx, expandRows(ctx, range[0], range[1])) });
   }
   return pages;
+}
+
+// Rows from a file only Retail loads (read from the TOC's load flags) carry clientOnly: "retail".
+function fromClient(ctx, rows) {
+  return ctx.retailOnly ? rows.map((r) => ({ ...r, clientOnly: "retail" })) : rows;
 }
 
 // Rows a file adds to another file's page: ns.Options.AddRows("page", Fn[, true]) (after the page's own rows, or
@@ -536,14 +543,14 @@ function addedRows(ctx, pages) {
     const def = ctx.defs.get(hit[2]);
     const page = pages.find((p) => p.key === hit[1]);
     if (!def || !page) continue;
-    const rows = expandRows(ctx, def.from, def.to, [hit[2]]);
+    const rows = fromClient(ctx, expandRows(ctx, def.from, def.to, [hit[2]]));
     page.rows = hit[3] ? [...rows, ...page.rows] : [...page.rows, ...rows];
   }
   for (const hit of m.bare.matchAll(/ns\.RetailRows\(\s*function\s*\(/g)) {
     const page = pages.find((p) => p.key === "windows");
     if (!page) continue;
     const open = m.bare.indexOf("(", hit.index);
-    const rows = expandRows(ctx, open, matchBracket(m.bare, m.bare.indexOf("(", hit.index)));
+    const rows = fromClient(ctx, expandRows(ctx, open, matchBracket(m.bare, m.bare.indexOf("(", hit.index))));
     const at = page.rows.findIndex((r) => r.kind === "button" && r.caption === "Reset window positions");
     page.rows.splice(at < 0 ? page.rows.length : at, 0, ...rows);
   }
