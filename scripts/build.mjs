@@ -151,6 +151,13 @@ function writeProse(locales) {
   }
 }
 
+// Says which settings rows the build could not read a caption for (they are left off the pages).
+function warnSkippedRows(rel, next) {
+  for (const a of [rel, next]) {
+    if (a.skippedRows?.length) console.warn(`settings: ${a.skippedRows.length} rows at ${a.ref.slice(0, 7)} have a caption that is not a string the build can read, so they are left off: ${a.skippedRows.join(", ")}`);
+  }
+}
+
 // Entry point.
 function main() {
   need(fs.existsSync(path.join(cfg.sourcePath, ".git")), `no addon clone at ${cfg.sourcePath}; run \`npm run fetch\` or set FUI_SRC`);
@@ -159,6 +166,7 @@ function main() {
   const nextReader = gitReader(cfg.sourcePath, cfg.sourceRef);
   const rel = publicAddon(extractAddon(relReader));
   const next = publicAddon(extractAddon(nextReader));
+  warnSkippedRows(rel, next);
   need(`v${rel.meta.Version}` === release.tag, `release ${release.tag} has TOC version ${rel.meta.Version}`);
   const releases = { ...meta, releases: meta.releases.map((r) => ({ ...r, body: publicText(r.body) })) };
   const model = buildModel({ rel, next, release, releases });

@@ -245,11 +245,22 @@ export function showSlots(text) {
   return text.replace(/\{(\w+)\}/g, (_, name) => `<${SHOWN[name] || name}>`);
 }
 
-// Reads an ns.Format caption's string at code[i]: each {slot} shows as <slot>, and its variable is the identifier
+// Reads an ns.Format caption's text at code[i], once past `ns.Format(`: the first argument is a quoted
+// string, or a name captionChoices can resolve. Each {slot} shows as <slot>, and its variable is the identifier
 // the first slot's value starts with ({ n = n } gives n), so a row in a numeric loop is still seen as one.
-// `key` is the string as the game looks it up in the language files.
-function formatCaption(m, i) {
-  const s = readString(m.code, i);
+// `key` is the string as the game looks it up in the language files. One caption for each string the first
+// argument can be (a name with two choices gives two); null when it can't be told from the code.
+function formatCaptions(ctx, i) {
+  const { m } = ctx;
+  const quoted = /["']/.test(m.code[i]);
+  const named = quoted ? null : m.code.slice(i).match(/^[A-Za-z_]\w*/);
+  if (!quoted && !named) return null;
+  const strings = quoted ? [readString(m.code, i)] : (captionChoices(ctx, named[0], i) || []).map((value) => ({ value, end: i + named[0].length }));
+  return strings.length ? strings.map((s) => formatCaption(m, s)) : null;
+}
+
+// One ns.Format caption: its string s ({ value, end }) and the values table that follows it.
+function formatCaption(m, s) {
   const values = (m.code.slice(s.end).match(/^\s*,\s*\{([^}]*)\}/) || [])[1] || "";
   const first = (s.value.match(/\{(\w+)\}/) || [])[1];
   const variable = first ? (values.match(new RegExp(`\\b${first}\\s*=\\s*([A-Za-z_]\\w*)`)) || [])[1] || null : null;
@@ -260,19 +271,87 @@ function formatCaption(m, i) {
 const JOINED_VALUE = /^\s*\.\.\s*([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)(?:\[[^\]]*\])?/;
 
 // Reads a caption string at code[i] with the values and strings joined on after it (`"Clear " .. SI.LABELS[name]`),
-// or an ns.Format caption (formatCaption).
-function captionAt(m, i) {
+// or an ns.Format caption (formatCaptions). Always a list: more than one when the caption is a name with
+// several choices, empty when it can't be read.
+function captionAt(ctx, i) {
+  const { m } = ctx;
   const call = m.code.slice(i).match(FORMAT_CALL);
-  if (call) return formatCaption(m, i + call[0].length);
+  if (call) return formatCaptions(ctx, i + call[0].length) || [];
+  if (!/["']/.test(m.code[i])) return captionNames(ctx, i);
   const s = readString(m.code, i);
   const joined = m.code.slice(s.end).match(JOINED_VALUE);
-  if (!joined) return { caption: s.value, variable: null, end: s.end };
+  if (!joined) return [{ caption: s.value, variable: null, end: s.end }];
   const name = joined[1];
   const last = name.split(".").pop();
   const shown = `<${JOINED_SHOWN[last] || SHOWN[last] || last}>`;
   const after = m.code.slice(s.end + joined[0].length).match(/^\s*\.\.\s*(?=["'])/);
   const tail = after ? readString(m.code, s.end + joined[0].length + after[0].length) : null;
-  return { caption: `${s.value}${shown}${tail ? tail.value : ""}`, variable: name.includes(".") ? null : name, end: tail ? tail.end : s.end };
+  return [{ caption: `${s.value}${shown}${tail ? tail.value : ""}`, variable: name.includes(".") ? null : name, end: tail ? tail.end : s.end }];
+}
+
+// A caption that is a name (portraitRow's `label`, a loop's `g[2]`) rather than a string: one caption for
+// each string captionChoices finds for it; none when the name can't be resolved.
+function captionNames(ctx, i) {
+  const text = ctx.m.code.slice(i).match(/^[A-Za-z_]\w*(?:\[\d+\])?/);
+  return text ? (captionChoices(ctx, text[0], i) || []).map((value) => ({ caption: value, variable: null, end: i + text[0].length })) : [];
+}
+
+// The strings a name can stand for at code[at], read from the code: a local of the function around it (an
+// and/or choice gives both strings), a parameter (what each call of the function passes), or `g[2]` in a loop
+// over a table of rows. null when any part can't be told from the code alone.
+function captionChoices(ctx, text, at, depth = 0) {
+  const { m } = ctx;
+  if (depth > 3) return null;
+  const literal = text.trim().match(/^(["'])/);
+  if (literal) return [readString(text.trim(), 0).value];
+  const entry = text.trim().match(/^([A-Za-z_]\w*)\[(\d+)\]$/);
+  if (entry) return loopTableStrings(ctx, entry[1], Number(entry[2]), at);
+  const name = text.trim().match(/^[A-Za-z_]\w*$/);
+  if (!name) return null;
+  const fn = enclosingFunction(ctx, at);
+  if (!fn) return null;
+  const body = m.code.slice(fn.from, at);
+  const local = [...body.matchAll(new RegExp(`\\blocal\\s+${name[0]}\\s*=\\s*([^\\n]+)`, "g"))].pop();
+  if (local) return choicesOfExpression(ctx, local[1], at, depth);
+  const index = fn.params.indexOf(name[0]);
+  return index < 0 || fn.name === "check" ? null : callArguments(ctx, fn.name, index, depth);
+}
+
+// An expression of strings joined by and/or (comparisons dropped): every string it can give.
+function choicesOfExpression(ctx, expr, at, depth) {
+  const parts = expr.replace(/\b\w+\s*[=~]=\s*(?:"[^"]*"|'[^']*'|\w+)/g, "").split(/\band\b|\bor\b/).map((p) => p.trim()).filter(Boolean);
+  const found = parts.map((p) => captionChoices(ctx, p, at, depth + 1));
+  return found.length && found.every(Boolean) ? found.flat() : null;
+}
+
+// The function around code[at] that the file defines: { name, params, from } (null when at is in none).
+function enclosingFunction(ctx, at) {
+  const { m, defs } = ctx;
+  const inside = [...defs].filter(([, d]) => d.kind === "function" && d.from <= at && at < d.to).sort((a, b) => b[1].from - a[1].from)[0];
+  if (!inside) return null;
+  const open = m.bare.lastIndexOf("(", inside[1].from);
+  return { name: inside[0], params: m.bare.slice(open + 1, inside[1].from).replace(/\)\s*$/, "").split(",").map((p) => p.trim()), from: inside[1].from };
+}
+
+// The strings every call of a function in this file gives its parameter number `index`; null when one is no string.
+function callArguments(ctx, name, index, depth) {
+  const { m } = ctx;
+  const calls = [...m.bare.matchAll(new RegExp(`(?<![\\w.:])${name.split(".").pop()}\\(`, "g"))].filter((c) => !/function\s+$/.test(m.bare.slice(Math.max(0, c.index - 12), c.index)));
+  const found = calls.map((c) => {
+    const open = c.index + c[0].length - 1;
+    const part = splitTop(m.bare, open + 1, matchBracket(m.bare, open) - 1)[index];
+    return part ? captionChoices(ctx, m.code.slice(part[0], part[1]), c.index, depth + 1) : null;
+  });
+  return found.length && found.every(Boolean) ? found.flat() : null;
+}
+
+// Item number `index` of each row of the table a loop `for _, name in ipairs(TABLE)` above code[at] walks; null when not a literal table of strings.
+function loopTableStrings(ctx, name, index, at) {
+  const { m } = ctx;
+  const loops = [...m.bare.slice(0, at).matchAll(new RegExp(`\\bfor\\s+\\w+\\s*,\\s*${name}\\s+in\\s+ipairs\\(\\s*([A-Za-z_]\\w*)\\s*\\)`, "g"))];
+  const table = loops.length ? findTable(m, `local ${loops.pop()[1]}`) : null;
+  const strings = table?.array.map((row) => plain(row)?.[index - 1]);
+  return strings?.length && strings.every((v) => typeof v === "string") ? strings : null;
 }
 
 // Expands the rows reachable from code[from..to): row literals, check(...)
@@ -280,8 +359,8 @@ function captionAt(m, i) {
 function expandRows(ctx, from, to, stack = [], loop = null) {
   const { m, defs } = ctx;
   const found = [];
-  const lit = /\{\s*"(header|check|cycle|slider|button|text)"\s*,\s*(?=["']|ns\.Format\()/g;
-  const chk = /\bcheck\(\s*(?=["']|ns\.Format\()/g;
+  const lit = /\{\s*"(header|check|cycle|slider|button|text)"\s*,\s*/g;
+  const chk = /(?<!function\s)\bcheck\(\s*/g;
   const vis = /\b(?:visibilityRows|ns\.Visibility\.Rows)\(\s*(?=["'])/g;
   const ref = /\b[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*\b/g;
   for (const [re, type] of [[lit, "lit"], [chk, "check"], [vis, "vis"]]) {
@@ -314,18 +393,24 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
     const capIdx = f.type === "lit" ? 1 : 0;
     if (!parts[capIdx]) continue;
     const capStart = parts[capIdx][0] + (m.code.slice(parts[capIdx][0]).length - m.code.slice(parts[capIdx][0]).trimStart().length);
-    if (!/["']/.test(m.code[capStart]) && !FORMAT_CALL.test(m.code.slice(capStart))) continue;
-    const cap = captionAt(m, capStart);
+    const caps = captionAt(ctx, capStart);
+    if (!caps.length) ctx.skipped.push(`${ctx.m.file}:${m.code.slice(0, f.at).split("\n").length}`);
     const kind = f.type === "lit" ? f.h[1] : f.type === "check" ? "check" : "visibility";
-    const loopFor = cap.variable && here && here.variable === cap.variable ? here : null;
-    const row = makeRow(ctx, kind, cap.caption, parts.slice(capIdx + 1), loopFor);
-    if (cap.key) row.key = cap.key;
-    if (kind === "visibility") row.choices = ctx.visibility(m.code.slice(open, close));
-    if (here && !loopFor && f.type !== "lit") row.repeated = here;
-    if (here && !loopFor && f.type === "lit") row.repeated = here;
-    rows.push(row);
+    for (const cap of caps) {
+      const loopFor = cap.variable && here && here.variable === cap.variable ? here : null;
+      const row = makeRow(ctx, kind, cap.caption, parts.slice(capIdx + 1), loopFor);
+      if (cap.key) row.key = cap.key;
+      if (kind === "visibility") row.choices = ctx.visibility(m.code.slice(open, close));
+      if (here && !loopFor) row.repeated = here;
+      rows.push(row);
+    }
   }
   return rows;
+}
+
+// The rows without a heading that has nothing under it (its rows were captions the extractor can't read).
+function withoutEmptyGroups(rows) {
+  return rows.filter((r, i) => r.kind !== "header" || (rows[i + 1] && rows[i + 1].kind !== "header"));
 }
 
 // Removes repeated rows (same kind and caption) within a page.
@@ -363,7 +448,7 @@ export function extractRowTips(reader) {
   return { renamed: table("RENAMED"), game: table("GAME_SETTING_TIPS") };
 }
 
-export function extractPages(reader, files, modules) {
+export function extractPages(reader, files, modules, skipped = []) {
   const visibility = visibilityChoices(reader);
   const pages = [];
   for (const file of files) {
@@ -371,7 +456,7 @@ export function extractPages(reader, files, modules) {
     if (!m) continue;
     const defs = blocks(m);
     const fileModule = (m.code.match(/ns\.Module\(\s*"(\w+)"/) || [])[1] || null;
-    const ctx = { m, defs, fileModule, visibility };
+    const ctx = { m, defs, fileModule, visibility, skipped };
     const tables = [];
     if (file === "Core/Options.lua") {
       const t = findTable(m, "local PAGES");
@@ -386,7 +471,7 @@ export function extractPages(reader, files, modules) {
       const title = f.title;
       const key = typeof f.key === "string" ? f.key : f.key?.expr ? resolveConst(m, f.key.expr) : title.toLowerCase();
       const range = rowsV.expr !== undefined ? [rowsV.from, rowsV.to] : [t.from, t.to];
-      const rows = dedupe(expandRows(ctx, range[0], range[1]));
+      const rows = withoutEmptyGroups(dedupe(expandRows(ctx, range[0], range[1])));
       pages.push({ key, title, order: typeof f.order === "number" ? f.order : 999, file, rows });
     }
   }
@@ -574,6 +659,7 @@ export function extractAddon(reader) {
   const meta = tocMeta(tocText);
   const files = tocFiles(tocText);
   const modules = extractModules(reader, files);
+  const skipped = [];
   return {
     ref: reader.ref,
     commit: reader.commit,
@@ -584,7 +670,8 @@ export function extractAddon(reader) {
     moduleInfo: extractModuleInfo(reader, files),
     moduleLinks: extractModuleLinks(reader),
     overlaps: extractOverlaps(reader),
-    pages: extractPages(reader, files, modules),
+    pages: extractPages(reader, files, modules, skipped),
+    skippedRows: [...new Set(skipped)],
     rowTips: extractRowTips(reader),
     theme: extractTheme(reader),
     setup: extractSetup(reader),

@@ -43,7 +43,7 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
 1. `scripts/fetch.mjs` clones the addon into `.cache/wow-vanguard-ui` (or uses `FUI_SRC`). It reads every release's metadata (tag, date, notes) into `.cache/release.json` with `gh release view`. It doesn't download the release zip.
 2. `scripts/build.mjs` reads the Lua at **two refs**: the release tag (the current release) and the pinned `sourceRef` (what's coming). Each file is read with `git show <ref>:<file>`, so the checkout is never changed. `scripts/lib/lua.mjs` is a small reader for the Lua tables the addon uses. `scripts/lib/extract.mjs` pulls out:
    - `Core/Slash.lua`: every command word, its aliases and its help line, verbatim
-   - `Core/Modules.lua`, `Modules/*.lua` and `Core/Options.lua`: modules, their descriptions, and every options page, row, default, range and reload flag
+   - `Core/Modules.lua`, `Modules/*.lua` and `Core/Options.lua`: modules, their descriptions, and every options page, row, default, range and reload flag (a row whose caption is a name is read from what the code gives it, a helper's call sites or a loop's table; one it can't read is left off, and the build lists it)
    - `Core/Theme.lua`: the theme colors and accent presets (they become `assets/theme.css`)
    - `Core/Setup.lua`: the setup wizard
    - `README.md`, the `.toc` file and the release: feature text, the tagline (the TOC Notes line up to its colon, in every language), Troubleshooting's Known issues (the README's `## Known issues` list), version, interface and release notes

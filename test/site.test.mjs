@@ -995,6 +995,48 @@ local PAGES = { { key = "bars", title = L["Bars"], rows = barRows } }`);
   assert.deepEqual(page.rows.map((r) => r.key), ["Show bar {n}", "Remove: {item}"], "the row keeps the key the game looks the text up by");
 });
 
+// A caption that is a name, not a string: a helper's own text is read from what the code gives it, and one it can't read is left off with a note.
+test("an option row whose caption is a name is read from the code, or left off and reported", () => {
+  const lua = unwrapLocale(`local ADDON, ns = ...
+local FRAMES = { { "player", L["Player"] }, { "target", L["Target"] } }
+local function sizeSlider(frame, dimension)
+  local label = dimension == "width" and L["{frame}: width"] or L["{frame}: height"]
+  return { "slider", ns.Format(label, { frame = frame[2] }), range, setting(key) }
+end
+local function portrait(label) return { "cycle", label, CHOICES, setting(label) } end
+local function rows()
+  local rows = { { "header", L["Sizes"] } }
+  for _, frame in ipairs(FRAMES) do rows[#rows + 1] = sizeSlider(frame, "width") end
+  rows[#rows + 1] = portrait(L["Player portrait"])
+  rows[#rows + 1] = portrait(L["Target portrait"])
+  for _, g in ipairs(FRAMES) do rows[#rows + 1] = check(g[2], setting(g[1])) end
+  rows[#rows + 1] = { "header", L["Empty"] }
+  rows[#rows + 1] = { "text", SOME.TEXT }
+  return rows
+end
+local PAGES = { { key = "x", title = L["X"], rows = rows } }`);
+  const skipped = [];
+  const [page] = extractPages({ read: (file) => (file === "Core/Options.lua" ? lua : null) }, ["Core/Options.lua"], [], skipped);
+  assert.deepEqual(page.rows.map((r) => `${r.kind}:${r.caption}`), ["header:Sizes", "slider:<frame>: width", "slider:<frame>: height", "cycle:Player portrait", "cycle:Target portrait", "check:Player", "check:Target"]);
+  assert.equal(page.rows.find((r) => r.kind === "slider").key, "{frame}: width", "the slider keeps the key the game looks it up by");
+  assert.equal(skipped.length, 1, "the text row named by a table field is reported");
+  assert.ok(!page.rows.some((r) => r.caption === "Empty"), "a heading with nothing under it is left off");
+});
+
+// The settings pages of the addon itself: no caption the build mistook for a string, no empty group.
+test("every settings row has a readable caption and no group is empty", () => {
+  const next = extractAddon(gitReader(cfg.sourcePath, refs.next));
+  for (const p of next.pages) {
+    p.rows.forEach((r, i) => {
+      if (r.kind === "header") assert.ok(p.rows[i + 1] && p.rows[i + 1].kind !== "header", `${p.title}: "${r.caption}" has no rows`);
+      assert.ok(r.caption.length >= 3 && !/^[a-z]{3}$/.test(r.caption), `${p.title}: caption "${r.caption}" looks misread`);
+    });
+  }
+  const frames = next.pages.find((p) => p.key === "unitframes").rows.map((r) => r.caption);
+  assert.ok(frames.includes("<frame>: width") && frames.includes("<frame>: height") && frames.includes("Player portrait"), "the Unit frames size and portrait rows are listed");
+  assert.ok(!page("settings").includes("unit-frames-abe"), "no 'abe' row on Settings");
+});
+
 // A caption joined with `..` to a dotted or indexed value reads in full, worded like the next release's ns.Format version.
 test("an option row's caption joined to BS.MAX or SI.LABELS[name] keeps the whole name and the text after it", () => {
   const lua = unwrapLocale(`local ADDON, ns = ...
