@@ -18,7 +18,7 @@ npm install        # once: dev tools (playwright-core for screenshots, wawoff2 f
 npm run build      # fetch the addon source and release metadata, then generate dist/
 npm test           # check the generated site against the addon's Lua
 npm run check      # build, then test
-npm run serve      # serve dist/ at http://localhost:8080
+npm run serve      # serve dist/ at http://localhost:8788
 npm run shots      # full-page screenshots; checks: no horizontal scroll at 390 and 360px, every reference page fits one screen as it opens (1280x800 and 390x844), the Menu drawer, the search boxes, the skip link by keyboard, and the feedback form (needs Chrome)
 npm run fonts      # re-make src/fonts/*.woff2 from the addon's TTF fonts (after npm run fetch)
 npm run stub:github  # a stand-in GitHub API on 127.0.0.1:8789 for the feedback Function (see Feedback form)
@@ -153,7 +153,7 @@ SHOTS_BASE=http://localhost:8788 npm run shots   # optional: the form walk-throu
 ### What gets filed
 
 - Labels: `bug` + `from-site`, or `feature-request` + `from-site`.
-- Every free-text field and the pasted report go in fenced code blocks, each fence longer than any run of backticks inside, so nothing a player types can add headings, tables, quotes, lists, rules, HTML or mentions, or close its block early. Inside a fence HTML shows as typed, so nothing there is stripped (text like `a<b and c>d` stays as written). Titles have HTML stripped and `@mentions` and `#123` broken (GitHub shows titles as plain text). One-line values in the body, such as the environment table, also have HTML stripped, inline markdown escaped, and bare URLs broken with a zero-width space so they don't autolink.
+- Every free-text field and the pasted report go in fenced code blocks, each fence longer than any run of backticks inside, so nothing a player types can add headings, tables, quotes, lists, rules, HTML or mentions, or close its block early. Inside a fence HTML shows as typed, so nothing there is stripped (text like `a<b and c>d` stays as written). Titles keep `<`, `>` and `&` as typed (GitHub shows titles as plain text) but have `@mentions` and `#123` broken and text-reordering characters dropped. One-line values in the body, such as the environment table, also have HTML stripped, inline markdown escaped, and bare URLs broken with a zero-width space so they don't autolink.
 - Every report has its own reference (`Reference: VG-…` and a hidden `<!-- fui-ref VG-… -->`; reports sent before the rename have `FUI-…` references, which still work). A repeat of an open bug becomes a comment carrying the repeat reporter's own reference; the player gets that reference back, never the first reporter's.
 - Bugs with a caught error carry a fingerprint (`fp:` + 8 hex characters from the first error and its top stack line, with line numbers, addresses and counts removed). A second report of the same open bug becomes a comment on it.
 - Contact details (only when the player ticks the box) are kept in `FEEDBACK_KV` for 90 days, never in the issue. No IP address is stored: the rate cap keys are `sha256(IP + RL_SALT + date)`, kept for 2 hours.
