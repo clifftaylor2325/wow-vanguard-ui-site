@@ -68,3 +68,14 @@ test("Settings shows a setting's reload tag beside its caption, in three columns
 test("the menu drawer has its own Close button in every language", () => {
   for (const d of LANG_DIRS) assert.match(html(d), /<nav class="nav sidebar"[^>]*><button class="nav-close" type="button">[^<]+<\/button>/, `/${d}`);
 });
+
+// The local preview server keeps to dist/: a sibling folder named like it, a ../ path and a bad escape are refused.
+test("serve.mjs answers only for files inside the folder it serves", async () => {
+  const { resolveInside } = await import("../scripts/serve.mjs");
+  const root = path.resolve("/srv/dist");
+  assert.equal(resolveInside(root, "/install/"), path.join(root, "install"));
+  assert.equal(resolveInside(root, "/"), root);
+  assert.equal(resolveInside(root, "/..%2fdist-secret/key.txt"), 403, "a sibling folder whose name starts with dist");
+  assert.equal(resolveInside(root, "/..%2f..%2fetc/passwd"), 403);
+  assert.equal(resolveInside(root, "/%E0%A4%A"), 400, "a bad escape is a 400, not a crash");
+});
