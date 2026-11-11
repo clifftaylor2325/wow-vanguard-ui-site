@@ -622,9 +622,22 @@ test("next-release items stay out of the current release's section", () => {
   const items = NEXT_RELEASE.groups.flatMap((g) => g.items);
   const current = releaseSections(html).find((s) => s.includes("Current release"));
   assert.ok(current, "no Current release section on /changelog/");
-  for (const s of releaseSections(html)) for (const i of items) assert.ok(!s.includes(esc(i.text)), `"${i.label}" is inside a release section`);
+  for (const s of releaseSections(html)) assert.deepEqual(itemsShownIn(s, items), [], "a next-release item is inside a release section");
   const next = html.match(/<section class="card" aria-labelledby="next-h">[\s\S]*?<\/section>/);
-  if (meta.current === NEXT_RELEASE.after) for (const i of items) assert.ok(next && next[0].includes(esc(i.text)), `"${i.label}" missing from What's coming`);
+  if (meta.current === NEXT_RELEASE.after) assert.deepEqual(items.filter((i) => !itemsShownIn(next ? next[0] : "", [i]).length).map((i) => i.label), [], "missing from What's coming");
+});
+
+// The labels of the items whose text a section shows, as the page renders it (a {ui:Name} filled in), not as the notes write it.
+function itemsShownIn(section, items) {
+  return items.filter((i) => section.includes(esc(EN.p(i.text)))).map((i) => i.label);
+}
+
+// The check can fail: an item with a {ui:...} name is found where it is shown, and only there.
+test("the next-release check finds an item whose text names an addon word", () => {
+  const item = { label: "Planted", text: "Click {ui:Reload now} to apply it." };
+  assert.notEqual(esc(EN.p(item.text)), esc(item.text), "the page text is not the raw note");
+  assert.deepEqual(itemsShownIn(`<li>${esc(EN.p(item.text))}</li>`, [item]), ["Planted"]);
+  assert.deepEqual(itemsShownIn("<li>Something else</li>", [item]), []);
 });
 
 // Garbled characters or a byte-order mark in any text file of the repo or the built site.
@@ -942,7 +955,10 @@ test("the footer says all rights reserved; Credits names each release's own lice
   assert.deepEqual(licenseSummary("MIT License\n\nCopyright (c) 2026 Clifton Taylor\n\nPermission is hereby granted"), { head: "MIT License", line: "Copyright (c) 2026 Clifton Taylor", released: "released under the MIT License" });
   assert.deepEqual(licenseSummary("Copyright (c) 2026 Clifton Taylor. All rights reserved.\n\nVanguard, an addon for World of Warcraft, and"), { head: "Copyright (c) 2026 Clifton Taylor. All rights reserved.", line: "", released: "" });
   const credits = page("credits");
-  assert.ok(/<strong>(MIT License|Copyright \(c\) [^<]*All rights reserved\.)<\/strong>/.test(credits), "the Credits page names the current release's license");
+  const want = licenseSummary(show(meta.current, "LICENSE")).head;
+  assert.ok(want, "the current release has a LICENSE");
+  assert.ok(credits.includes(`<strong>${esc(want)}</strong>`), `the Credits page names the current release's license (${want})`);
+  assert.ok(!credits.includes("<strong>MIT License</strong>") || want === "MIT License", "an all-rights-reserved release is not shown as MIT");
 });
 
 test("support links render only once a URL is set, and only https ones", () => {
@@ -1205,10 +1221,16 @@ test("a renamed setting is one row: its short name, with the old caption as its 
   const { renamed } = extractRowTips(gitReader(cfg.sourcePath, cfg.sourceRef));
   const html = page("settings");
   const at = (name) => `class="opt-cap">${esc(name)} <`;
-  const shown = [...renamed].filter(([name]) => html.includes(at(name)));
-  if (renamed.size) assert.ok(shown.length >= renamed.size / 2, `only ${shown.length} of ${renamed.size} renamed rows found on /settings/`);
+  const caption = (name) => (html.includes(at(name)) ? at(name) : `class="opt-cap">${esc(name)} (reload) <`);
+  const shown = [...renamed].filter(([name]) => html.includes(caption(name)));
+  // Rows the addon's modules add to a page with ns.Options.AddRows / ns.RetailRows, or build in a way the extractor does not
+  // read yet: renamed, but not listed on /settings/. The list only shrinks; any other renamed row missing is a failure.
+  const NOT_LISTED = ["Calm HUD out of combat", "Item level on gear slots", "Mark missing enchants", "Numbered channels", "Put the list in the party chat box", "Put the list in the raid chat box", "Soft-reserve list", "Follow the nearest quest", "Mark quests new in WoW Forever", "Next step in the tracker", "Expansion and transmog windows", "Group finder and PvP windows", "Arrow to a Ctrl-clicked waypoint"];
+  const missing = [...renamed.keys()].filter((name) => !html.includes(caption(name)));
+  assert.deepEqual(missing.filter((n) => !NOT_LISTED.includes(n)), [], "renamed rows missing from /settings/");
+  assert.deepEqual(NOT_LISTED.filter((n) => !missing.includes(n)), [], "listed now: take them off NOT_LISTED");
   for (const [name, old] of shown) {
-    const row = html.slice(html.indexOf(at(name))).split("</th>")[0];
+    const row = html.slice(html.indexOf(caption(name))).split("</th>")[0];
     assert.ok(row.includes(`<span class="opt-tip">${esc(old.replace(/ \(reload\)$/, ""))}</span>`), `"${name}" lacks its old caption as a tip`);
     assert.ok(!html.includes(`class="opt-cap">${esc(old)} <span class="badge old">`), `"${old}" is still listed as its own release-only row`);
   }
