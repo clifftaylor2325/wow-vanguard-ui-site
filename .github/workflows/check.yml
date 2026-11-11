@@ -101,10 +101,11 @@ jobs:
 
   report:
     # The ci-failure issue, for the weekly and hand-started runs: opened or
-    # commented on when either job is red, closed when both are green.
+    # commented on when either job is red, closed when both are green. Only on
+    # main: a hand-started run on a branch runs the checks and reports nothing.
     name: Report
     needs: [check, shots]
-    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && needs.check.result != 'cancelled'
+    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && needs.check.result != 'cancelled'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
