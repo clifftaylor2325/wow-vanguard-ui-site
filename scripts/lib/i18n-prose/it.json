@@ -674,7 +674,7 @@
  "steps and templates": "passaggi e modelli",
  "<strong>Type <code>/vg errors</code></strong> and copy all of it.": "<strong>Scrivi <code>/vg errors</code></strong> e copia tutto.",
  "<strong>Write down what you did</strong>, what you expected, and what happened instead.": "<strong>Annota cosa hai fatto</strong>, cosa ti aspettavi e cosa è successo invece.",
- "<strong>Type <code>/vg status</code></strong> and copy all of its lines. In v{version} it prints {n} lines: the version, profile and module count, then skins, painted frames and changes waiting on combat.": "<strong>Scrivi <code>/vg status</code></strong> e copia tutte le sue righe. Nella v{version} stampa {n} righe: la versione, il profilo e il numero di moduli, poi gli stili, i riquadri disegnati e le modifiche in attesa del combattimento.",
+ "<strong>Type <code>/vg status</code></strong> and copy all of its lines. In v{version} it prints {n} lines, starting with the version, profile and module count.": "<strong>Scrivi <code>/vg status</code></strong> e copia tutte le sue righe. Nella v{version} stampa {n} righe, a partire dalla versione, dal profilo e dal numero di moduli.",
  "Can't copy text from chat? Type out the lines that matter, or describe them.": "Non riesci a copiare il testo dalla chat? Scrivi a mano le righe che contano, oppure descrivile.",
  "Bug report template": "Modello di segnalazione di bug",
  "Copy template": "Copia il modello",

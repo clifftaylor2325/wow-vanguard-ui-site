@@ -677,7 +677,7 @@
  "steps and templates": "шаги и шаблоны",
  "<strong>Type <code>/vg errors</code></strong> and copy all of it.": "<strong>Введите <code>/vg errors</code></strong> и скопируйте всё.",
  "<strong>Write down what you did</strong>, what you expected, and what happened instead.": "<strong>Запишите, что вы делали</strong>, чего ожидали и что произошло вместо этого.",
- "<strong>Type <code>/vg status</code></strong> and copy all of its lines. In v{version} it prints {n} lines: the version, profile and module count, then skins, painted frames and changes waiting on combat.": "<strong>Введите <code>/vg status</code></strong> и скопируйте все его строки. В v{version} он выводит {n} строк: версия, профиль и число модулей, затем оформления, нарисованные рамки и изменения, ожидающие боя.",
+ "<strong>Type <code>/vg status</code></strong> and copy all of its lines. In v{version} it prints {n} lines, starting with the version, profile and module count.": "<strong>Введите <code>/vg status</code></strong> и скопируйте все его строки. В v{version} он выводит {n} строк, начиная с версии, профиля и числа модулей.",
  "Can't copy text from chat? Type out the lines that matter, or describe them.": "Не получается скопировать текст из чата? Перепишите важные строки или опишите их.",
  "Bug report template": "Шаблон отчёта об ошибке",
  "Copy template": "Копировать шаблон",

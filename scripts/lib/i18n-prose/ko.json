@@ -668,7 +668,7 @@
  "steps and templates": "단계와 양식",
  "<strong>Type <code>/vg errors</code></strong> and copy all of it.": "<strong><code>/vg errors</code>를 입력</strong>하고 전체를 복사하세요.",
  "<strong>Write down what you did</strong>, what you expected, and what happened instead.": "<strong>무엇을 했는지</strong>, 무엇을 예상했는지, 실제로 어떻게 되었는지 적어 두세요.",
- "<strong>Type <code>/vg status</code></strong> and copy all of its lines. In v{version} it prints {n} lines: the version, profile and module count, then skins, painted frames and changes waiting on combat.": "<strong><code>/vg status</code>를 입력</strong>하고 모든 줄을 복사하세요. v{version}에서는 {n}줄이 출력됩니다. 버전, 프로필과 모듈 수, 그다음 스킨, 그려진 프레임, 전투를 기다리는 변경입니다.",
+ "<strong>Type <code>/vg status</code></strong> and copy all of its lines. In v{version} it prints {n} lines, starting with the version, profile and module count.": "<strong><code>/vg status</code>를 입력</strong>하고 모든 줄을 복사하세요. v{version}에서는 {n}줄이 출력되며, 버전, 프로필과 모듈 수로 시작합니다.",
  "Can't copy text from chat? Type out the lines that matter, or describe them.": "대화창에서 텍스트를 복사할 수 없나요? 중요한 줄을 직접 적거나 설명해 주세요.",
  "Bug report template": "버그 보고서 양식",
  "Copy template": "양식 복사",

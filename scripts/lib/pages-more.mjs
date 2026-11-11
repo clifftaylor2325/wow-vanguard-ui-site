@@ -640,12 +640,20 @@ ${loc.p("Why it would help me:")}`;
   return { bug, feature };
 }
 
+// How many lines /vg status prints (its chat( calls); the build stops when the command can't be found.
+function statusLines(slash) {
+  const body = grab(slash, /local function statusCommand\([^)]*\)([\s\S]*?)\nend/);
+  const n = (body || "").match(/chat\(/g)?.length || 0;
+  if (!n) throw new Error("Core/Slash.lua: /vg status prints no lines the build can count (statusCommand not found)");
+  return n;
+}
+
 // The bug half of "Get your report ready": the steps and the template.
 function readyBug(model, read, templates, loc) {
   const v = model.version;
   const NEXT = nextBadge(loc);
-  const relStatusLines = (grab(read.rel("Core/Slash.lua"), /local function statusCommand\(\)([\s\S]*?)\nend/) || "").match(/chat\(/g)?.length || 0;
-  const nextStatusLines = (grab(read.next("Core/Slash.lua"), /local function statusCommand\(\)([\s\S]*?)\nend/) || "").match(/chat\(/g)?.length || 0;
+  const relStatusLines = statusLines(read.rel("Core/Slash.lua"));
+  const nextStatusLines = statusLines(read.next("Core/Slash.lua"));
   const relErrors = model.commands.relKeys.has("errors");
   const failLine = grab(read.rel("Core/Modules.lua"), /string\.format\("(module %s failed to load: %s)"/);
   const errorsStep = relErrors
@@ -655,7 +663,7 @@ function readyBug(model, read, templates, loc) {
 <h3 id="bug">${loc.p("Report a bug")}</h3>
 <ol class="steps">
   <li>${loc.p("<strong>Write down what you did</strong>, what you expected, and what happened instead.")}</li>
-  <li>${loc.p("<strong>Type <code>/vg status</code></strong> and copy all of its lines. In v{version} it prints {n} lines: the version, profile and module count, then skins, painted frames and changes waiting on combat.", { version: esc(v), n: relStatusLines })}${nextStatusLines > relStatusLines ? nextOnly(` ${NEXT} ${loc.p("prints {n}, adding the client, what it has, and your UI scale and text size.", { n: nextStatusLines })}`) : ""}</li>
+  <li>${loc.p("<strong>Type <code>/vg status</code></strong> and copy all of its lines. In v{version} it prints {n} lines, starting with the version, profile and module count.", { version: esc(v), n: relStatusLines })}${nextStatusLines > relStatusLines ? nextOnly(` ${NEXT} ${loc.p("prints {n}, adding the client, what it has, and your UI scale and text size.", { n: nextStatusLines })}`) : ""}</li>
   <li>${errorsStep}</li>
 </ol>
 <p class="small">${loc.p("Can't copy text from chat? Type out the lines that matter, or describe them.")}${model.commands.nextKeys.has("copy") && !model.commands.relKeys.has("copy") ? nextOnly(` ${loc.p("In the next release, <code>/vg copy</code> opens the recent chat as plain text, ready to copy.")}`) : ""}</p>

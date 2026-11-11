@@ -777,6 +777,16 @@ test("Settings lists a current row's release choices, with the next release's ne
   }
 });
 
+// The Feedback page counts the lines /vg status prints from the addon's own command, whatever its argument list.
+test("Feedback says how many lines /vg status prints, as counted in the addon", () => {
+  const slash = show(refs.release, "Core/Slash.lua");
+  const body = slash.match(/local function statusCommand\([^)]*\)([\s\S]*?)\nend/)?.[1] || "";
+  const lines = (body.match(/\bchat\(/g) || []).length;
+  assert.ok(lines >= 2, "the status command was found");
+  assert.match(page("feedback"), new RegExp(`it prints ${lines} lines, starting with`));
+  assert.ok(!page("feedback").includes("prints 0 lines"));
+});
+
 // A made-up module with these switch defaults, as startsOff reads it.
 function offCase(defaults, desc = "Off until you switch it on.") {
   return startsOff({ key: "Made", desc }, { next: { modules: [{ name: "Made", defaults }] } });
