@@ -658,15 +658,32 @@ test("a Features paragraph drops out when its README phrase disappears", () => {
   }
 });
 
-// O.MODULE_INFO in Core/Options.lua: key -> [name, one-liner], read here on its own.
+// O.MODULE_INFO: the table in Core/Options.lua and the rows a module file assigns as
+// `ns.Options.MODULE_INFO.Key = { ... }`, key -> [name, one-liner], read here on its own.
 function moduleInfo(ref) {
   const lua = show(ref, "Core/Options.lua");
   const at = lua.indexOf("O.MODULE_INFO = {");
   const block = lua.slice(at, lua.indexOf("\n}\n", at));
   const str = '"((?:[^"\\\\]|\\\\.)*)"';
   const rows = [...block.matchAll(new RegExp(`^\\s{2}(\\w+)\\s*=\\s*\\{\\s*${str},\\s*${str}`, "gm"))];
-  return Object.fromEntries(rows.map((m) => [m[1], [m[2], m[3]].map((t) => t.replace(/\\(.)/g, "$1"))]));
+  const own = luaFileNames(ref).flatMap((f) => [...show(ref, f).matchAll(new RegExp(`(?:^|\\n)\\s*(?:ns\\.Options|O)\\.MODULE_INFO\\.(\\w+)\\s*=\\s*\\{\\s*${str},\\s*${str}`, "g"))]);
+  return Object.fromEntries([...rows, ...own].map((m) => [m[1], [m[2], m[3]].map((t) => t.replace(/\\(.)/g, "$1"))]));
 }
+
+// Every Core and Modules Lua file name at a ref.
+function luaFileNames(ref) {
+  return execFileSync("git", ["ls-tree", "-r", "--name-only", ref], { cwd: cfg.sourcePath }).toString().split("\n").filter((f) => /^(Core|Modules)\/.*\.lua$/.test(f));
+}
+
+// A module that sets its own MODULE_INFO row in its file still shows its name and text, never its bare key.
+test("no module on Features is shown by its key with an empty description", () => {
+  const html = page("features");
+  const info = moduleInfo(refs.next);
+  for (const key of ["HudText", "Coexist", "QuestArrow"]) assert.ok(info[key], `${key} is read from its own file`);
+  const bare = Object.keys(info).filter((key) => { const card = featureCardOf(html, key); return card && card.includes("<p></p>"); });
+  assert.deepEqual(bare, []);
+  assert.match(html, /<h2 id="other-addons-list">Other addons<\/h2>/, "the other-addons table is headed by the module's name");
+});
 
 // Each Features card quotes the addon's one-liner for that module word for word.
 test("the Features one-liners match the addon word for word", () => {

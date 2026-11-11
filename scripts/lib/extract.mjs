@@ -118,11 +118,27 @@ function moduleDefaults(m, def) {
   return plain(d) || {};
 }
 
-// O.MODULE_INFO: module -> [name shown, description] (absent before it existed).
-export function extractModuleInfo(reader) {
+// O.MODULE_INFO: module -> [name shown, description] (absent before it existed). The table in
+// Core/Options.lua comes first; a module file adds its own row with
+// `ns.Options.MODULE_INFO.Key = { ... }`, read from every file in `files`.
+export function extractModuleInfo(reader, files = []) {
   const m = luaFile(reader, "Core/Options.lua");
   const t = m && findTable(m, "O.MODULE_INFO");
-  return t ? plain(t) : {};
+  return { ...(t ? plain(t) : {}), ...moduleFileInfo(reader, files) };
+}
+
+// The MODULE_INFO rows that module files assign one at a time: key -> [name, description].
+function moduleFileInfo(reader, files) {
+  const out = {};
+  for (const file of files) {
+    const m = luaFile(reader, file);
+    if (!m) continue;
+    for (const hit of m.bare.matchAll(/(?:^|\n)\s*((?:ns\.Options|O)\.MODULE_INFO\.(\w+))\s*=\s*\{/g)) {
+      const row = findTable(m, hit[1]);
+      if (row) out[hit[2]] = plain(row);
+    }
+  }
+  return out;
 }
 
 // O.MODULE_LINKS: module -> { keys: its own switches, page } (absent before it existed).
@@ -565,7 +581,7 @@ export function extractAddon(reader) {
     files,
     commands: extractCommands(reader),
     modules,
-    moduleInfo: extractModuleInfo(reader),
+    moduleInfo: extractModuleInfo(reader, files),
     moduleLinks: extractModuleLinks(reader),
     overlaps: extractOverlaps(reader),
     pages: extractPages(reader, files, modules),

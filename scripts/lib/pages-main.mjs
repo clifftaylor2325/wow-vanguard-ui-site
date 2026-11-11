@@ -778,7 +778,7 @@ function otherAddons(model, loc) {
   const rows = [...model.overlaps].sort((a, b) => byModule(a).localeCompare(byModule(b)) || a.addon.localeCompare(b.addon));
   const head = [loc.p("Addon"), loc.p("What both do"), loc.p("Vanguard module"), loc.p("Notes")].map((h) => `<th scope="col">${h}</th>`).join("");
   const n = rows.filter((o) => o.inRel).length;
-  return disclosure({ id: "other-addons", title: esc(loc.addon(info.name)), meta: loc.pn({ one: "{n} addon", other: "{n} addons" }, n), body: `<p>${esc(loc.addon(info.desc))}</p>
+  return disclosure({ id: "other-addons-list", title: esc(loc.addon(info.name)), meta: loc.pn({ one: "{n} addon", other: "{n} addons" }, n), body: `<p>${esc(loc.addon(info.desc))}</p>
 <p>${loc.p("When one of these is loaded, Vanguard says so once in chat, and its card under <strong>/vg → {modules}</strong> offers to turn Vanguard's part off or keep both. Nothing changes until you choose.", { modules: esc(loc.addon("Modules")) })}</p>
 <div class="table-wrap"><table class="stack overlaps"><thead><tr>${head}</tr></thead><tbody>
 ${rows.map((o) => overlapRow(o, model, loc)).join("\n")}

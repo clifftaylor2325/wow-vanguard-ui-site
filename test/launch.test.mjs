@@ -80,7 +80,7 @@ test("Features lists every addon Vanguard notices at login, with the module it o
   const block = (lua.match(/CX\.OVERLAPS = \{([\s\S]*?)\n\}/) || ["", ""])[1].replace(/--[^\n]*/g, "");
   const names = [...block.matchAll(/(?:^|\},)\s*(?:\["([^"]+)"\]|([A-Za-z_]\w*))\s*=\s*\{/gm)].map((m) => m[1] || m[2]);
   assert.ok(names.length > 20, "the release lists the other addons");
-  const section = html("features").split('id="other-addons"')[1] || "";
+  const section = html("features").split('id="other-addons-list"')[1] || "";
   for (const n of names) assert.ok(section.includes(`<code>${n}</code>`), `Features names ${n}`);
   assert.match(section, /<a href="\/features\/#bags">Bags<\/a>/);
 });
