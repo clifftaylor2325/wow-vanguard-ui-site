@@ -469,7 +469,7 @@ RELEASE_NOTES["v0.9.5"] = { groups: [
       { label: "Language", text: "Most texts that were still English now have translations in the ten other languages, as machine drafts. The chat filter's word lists and the group board's phrases come per language, and a language with none shows no Gold selling, Boosting or Recruiting switch, with a note.", from: [829, 819] },
       { label: "Quests", text: "Use the game's quest windows for now hands the quest and gossip windows back to the game at once, and holding a key hands back one talk. Zones you folded in the game's quest log stay folded, and Pick the reward that sells for most leaves the choice to you when a reward is a gear upgrade.", from: [815, 806] },
       { label: "Applied at once", text: "Raid tile width and height are sliders that resize the tiles without a reload, and the minimap's coordinates switch applies at once.", from: [815] },
-      { label: "Retired", text: "Pet stable and the Legacy helper are gone, the two boss timer spots are movers under /vg unlock (and /vg dock is gone), and the officer roster is on the Raid frames page.", from: [820] },
+      { label: "Retired", text: "Pet stable and the Legacy helper are gone, the two boss timer spots are movers under /vg unlock (and /vg dock is gone), and the officer tools' roster is on the Raid frames page.", from: [820] },
       { label: "Group play", text: "A stranger you whispered in the last ten minutes may invite you, and gear upgrades give no verdict to an off-hand item while you wear a two-hander alone.", from: [806, 797] },
     ] },
     { id: "fixed", title: "Fixed", items: [
