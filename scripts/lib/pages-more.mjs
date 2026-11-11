@@ -71,6 +71,7 @@ function profileNews(w, read) {
   says(N.opt, f.opt, 'Situations = { "Situations",');
   return {
     staged: !qr("slash", "This character will use profile "),
+    asksNew: !qr("slash", "Create a new profile named "),
     listNew: !R.list,
     relUse: qr("opt", '"Use " .. name'),
     relImport: qr("prof", "Imported as profile ", name, " and switched to it."),
@@ -99,6 +100,26 @@ function profileWhich(w, news, defaultName, loc) {
 </ul>`;
 }
 
+// The sentence that says a typed profile command asks first, with its question and the button that goes ahead.
+// The release that has the asks says it plainly; before that it is the next release's, tagged.
+function profileAsk(news, loc, ask) {
+  const sentence = loc.p("It asks first: “{quote}” Click <strong>{button}</strong>.", ask);
+  return news.asksNew ? nextOnly(` ${nextBadge(loc)} ${sentence}`) : ` ${sentence}`;
+}
+
+// The three questions /vg profile asks before it makes a profile, copies one over yours or deletes one: each a
+// { quote, button } as the addon words them (checked against its source).
+function profileAsks(w) {
+  const { q, tr, ph, lb } = w;
+  const name = { v: "name" };
+  const ask = (quote, button) => ({ quote, button: lb("slash", button) });
+  return {
+    create: ask(tr(q("slash", "Create a new profile named ", name, "?"), "Create a new profile named {profile}?", { profile: ph("name") }), "Create"),
+    copy: ask(tr(q("slash", "Replaces every setting in profile ", { v: "your profile" }, " with profile ", name, "'s. It can't be undone."), "Replaces every setting in profile {into} with profile {from}'s. It can't be undone.", { into: ph("your profile"), from: ph("name") }), "Copy here"),
+    delete: ask(tr(q("slash", "Deletes profile ", name, " for every character on this account. It can't be undone."), "Deletes profile {profile} for every character on this account. It can't be undone.", { profile: ph("name") }), "Delete"),
+  };
+}
+
 // Switching this character to another profile, as each release does it.
 function profileSwitching(w, news, v, loc) {
   const { q, qr, qa, tr, ph, reloadAsk, reloadBtns } = w;
@@ -109,7 +130,7 @@ function profileSwitching(w, news, v, loc) {
   const takesEffect = loc.p("A new profile takes effect at your next reload. Until then the frames on screen still belong to the profile you were using, so anything you change goes into that one. Vanguard asks: “{quote}” Click {buttons}.", { quote: reloadAsk(willUse), buttons: reloadBtns });
   const head = `<p>${loc.p("Log in on each character and pick the same profile, in chat or on the Profiles page.")}</p>
 <ul>
-  <li>${loc.p("Type <code>/vg profile &lt;name&gt;</code>. If there's no profile with that name yet, Vanguard makes it. {rule}", { rule: qa("slash", "Profile names are 1-32 letters, digits, spaces, - or _.") })}</li>
+  <li>${loc.p("Type <code>/vg profile &lt;name&gt;</code>. If there's no profile with that name yet, Vanguard makes it. {rule}", { rule: qa("slash", "Profile names are 1-32 letters, digits, spaces, - or _.") })}${profileAsk(news, loc, profileAsks(w).create)}</li>
   ${news.relUse ? `<li>${loc.p("In v{version}, the Profiles page has a <strong>Use &lt;name&gt;</strong> button for each of your other profiles (up to five), under <strong>Switch profile</strong>.", { version: esc(v) })}${news.listNew ? nextOnly(` ${loc.p("The next release replaces them with a list (below).")}`) : ""}</li>` : ""}
 </ul>`;
   if (!news.staged) return `${head}\n<p>${takesEffect}</p>`;
@@ -129,7 +150,7 @@ function profileList(w, news, loc) {
 <p>${loc.p("Under <strong>{heading}</strong>, each profile has a row with its name and buttons:", { heading: lb("opt", "Your profiles") })}</p>
 <ul>
   <li>${loc.p("<strong>{use}</strong>: this character switches to that profile at your next reload.", { use: lb("list", "Use") })}</li>
-  <li>${loc.p("<strong>{copy}</strong>: copies that profile's settings over the profile you're using.", { copy: lb("list", "Copy here") })}</li>
+  <li>${loc.p("<strong>{copy}</strong>: copies that profile's settings over the profile you'll use after the reload.", { copy: lb("list", "Copy here") })}</li>
   <li>${loc.p("<strong>{delete}</strong>: deletes that profile.", { delete: lb("list", "Delete") })}</li>
 </ul>
 <p>${loc.p("<strong>{copy}</strong> and <strong>{delete}</strong> can't be undone, so the first click only changes the button to “{sure}”. Click again to do it.", { copy: lb("list", "Copy here"), delete: lb("list", "Delete"), sure: qa("list", "Sure?") })}</p>
@@ -150,11 +171,12 @@ function profileChatTable(w, news, loc) {
   const deleted = tr(q("slash", "Deleted profile ", name, "."), "Deleted profile {profile}.", { profile: ph("name") });
   const noOther = tr(q("slash", "No other profile called ", name, "."), "No other profile called {profile}.", { profile: ph("name") });
   const saved = tr(q("opt", "Profile ", name, " as it was is saved as profile ", { v: "copy" }, "."), "Profile {profile} as it was is saved as profile {backup}.", { profile: ph("name"), backup: ph("copy") });
-  const deleteDoes = news.staged ? `${loc.p("Deletes a profile. You can't delete the one you're using.")}${nextOnly(` ${NEXT} ${loc.p("You also can't delete the one waiting for a reload.")}`)}` : loc.p("Deletes a profile. You can't delete the one you're using, or the one waiting for a reload.");
+  const asks = profileAsks(w);
+  const deleteDoes = (news.staged ? `${loc.p("Deletes a profile. You can't delete the one you're using.")}${nextOnly(` ${NEXT} ${loc.p("You also can't delete the one waiting for a reload.")}`)}` : loc.p("Deletes a profile. You can't delete the one you're using, or the one waiting for a reload.")) + profileAsk(news, loc, asks.delete);
   return `<h3 id="manage">${loc.p("Manage profiles in chat")}</h3>
 <div class="table-wrap"><table class="stack"><thead><tr><th scope="col">${head[0]}</th><th scope="col">${head[1]}</th><th scope="col">${head[2]}</th></tr></thead><tbody>
 ${row("/vg profile new &lt;name&gt;", loc.p("Makes an empty profile. You stay on the one you're using."), loc.p("“{a}” or “{b}”", { a: created, b: qa("slash", "That name is taken or not allowed.") }))}
-${row("/vg profile copy &lt;name&gt;", loc.p("Copies that profile's settings over the one you're using, then offers a reload."), loc.p("“{a}” or “{b}”", { a: reloadAsk(copied), b: noOther }))}
+${row("/vg profile copy &lt;name&gt;", loc.p("Copies that profile's settings over the one you'll use after the reload, then offers a reload.") + profileAsk(news, loc, asks.copy), loc.p("“{a}” or “{b}”", { a: reloadAsk(copied), b: noOther }))}
 ${row("/vg profile delete &lt;name&gt;", deleteDoes, loc.p("“{a}” or “{b}”", { a: deleted, b: qa("slash", "Can't delete that one (missing, or in use).") }))}
 ${row("/vg profile reset", loc.p("Asks first (“{ask}”), keeps a copy of the profile you're using, then puts every setting in it back to its default; reload to apply.", { ask: qa("opt", "Reset this profile?") }), `“${saved}”`)}
 </tbody></table></div>`;

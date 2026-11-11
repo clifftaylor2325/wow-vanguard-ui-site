@@ -11,7 +11,7 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton, navCommunity, followLine } from "../scripts/lib/html.mjs";
-import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
+import { helpPage, licenseSummary, profilesPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 import { featuresPage, startsOff, startPage, settingsPage } from "../scripts/lib/pages-main.mjs";
@@ -799,6 +799,27 @@ test("Feedback says how many lines /vg status prints, as counted in the addon", 
   assert.ok(lines >= 2, "the status command was found");
   assert.match(page("feedback"), new RegExp(`it prints ${lines} lines, starting with`));
   assert.ok(!page("feedback").includes("prints 0 lines"));
+});
+
+// /vg profile asks before it makes, copies over or deletes: the Profiles page quotes each question from the addon.
+test("Profiles says that a typed profile command asks first, quoting the addon's questions", () => {
+  const slash = show(refs.next, "Core/Slash.lua");
+  const html = page("profiles").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;/g, "'");
+  for (const [needle, button] of [["Create a new profile named ", "Create"], ["Replaces every setting in profile ", "Copy here"], ["Deletes profile ", "Delete"]]) {
+    assert.ok(slash.includes(needle), `the addon asks "${needle}"`);
+    assert.match(html, new RegExp(`It asks first: “${needle}[^”]*” Click <strong>${button}</strong>`));
+  }
+  assert.ok(!html.includes("over the one you're using, then offers a reload"), "copy goes into the profile used after the reload");
+});
+
+// With the release behind the source (before the asks), what the next release asks is tagged, not stated as current.
+test("Profiles tags the asks as next release when the release has none", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const html = profilesPage(behind.model, behind.read).body;
+  const asks = html.match(/It asks first/g) || [];
+  assert.equal(asks.length, 3);
+  assert.equal((html.match(/<span data-avail="next"> <span class="badge next">Next release<\/span> It asks first/g) || []).length, 3, "every ask sits in a next-release span");
 });
 
 // A made-up module with these switch defaults, as startsOff reads it.
