@@ -11,14 +11,14 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton, navCommunity, followLine } from "../scripts/lib/html.mjs";
-import { helpPage, licenseSummary, profilesPage, changelogPage } from "../scripts/lib/pages-more.mjs";
+import { helpPage, licenseSummary, profilesPage, changelogPage, feedbackPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
-import { tocRetailOnly } from "../scripts/lib/source.mjs";
-import { featuresPage, startsOff, startPage, settingsPage } from "../scripts/lib/pages-main.mjs";
+import { tocRetailOnly, tocForeverOnly } from "../scripts/lib/source.mjs";
+import { featuresPage, startsOff, startPage, settingsPage, commandsPage } from "../scripts/lib/pages-main.mjs";
 import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
-import { publishedLocales, EN } from "../scripts/lib/i18n-site.mjs";
+import { publishedLocales, EN, LOCALES } from "../scripts/lib/i18n-site.mjs";
 import * as EXTRACT from "../scripts/lib/extract.mjs";
 const { extractAddon, extractPages, specReader } = EXTRACT;
 import { buildModel, AREAS } from "../scripts/lib/model.mjs";
@@ -874,7 +874,8 @@ test("Home, Screenshots and Credits mention pictures only while some are ready",
   assert.equal(page("").includes("More pictures are on"), ready);
   assert.equal(page("screenshots").includes("The same pictures sit beside their module"), ready);
   assert.equal(/the share card and the screenshots in articles/.test(page("credits")), ready);
-  assert.ok(/You may use the crest (?:, the share card )?and the (?:share card|screenshots)/.test(page("credits")));
+  const sentence = ready ? "You may use the crest, the share card and the screenshots in articles" : "You may use the crest and the share card in articles";
+  assert.ok(page("credits").includes(sentence), sentence);
 });
 
 // Credits is a reference page: it opens folded and fits one screen (npm run shots checks the fit).
@@ -1355,7 +1356,7 @@ test("a renamed setting is one row: its short name, with the old caption as its 
   const { renamed } = extractRowTips(gitReader(cfg.sourcePath, cfg.sourceRef));
   const html = page("settings");
   const at = (name) => `class="opt-cap">${esc(name)} <`;
-  const caption = (name) => (html.includes(at(name)) ? at(name) : `class="opt-cap">${esc(name)} (reload) <`);
+  const caption = at;
   const shown = [...renamed].filter(([name]) => html.includes(caption(name)));
   const missing = [...renamed.keys()].filter((name) => !html.includes(caption(name)));
   assert.deepEqual(missing, [], "renamed rows missing from /settings/");
@@ -1407,4 +1408,175 @@ test("Settings marks the rows from Retail-only files, and no other row", () => {
   assert.deepEqual(marked, ["Mana under the player frame", "Group finder and PvP windows", "Great Vault window", "Great Vault progress on the info strip", "Expansion and transmog windows"]);
   assert.equal((html.match(/Retail only/g) || []).length, 5);
   assert.match(page("de/settings"), /Nur Retail/);
+});
+
+// The Settings row whose caption starts with `name`: its whole <tr>, or "" when there is none.
+function settingsRow(html, name) {
+  const at = html.indexOf(`class="opt-cap">${esc(name)}`);
+  return at < 0 ? "" : html.slice(html.lastIndexOf("<tr", at), html.indexOf("</tr>", at));
+}
+
+// A row wears the Needs reload tag when the options window gives it one (row.reload): its caption ends " (reload)",
+// it is wrapped in O.ReloadRow (also through a local alias, or inside essential(...)), or its setter is reloadSetting.
+// A helper that calls O.NeedReload() somewhere in its body (the Theme variant switch) is not enough.
+test("Settings tags the rows O.ReloadRow wraps and not a row whose helper only sometimes needs a reload", () => {
+  const html = page("settings");
+  const files = ["Core/Options.lua", "Core/OptionsFrames.lua", "Core/OptionsBars.lua", "Core/OptionsChat.lua", "Core/OptionsBags.lua"];
+  const wrapped = files.flatMap((f) => [...show(cfg.sourceRef, f).matchAll(/[rR]eloadRow\(\s*(?:\{\s*"\w+",\s*|(?:\w+\()?check\(\s*(?:ns\.Format\(\s*)?)"([^"]+)"/g)].map((m) => m[1].replace(/\{(\w+)\}/g, "<$1>")));
+  assert.ok(wrapped.length >= 10, `read ${wrapped.length} ReloadRow rows from the addon`);
+  assert.ok(wrapped.includes("Show bar <n>"), "the reader sees the bar switch");
+  const untagged = wrapped.filter((name) => !settingsRow(html, name).includes('class="badge reload"'));
+  assert.deepEqual(untagged, [], "ReloadRow rows without the Needs reload tag");
+  assert.ok(!settingsRow(html, "Theme variant").includes('class="badge reload"'), "Theme variant applies at once");
+});
+
+// Every Settings row as { id, search, tagged, kind }, from the built page.
+function settingsRows(html) {
+  return [...html.matchAll(/<tr class="opt-row (opt-item|t opt-item)"[^>]*?data-search="([^"]*)"[^>]*>([\s\S]*?)<\/tr>/g)].map((m) => ({ search: m[2], tagged: m[3].includes('class="badge reload"'), note: m[1] !== "opt-item" }));
+}
+
+// The search box finds the rows that wear the Needs reload tag when you type "reload", and no row that needs none:
+// the game's own search adds the word only for a row with row.reload.
+test("a Settings search for 'reload' matches the rows with the Needs reload tag", () => {
+  for (const dir of ["", "de/", "zh-cn/"]) {
+    const rows = settingsRows(page(`${dir}settings`)).filter((r) => !r.note);
+    assert.ok(rows.filter((r) => r.tagged).length > 30, `${dir}: tagged rows read`);
+    const wrong = rows.filter((r) => /reload/i.test(r.search) !== r.tagged);
+    assert.deepEqual(wrong.map((r) => r.search.slice(0, 60)), [], `${dir}: rows whose 'reload' search and tag disagree`);
+  }
+});
+
+// The game's window shows a setting's name without " (reload)" and only the tag says it: so does the page, in every
+// language, whether or not the row applies at once.
+test("Settings names carry no '(reload)' words beside the Needs reload tag", () => {
+  for (const dir of LANG_DIRS) {
+    const names = [...page(`${dir}settings`).matchAll(/<th scope="row" class="opt-cap">([^<]*)/g)].map((m) => m[1]);
+    assert.ok(names.length > 300, `${dir}: names read`);
+    assert.deepEqual(names.filter((n) => /\(reload\)/i.test(n)), [], `${dir}: names still with (reload)`);
+  }
+  assert.ok(settingsRow(page("settings"), "Safer colours").includes('class="badge reload"'), "the tag still says it");
+});
+
+// A slider the window shows as a percent ("%d%%") lists its default as one, even when its limits are not numbers
+// in the code (the text size takes them from the theme, the glow slider from its module).
+test("Settings shows the default of a percent slider as a percent", () => {
+  const html = page("settings");
+  const defaultOf = (name) => settingsRow(html, name).match(/data-label="Default">([^<]*)/)?.[1];
+  assert.equal(defaultOf("Text size"), "100%", "a fraction of one reads 100%");
+  assert.equal(defaultOf("Glow when this much is left"), "30%", "a whole number keeps its value");
+  assert.equal(defaultOf("Durability warning under"), "50%");
+});
+
+// With the release behind the source, a page's visible setting count is what the release lists (rel and old rows), and
+// the next release's extra settings are counted apart, behind the next-release switch.
+test("Settings counts a page's settings as the release has them, the next release's apart", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const sections = settingsPage(behind.model, behind.read).body.split('<details class="opt-page').slice(1);
+  assert.ok(sections.length > 10, "pages read");
+  for (const sec of sections) {
+    const rows = [...sec.matchAll(/<tr class="opt-row opt-item" id="[^"]*" data-count data-avail="(\w+)"/g)].map((m) => m[1]);
+    const meta = sec.match(/<span class="dis-meta">(.*?)<\/span><\/summary>/s)[1];
+    const visible = Number(meta.replace(/<span data-avail="next">.*?<\/span>/g, "").match(/^(\d+)/)?.[1] || 0);
+    assert.equal(visible, rows.filter((a) => a !== "next").length, `${sec.match(/<h2 id="([^"]*)"/)[1]}: visible count`);
+    const more = rows.filter((a) => a === "next").length;
+    assert.equal(/data-avail="next">[^<]*\d/.test(meta), more > 0, "the next-only count shows when the page has such rows");
+  }
+});
+
+// With the release behind the source, the feedback form's "Part of Vanguard" list names only modules the release has;
+// site-data.json (what the Function accepts) keeps every module, so a value an older cached page sends still files.
+test("Feedback lists no module only the next release has", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const html = feedbackPage(behind.model, behind.read).body;
+  const nextOnly = behind.model.modules.filter((m) => !m.inRel);
+  assert.ok(nextOnly.length >= 1, "the pins have a module the release lacks");
+  for (const m of nextOnly) assert.ok(!html.includes(`<option value="${m.key}"`), `${m.key} is not offered`);
+  for (const m of behind.model.modules.filter((x) => x.inRel)) assert.ok(html.includes(`<option value="${m.key}"`), `${m.key} is offered`);
+});
+
+// With the release behind the source, a command whose module the release does not know still lands in an area or
+// General: the Commands page has one group for each area at most and no "Other" group, and every word is listed once.
+test("Commands adds no group of its own for a command whose module is gone", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const html = commandsPage(behind.model).body;
+  const groups = [...html.matchAll(/<tbody class="cmd-group[^"]*" data-group="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(groups.length >= 2 && groups.length <= AREAS.length + 1, `groups: ${groups}`);
+  assert.ok(!groups.includes("other"), "no Other group");
+  const rows = (html.match(/<tr class="cmd opt-item"/g) || []).length;
+  assert.equal(rows, behind.model.commands.entries.length, "every command is listed once");
+});
+
+// On a phone the Commands page hides its version boxes (the Menu's switch still works), so the no-match hint, which
+// counts only boxes on screen, cannot name them.
+test("Commands hides its version boxes on a phone and the no-match hint counts only boxes on screen", () => {
+  assert.match(fs.readFileSync(path.join(root, "src/assets/site.css"), "utf8"), /max-width: 559px\) \{ \.search\[data-target="#opt-list"\] \.filters, \.search\[data-target="#cmd-list"\] \.filters \{ display: none/);
+  assert.match(fs.readFileSync(path.join(root, "src/assets/site.js"), "utf8"), /!filters\[i\]\.checked && filters\[i\]\.getClientRects\(\)\.length > 0/);
+});
+
+// The v0.9.4 note names click casting's switch as the options show it: its caption without the "(reload)" words, in each
+// language the addon's own words for it, and never the "Also on your unit frames" no release has had.
+test("the Changelog names click casting's unit-frame switch as the addon does", () => {
+  const caption = "Also on player, target and focus (reload)";
+  for (const dir of LANG_DIRS) {
+    const html = page(`${dir}changelog`);
+    assert.ok(!html.includes("Also on your unit frames"), `${dir || "en/"}: the old name`);
+    if (dir) assert.ok(!/[“„«「”]Also on player/.test(html), `${dir}: no English quote marks round the addon's words`);
+  }
+  assert.ok(page("changelog").includes("click casting's Also on player, target and focus leaves"), "English");
+  const de = fs.readFileSync(path.join(cfg.sourcePath, "Locales/deDE.lua"), "utf8").match(new RegExp(`L\\["${caption.replace(/[()]/g, "\\$&")}"\\] = "([^"]+)"`))?.[1];
+  assert.ok(de, "the addon translates it in German");
+  assert.ok(page("de/changelog").includes(`Klickzauberei ${esc(de.replace(/\s*\([^)]*\)$/, ""))} lässt`), "German: the addon's words, bracket stripped");
+});
+
+// The marks round the addon's own text and a changelog label's colon belong to the page's language (loc.quote, loc.label),
+// not to the generator: German “Deine Fenster…” was set in English marks, Chinese used an ASCII colon.
+test("quoted addon text and changelog labels use the page's language's marks", () => {
+  for (const dir of ["de/", "fr/", "es/", "ru/", "zh-tw/"]) {
+    const start = page(`${dir}start`);
+    assert.ok(!/<li>“|<strong>“/.test(start), `${dir}start: English opening marks round addon text`);
+  }
+  assert.match(page("de/start"), /<li>„Deine Fenster/);
+  for (const dir of ["zh-cn/", "zh-tw/"]) {
+    const log = page(`${dir}changelog`);
+    assert.ok(/<strong>[^<]+：<\/strong>/.test(log), `${dir}: a full-width colon after a label`);
+    assert.ok(!/<strong>[^<]+:<\/strong>/.test(log), `${dir}: no ASCII colon after a label`);
+  }
+});
+
+// The Features search reaches the Other addons table: its section is a group and its rows are items, with no data-count so
+// the counter still counts modules (that "bagnon" opens it in a browser is checkOtherAddonsSearch in npm run shots).
+test("Features search covers the Other addons rows", () => {
+  const html = page("features");
+  assert.match(html, /data-items="\.mod, \.overlaps tbody tr" data-groups="\.area"/);
+  assert.match(html, /<details class="disclosure area"[^>]*>\s*<summary><h2 id="other-addons">/);
+  const table = html.match(/<table class="stack overlaps">[^]*?<\/table>/)[0];
+  assert.ok(!/data-count/.test(table), "the rows are not counted as modules");
+});
+
+// The mirror of "Retail only": rows of files the TOC loads on WoW Forever only, rows whose setting belongs to a module
+// from such a file, and the Forever text of a per-client caption wear "WoW Forever only"; a page of its own (Talents)
+// wears it once on its heading instead of on every row.
+test("Settings marks what only WoW Forever has, in every language", () => {
+  const toc = "Modules/A.lua\nModules/RetailWindows.lua [AllowLoadGameType standard] [ExcludeLoadGameType camelot]\nModules/Forever.lua [AllowLoadGameType camelot] [ExcludeLoadGameType standard]\n";
+  assert.deepEqual([...tocForeverOnly(toc)], ["Modules/Forever.lua"]);
+  const next = extractAddon(gitReader(cfg.sourcePath, refs.next));
+  const forever = tocForeverOnly(show(refs.next, "Vanguard.toc"));
+  assert.ok(forever.size >= 5, "the TOC has Forever-only files");
+  const modules = new Set(next.modules.filter((m) => forever.has(m.file)).map((m) => m.name));
+  const unmarked = next.pages.flatMap((p) => p.rows.filter((r) => (forever.has(p.file) && !p.clientOnly) || modules.has(r.ref?.scope)).filter((r) => !p.clientOnly && r.clientOnly !== "forever").map((r) => `${p.key}: ${r.caption}`));
+  assert.deepEqual(unmarked, [], "rows of Forever-only files and modules without the mark");
+  const html = page("settings");
+  for (const name of ["Swing timer", "Your threat on your target", "Notice older ranks on bars", "Druid mana in bear and cat form"]) {
+    assert.ok(/WoW Forever only/.test(settingsRow(html, name)), `${name} wears the mark`);
+  }
+  assert.match(html, /<h2 id="talents">Talents<\/h2><span class="dis-meta">[^<]*<span class="badge plain">WoW Forever only<\/span>/, "the Talents heading wears it once");
+  assert.ok(!/WoW Forever only/.test(settingsRow(html, "Talent planner")), "and not each of its rows");
+  assert.ok(!/WoW Forever only/.test(settingsRow(html, "Show bar")), "an ordinary row has none");
+  for (const loc of LOCALES.filter((l) => cfg.locales.includes(l.code))) {
+    assert.ok(loc.strings["badge.foreverOnly"].includes("WoW Forever"), `${loc.code} has its word for it`);
+    assert.ok(page(`${loc.code}/settings`).includes(loc.strings["badge.foreverOnly"]), `${loc.code} page shows it`);
+  }
 });

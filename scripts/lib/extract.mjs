@@ -4,7 +4,7 @@
 // the setup wizard's choices. Extraction is deliberately narrow; the test
 // suite fails if anything the Lua defines doesn't reach the site.
 import { mask, findTable, blocks, parseTable, parseValue, splitTop, matchBracket, readString, plain } from "./lua.mjs";
-import { tocFiles, tocMeta, tocRetailOnly } from "./source.mjs";
+import { tocFiles, tocMeta, tocRetailOnly, tocForeverOnly } from "./source.mjs";
 
 // Reads and masks a Lua file (null when the ref doesn't have it).
 function luaFile(reader, file) {
@@ -177,13 +177,40 @@ function choicesOf(m, defs, v, depth = 0) {
   return null;
 }
 
-// A slider's literal range { min, max, step } or null.
-function rangeOf(m, v) {
-  const t = v?.fields ? v : v?.expr ? findTable(m, `local ${v.expr}`) : null;
-  if (!t) return null;
-  const r = plain(t);
-  const percent = /%%/.test(m.code.slice(t.from, t.to));
-  return typeof r?.min === "number" && typeof r?.max === "number" ? { min: r.min, max: r.max, step: r.step, percent } : null;
+// A literal number written after `name =` in code, or null when it is an expression (T.TEXT_SCALE.min).
+function literalField(code, name) {
+  const hit = code.match(new RegExp(`\\b${name}\\s*=\\s*(-?(?:\\d+(?:\\.\\d+)?|\\.\\d+))\\s*[,}\\n]`));
+  return hit ? Number(hit[1]) : null;
+}
+
+// The code of the table a function body (from..to) returns, or the whole body when it returns no table literal.
+function returnedTable(m, from, to) {
+  const hit = /\breturn\s*\{/.exec(m.bare.slice(from, to));
+  if (!hit) return m.code.slice(from, to);
+  const open = from + hit.index + hit[0].length - 1;
+  return m.code.slice(open, matchBracket(m.bare, open));
+}
+
+// The code of the table a slider's range expression names: a local table, or the function (glowPercentSlider())
+// that returns one, as choicesOf follows a name. "" when there is none.
+function rangeCode(ctx, v) {
+  const { m, defs } = ctx;
+  if (v?.fields) return m.code.slice(v.from, v.to);
+  const call = v?.expr?.match(/^(\w+)\(\s*\)$/);
+  if (call && defs.has(call[1])) return returnedTable(m, defs.get(call[1]).from, defs.get(call[1]).to);
+  const t = v?.expr ? findTable(m, `local ${v.expr}`) : null;
+  return t ? m.code.slice(t.from, t.to) : "";
+}
+
+// A slider's range { min, max, step, percent }; a bound the code does not write as a number is null (the text
+// size slider takes its limits from the theme), percent is true when its value is shown as "%d%%". null when
+// the row's expression is not a table the build can find.
+export function rangeOf(ctx, v) {
+  const code = rangeCode(ctx, v);
+  if (!code) return null;
+  const percent = /%%/.test(code);
+  const [min, max, step] = ["min", "max", "step"].map((name) => literalField(code, name));
+  return min === null && max === null && !percent ? null : { min, max, step, percent };
 }
 
 // Where a row's value lives: { scope, key, reload } (restart: true for O.RestartSetting, which applies at once
@@ -206,32 +233,54 @@ function settingRef(ctx, text, depth = 0) {
   for (const call of text.matchAll(/\b([A-Za-z_]\w*)\(\s*(?:"(\w+)")?\s*\)/g)) {
     if (!defs.has(call[1]) || call[1] === "check") continue;
     const body = m.code.slice(defs.get(call[1]).from, defs.get(call[1]).to);
-    const reload = /NeedReload\(\)/.test(body) && !/if reload/.test(body);
     const viaKey = call[2] ? body.replace(/\bkey\b/g, `"${call[2]}"`) : body;
     let inner = null;
     if (call[2] && /ns\.MoverOptions\(\)\[key\]/.test(body)) inner = { scope: "movers", key: call[2], reload: false };
     else if (call[2] && /T\.Settings\(\)\[key\]/.test(body)) inner = { scope: "theme", key: call[2], reload: false };
     else inner = settingRef(ctx, viaKey, depth + 1);
-    if (inner) return { ...inner, reload: inner.reload || reload };
+    if (inner) return inner;
   }
   return null;
 }
 
+// The names a file calls O.ReloadRow by: "O.ReloadRow" itself and each local assigned it
+// (`local essential, reloadRow = O.Essential, O.ReloadRow`).
+export function reloadRowNames(code) {
+  const names = new Set(["O.ReloadRow"]);
+  for (const decl of code.matchAll(/^local[ \t]+([\w \t,]+?)[ \t]*=[ \t]*([^\n]+)$/gm)) {
+    const bare = mask(decl[2]).bare;
+    const values = splitTop(bare, 0, bare.length).map(([a, b]) => bare.slice(a, b).trim());
+    decl[1].split(",").forEach((name, i) => { if (values[i] === "O.ReloadRow") names.add(name.trim()); });
+  }
+  return names;
+}
+
+// Whether the row starting at `at` is the argument of O.ReloadRow (or a local alias of it), however many
+// calls (essential(...)) sit between: the options window gives such a row the Needs reload tag. The
+// release before v0.9.6 has no O.ReloadRow, so this reads nothing there.
+function wrappedInReloadRow(ctx, at) {
+  ctx.reloadNames ??= reloadRowNames(ctx.m.code);
+  const before = ctx.m.code.slice(Math.max(0, at - 160), at);
+  const call = before.match(/((?:[\w.]+\(\s*)+)$/);
+  if (!call) return false;
+  return call[1].split("(").some((name) => ctx.reloadNames.has(name.trim()));
+}
+
 // One row: kind, caption (with "<n>"-style placeholders for concatenated
 // values), choices or range, and where its value lives.
-function makeRow(ctx, kind, caption, extraParts, loop) {
+function makeRow(ctx, kind, caption, extraParts, loop, wrapped = false) {
   const { m, defs } = ctx;
   const row = { kind, caption };
   const rest = extraParts.map(([a, b]) => m.code.slice(a, b)).join(", ");
   if (kind === "cycle" && extraParts[0]) row.choices = choicesOf(m, defs, parseValue(m, extraParts[0][0], extraParts[0][1]));
-  if (kind === "slider" && extraParts[0]) row.range = rangeOf(m, parseValue(m, extraParts[0][0], extraParts[0][1]));
+  if (kind === "slider" && extraParts[0]) row.range = rangeOf(ctx, parseValue(m, extraParts[0][0], extraParts[0][1]));
   if (kind === "check" || kind === "cycle" || kind === "slider") {
     row.ref = settingRef(ctx, rest);
     const last = extraParts.length >= 3 ? parseValue(m, ...extraParts[extraParts.length - 1]) : undefined;
     if (kind === "check" && typeof last === "boolean") row.literalDefault = last;
   }
   if (loop) row.loop = loop;
-  row.reload = /\(reload\)/.test(caption) || !!row.ref?.reload;
+  row.reload = / \(reload\)$/.test(caption) || wrapped || !!row.ref?.reload;
   return row;
 }
 
@@ -303,9 +352,10 @@ function captionNames(ctx, i) {
   if (!text) return [];
   const entries = fieldEntries(ctx, text[0], i);
   if (entries) return entries.map((e) => ({ caption: e.value, variable: null, end: i + text[0].length, entryKey: e.key }));
-  const retail = new Set((ctx.constants?.get(text[0]) || []).filter((c) => c.retail).map((c) => c.text));
+  const own = (flag) => new Set((ctx.constants?.get(text[0]) || []).filter((c) => c[flag]).map((c) => c.text));
+  const [retail, forever] = [own("retail"), own("forever")];
   const constant = ctx.constants?.has(text[0]);
-  return (captionChoices(ctx, text[0], i) || []).map((value) => ({ caption: value, variable: null, end: i + text[0].length, retail: retail.has(value), constant }));
+  return (captionChoices(ctx, text[0], i) || []).map((value) => ({ caption: value, variable: null, end: i + text[0].length, retail: retail.has(value), forever: forever.has(value), constant }));
 }
 
 // The rows of a constant table a loop walks, when the caption is one field of its loop variable
@@ -440,9 +490,10 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
     if (!caps.length) ctx.skipped.push(`${ctx.m.file}:${m.code.slice(0, f.at).split("\n").length}`);
     for (const cap of caps) {
       const loopFor = cap.variable && here && here.variable === cap.variable ? here : null;
-      const row = makeRow(ctx, kind, cap.caption, parts.slice(capIdx + 1), loopFor);
+      const row = makeRow(ctx, kind, cap.caption, parts.slice(capIdx + 1), loopFor, wrappedInReloadRow(ctx, f.at));
       if (cap.key) row.key = cap.key;
       if (cap.retail) Object.assign(row, { clientOnly: "retail", retailName: true });
+      if (cap.forever) row.clientOnly = "forever";
       if (cap.entryKey) row.ref ??= entryRef(m.code.slice(open, close), cap.entryKey);
       if (kind === "visibility") row.choices = ctx.visibility(m.code.slice(open, close));
       if (here && !loopFor) row.repeated = here;
@@ -516,13 +567,15 @@ export function extractRowTips(reader) {
 export function extractPages(reader, files, modules, skipped = []) {
   const visibility = visibilityChoices(reader);
   const contexts = files.map((file) => pageContext(reader, file, visibility, skipped)).filter(Boolean);
-  const retailOnly = tocRetailOnly(reader.read("Vanguard.toc") || reader.read("ForeverUI.toc") || "");
-  for (const ctx of contexts) ctx.retailOnly = retailOnly.has(ctx.file);
+  const toc = reader.read("Vanguard.toc") || reader.read("ForeverUI.toc") || "";
+  const [retailOnly, foreverOnly] = [tocRetailOnly(toc), tocForeverOnly(toc)];
+  for (const ctx of contexts) Object.assign(ctx, { retailOnly: retailOnly.has(ctx.file), foreverOnly: foreverOnly.has(ctx.file) });
   const globals = rowFunctions(contexts);
   const constants = captionConstants(contexts);
   for (const ctx of contexts) Object.assign(ctx, { globals, constants, contexts });
   const pages = contexts.flatMap((ctx) => filePages(ctx));
   for (const ctx of contexts) addedRows(ctx, pages);
+  markForeverModules(pages, modules.filter((m) => foreverOnly.has(m.file)).map((m) => m.name));
   for (const p of pages) p.rows = withoutEmptyGroups(dedupe(p.rows));
   pages.sort((a, b) => a.order - b.order);
   applyDefaults(pages, modules, reader);
@@ -547,7 +600,7 @@ function captionConstants(contexts) {
   for (const { m } of contexts) {
     const published = new Map([...m.code.matchAll(/^ns\.(\w+)\s*=\s*(\w+)\s*$/gm)].map((x) => [x[2], `ns.${x[1]}`]));
     const plainOnes = [...m.code.matchAll(/^([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*=\s*"((?:[^"\\\n]|\\.)*)"\s*$/gm)].map((x) => [x[1], x[2], [{ text: x[3], retail: false }]]);
-    const perClient = [...m.code.matchAll(/^([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*=\s*ns\.ClientData\(\{\s*forever\s*=\s*"((?:[^"\\\n]|\\.)*)",\s*retail\s*=\s*"((?:[^"\\\n]|\\.)*)",?\s*\}\)/gm)].map((x) => [x[1], x[2], [{ text: x[3], retail: false }, { text: x[4], retail: true }]]);
+    const perClient = [...m.code.matchAll(/^([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*=\s*ns\.ClientData\(\{\s*forever\s*=\s*"((?:[^"\\\n]|\\.)*)",\s*retail\s*=\s*"((?:[^"\\\n]|\\.)*)",?\s*\}\)/gm)].map((x) => [x[1], x[2], [{ text: x[3], retail: false, forever: true }, { text: x[4], retail: true }]]);
     for (const [table, field, values] of [...plainOnes, ...perClient]) {
       for (const name of [table, published.get(table)].filter(Boolean)) out.set(`${name}.${field}`, values);
     }
@@ -588,14 +641,26 @@ function filePages(ctx) {
     if (!rowsV || typeof f.title !== "string") continue;
     const key = typeof f.key === "string" ? f.key : f.key?.expr ? resolveConst(m, f.key.expr) : f.title.toLowerCase();
     const range = rowsV.expr !== undefined ? [rowsV.from, rowsV.to] : [t.from, t.to];
-    pages.push({ key, title: f.title, order: typeof f.order === "number" ? f.order : 999, file, rows: fromClient(ctx, expandRows(ctx, range[0], range[1])) });
+    const rows = expandRows(ctx, range[0], range[1]);
+    const page = { key, title: f.title, order: typeof f.order === "number" ? f.order : 999, file };
+    pages.push(ctx.foreverOnly ? { ...page, clientOnly: "forever", rows } : { ...page, rows: fromClient(ctx, rows) });
   }
   return pages;
 }
 
-// Rows from a file only Retail loads (read from the TOC's load flags) carry clientOnly: "retail".
+// Rows from a file only one client loads (read from the TOC's load flags) carry clientOnly: "retail" or "forever".
 function fromClient(ctx, rows) {
-  return ctx.retailOnly ? rows.map((r) => ({ ...r, clientOnly: "retail" })) : rows;
+  const only = ctx.retailOnly ? "retail" : ctx.foreverOnly ? "forever" : null;
+  return only ? rows.map((r) => ({ ...r, clientOnly: only })) : rows;
+}
+
+// A row whose setting belongs to a module only WoW Forever loads is a Forever-only row, wherever its page is
+// (the threat readouts on Unit frames, the swing timer): it carries clientOnly "forever" unless its page already does.
+function markForeverModules(pages, names) {
+  const forever = new Set(names);
+  for (const p of pages.filter((x) => !x.clientOnly)) {
+    p.rows = p.rows.map((r) => (!r.clientOnly && forever.has(r.ref?.scope) ? { ...r, clientOnly: "forever" } : r));
+  }
 }
 
 // Rows a file adds to another file's page: ns.Options.AddRows("page", Fn[, true]) (after the page's own rows, or
@@ -654,6 +719,21 @@ function applyDefaults(pages, modules, reader) {
   }
 }
 
+// Whether a "%d%%" slider holds a fraction of one: its largest limit is 2 or less, else (the limit is unknown) a
+// step below 1, else (neither is known) a default of 2 or less.
+function isFractionRange(row) {
+  const { max, step } = row.range;
+  if (max !== null && max !== undefined) return max <= 2;
+  return typeof step === "number" ? step < 1 : row.default <= 2;
+}
+
+// A "%d%%" slider's default: a fraction of one is shown as a percent of it, any other number is already one;
+// a default that is not a number is shown as it is.
+export function percentLabel(row) {
+  if (typeof row.default !== "number") return String(row.default);
+  return `${isFractionRange(row) ? Math.round(row.default * 100) : row.default}%`;
+}
+
 // The text a player sees for a row's default ("On", "Off", a choice label, a number).
 export function defaultLabel(row) {
   if (row.default === undefined) return null;
@@ -662,7 +742,7 @@ export function defaultLabel(row) {
     const c = row.choices.find((x) => x[0] === row.default);
     return c ? String(c[1]) : null;
   }
-  if (row.kind === "slider") return row.range?.percent && row.range.max <= 2 ? `${Math.round(row.default * 100)}%` : String(row.default);
+  if (row.kind === "slider") return row.range?.percent ? percentLabel(row) : String(row.default);
   return null;
 }
 
@@ -775,7 +855,7 @@ export function extractSetup(reader) {
   const reloadModule = (m.code.match(/if state\.reload then return "([^"]+)"/) || [])[1];
   const reloadTile = (m.code.match(/if state\.retile then return "([^"]+)"/) || [])[1];
   const keepBelow = Number((m.code.match(/if h < (\d+) then return "keep"/) || [])[1]);
-  const yourScreen = (m.code.match(/·\s*(your screen)"/) || [])[1];
+  const yourScreen = (m.code.match(/"(\{screen\} \(\{width\} x \{height\}\)\s+·\s+your screen)"/) || [])[1];
   const oldCaption = (m.code.match(/string\.format\("(Step %d of %d · %s)"/) || [])[1];
   const namedCaption = (m.code.match(/"(Step \{step\} of \{count\} · \{name\})"/) || [])[1];
   const caption = oldCaption || (namedCaption && positional(namedCaption));

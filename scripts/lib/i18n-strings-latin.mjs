@@ -58,6 +58,7 @@ export const STRINGS_DE = {
   "notFound.home": "Startseite",
   "badge.next": "Nächste Version",
   "badge.retailOnly": "Nur Retail",
+  "badge.foreverOnly": "Nur WoW Forever",
   "badge.old": "Nur v{version}",
   "badge.reload": "Neu laden nötig",
   "source": "Quelle",
@@ -141,7 +142,7 @@ export const STRINGS_DE = {
   "feat.offBadge": "Aus, bis du es einschaltest",
   "feat.everyOn": "Jedes Modul ist an, außer es ist mit {badge} markiert",
   "feat.search": "Module durchsuchen",
-  "feat.placeholder": "Module durchsuchen, zum Beispiel: raid, bags, cast bar",
+  "feat.placeholder": "Module durchsuchen, zum Beispiel: Schlachtzug, Taschen, Zauberleiste",
 };
 
 export const STRINGS_FR = {
@@ -193,6 +194,7 @@ export const STRINGS_FR = {
   "notFound.home": "page d’accueil",
   "badge.next": "Prochaine version",
   "badge.retailOnly": "Retail seulement",
+  "badge.foreverOnly": "WoW Forever seulement",
   "badge.old": "v{version} uniquement",
   "badge.reload": "Rechargement requis",
   "source": "Source",
@@ -276,7 +278,7 @@ export const STRINGS_FR = {
   "feat.offBadge": "Désactivé tant que vous ne l’activez pas",
   "feat.everyOn": "Chaque module est activé, sauf s’il est marqué {badge}",
   "feat.search": "Chercher un module",
-  "feat.placeholder": "Chercher un module, par exemple : raid, bags, cast bar",
+  "feat.placeholder": "Chercher un module, par exemple : raid, sacs, incantation",
 };
 
 export const STRINGS_ES = {
@@ -328,6 +330,7 @@ export const STRINGS_ES = {
   "notFound.home": "página de inicio",
   "badge.next": "Próxima versión",
   "badge.retailOnly": "Solo Retail",
+  "badge.foreverOnly": "Solo WoW Forever",
   "badge.old": "Solo v{version}",
   "badge.reload": "Requiere recarga",
   "source": "Fuente",
@@ -411,7 +414,7 @@ export const STRINGS_ES = {
   "feat.offBadge": "Desactivado hasta que lo actives",
   "feat.everyOn": "Todos los módulos están activados salvo los marcados con {badge}",
   "feat.search": "Buscar módulos",
-  "feat.placeholder": "Buscar módulos, por ejemplo: raid, bags, cast bar",
+  "feat.placeholder": "Buscar módulos, por ejemplo: banda, bolsas, barra de lanzamiento",
 };
 
 export const STRINGS_ES_MX = {
@@ -474,6 +477,7 @@ export const STRINGS_IT = {
   "notFound.home": "pagina iniziale",
   "badge.next": "Prossima versione",
   "badge.retailOnly": "Solo Retail",
+  "badge.foreverOnly": "Solo WoW Forever",
   "badge.old": "Solo v{version}",
   "badge.reload": "Richiede ricaricamento",
   "source": "Fonte",
@@ -557,7 +561,7 @@ export const STRINGS_IT = {
   "feat.offBadge": "Disattivo finché non lo attivi",
   "feat.everyOn": "Ogni modulo è attivo, salvo quelli contrassegnati con {badge}",
   "feat.search": "Cerca moduli",
-  "feat.placeholder": "Cerca moduli, per esempio: raid, bags, cast bar",
+  "feat.placeholder": "Cerca moduli, per esempio: incursione, borse, barra di lancio",
 };
 
 export const STRINGS_PT_BR = {
@@ -609,6 +613,7 @@ export const STRINGS_PT_BR = {
   "notFound.home": "página inicial",
   "badge.next": "Próxima versão",
   "badge.retailOnly": "Apenas Retail",
+  "badge.foreverOnly": "Apenas WoW Forever",
   "badge.old": "Só na v{version}",
   "badge.reload": "Precisa recarregar",
   "source": "Fonte",
@@ -692,5 +697,5 @@ export const STRINGS_PT_BR = {
   "feat.offBadge": "Desligado até você ligar",
   "feat.everyOn": "Todo módulo vem ligado, exceto os marcados com {badge}",
   "feat.search": "Buscar módulos",
-  "feat.placeholder": "Buscar módulos, por exemplo: raid, bags, cast bar",
+  "feat.placeholder": "Buscar módulos, por exemplo: raide, bolsas, barra de lançamento",
 };

@@ -164,6 +164,21 @@ function blocks(n, ctx, depth = 0) {
   return out;
 }
 
+// The tags ("Next release", "WoW Forever only") in a summary's dis-meta, which skipped() leaves out of the heading.
+function summaryTags(summary) {
+  const meta = summary.kids.filter((k) => typeof k !== "string" && ` ${k.attrs.class || ""} `.includes(" dis-meta "));
+  const badges = meta.flatMap((m) => m.kids.filter((k) => typeof k !== "string" && ` ${k.attrs.class || ""} `.includes(" badge ")));
+  return badges.map((b) => text(b).trim()).filter(Boolean).map((t) => ` [${escText(t)}]`).join("");
+}
+
+// A summary that holds a heading: its blocks, with its tags after the heading.
+function summaryBlocks(n, ctx, depth) {
+  const out = blocks(n, ctx, depth);
+  const at = out.findIndex((b) => /^#{1,6} /.test(b));
+  if (at >= 0) out[at] += summaryTags(n);
+  return out;
+}
+
 // One block element's Markdown blocks.
 function block(n, ctx, depth) {
   const level = /^h([1-6])$/.exec(n.tag);
@@ -173,6 +188,7 @@ function block(n, ctx, depth) {
   if (n.tag === "dl") return defs(n, ctx);
   if (n.tag === "pre") return [`\`\`\`\n${text(n).replace(/\n$/, "")}\n\`\`\``];
   if (n.tag === "summary" && !n.kids.some(isBlock)) { const t = inline(n, ctx).trim(); return t ? [`**${t}**`] : []; }
+  if (n.tag === "summary") return summaryBlocks(n, ctx, depth);
   // A "Source" fold says "Source: …" inside, so its summary would only repeat it.
   if (n.tag === "details" && / src /.test(` ${n.attrs.class || ""} `)) return blocks({ ...n, kids: n.kids.filter((k) => k.tag !== "summary") }, ctx, depth);
   return blocks(n, ctx, depth);

@@ -6,7 +6,7 @@ import { supportAsk, esc, md, slug, badge, nextBadge, reloadBadge, avail, shotFi
 import { crestImg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerRows, readmeSays } from "./features-content.mjs";
-import { EN } from "./i18n-site.mjs";
+import { EN, withoutReloadWords } from "./i18n-site.mjs";
 import { splitHelp, showSlots } from "./extract.mjs";
 
 // "September 27, 2026" in New York time, in the page's language.
@@ -384,9 +384,15 @@ ${setup.layouts.map((l, i) => `<tr${l.nextOnly ? ' data-avail="next"' : ""}><td 
 </ul>`;
 }
 
+// The word the wizard puts after the size it detects ("your screen"), from the whole Locales key so a translation is found.
+function yourScreenWord(setup, loc) {
+  if (!setup.yourScreen) throw new Error("Core/Setup.lua: the \"your screen\" size label was not found in the addon source");
+  return esc(loc.addon(setup.yourScreen).split("·").pop().trim());
+}
+
 // Step 2: the screen question and the presets table.
 function wizardScreenStep(setup, w, loc) {
-  const { A, lab, s } = w;
+  const { A, lab } = w;
   const S = w.S;
   const wide = num(S, "Core/Setup.lua", /if w \/ h >= ([\d.]+) then return "ultrawide"/);
   const tall4k = num(S, "Core/Setup.lua", /if h >= (\d+) then return "4k"/);
@@ -398,7 +404,7 @@ function wizardScreenStep(setup, w, loc) {
   const keepHint = namedText(setup.named.keep, { owner: loc.addon(setup.named.owner || "") }, setup.keepHint, loc);
   const head = [loc.p("Choice"), loc.p("What it sets")];
   const row = (choice, sets, fresh = false) => `<tr${fresh ? ' data-avail="next"' : ""}><td data-label="${head[0]}"><strong>${choice}</strong>${fresh ? ` ${nextBadge(loc)}` : ""}</td><td data-label="${head[1]}">${sets}</td></tr>`;
-  const presets = loc.p("The wizard picks the preset for your screen when it opens and marks it “{yours}”: <strong>{ultrawide}</strong> for a screen at least {wide} times as wide as it is tall; otherwise by height: <strong>{k4}</strong> from {tall4k} pixels tall, <strong>{q1440}</strong> from {tall1440}, and <strong>{hd}</strong> from {below}.", { yours: s("your screen"), ultrawide: scr("ultrawide"), wide: esc(wide), k4: scr("4k"), tall4k: esc(tall4k), q1440: scr("1440"), tall1440: esc(tall1440), hd: scr("1080"), below: esc(setup.keepBelow) });
+  const presets = loc.p("The wizard picks the preset for your screen when it opens and marks it “{yours}”: <strong>{ultrawide}</strong> for a screen at least {wide} times as wide as it is tall; otherwise by height: <strong>{k4}</strong> from {tall4k} pixels tall, <strong>{q1440}</strong> from {tall1440}, and <strong>{hd}</strong> from {below}.", { yours: yourScreenWord(setup, loc), ultrawide: scr("ultrawide"), wide: esc(wide), k4: scr("4k"), tall4k: esc(tall4k), q1440: scr("1440"), tall1440: esc(tall1440), hd: scr("1080"), below: esc(setup.keepBelow) });
   const small = keepLayout
     ? loc.p("On a screen under {below} pixels tall, <strong>{keep}</strong> is picked, and so it is whenever you run setup again.", { below: esc(setup.keepBelow), keep: A(setup.keepText) })
     : loc.p("On a screen under {below} pixels tall, <strong>{keep}</strong> is picked.", { below: esc(setup.keepBelow), keep: A(setup.keepText) });
@@ -471,7 +477,7 @@ function wizardMoveStep(setup, w, loc) {
   const { A } = w;
   return `${stepHeading(setup, "move", 4, "setup-move", loc, w)}
 <p>${loc.p("On this step your frames are unlocked, and the wizard says:")}</p>
-<ul>${setup.moveLines.map((l) => `<li>“${A(l)}”</li>`).join("")}</ul>
+<ul>${setup.moveLines.map((l) => `<li>${loc.quote(A(l))}</li>`).join("")}</ul>
 <p>${loc.p("Arrow keys are <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd>; hold <kbd>Shift</kbd> to move 10 px at a time.")}</p>
 `;
 }
@@ -500,8 +506,8 @@ function wizardProfileStep(setup, w, loc) {
   return `<h3 id="setup-profile">${loc.p("A new character: the {name} step", { name: A(setup.profileName) })}</h3>
 <p>${loc.p("Once setup is finished on your account, each new character gets it too, with one more step first. It asks: “{question}” and offers two choices:", { question: A(setup.profileQuestion) })}</p>
 <ul>
-  <li><strong>“${loc.english ? `${says(S, "Core/Setup.lua", "Share profile ")}<em>name</em>${says(S, "Core/Setup.lua", " with your other characters")}` : shareText}”</strong>: ${w.s("Changes here change them too.")}</li>
-  <li><strong>“${loc.english ? `${own}<em>character</em>` : ownText}”</strong>: ${loc.english ? `a profile named after the character. It ${says(S, "Core/Setup.lua", "Starts as a copy of ").toLowerCase()}the shared one${says(S, "Core/Setup.lua", "; changes here stay on this character.")}` : `${loc.p("a profile named after the character.")} ${copy}`} ${loc.p("It then starts on your role's layout, and <strong>{back}</strong> doesn't return to this step.", { back: lab(S, "Core/Setup.lua", "Back") })}</li>
+  <li><strong>${loc.quote(loc.english ? `${says(S, "Core/Setup.lua", "Share profile ")}<em>name</em>${says(S, "Core/Setup.lua", " with your other characters")}` : shareText)}</strong>: ${w.s("Changes here change them too.")}</li>
+  <li><strong>${loc.quote(loc.english ? `${own}<em>character</em>` : ownText)}</strong>: ${loc.english ? `a profile named after the character. It ${says(S, "Core/Setup.lua", "Starts as a copy of ").toLowerCase()}the shared one${says(S, "Core/Setup.lua", "; changes here stay on this character.")}` : `${loc.p("a profile named after the character.")} ${copy}`} ${loc.p("It then starts on your role's layout, and <strong>{back}</strong> doesn't return to this step.", { back: lab(S, "Core/Setup.lua", "Back") })}</li>
 </ul>
 <p>${loc.p("Characters that played before this step came in aren't asked.")}</p>
 
@@ -527,8 +533,8 @@ function wizardFinish(setup, w, loc) {
 ${ends}
 <p>${loc.p("If setup changed something that needs a reload, it then asks, with <strong>{reload}</strong> and <strong>{later}</strong> buttons:", { reload: lab(w.D, "Core/Dialog.lua", "Reload"), later: lab(w.D, "Core/Dialog.lua", "Later") })}</p>
 <ul>
-  <li>“${reloadAsk(setup.reloadModule)}” ${loc.p("(for example after <strong>{healing}</strong> turned the raid frames on)", { healing })}</li>
-  <li>“${reloadAsk(setup.reloadTile)}”</li>
+  <li>${loc.quote(reloadAsk(setup.reloadModule))} ${loc.p("(for example after <strong>{healing}</strong> turned the raid frames on)", { healing })}</li>
+  <li>${loc.quote(reloadAsk(setup.reloadTile))}</li>
 </ul>
 ${shotFigure(shotByFile("02-setup-wizard"), { loc })}`;
 }
@@ -796,7 +802,7 @@ function featuresIntro(model, loc) {
 // The search box over the module cards (site.js, the same one as Commands and Settings).
 // It reads each card's whole text, the folded More included, and opens the areas with a match.
 function featureSearchBox(model, loc) {
-  return `<div class="search" data-target="#mod-list" data-items=".mod" data-groups=".area" data-noun="modules" data-noun-one="module">
+  return `<div class="search" data-target="#mod-list" data-items=".mod, .overlaps tbody tr" data-groups=".area" data-noun="modules" data-noun-one="module">
   <label for="mod-q" class="search-label visually-hidden">${loc.t("feat.search")}</label>
   <input id="mod-q" type="search" placeholder="${esc(loc.text("feat.placeholder"))}" autocomplete="off">
   ${model.same ? "" : `<div class="filters"><label class="switch"><input type="checkbox" data-filter="next" checked> <span>${loc.t("nextSwitch")}</span></label></div>`}
@@ -823,7 +829,7 @@ function otherAddons(model, loc) {
   const rows = [...model.overlaps].sort((a, b) => byModule(a).localeCompare(byModule(b)) || a.addon.localeCompare(b.addon));
   const head = [loc.p("Addon"), loc.p("What both do"), loc.p("Vanguard module"), loc.p("Notes")].map((h) => `<th scope="col">${h}</th>`).join("");
   const n = rows.filter((o) => o.inRel).length;
-  return disclosure({ id: "other-addons", title: esc(loc.addon(info.name)), meta: loc.pn({ one: "{n} addon", other: "{n} addons" }, n), body: `<p>${esc(loc.addon(info.desc))}</p>
+  return disclosure({ id: "other-addons", title: esc(loc.addon(info.name)), meta: loc.pn({ one: "{n} addon", other: "{n} addons" }, n), cls: "area", body: `<p>${esc(loc.addon(info.desc))}</p>
 <p>${loc.p("When one of these is loaded, Vanguard says so once in chat, and its card under <strong>/vg → {modules}</strong> offers to turn Vanguard's part off or keep both. Nothing changes until you choose.", { modules: esc(loc.addon("Modules")) })}</p>
 <div class="table-wrap"><table class="stack overlaps"><thead><tr>${head}</tr></thead><tbody>
 ${rows.map((o) => overlapRow(o, model, loc)).join("\n")}
@@ -915,13 +921,14 @@ function cmdRow(e, model, loc) {
 }
 
 // The commands grouped by the feature area of the module they need (the Features page's areas;
-// General for those that need none), General first, then the areas in the Features page's order.
+// General for those that need none or whose module has no area, so a dropped module adds no group),
+// General first, then the areas in the Features page's order.
 function cmdGroups(model) {
-  const order = ["General", ...AREAS.map(([a]) => a), "Other"];
+  const order = ["General", ...AREAS.map(([a]) => a)];
   const groups = new Map(order.map((name) => [name, { name, id: slug(name), entries: [] }]));
   for (const e of model.commands.entries) {
-    const mm = e.modules[0] ? model.modules.find((x) => x.key === e.modules[0]) : null;
-    groups.get(e.modules[0] ? (mm ? mm.area : "Other") : "General").entries.push(e);
+    const area = model.modules.find((x) => x.key === e.modules[0])?.area;
+    groups.get(groups.has(area) ? area : "General").entries.push(e);
   }
   return [...groups.values()].filter((g) => g.entries.length);
 }
@@ -1000,13 +1007,23 @@ function defaultText(r, loc) {
   return a || b ? esc(a || b) : "";
 }
 
+// A row's range cell: the release's range, then " → next" when the next release changes it. When the release's
+// bound is not a literal (no text), a range only the next release can read shows on its own, tagged.
+function rangeCell(r, loc) {
+  const range = r.inRel && r.relRange ? r.relRange : r.range;
+  const shown = range ? rangeText(range, loc) : "";
+  const next = r.range ? rangeText(r.range, loc) : "";
+  if (shown) return shown + (range !== r.range && next && next !== shown ? nextOnly(` → ${next}`) : "");
+  return range !== r.range && next ? nextOnly(next) : "";
+}
+
 // A row's choices and range, as one line ("" when it has neither).
-function valuesText(r, loc) {
+export function valuesText(r, loc) {
   const out = [];
   const choices = r.inRel && r.relChoices ? r.relChoices : r.choices;
-  const range = r.inRel && r.relRange ? r.relRange : r.range;
   if (choices && choices.length) out.push(choicesText(choices, r.inRel && r.relChoices ? r.choices : null, loc));
-  if (range) out.push(rangeText(range, loc) + (range !== r.range && r.range && rangeText(r.range, loc) !== rangeText(range, loc) ? nextOnly(` → ${rangeText(r.range, loc)}`) : ""));
+  const cell = rangeCell(r, loc);
+  if (cell) out.push(cell);
   return out.join("; ");
 }
 
@@ -1017,8 +1034,9 @@ function choicesText(choices, nextChoices, loc) {
   return choices.map(shown).join(" / ") + added.map((c) => nextOnly(` / ${shown(c)}`)).join("");
 }
 
-// A slider's range as text: its two ends.
+// A slider's range as text: its two ends, "" when the code does not give both as numbers.
 function rangeText(range, loc) {
+  if (range.min === null || range.max === null) return "";
   const f = (x) => (range.percent && range.max <= 2 ? `${Math.round(x * 100)}%` : String(x));
   return loc.t("set.range", { min: esc(f(range.min)), max: esc(f(range.max)) });
 }
@@ -1037,11 +1055,14 @@ function groupRow(html, attrs) {
   return `</tbody><tbody><tr class="opt-row h" ${attrs}><th scope="rowgroup" colspan="${COLS.length}">${html}</th></tr>`;
 }
 
+// The kinds of row that are a setting with a value (the window gives them the Needs reload tag).
+const SETTING_KINDS = ["check", "cycle", "slider"];
+
 // A row's caption in the page's language, as plain text. A ns.Format caption is looked up by its
 // {slot} text, as the game does, and its slots show as <slot>.
 function rowCaption(r, loc) {
   const text = r.key ? showSlots(loc.addon(r.key)) : loc.addon(r.caption);
-  return r.appliesLive && / \(reload\)$/.test(r.caption) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
+  return SETTING_KINDS.includes(r.kind) ? withoutReloadWords(r.caption, text) : text;
 }
 
 // A heading or note row from the addon, spanning the table.
@@ -1052,11 +1073,15 @@ function wideRow(r, attrs, version, loc) {
 }
 
 // The words the search box matches for a row: its page, caption and choices,
-// in English and in the page's language.
+// in English and in the page's language, and the tag's words when the row wears it (as the game's own search does).
 function rowSearch(r, pageTitle, loc) {
-  const words = [pageTitle, r.caption, ...(r.tip ? [r.tip] : []), ...(r.choices || []).map((c) => c[1])];
-  const own = loc.english ? [] : [...words.map((w) => loc.addon(w)), rowCaption(r, loc)].filter((w) => !words.includes(w));
-  return `${pageTitle} ${r.caption}${r.tip ? ` ${r.tip}` : ""} ${(r.choices || []).map((c) => c[1]).join(" ")}${own.length ? ` ${own.join(" ")}` : ""}`;
+  const caption = SETTING_KINDS.includes(r.kind) ? withoutReloadWords(r.caption, r.caption) : r.caption;
+  const tip = r.tip ? withoutReloadWords(r.tip, r.tip) : "";
+  const words = [pageTitle, caption, ...(tip ? [tip] : []), ...(r.choices || []).map((c) => c[1])];
+  const translated = [pageTitle, r.caption, ...(r.tip ? [r.tip] : []), ...(r.choices || []).map((c) => c[1])].map((w) => withoutReloadWords(w, loc.addon(w)));
+  const own = loc.english ? [] : [...translated, rowCaption(r, loc)].filter((w) => !words.includes(w));
+  const tag = r.reload ? ` reload${loc.english ? "" : ` ${loc.t("badge.reload")}`}` : "";
+  return `${pageTitle} ${caption}${tip ? ` ${tip}` : ""} ${(r.choices || []).map((c) => c[1]).join(" ")}${own.length ? ` ${own.join(" ")}` : ""}${tag}`;
 }
 
 // A row's tip under its name, in the page's language, without the reload bracket the old caption carried (the
@@ -1064,8 +1089,7 @@ function rowSearch(r, pageTitle, loc) {
 function rowTip(r, loc) {
   if (!r.tip) return "";
   const text = loc.addon(r.tip);
-  const plain = / \(reload\)$/.test(r.tip) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
-  return `<span class="opt-tip">${esc(plain)}</span>`;
+  return `<span class="opt-tip">${esc(withoutReloadWords(r.tip, text))}</span>`;
 }
 
 // Whether a row is one setting to count: not a heading or note, and not the Retail wording of a switch that is
@@ -1080,7 +1104,7 @@ function optRow(r, version, pageTitle, id, loc) {
   const attrs = `data-avail="${avail(r.inRel, r.inNext)}" data-search="${esc(rowSearch(r, pageTitle, loc))}"`;
   if (r.kind === "header" || r.kind === "text") return wideRow(r, attrs, version, loc);
   const loop = r.loop ? ` <span class="small">(${esc(r.loop.variable)} = ${loc.t("set.range", { min: r.loop.from, max: r.loop.to })})</span>` : "";
-  const tags = [r.reload ? reloadBadge(loc) : "", r.clientOnly === "retail" ? `<span class="badge plain">${loc.t("badge.retailOnly")}</span>` : "", badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
+  const tags = [r.reload ? reloadBadge(loc) : "", clientBadge(r.clientOnly, loc), badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
   const kind = KINDS.includes(r.kind) ? ` <span class="opt-kind">${loc.t(`kind.${r.kind}`)}</span>` : "";
   const cells = [valuesText(r, loc), defaultText(r, loc)].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
   return `<tr class="opt-row opt-item" id="${id}"${countsAsSetting(r) ? " data-count" : ""} ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${tags ? ` ${tags}` : ""}${kind}${rowTip(r, loc)}</th>${cells.join("")}</tr>`;
@@ -1115,13 +1139,27 @@ function modulesRow(p, model, loc) {
   return `<tr class="opt-row t"><td colspan="${COLS.length}">${loc.t("set.modulesRow", { modules: mods })}</td></tr>`;
 }
 
+// A page's setting count: the settings the release has, and "+ n next release" behind the next-release switch for the
+// ones only the next release adds (a page of a release behind the source would otherwise count what it does not list).
+function pageCount(p, loc) {
+  const settings = p.rows.filter(countsAsSetting);
+  const rel = settings.filter((r) => r.inRel).length;
+  const more = settings.length - rel;
+  return `${rel ? loc.n("set.count", rel) : ""}${more ? nextOnly(`${rel ? " + " : ""}${loc.t("group.moreNext", { n: more })}`) : ""}`;
+}
+
+// The "Retail only" or "WoW Forever only" badge for a row or page that only one client has ("" for both).
+function clientBadge(only, loc) {
+  const key = { retail: "badge.retailOnly", forever: "badge.foreverOnly" }[only];
+  return key ? `<span class="badge plain">${loc.t(key)}</span>` : "";
+}
+
 // One options page, folded: its heading opens a table of its settings (one card per row on narrow screens).
 function pageSection(p, model, used, loc) {
   const head = `<thead><tr>${COLS.map((c) => `<th scope="col">${loc.t(c)}</th>`).join("")}</tr></thead>`;
-  const n = p.rows.filter(countsAsSetting).length;
   const b = badge(p.inRel, p.inNext, model.version, loc);
   return `<details class="opt-page disclosure" data-page="${esc(p.key)}"${p.inRel ? "" : ' data-avail="next"'}>
-<summary><h2 id="${p.id}">${esc(loc.addon(p.title))}</h2><span class="dis-meta">${loc.n("set.count", n)}${b ? ` ${b}` : ""}</span></summary>
+<summary><h2 id="${p.id}">${esc(loc.addon(p.title))}</h2><span class="dis-meta">${pageCount(p, loc)}${[clientBadge(p.clientOnly, loc), b].filter(Boolean).map((x) => ` ${x}`).join("")}</span></summary>
 <div class="dis-body">
 <table class="opt-table" aria-labelledby="${p.id}">${head}<tbody>
 ${pageRows(p, model.version, used, loc)}

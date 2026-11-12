@@ -48,9 +48,11 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
    - `Core/Setup.lua`: the setup wizard
    - `README.md`, the `.toc` file and the release: feature text, the tagline (the TOC Notes line up to its colon, in every language), Troubleshooting's Known issues (the README's `## Known issues` list), version, interface and release notes
 3. `scripts/lib/model.mjs` merges the two refs. The current release is the default and gets no label. Anything only the pinned source has is tagged **Next release** and carries `data-avail="next"`, which hides it until the reader turns on **Show what's coming in the next release** (the switch at the foot of the sidebar, and the same box in the Commands and Settings search forms; the choice is kept in the browser as `vg-show-next`). Something only the release has (removed or renamed since) is tagged **v<release> only**, with the release's own version number. Without JavaScript everything shows. The site never presents next-release features as part of the current release.
-4. Two pages have hand-written words, kept traceable:
+4. Four places have hand-written words, kept traceable (CLAUDE.md has the rules for each):
    - Troubleshooting & FAQ (`scripts/lib/help-content.mjs`): every message an answer quotes is read from the addon at build time, each with its file. An answer whose message can't be found in the code is left off the page instead of guessed.
    - Changelog (`scripts/lib/changelog-content.mjs`): each release in player language, and "What's coming in the next release" from the changes merged since the current release. Every line lists the merged pull requests it came from (never shown on the site). The next-release part only shows while the release it was written after is still the current one.
+   - Support (`supportPage()` in `scripts/lib/pages-more.mjs`): what support pays for and the Ko-fi link, with no claim about Vanguard's features.
+   - Features and the area pages (`scripts/lib/features-content.mjs`): the longer text under each module. Every sentence is pinned to a README phrase or an addon code fact checked at build time or in `test/features.test.mjs`, and is dropped, or tagged Next release, when its phrase is not in the release.
 5. The pages (`scripts/lib/pages-*.mjs`) are written into `dist/`, with the Fira Sans Condensed fonts (and their OFL license) from the addon. No zip is copied into `dist/`.
 
 ## Launch countdown, notice and feed
@@ -193,7 +195,7 @@ To move the site to a newer addon commit, update `sourceRef` and run `npm run ch
 
 `DISCORD_URL` in `scripts/lib/html.mjs` holds the Vanguard Discord invite. While it is set, every page's sidebar has a Discord button above its page list, next to the Support button (`navCommunity()`; on a phone they are in the Menu drawer), and the footer links it next to the stores; set it to `null` and both go away.
 
-The footer stays at two lines: a one-sentence note on who makes Vanguard, then the links line (`footerLinks()`): current release · CurseForge · Wago · Discord · copyright.
+The footer stays at two lines: a one-sentence note on who makes Vanguard, then the links line (`footerLinks()`): current release · CurseForge · Wago · Discord · X · copyright.
 
 ## Tests
 

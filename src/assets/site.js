@@ -84,6 +84,12 @@
     return shown;
   }
 
+  // True when one of the entries is shown (not hidden, and not a heading row).
+  function anyShown(entries) {
+    for (var i = 0; i < entries.length; i++) if (!entries[i].hidden && !entries[i].classList.contains("h")) return true;
+    return false;
+  }
+
   // Hides each group (a settings page, a command group) with no visible entry
   // left. While words are typed, groups with a match open so it can be seen;
   // when the box is emptied they go back to how they started. A change with the
@@ -92,7 +98,7 @@
     var groups = s.list.querySelectorAll(s.groupSel);
     var untouched = s.searching === false && !searching;
     for (var g = 0; g < groups.length; g++) {
-      var has = !!groups[g].querySelector(s.itemSel + ":not([hidden]):not(.h)");
+      var has = anyShown(groups[g].querySelectorAll(s.itemSel));
       groups[g].hidden = !has;
       if (!untouched) setOpen(groups[g], searching ? has : openByDefault(groups[g]));
     }
@@ -106,9 +112,10 @@
     if (btn) btn.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
-  // True when any version box is unticked.
+  // True when any version box the reader can see is unticked (a phone hides them on some pages, so the
+  // no-match message must not tell it to tick them).
   function anyUnticked(filters) {
-    for (var i = 0; i < filters.length; i++) if (!filters[i].checked) return true;
+    for (var i = 0; i < filters.length; i++) if (!filters[i].checked && filters[i].getClientRects().length > 0) return true;
     return false;
   }
 
@@ -155,7 +162,7 @@
     if (s.groupSel) hideEmptyGroups(s, query !== "");
     s.searching = query !== "";
     if (s.count) s.count.textContent = countText(s.box, shown);
-    showEmpty(s, shown, query);
+    showEmpty(s, shown || anyShown(s.items) ? 1 : 0, query);
   }
 
   // Wires one search form to its list, with a Clear search button in its no-match message.

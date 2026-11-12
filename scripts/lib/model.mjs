@@ -101,11 +101,11 @@ function mergePages(rel, next) {
     for (const r of rp?.rows || []) {
       if (!matched.has(rowKey(r))) rows.push({ ...r, inNext: false, inRel: true, relDefault: defaultLabel(r), nextDefault: null });
     }
-    pages.push({ key: np.key, title: np.title, id: slug(np.title), inRel: !!rp, inNext: true, rows, relTitle: rp?.title });
+    pages.push({ key: np.key, title: np.title, id: slug(np.title), inRel: !!rp, inNext: true, clientOnly: np.clientOnly, rows, relTitle: rp?.title });
   }
   for (const rp of rel.pages) {
     if (pages.some((p) => p.key === rp.key)) continue;
-    pages.push({ key: rp.key, title: rp.title, id: slug(rp.title), inRel: true, inNext: false, rows: rp.rows.map((r) => ({ ...r, inRel: true, inNext: false, relDefault: defaultLabel(r), nextDefault: null })) });
+    pages.push({ key: rp.key, title: rp.title, id: slug(rp.title), inRel: true, inNext: false, clientOnly: rp.clientOnly, rows: rp.rows.map((r) => ({ ...r, inRel: true, inNext: false, relDefault: defaultLabel(r), nextDefault: null })) });
   }
   return pages;
 }

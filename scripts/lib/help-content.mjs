@@ -3,7 +3,7 @@
 // page can only quote what the code really says. An entry whose facts can't
 // be found is left off the page rather than shown with a guess.
 
-// [key, where, file, regex with one capture, placeholder names].
+// [key, where, file, regex with one capture, placeholder names, a slot to cut the text at (the text before it is shown)].
 // where: "rel" (the current release, which the page describes), "next" (the
 // pinned newer source) or "both" (must read the same in both). Lua joins (" .. x .. ") in a capture
 // become <name>, <layout>, ... in order, and %s or an ns.Format slot ({profile}) becomes "…". A "rel"
@@ -19,7 +19,7 @@ export const FACTS = [
   ["profResetAsk", "both", "Core/Options.lua", /confirmReset\("(Reset this profile\?)", "Reset"/],
   ["profReset", "both", "Core/Options.lua", /"(Profile (?:%s|\{\w+\}) as it was is saved as profile (?:%s|\{\w+\})\.)"/],
   ["nextSwitch", "rel", "Core/Slash.lua", /(?:OfferReload\(|ns\.Format\()(?:ns\.Format\()?"(This character will use profile (?:" \.\. name \.\. "|\{profile\}) after the reload\.)"/, ["name"]],
-  ["importFailed", "both", "Core/Slash.lua", /chat\((?:ns\.Format\()?"(Import failed:) (?:"|\{reason\})/],
+  ["importFailed", "both", "Core/Slash.lua", /chat\(ns\.Format\("(Import failed: \{reason\}\.)"/, [], "{reason}"],
   ["unread", "both", "README.md", /(go to the bars unread)/],
   ["auraHidden", "rel", "Core/Slash.lua", /and "(hidden right now)" or/],
   ["typeReload", "rel", "Core/Dialog.lua", /ns\.Chat\("(Type \/reload in chat to apply the change[^"]*)"\)/],

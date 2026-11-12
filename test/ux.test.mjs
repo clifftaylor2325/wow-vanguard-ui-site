@@ -83,7 +83,7 @@ test("serve.mjs answers only for files inside the folder it serves", async () =>
 // Without these the local preview served .webp, .md and .xml files as downloads.
 test("serve.mjs gives images, Markdown copies and XML their types", async () => {
   const { serve } = await import("../scripts/serve.mjs");
-  const server = await serve(path.resolve("dist"));
+  const server = await serve(dist);
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
     const types = {};
@@ -94,6 +94,7 @@ test("serve.mjs gives images, Markdown copies and XML their types", async () => 
     assert.equal(types["assets/crest.webp"], "image/webp");
     assert.ok(types["index.md"].startsWith("text/markdown"), types["index.md"]);
     assert.ok(types["sitemap.xml"].startsWith("application/xml"), types["sitemap.xml"]);
+    assert.ok(types["llms.txt"].startsWith("text/plain"), types["llms.txt"]);
   } finally {
     server.close();
   }

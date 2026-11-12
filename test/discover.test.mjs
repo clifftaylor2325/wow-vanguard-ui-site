@@ -59,6 +59,21 @@ test("/llms.txt lists every English page's Markdown copy, and each copy ships", 
   }
 });
 
+test("a summary heading keeps the badges of its dis-meta in the Markdown copy, and drops its count", () => {
+  const main = `<details class="disclosure"><summary><h2 id="a">Talents</h2><span class="dis-meta"><span class="badge">WoW Forever only</span> 12</span></summary><div class="dis-body"><p>Body.</p></div></details>
+<details class="disclosure"><summary><h2 id="b">Chat</h2><span class="dis-meta"><span class="badge next">Next release</span></span></summary><div class="dis-body"><p>More.</p></div></details>
+<details class="disclosure"><summary><h2 id="c">Plain</h2><span class="dis-meta">3</span></summary><div class="dis-body"><p>Text.</p></div></details>`;
+  const out = pageMarkdown({ title: "T", description: "", main, path: "/x/", base: "https://example.com" });
+  assert.match(out, /^## Talents \[WoW Forever only\]$/m);
+  assert.match(out, /^## Chat \[Next release\]$/m);
+  assert.match(out, /^## Plain$/m);
+});
+
+test("the built Settings Markdown marks the Talents heading as WoW Forever only", () => {
+  const md = fs.readFileSync(path.join(dist, "settings", "index.md"), "utf8");
+  assert.match(md, /^## Talents \[WoW Forever only\]$/m);
+});
+
 test("each Markdown copy has every section heading its page has", () => {
   for (const d of ["install", "help", "settings", "features/chat"]) {
     const md = fs.readFileSync(path.join(dist, d, "index.md"), "utf8");

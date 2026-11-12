@@ -276,7 +276,7 @@
  "Once you've visited a merchant, item tooltips say who sells an item and where, for example \"Sold by Thomas Miller (Elwynn Forest, Goldshire)\", with \"{ui:limited stock}\" when they carry only a few. It's remembered for every character on the account.": "访问过某位商人后，物品的鼠标提示会说明谁在哪里出售该物品，例如“由Thomas Miller (Elwynn Forest, Goldshire)出售”，如果对方只有少量库存，还会带有“{ui:limited stock}”。账号下的每个角色都会记住它。",
  "Up to 20 shopping lists of 50 items are kept for the account, and a list is searched at most one item a second, well under the game's limit.": "账号最多保存 20 个购物清单，每个清单最多 50 件物品，清单每秒最多搜索一件物品，远低于游戏的限制。",
  "The asking price is 1 silver under the cheapest (or 1 copper, 1 %, or the same price), or under your 7-day low when nothing is up.": "标价比最低价低 1 银币（或 1 铜币、1%，或与其相同），在没有拍卖时则比你的 7 天最低价低。",
- "A full scan is allowed once every 15 minutes, the game's own limit, and after one, item tooltips everywhere show the price, like \"AH: 1s 0c · market 1s 50c (today)\".": "完整扫描每 15 分钟只允许一次，这是游戏自己的限制，扫描之后，各处的物品鼠标提示都会显示价格，如“拍卖：1s 0c · 市价1s 50c（今天）”。",
+ "A full scan is allowed once every 15 minutes, the game's own limit, and after one, item tooltips everywhere show the price, like \"AH: 1s 0c · market 1s 50c (today)\".": "完整扫描每 15 分钟只允许一次，这是游戏自己的限制，扫描之后，各处的物品鼠标提示都会显示价格，如“拍卖：1银 0铜 · 市价1银 50铜（今天）”。",
  "The {ui:Upgrades list} shows the armor and weapons your scans and searches saw that beat what you wear, the biggest gain first; click one and the game's own list shows it, to buy there.": "“{ui:Upgrades list}”显示你的扫描和搜索中看到的、优于你所穿装备的护甲和武器，提升最大的排在最前；点击一件，游戏自己的列表就会显示它，到那里购买。",
  "Two tabs on the auction house window. Lists: your shopping lists, searched one item at a time, with Recent, Deals and Upgrades beside them. Posting: suggests a price just under the cheapest and posts, and marks your auctions someone undercut, each with a Cancel button. Scan: prices from your scans in item tooltips. It only posts or cancels when you click; buying stays in the game's own window.": "拍卖行窗口上的两个标签页。“列表”：你的购物清单，每次搜索一件物品，旁边有“最近”、“特价”和“升级”。“上架”：建议比最低价略低的价格并上架，并标出被人压价的拍卖，每个都带有“取消”按钮。“扫描”：在物品鼠标提示中显示你扫描得到的价格。它只在你点击时上架或取消；购买仍在游戏自己的窗口中进行。",
  "{ui:Quests}": "{ui:Quests}",
@@ -1267,7 +1267,7 @@
  "Clicking a price alert shows the Buy page from any tab, and the merchant's {ui:Stack} and {ui:Max} line names what stops a buy: gold, stock or bag room.": "点击价格提醒会从任何标签页显示购买页面，商人的“{ui:Stack}”和“{ui:Max}”行会指出阻止购买的原因：金币、库存或背包空间。",
  "A one-hand weapon is compared with the weaker hand while you wear a weapon in each, a WoW Forever shaman in the tank role weighs tank stats, and trainer memory is kept per faction.": "当你双持武器时，单手武器与较弱的一只手比较，坦克职责的 WoW Forever 萨满按坦克属性加权，训练师记忆按阵营保存。",
  "Frames and the meter": "框体与统计",
- "The interrupt mark follows the interrupt you can use in your stance, click casting's “Also on your unit frames” leaves the boss frames out, a WoW Forever paladin's buff watch counts Blessing of Sanctuary, and the meter's Deaths report says when each death happened.": "打断标记遵循你当前姿态下可用的打断，点击施法的“同时用于你的单位框体”不再包括首领框体，WoW Forever 圣骑士的增益监视计入庇护祝福，统计的死亡报告会说明每次死亡发生的时间。",
+ "The interrupt mark follows the interrupt you can use in your stance, click casting's {ui:Also on player, target and focus (reload)} leaves the boss frames out, a WoW Forever paladin's buff watch counts Blessing of Sanctuary, and the meter's Deaths report says when each death happened.": "打断标记遵循你当前姿态下可用的打断，点击施法的{ui:Also on player, target and focus (reload)}不再包括首领框体，WoW Forever 圣骑士的增益监视计入庇护祝福，统计的死亡报告会说明每次死亡发生的时间。",
  "The notice that your saved settings didn't load no longer comes back at every login when nothing was lost, and {ui:Keep these settings} answers it when it does show.": "保存的设置未载入的提示，在没有丢失任何东西时不再每次登录都回来，当它确实出现时，“{ui:Keep these settings}”可以回应它。",
  "A part of Vanguard that fails ten times in a session is paused instead of repeating the error, /vg errors lists paused parts and the actions the game blocked, and the {ui:Feedback} page has a button to resume them. On WoW Forever, nameplates no longer raise an “aura icon pixels” error out in the world.": "在一次会话中失败十次的 Vanguard 部分会被暂停，而不是重复报错，/vg errors 会列出被暂停的部分和游戏阻止的操作，{ui:Feedback}页面有一个恢复它们的按钮。在 WoW Forever 上，姓名板不再在野外引发“aura icon pixels”错误。",
  "A game window a patch has reshaped keeps the game's own look instead of raising errors, and every other window is still skinned.": "被补丁改动了形态的游戏窗口会保留游戏自己的外观，而不是引发错误，其他所有窗口仍会被美化。",
@@ -1287,7 +1287,7 @@
  "Auctions": "拍卖行",
  "Frames and auras": "框体与光环",
  "Keys, quests and chat": "按键、任务与聊天",
- "Many modules switch off and on at once under Modules, with no reload: the chat modules, the data bars, the broker strip and HUD text, Situations and the cooldown tools among them. A switch made in a fight applies when it ends.": "许多模块现在可以在“模块”中立即开关，无需重载：包括聊天模块、数据条、信息条与 HUD 文字、情境以及冷却工具等。在战斗中切换会在战斗结束后生效。",
+ "Many modules switch off and on at once under Modules, with no reload: the chat modules, the data bars, the broker strip and HUD text, Situations and the cooldown tools among them. A switch made in a fight applies when it ends.": "许多模块现在可以在“模块”中立即开关，无需重载：包括聊天模块、数据条、Broker信息条与 HUD 文字、情境以及冷却工具等。在战斗中切换会在战斗结束后生效。",
  "Options search finds the pages you changed and Safer colours by its translated words, settings that need a reload carry the reload tag, and {ui:Undo setup} puts your UI scale back and says what it undid.": "选项搜索能找到你改过的页面，并能用翻译后的词找到“更安全的颜色”；需要重载的设置带有重载标记；{ui:Undo setup}会恢复你的界面缩放并说明撤销了什么。",
  "A profession bag's empty slots get their own section (“Empty: herb bag”), so the combined bag no longer counts them as room for anything. {ui:Train all} runs once and its summary matches what you learned, and Mail's {ui:Take all} leaves game master mail.": "专业包的空格有了自己的分区（“空位：草药包”），合并背包不再把它们算作可放任何东西的空间。{ui:Train all}只运行一次，摘要与实际学到的一致；邮件的{ui:Take all}会保留游戏管理员的邮件。",
  "The Cancel question names the item, Post waits for the sell card's price check, and a per-stack price is for the stack that goes up next.": "取消的确认会写出物品名称，上架会等待出售卡片的价格检查，每组价格指的是接下来上架的那一组。",
@@ -1300,5 +1300,7 @@
  "On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>: it asks “{question}” first, then keeps a copy of the profile and resets it. The options window then shows its <strong>{ui:Reload now}</strong> button.": "在“配置文件”页面上，<strong>{reset}</strong> 的作用与 <code>/vg profile reset</code> 相同：它会先询问“{question}”，然后保留一份该配置文件的副本并将其重置。选项窗口随后会显示它的 <strong>{ui:Reload now}</strong> 按钮。",
  "The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner.": "游戏中的默认布局：玩家和目标框体位于角色两侧，施法条在两者之间，动作条在下方，任务追踪和信息条在方形小地图下面，背包和菜单栏在角落。",
  "You may use the crest and the share card in articles and videos about Vanguard. For anything else, ask on Discord first.": "你可以在介绍 Vanguard 的文章和视频中使用徽记和分享卡片。其他用途请先在 Discord 询问。",
- "Earlier releases": "更早的版本"
+ "Earlier releases": "更早的版本",
+ "“{text}”": "“{text}”",
+ "<strong>{label}:</strong>": "<strong>{label}：</strong>"
 }
