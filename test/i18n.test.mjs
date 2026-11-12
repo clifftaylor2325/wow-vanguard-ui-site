@@ -264,7 +264,7 @@ const DRIFTED_TERMS = {
   "es-mx": [/calabozo/, /«|»/],
   fr: [/page Feedback/, /minuteur de coups/, /barres? d’info\b/, /(?<![\w/-])chat(?![\w/-])/, /Looks? du HUD/, /lancer au clic/, /panneau du personnage/, /bandeau d’infos/, /entraîneur/],
   it: [/addestrator/, /ranghi degli/, /Silenzioso restituisce/, /registro dei tiri/, /targhett/, /(monitoraggio|tracciamento) (delle )?missioni/, /barra informazioni/, /lancio con clic/],
-  "pt-br": [/treinador/, /graduaç/, /do mercador/, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/, /mascote/, /temporizador de golpes/, /fila de fabricação/, /curandeiro/],
+  "pt-br": [/treinador/, /graduaç/, /mercador/i, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/, /mascote/, /temporizador de golpes/, /fila de fabricação/, /curandeiro/],
   "zh-cn": [/准备确认/, /团队格子/, /威胁/],
   "zh-tw": [/框體/, /配置文件/, /就位確認/, /揮擊計時器/, /正式版/, /姓名板/, /動作條/, /揹包/, /標籤頁/, /嚮導/, /拍賣行/, /“|”/],
 };
