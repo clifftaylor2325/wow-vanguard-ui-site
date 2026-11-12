@@ -286,6 +286,15 @@ test("a translation keeps its file's own word for a term, not a later variant", 
   assert.deepEqual(problems, []);
 });
 
+// A translated text uses its language's quotation marks, never a straight " (inside a tag, an attribute's quotes are fine).
+test("a translated text holds no straight double quote outside tags", () => {
+  const problems = [];
+  for (const loc of LOCALES) {
+    for (const [key, , text] of translatedPairs(loc)) if (/"/.test(text.replace(/<[^>]*>/g, ""))) problems.push(`${loc.code}: ${key.slice(0, 60)}`);
+  }
+  assert.deepEqual(problems, []);
+});
+
 // A Korean particle depends on the last sound of the word before it, and the page fills a {ui:Name} (or a {placeholder} in <strong> or in quotes)
 // with the addon's own word, which the line cannot know. So the line writes the paired form (은(는), 이(가), 을(를), 와(과), (으)로).
 test("a Korean line pairs the particle after an addon name it fills in", () => {
