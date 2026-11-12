@@ -915,13 +915,14 @@ function cmdRow(e, model, loc) {
 }
 
 // The commands grouped by the feature area of the module they need (the Features page's areas;
-// General for those that need none), General first, then the areas in the Features page's order.
+// General for those that need none or whose module has no area, so a dropped module adds no group),
+// General first, then the areas in the Features page's order.
 function cmdGroups(model) {
-  const order = ["General", ...AREAS.map(([a]) => a), "Other"];
+  const order = ["General", ...AREAS.map(([a]) => a)];
   const groups = new Map(order.map((name) => [name, { name, id: slug(name), entries: [] }]));
   for (const e of model.commands.entries) {
-    const mm = e.modules[0] ? model.modules.find((x) => x.key === e.modules[0]) : null;
-    groups.get(e.modules[0] ? (mm ? mm.area : "Other") : "General").entries.push(e);
+    const area = model.modules.find((x) => x.key === e.modules[0])?.area;
+    groups.get(groups.has(area) ? area : "General").entries.push(e);
   }
   return [...groups.values()].filter((g) => g.entries.length);
 }

@@ -106,9 +106,10 @@
     if (btn) btn.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
-  // True when any version box is unticked.
+  // True when any version box the reader can see is unticked (a phone hides them on some pages, so the
+  // no-match message must not tell it to tick them).
   function anyUnticked(filters) {
-    for (var i = 0; i < filters.length; i++) if (!filters[i].checked) return true;
+    for (var i = 0; i < filters.length; i++) if (!filters[i].checked && filters[i].getClientRects().length > 0) return true;
     return false;
   }
 

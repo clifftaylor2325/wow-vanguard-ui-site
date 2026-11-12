@@ -15,7 +15,7 @@ import { helpPage, licenseSummary, profilesPage, changelogPage, feedbackPage } f
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 import { tocRetailOnly } from "../scripts/lib/source.mjs";
-import { featuresPage, startsOff, startPage, settingsPage } from "../scripts/lib/pages-main.mjs";
+import { featuresPage, startsOff, startPage, settingsPage, commandsPage } from "../scripts/lib/pages-main.mjs";
 import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
 import { publishedLocales, EN } from "../scripts/lib/i18n-site.mjs";
@@ -1493,4 +1493,24 @@ test("Feedback lists no module only the next release has", () => {
   assert.ok(nextOnly.length >= 1, "the pins have a module the release lacks");
   for (const m of nextOnly) assert.ok(!html.includes(`<option value="${m.key}"`), `${m.key} is not offered`);
   for (const m of behind.model.modules.filter((x) => x.inRel)) assert.ok(html.includes(`<option value="${m.key}"`), `${m.key} is offered`);
+});
+
+// With the release behind the source, a command whose module the release does not know still lands in an area or
+// General: the Commands page has one group for each area at most and no "Other" group, and every word is listed once.
+test("Commands adds no group of its own for a command whose module is gone", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const html = commandsPage(behind.model).body;
+  const groups = [...html.matchAll(/<tbody class="cmd-group[^"]*" data-group="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(groups.length >= 2 && groups.length <= AREAS.length + 1, `groups: ${groups}`);
+  assert.ok(!groups.includes("other"), "no Other group");
+  const rows = (html.match(/<tr class="cmd opt-item"/g) || []).length;
+  assert.equal(rows, behind.model.commands.entries.length, "every command is listed once");
+});
+
+// On a phone the Commands page hides its version boxes (the Menu's switch still works), so the no-match hint, which
+// counts only boxes on screen, cannot name them.
+test("Commands hides its version boxes on a phone and the no-match hint counts only boxes on screen", () => {
+  assert.match(fs.readFileSync(path.join(root, "src/assets/site.css"), "utf8"), /max-width: 559px\) \{ \.search\[data-target="#opt-list"\] \.filters, \.search\[data-target="#cmd-list"\] \.filters \{ display: none/);
+  assert.match(fs.readFileSync(path.join(root, "src/assets/site.js"), "utf8"), /!filters\[i\]\.checked && filters\[i\]\.getClientRects\(\)\.length > 0/);
 });

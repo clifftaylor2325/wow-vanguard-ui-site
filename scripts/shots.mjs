@@ -35,6 +35,8 @@ import { loadConfig, root } from "./lib/config.mjs";
 import { serve } from "./serve.mjs";
 import { NAV } from "./lib/html.mjs";
 import { LOCALES } from "./lib/i18n-site.mjs";
+import { gitReader } from "./lib/source.mjs";
+import { extractCommands } from "./lib/extract.mjs";
 import { mockFeedback, routeFeedbackApi } from "./lib/feedback-mock.mjs";
 
 // msedge.exe in the usual Windows install folders (none on other systems).
@@ -474,15 +476,37 @@ async function checkLanguage(browser, base, loc, failures) {
   await checkPageRows(browser, base, loc, failures);
 }
 
-// Builds the site once more into a temp folder with the release before the current one as "current",
-// the state between releases (the pinned source is ahead), and checks every reference page still fits
-// one screen there in every language: the version boxes and the next-release counts add rows then.
-async function checkReleaseBehind(browser, failures) {
-  const cfg = loadConfig();
-  const meta = JSON.parse(fs.readFileSync(cfg.releaseJson, "utf8"));
-  const before = meta.releases[meta.releases.findIndex((r) => r.tagName === meta.current) + 1];
-  if (!before) return console.log("skip release-behind pass: no earlier release in the metadata");
+// The command words one release defines (Core/Slash.lua's COMMANDS), as a sorted list joined into one string.
+function commandWords(cfg, ref) {
+  return extractCommands(gitReader(cfg.sourcePath, ref)).commands.map((c) => c.key).sort().join(" ");
+}
+
+// The older releases the behind pass builds as "current": the one right before the current release (the state
+// between releases) and the newest earlier release whose command words differ from the pinned source's, so a
+// command the source dropped is measured too. One release when they are the same.
+function behindReleases(cfg, meta) {
+  const older = meta.releases.slice(meta.releases.findIndex((r) => r.tagName === meta.current) + 1);
+  if (!older.length) return [];
+  const sourceWords = commandWords(cfg, cfg.sourceRef);
+  const differs = older.find((r) => {
+    try { return commandWords(cfg, r.tagName) !== sourceWords; } catch { return false; } // a tag the clone lacks
+  });
+  return [...new Set([older[0], differs].filter(Boolean))];
+}
+
+// On a phone the Commands page hides its version boxes, so a search with no match must not tell the reader to tick them.
+async function checkPhoneNoMatch(page, base, before, failures) {
+  await page.goto(`${base}/commands/`, { waitUntil: "load" });
+  const r = await searchFor(page, "zzqqxx");
+  report(failures, `release behind (${before.tagName}) /commands/ "zzqqxx" at 390px: ${r.empty}`, !!r.empty && !/tick/i.test(r.empty));
+}
+
+// Builds the site once more into a temp folder with an older release as "current", the state between releases
+// (the pinned source is ahead), and checks every reference page still fits one screen there in every language:
+// the version boxes, the next-release counts and a command the source dropped add rows then.
+async function checkReleaseBehind(browser, failures, before) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vg-behind-"));
+  const meta = JSON.parse(fs.readFileSync(loadConfig().releaseJson, "utf8"));
   const json = path.join(dir, "release.json");
   fs.writeFileSync(json, JSON.stringify({ ...meta, current: before.tagName }));
   const out = path.join(dir, "site");
@@ -501,12 +525,22 @@ async function checkReleaseBehind(browser, failures) {
           await fitsOneScreen(page, `release behind (${before.tagName}) ${loc.code || "en"}${n.path} at ${width}x${height}`, failures);
         }
       }
+      if (width === 390) await checkPhoneNoMatch(page, base, before, failures);
       await page.close();
     }
   } finally {
     server.close();
     fs.rmSync(dir, { recursive: true, force: true });
   }
+}
+
+// The release-behind pass for each older release behindReleases picks.
+async function checkReleasesBehind(browser, failures) {
+  const cfg = loadConfig();
+  const meta = JSON.parse(fs.readFileSync(cfg.releaseJson, "utf8"));
+  const releases = behindReleases(cfg, meta);
+  if (!releases.length) return console.log("skip release-behind pass: no earlier release in the metadata");
+  for (const before of releases) await checkReleaseBehind(browser, failures, before);
 }
 
 // Entry point.
@@ -558,7 +592,7 @@ async function main() {
     }
     await checkSearch(browser, base, failures);
     for (const loc of builtLocales(loadConfig().outDir)) await checkLanguage(browser, base, loc, failures);
-    await checkReleaseBehind(browser, failures);
+    await checkReleasesBehind(browser, failures);
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
       watchErrors(page, failures);
