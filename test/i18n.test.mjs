@@ -262,7 +262,7 @@ const DRIFTED_TERMS = {
   ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /퀘스트 일지/, /Retail/, /측정기/, /정보 (바|막대)/, /픽셀 퍼펙트/, /재능/],
   es: [/cronômetro/, /temporizador de golpes/, /página de Feedback/, /entrenador/, /cola de fabricación/, /registro de tiradas/, /tira de información/, /más se vende/],
   "es-mx": [/calabozo/, /«|»/],
-  fr: [/page Feedback/, /minuteur de coups/, /barres? d’info\b/, /(?<![\w/-])chat(?![\w/-])/, /Looks? du HUD/, /lancer au clic/, /bandeau d’infos/, /entraîneur/],
+  fr: [/page Feedback/, /minuteur de coups/, /barres? d’info\b/, /(?<![\w/-])chat(?![\w/-])/, /Looks? du HUD/, /lancer au clic/, /panneau du personnage/, /bandeau d’infos/, /entraîneur/],
   it: [/addestrator/, /ranghi degli/, /Silenzioso restituisce/, /registro dei tiri/, /targhett/, /(monitoraggio|tracciamento) (delle )?missioni/, /barra informazioni/, /lancio con clic/],
   "pt-br": [/treinador/, /graduaç/, /do mercador/, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/, /mascote/, /temporizador de golpes/, /fila de fabricação/, /curandeiro/],
   "zh-cn": [/准备确认/, /团队格子/, /威胁/],
