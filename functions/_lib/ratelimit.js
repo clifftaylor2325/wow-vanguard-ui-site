@@ -69,7 +69,7 @@ async function names(kv, prefix) {
 // `cap` other slots inside the window are as old as ours or older (a slot
 // with the same time counts against us, so a tie can't squeeze past an
 // already accepted send). Returns { key } on success, or { retryAfter }
-// (seconds) after deleting our slot.
+// (seconds) after deleting our slot (a failed delete still refuses; the slot's expiry clears it).
 async function takeSlot(kv, prefixes, cap, windowMs, ttl, now, retryAt) {
   const key = slotKey(prefixes[0], now);
   await kv.put(key, "1", { expirationTtl: ttl });
@@ -79,7 +79,7 @@ async function takeSlot(kv, prefixes, cap, windowMs, ttl, now, retryAt) {
       .filter((n) => n !== key && slotTime(n) > now - windowMs && slotTime(n) <= now)
       .sort((a, b) => slotTime(a) - slotTime(b));
     if (before.length < cap) return { key };
-    await kv.delete(key);
+    await dropQuietly(kv, key);
     return { retryAfter: Math.max(1, Math.ceil((retryAt(before) - now) / 1000)) };
   } catch (e) {
     await dropQuietly(kv, key);
@@ -107,7 +107,7 @@ function nextDay(now) {
 async function takeDaySlot(kv, keys, playerKey, now) {
   try {
     const day = await takeSlot(kv, [keys.day], PER_DAY, DAY, 2 * 86400, now, () => nextDay(now));
-    if (day.retryAfter) await kv.delete(playerKey);
+    if (day.retryAfter) await dropQuietly(kv, playerKey);
     return day;
   } catch (e) {
     await dropQuietly(kv, playerKey);

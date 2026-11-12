@@ -542,6 +542,21 @@ test("60 new issues a day for everyone, then 429", async () => {
   assert.equal(s.issues.length, 60);
 });
 
+test("a refused cap answers 429 even when giving the slot back fails", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const s = mockServices();
+  for (let i = 0; i < 60; i++) assert.equal((await send(env, s, featureFields(), { clock, at: clock.now + i, ip: `198.51.100.${i}` })).status, 200);
+  const del = env.FEEDBACK_KV.delete;
+  env.FEEDBACK_KV.delete = async () => { throw new Error("KV delete down"); };
+  assert.equal((await send(env, s, featureFields(), { clock, at: clock.now + 60, ip: "192.0.2.1" })).status, 429, "the day cap");
+  env.FEEDBACK_KV.delete = del;
+  const hourly = testEnv(clock);
+  for (let i = 0; i < 5; i++) assert.equal((await send(hourly, s, featureFields(), { clock, at: clock.now + i, ip: "192.0.2.9" })).status, 200);
+  hourly.FEEDBACK_KV.delete = async () => { throw new Error("KV delete down"); };
+  assert.equal((await send(hourly, s, featureFields(), { clock, at: clock.now + 10, ip: "192.0.2.9" })).status, 429, "the hour cap");
+});
+
 test("not configured, or test keys and the stub off localhost: GET says not accepting, POST 503", async () => {
   const clock = newClock();
   const s = mockServices();
