@@ -759,7 +759,7 @@
  "New": "신규",
  "An on-screen arrow points to the nearest quest objective, and on to a quest on another map. A map click can turn it on, with a recent list and a Clear button.": "화면의 화살표가 가장 가까운 퀘스트 목표를 가리키며, 다른 지도에 있는 퀘스트로도 이어집니다. 지도를 클릭해 켤 수 있으며 최근 목록과 지우기 버튼이 있습니다.",
  "Questing": "퀘스트 진행",
- "Quest spots show on the minimap, quest mobs get a mark on their nameplate, and the quest log shows XP to your next level. Quests can be tracked automatically, and quest history is kept for your whole account. Shared quests can be accepted from your group (off by default).": "퀘스트 위치가 미니맵에 표시되고, 퀘스트 몹의 이름표에 표시가 붙으며, 퀘스트 목록에 다음 레벨까지의 경험치가 표시됩니다. 퀘스트를 자동으로 추적할 수 있고, 퀘스트 목록은 계정 전체에 저장됩니다. 공유된 퀘스트를 파티에서 수락할 수 있습니다(기본값은 꺼짐).",
+ "Quest spots show on the minimap, quest mobs get a mark on their nameplate, and the quest log shows XP to your next level. Quests can be tracked automatically, and quest history is kept for your whole account. Shared quests can be accepted from your group (off by default).": "퀘스트 위치가 미니맵에 표시되고, 퀘스트 몹의 이름표에 표시가 붙으며, 퀘스트 목록에 다음 레벨까지의 경험치가 표시됩니다. 퀘스트를 자동으로 추적할 수 있고, 완료한 퀘스트 내역은 계정 전체에 저장됩니다. 공유된 퀘스트를 파티에서 수락할 수 있습니다(기본값은 꺼짐).",
  "{ui:Quest log}": "{ui:Quest log}",
  "Ctrl-click marks quests and {ui:Abandon} takes all the marked ones. Objectives show as rows with a count and progress bar.": "Ctrl 클릭으로 퀘스트를 표시하고 {ui:Abandon}(으)로 표시한 것을 모두 포기합니다. 목표는 수량과 진행 막대가 있는 줄로 표시됩니다.",
  "{ui:Chat history}": "{ui:Chat history}",
