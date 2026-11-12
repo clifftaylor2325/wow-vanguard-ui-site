@@ -1169,7 +1169,7 @@ const SETTINGS_SOURCES = ["Core/Options.lua (PAGES and row builders)", "Modules/
 
 // The folded row above the settings: reloads, defaults and what isn't listed, with the page's source note.
 function settingsAside(read, loc) {
-  return disclosure({ id: "reloads", level: 3, title: loc.t("set.aboutTitle"), cls: "aside", body: `<p>${loc.t("set.aboutReload", { badge: reloadBadge(loc), ...reloadWords(loc) })}</p>
+  return disclosure({ id: "reloads", title: loc.t("set.aboutTitle"), cls: "aside", body: `<p>${loc.t("set.aboutReload", { badge: reloadBadge(loc), ...reloadWords(loc) })}</p>
 ${combatReloadNote(read, loc)}
 <p class="small">${loc.t("set.aboutClients")}</p>
 ${sourceNote(loc, SETTINGS_SOURCES)}` });

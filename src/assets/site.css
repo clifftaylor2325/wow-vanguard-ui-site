@@ -269,7 +269,7 @@ details.disclosure.aside { margin-top: var(--sp-4); }
 @media (min-width: 1200px) { .dis-grid.pages { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 559px) { .search[data-target="#opt-list"] .filters { display: none; } details.disclosure.aside { margin-top: var(--sp-2); } details.disclosure.aside > summary { min-height: 32px; padding: 3px 10px; } .dis-grid.pages > details.disclosure > summary { min-height: 32px; padding: 2px 8px; gap: 6px; } .dis-grid.pages > details.disclosure > summary > h2 { font-size: .9375rem; line-height: 1.25; } }
 details.disclosure.aside > summary { min-height: 38px; }
-details.disclosure.aside > summary > h3 { font-size: var(--fs-sm); color: var(--text2); }
+details.disclosure.aside > summary > :is(h2, h3) { font-size: var(--fs-sm); color: var(--text2); }
 .dis-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2); margin: 0 0 var(--sp-2); }
 .dis-grid > details.disclosure { margin: 0; }
 .dis-grid > details[open], .dis-grid > :has(> details[open]) { grid-column: 1 / -1; }

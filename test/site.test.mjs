@@ -492,6 +492,16 @@ test("Troubleshooting's Known issues lists the README's Known issues, in the add
   }
 });
 
+// A screen reader's heading list stays in order: no heading is more than one level below the one before it.
+test("headings in main never skip a level", () => {
+  for (const n of NAV) {
+    const html = page(n.path.replace(/^\/|\/$/g, ""));
+    const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
+    const levels = [...main.matchAll(/<h([1-6])[\s>]/g)].map((x) => Number(x[1]));
+    levels.forEach((lv, i) => assert.ok(i === 0 || lv <= levels[i - 1] + 1, `${n.path}: h${lv} follows h${levels[i - 1]}`));
+  }
+});
+
 test("pages are well formed: one h1, skip link, shared nav and footer", () => {
   const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
   for (const d of dirs) {
