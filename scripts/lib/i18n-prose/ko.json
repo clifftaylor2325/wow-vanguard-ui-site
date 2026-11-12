@@ -97,7 +97,7 @@
  "Once setup is finished on your account, each new character gets it too, with one more step first. It asks: “{question}” and offers two choices:": "계정에서 설정을 마치면 이후 새 캐릭터에도 설정 마법사가 열리며, 그 전에 한 단계가 더 있습니다. 질문은 “{question}”(이)며 선택지는 두 가지입니다:",
  "It then starts on your role's layout, and <strong>{back}</strong> doesn't return to this step.": "그런 다음 역할에 맞는 배치로 시작하며, <strong>{back}</strong>을(를) 눌러도 이 단계로 돌아오지 않습니다.",
  "Characters that played before this step came in aren't asked.": "이 단계가 추가되기 전에 플레이한 캐릭터에는 묻지 않습니다.",
- "<strong>{done}</strong> finishes it, and so does <strong>{skip}</strong>; both lock your frames again, and chat says “{again}”": "<strong>{done}</strong>(으)로 마칠 수 있고 <strong>{skip}</strong>로도 마칠 수 있습니다. 둘 다 프레임을 다시 잠그며, 대화창에 “{again}”라고 나옵니다.",
+ "<strong>{done}</strong> finishes it, and so does <strong>{skip}</strong>; both lock your frames again, and chat says “{again}”": "<strong>{done}</strong>(으)로 마칠 수 있고 <strong>{skip}</strong>로도 마칠 수 있습니다. 둘 다 프레임을 다시 잠그며, 대화창에 “{again}”이라고 나옵니다.",
  "The window's close button and <kbd>Escape</kbd> only close it. Until it's finished, it opens again at your next login, and chat says “{later}”": "창의 닫기 버튼과 <kbd>Escape</kbd>는 창만 닫습니다. 끝내기 전까지는 다음 접속 때 다시 열리며, 대화창에 “{later}”라고 나옵니다.",
  "To run it again, type <code>/vg setup</code> or click <strong>{run}</strong> under <strong>{general} → {layout}</strong> in <code>/vg</code>.": "다시 실행하려면 <code>/vg setup</code>을 입력하거나 <code>/vg</code>의 <strong>{general} → {layout}</strong>에서 <strong>{run}</strong>을(를) 클릭하세요.",
  "Finishing": "마무리",

@@ -694,3 +694,21 @@ test("a built Getting started page uses each language's own words for General �
     }
   }
 });
+
+// The page fills a quoted sentence the line cannot know, so the quote particle (이라고 after a final consonant, 라고 after none)
+// is checked on the built Korean pages, by the last Hangul letter before the closing quote. Latin or digit endings are skipped.
+test("a built Korean page puts 이라고 or 라고 after a quote by its last sound", () => {
+  const pages = fs.readdirSync(path.join(out, "ko"), { recursive: true }).filter((f) => String(f).endsWith("index.html"));
+  assert.ok(pages.length > 10);
+  const wrong = [];
+  for (const page of pages) {
+    const plain = text(fs.readFileSync(path.join(out, "ko", String(page)), "utf8"));
+    for (const m of plain.matchAll(/([가-힣A-Za-z0-9])[.?!]?[’”」"](이라고|라고)/g)) {
+      const code = m[1].charCodeAt(0);
+      if (code < 0xac00 || code > 0xd7a3) continue;
+      const hasFinal = (code - 0xac00) % 28 !== 0;
+      if (hasFinal !== (m[2] === "이라고")) wrong.push(`${page}: ${plain.slice(Math.max(0, m.index - 20), m.index + 8)}`);
+    }
+  }
+  assert.deepEqual(wrong, []);
+});
