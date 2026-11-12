@@ -11,7 +11,7 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton, navCommunity, followLine } from "../scripts/lib/html.mjs";
-import { helpPage, licenseSummary, profilesPage } from "../scripts/lib/pages-more.mjs";
+import { helpPage, licenseSummary, profilesPage, changelogPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 import { tocRetailOnly } from "../scripts/lib/source.mjs";
@@ -640,6 +640,16 @@ test("the Changelog folds the earlier releases into one section and keeps every 
   }
   const feed = fs.readFileSync(path.join(dist, "changelog/feed.xml"), "utf8");
   for (const id of feed.match(/#rel-v[\d.]+/g)) assert.ok(html.includes(`id="${id.slice(1)}"`), `${id} is on the page`);
+});
+
+// A release newer than the current one (a pre-release) is shown with the current release, not folded under Earlier.
+test("the Changelog keeps a release newer than the current one out of Earlier releases", () => {
+  const rel = (tagName, publishedAt) => ({ tagName, publishedAt, body: "" });
+  const model = { release: { tag: "v1.0.0" }, releases: { releases: [rel("v0.9.0", "2026-01-01T00:00:00Z"), rel("v1.0.0", "2026-02-01T00:00:00Z"), rel("v1.1.0-rc1", "2026-03-01T00:00:00Z")] }, same: true };
+  const html = changelogPage(model).body;
+  const earlier = html.slice(html.indexOf('id="earlier-releases"'));
+  assert.ok(!earlier.includes('id="rel-v1.1.0-rc1"') && !earlier.includes('id="rel-v1.0.0"'), "newer and current are above Earlier");
+  assert.ok(earlier.includes('id="rel-v0.9.0"'), "the older release is under Earlier");
 });
 
 // site.css hides every .dis-meta under 560px; the Changelog's release dates and badge carry .keep so they stay.

@@ -810,13 +810,13 @@ ${disclosure({ id: "earlier-releases", title: loc.p("Earlier releases"), body: r
 </section>`;
 }
 
-// The Changelog page: the current release, what's coming, then the earlier releases, newest first.
+// The Changelog page: the current release (and any newer one), what's coming, then the earlier releases, newest first.
 export function changelogPage(model, loc = EN) {
   const rels = model.releases.releases.slice().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
-  const current = rels.filter((r) => r.tagName === model.release.tag);
+  const shown = rels.slice(0, Math.max(rels.findIndex((r) => r.tagName === model.release.tag), 0) + 1);
   const body = [pageHero(loc.t("title./changelog/"), loc.p("Newest first: what each Vanguard release changed, in plain words.")),
     supportAsk("changelog", loc.p("Vanguard is free. If these releases are useful to you,"), undefined, loc.p("Say thanks on Ko-fi")),
-    ...current.map((r) => releaseSection(r, model, 2, loc)), nextSection(model, loc), earlierReleases(rels.filter((r) => !current.includes(r)), model, loc), `<p class="small">${loc.p("Every line comes from the changes merged into the addon for that release.")} ${loc.p(`New releases are also in the <a href="/changelog/feed.xml">release feed</a>, for feed readers and Discord bots.`)}</p>`];
+    ...shown.map((r) => releaseSection(r, model, 2, loc)), nextSection(model, loc), earlierReleases(rels.slice(shown.length), model, loc), `<p class="small">${loc.p("Every line comes from the changes merged into the addon for that release.")} ${loc.p(`New releases are also in the <a href="/changelog/feed.xml">release feed</a>, for feed readers and Discord bots.`)}</p>`];
   return { path: "/changelog/", title: "Changelog", description: loc.p("What changed in each Vanguard release, newest first, and what's coming next."), body: body.join("\n"), translated: true };
 }
 
