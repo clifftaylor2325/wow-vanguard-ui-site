@@ -429,6 +429,18 @@ async function checkTitleClear(browser, base, loc, failures) {
   await page.close();
 }
 
+// At 900 and 1024px the Settings page list keeps one or two lines per page: no row taller than 56px in any language.
+async function checkPageRows(browser, base, loc, failures) {
+  for (const width of [900, 1024]) {
+    const page = await browser.newPage({ viewport: { width, height: 800 } });
+    await page.goto(`${base}/${loc.code}/settings/`, { waitUntil: "load" });
+    await page.evaluate(() => document.fonts.ready);
+    const tallest = await page.evaluate(() => Math.max(...[...document.querySelectorAll("#opt-list > details > summary")].map((s) => Math.round(s.getBoundingClientRect().height))));
+    report(failures, `/${loc.code}/settings/ page rows at ${width}px: tallest ${tallest}px (max 56)`, tallest > 0 && tallest <= 56);
+    await page.close();
+  }
+}
+
 // Every check of one published language, with screenshots of its Settings and Commands.
 async function checkLanguage(browser, base, loc, failures) {
   for (const [width, height] of [[1280, 800], [390, 844]]) {
@@ -458,6 +470,7 @@ async function checkLanguage(browser, base, loc, failures) {
   if (loc.code === "es-mx") await checkSpanishRegionOffer(browser, base, loc, failures);
   await checkNarrowest(browser, base, loc, failures);
   await checkTitleClear(browser, base, loc, failures);
+  await checkPageRows(browser, base, loc, failures);
 }
 
 // Builds the site once more into a temp folder with the release before the current one as "current",
