@@ -120,7 +120,7 @@ RELEASE_NOTES["v0.4.0"] = { groups: [
       { label: "Freezes and errors", text: "Unlocking with a grid size of 0 no longer freezes the game, and there's no longer an error at every login, when pressing the minus key in click casting, from /vg stock with Errands off, or on the Healing options page with raid heals off.", from: [81] },
       { label: "Cast bars and swing timer", text: "Channeled spells empty instead of filling, an interrupted channel no longer flashes as finished, and the swing timer starts over after a weapon swap.", from: [81] },
       { label: "Bars and counts", text: "Shift+number bar paging works in a stance, form or stealth, and item and reagent counts show on action buttons on WoW Forever.", from: [81] },
-      { label: "{ui:Groups}", text: "A quick second ready check keeps its answers, and group changes during a fight no longer pile up work for the end of it.", from: [81] },
+      { label: "Groups", text: "A quick second ready check keeps its answers, and group changes during a fight no longer pile up work for the end of it.", from: [81] },
       { label: "Boss levels", text: "A “??” boss level shows in red instead of gray.", from: [81] },
       { label: "Russian", text: "Russian headings use a font with Cyrillic letters.", from: [81] },
       { label: "{ui:Profiles}", text: "A profile deleted on another character no longer comes back empty: a character that used it moves to Default. {ui:Copy here} while a switch waits for a reload copies into the profile you'll use after it.", from: [124] },

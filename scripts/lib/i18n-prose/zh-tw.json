@@ -1038,7 +1038,7 @@
  "Channeled spells empty instead of filling, an interrupted channel no longer flashes as finished, and the swing timer starts over after a weapon swap.": "引導法術會倒空而不是填滿，被打斷的引導不再閃爍成已完成，攻擊計時器在換武器後會重新開始。",
  "Bars and counts": "條與數量",
  "Shift+number bar paging works in a stance, form or stealth, and item and reagent counts show on action buttons on WoW Forever.": "在姿態、形態或潛行中，Shift+數字的快捷列換頁仍然有效，而在 WoW Forever 上，物品和施法材料數量會顯示在快捷按鈕上。",
- "{ui:Groups}": "{ui:Groups}",
+ "Groups": "隊伍",
  "A quick second ready check keeps its answers, and group changes during a fight no longer pile up work for the end of it.": "快速的第二次準備確認會保留它的回答，戰鬥中的隊伍變更也不再為戰鬥結束時累積工作。",
  "Boss levels": "首領等級",
  "A “??” boss level shows in red instead of gray.": "「??」的首領等級會以紅色顯示，而不是灰色。",

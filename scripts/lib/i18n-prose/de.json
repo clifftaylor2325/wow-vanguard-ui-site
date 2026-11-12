@@ -1042,7 +1042,7 @@
  "Channeled spells empty instead of filling, an interrupted channel no longer flashes as finished, and the swing timer starts over after a weapon swap.": "Kanalisierte Zauber leeren sich, statt sich zu füllen, ein unterbrochener Kanalzauber blinkt nicht mehr als beendet, und der Schwungtimer beginnt nach einem Waffenwechsel neu.",
  "Bars and counts": "Leisten und Zahlen",
  "Shift+number bar paging works in a stance, form or stealth, and item and reagent counts show on action buttons on WoW Forever.": "Das Blättern der Leisten mit Shift+Zahl funktioniert in einer Haltung, Gestalt oder Verstohlenheit, und Gegenstands- und Reagenzienanzahlen erscheinen in WoW Forever auf Aktionsbuttons.",
- "{ui:Groups}": "{ui:Groups}",
+ "Groups": "Gruppen",
  "A quick second ready check keeps its answers, and group changes during a fight no longer pile up work for the end of it.": "Eine schnelle zweite Bereitschaftsprüfung behält ihre Antworten, und Gruppenänderungen während eines Kampfes häufen keine Arbeit mehr für sein Ende an.",
  "Boss levels": "Bossstufen",
  "A “??” boss level shows in red instead of gray.": "Eine Bossstufe „??“ erscheint rot statt grau.",

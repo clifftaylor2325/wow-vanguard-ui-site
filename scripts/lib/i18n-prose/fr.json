@@ -1046,7 +1046,7 @@
  "Channeled spells empty instead of filling, an interrupted channel no longer flashes as finished, and the swing timer starts over after a weapon swap.": "Les sorts canalisés se vident au lieu de se remplir, un canal interrompu ne clignote plus comme terminé, et le minuteur de frappe redémarre après un changement d’arme.",
  "Bars and counts": "Barres et compteurs",
  "Shift+number bar paging works in a stance, form or stealth, and item and reagent counts show on action buttons on WoW Forever.": "Le changement de page de barre par Maj+chiffre fonctionne sous une posture, une forme ou la discrétion, et les compteurs d’objets et de composants s’affichent sur les boutons d’action sur WoW Forever.",
- "{ui:Groups}": "{ui:Groups}",
+ "Groups": "Groupes",
  "A quick second ready check keeps its answers, and group changes during a fight no longer pile up work for the end of it.": "Un second appel rapide garde ses réponses, et les changements de groupe pendant un combat n’accumulent plus de travail pour la fin du combat.",
  "Boss levels": "Niveaux de boss",
  "A “??” boss level shows in red instead of gray.": "Un niveau de boss « ?? » s’affiche en rouge au lieu de gris.",

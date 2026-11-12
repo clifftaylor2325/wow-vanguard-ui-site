@@ -1050,7 +1050,7 @@
  "Channeled spells empty instead of filling, an interrupted channel no longer flashes as finished, and the swing timer starts over after a weapon swap.": "Направляемые заклинания опустошаются, а не заполняются, прерванное направляемое заклинание больше не мигает как завершённое, а таймер атаки начинается заново после смены оружия.",
  "Bars and counts": "Панели и счётчики",
  "Shift+number bar paging works in a stance, form or stealth, and item and reagent counts show on action buttons on WoW Forever.": "Переключение панелей Shift+число работает в стойке, облике или скрытности, а счётчики предметов и реагентов показываются на кнопках действий в WoW Forever.",
- "{ui:Groups}": "{ui:Groups}",
+ "Groups": "Группы",
  "A quick second ready check keeps its answers, and group changes during a fight no longer pile up work for the end of it.": "Быстрая вторая проверка готовности сохраняет свои ответы, а изменения группы во время боя больше не копят работу к его концу.",
  "Boss levels": "Уровни боссов",
  "A “??” boss level shows in red instead of gray.": "Уровень босса «??» показывается красным, а не серым.",

@@ -1038,7 +1038,7 @@
  "Channeled spells empty instead of filling, an interrupted channel no longer flashes as finished, and the swing timer starts over after a weapon swap.": "정신 집중 주문은 차오르지 않고 비워지며, 끊긴 정신 집중이 더 이상 끝난 것처럼 번쩍이지 않고, 무기를 바꾸면 공격 타이머가 다시 시작됩니다.",
  "Bars and counts": "막대와 수량",
  "Shift+number bar paging works in a stance, form or stealth, and item and reagent counts show on action buttons on WoW Forever.": "Shift+숫자 막대 넘기기가 태세, 변신, 은신 중에도 작동하며, WoW Forever에서 행동 버튼에 아이템과 시약 수량이 표시됩니다.",
- "{ui:Groups}": "{ui:Groups}",
+ "Groups": "파티와 공격대",
  "A quick second ready check keeps its answers, and group changes during a fight no longer pile up work for the end of it.": "빠르게 두 번째로 한 전투 준비 확인도 답을 유지하며, 전투 중의 파티 변경이 더 이상 전투가 끝날 때를 위한 작업을 쌓아 두지 않습니다.",
  "Boss levels": "우두머리 레벨",
  "A “??” boss level shows in red instead of gray.": "“??” 우두머리 레벨이 회색 대신 빨간색으로 표시됩니다.",
