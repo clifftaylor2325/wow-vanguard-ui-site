@@ -442,7 +442,7 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
       const loopFor = cap.variable && here && here.variable === cap.variable ? here : null;
       const row = makeRow(ctx, kind, cap.caption, parts.slice(capIdx + 1), loopFor);
       if (cap.key) row.key = cap.key;
-      if (cap.retail) row.clientOnly = "retail";
+      if (cap.retail) Object.assign(row, { clientOnly: "retail", retailName: true });
       if (cap.entryKey) row.ref ??= entryRef(m.code.slice(open, close), cap.entryKey);
       if (kind === "visibility") row.choices = ctx.visibility(m.code.slice(open, close));
       if (here && !loopFor) row.repeated = here;

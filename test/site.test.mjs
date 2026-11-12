@@ -1379,6 +1379,15 @@ test("Settings lists the Calm HUD parts, the mana bar, the Dungeon card and the 
   assert.ok(!/had a caption|left off/.test(html));
 });
 
+// One switch with a different name per client is one setting: its Retail-worded row is listed but not counted twice.
+test("the mana bar switch is counted once though it has a Forever and a Retail name", () => {
+  const html = page("settings");
+  const forever = html.match(/<tr[^>]*id="unit-frames-druid-mana-in-bear-and-cat-form-reload"[^>]*>/)?.[0] || "";
+  const retail = html.match(/<tr[^>]*id="unit-frames-mana-under-the-player-frame-reload"[^>]*>/)?.[0] || "";
+  assert.match(forever, /data-count/);
+  assert.ok(retail && !/data-count/.test(retail), retail);
+});
+
 // O.RestartSetting rebuilds a live module at once, so its row has no reload words and no Needs reload tag; the
 // row's id (a deep link) keeps the full caption.
 test("a restart setting of a live module is not tagged as needing a reload", () => {

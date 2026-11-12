@@ -1068,6 +1068,12 @@ function rowTip(r, loc) {
   return `<span class="opt-tip">${esc(plain)}</span>`;
 }
 
+// Whether a row is one setting to count: not a heading or note, and not the Retail wording of a switch that is
+// already listed under its Forever name.
+function countsAsSetting(r) {
+  return r.kind !== "header" && r.kind !== "text" && !r.retailName;
+}
+
 // One setting as a table row: the caption is the row header, with its reload and release tags
 // beside it; each other cell carries its card label.
 function optRow(r, version, pageTitle, id, loc) {
@@ -1077,7 +1083,7 @@ function optRow(r, version, pageTitle, id, loc) {
   const tags = [r.reload ? reloadBadge(loc) : "", r.clientOnly === "retail" ? `<span class="badge plain">${loc.t("badge.retailOnly")}</span>` : "", badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
   const kind = KINDS.includes(r.kind) ? ` <span class="opt-kind">${loc.t(`kind.${r.kind}`)}</span>` : "";
   const cells = [valuesText(r, loc), defaultText(r, loc)].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
-  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${tags ? ` ${tags}` : ""}${kind}${rowTip(r, loc)}</th>${cells.join("")}</tr>`;
+  return `<tr class="opt-row opt-item" id="${id}"${countsAsSetting(r) ? " data-count" : ""} ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${tags ? ` ${tags}` : ""}${kind}${rowTip(r, loc)}</th>${cells.join("")}</tr>`;
 }
 
 // The heading over rows the options window repeats, e.g. "The rows below repeat for each n from 1 to 8".
@@ -1112,7 +1118,7 @@ function modulesRow(p, model, loc) {
 // One options page, folded: its heading opens a table of its settings (one card per row on narrow screens).
 function pageSection(p, model, used, loc) {
   const head = `<thead><tr>${COLS.map((c) => `<th scope="col">${loc.t(c)}</th>`).join("")}</tr></thead>`;
-  const n = p.rows.filter((r) => r.kind !== "header" && r.kind !== "text").length;
+  const n = p.rows.filter(countsAsSetting).length;
   const b = badge(p.inRel, p.inNext, model.version, loc);
   return `<details class="opt-page disclosure" data-page="${esc(p.key)}"${p.inRel ? "" : ' data-avail="next"'}>
 <summary><h2 id="${p.id}">${esc(loc.addon(p.title))}</h2><span class="dis-meta">${loc.n("set.count", n)}${b ? ` ${b}` : ""}</span></summary>
@@ -1159,7 +1165,7 @@ function settingsSearchBox(model, loc) {
 // The counts line: settings in the release (and the next one), and pages.
 function settingsCounts(model, loc) {
   const { pages, version } = model;
-  const count = (f) => pages.reduce((n, p) => n + p.rows.filter((r) => r.kind !== "header" && r.kind !== "text" && f(r)).length, 0);
+  const count = (f) => pages.reduce((n, p) => n + p.rows.filter((r) => countsAsSetting(r) && f(r)).length, 0);
   const release = loc.n("set.inRelease", count((r) => r.inRel), { version: esc(version) });
   const differs = pages.some((p) => p.rows.some((r) => r.inRel !== r.inNext));
   const next = model.same || !differs ? "" : nextOnly(` · ${loc.t("set.inNext", { n: count((r) => r.inNext) })}`);
