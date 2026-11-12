@@ -269,10 +269,15 @@ const DRIFTED_TERMS = {
   "zh-tw": [/框體/, /配置文件/, /就位確認/, /揮擊計時器/, /正式版/, /姓名板/, /動作條/, /揹包/, /標籤頁/, /嚮導/, /拍賣行/, /“|”/],
 };
 
+// A pattern matches in any letter case, except Korean /Retail/: with the flag it would also match the _retail_ folder name and the {retail} slot.
+function ignoringCase(re) {
+  return re.source === "Retail" || re.flags.includes("i") ? re : new RegExp(re.source, `${re.flags}i`);
+}
+
 test("a translation keeps its file's own word for a term, not a later variant", () => {
   const problems = [];
   for (const loc of LOCALES) {
-    const patterns = [...(loc.code === "es-mx" ? DRIFTED_TERMS.es : []), ...(DRIFTED_TERMS[loc.code] ?? [])];
+    const patterns = [...(loc.code === "es-mx" ? DRIFTED_TERMS.es : []), ...(DRIFTED_TERMS[loc.code] ?? [])].map(ignoringCase);
     for (const [key, , text] of translatedPairs(loc)) {
       const plain = text.replace(/\{ui:[^}]+\}/g, "").replace(/\/vg [^ ]*/g, "");
       for (const re of patterns) if (re.test(plain)) problems.push(`${loc.code} ${re}: ${key.slice(0, 60)}`);
