@@ -828,6 +828,13 @@ test("Home, Screenshots and Credits mention pictures only while some are ready",
   assert.ok(/You may use the crest (?:, the share card )?and the (?:share card|screenshots)/.test(page("credits")));
 });
 
+// Credits is a reference page: it opens folded and fits one screen (npm run shots checks the fit).
+test("Credits starts with its License section folded", () => {
+  const main = page("credits").split("<main")[1] || "";
+  assert.ok(main.includes('id="license"'), "the License section is there");
+  assert.ok(!/<details[^>]*\bopen\b/.test(main), "and no section starts open");
+});
+
 // With the release behind the source, the wizard is the release's, and what only the next release adds is tagged.
 test("Getting started tags the wizard layouts only the next release has", () => {
   const behind = behindModel();

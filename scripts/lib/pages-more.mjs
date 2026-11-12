@@ -933,7 +933,7 @@ export function creditsPage(model, site, loc = EN) {
     description: loc.p("Vanguard's license and the fonts, libraries and art it uses."),
     translated: true,
     body: `${pageHero(loc.t("title./credits/"), lede)}
-${disclosure({ id: "license", title: loc.p("License"), open: true, body: creditsLicense(model, lic, loc) })}
+${disclosure({ id: "license", title: loc.p("License"), body: creditsLicense(model, lic, loc) })}
 ${bullets.length ? disclosure({ id: "credits", title: loc.p("Fonts, libraries and art"), body: `<p>${listed}</p><ul${en}>${bullets.map((b) => `<li>${md(b)}</li>`).join("")}</ul>` }) : ""}
 ${supportOn().length ? disclosure({ id: "support", title: loc.p("Support Vanguard"), body: creditsSupport(loc) }) : ""}
 ${disclosure({ id: "press", title: loc.p("For writers and video makers"), body: creditsPress(model, site, loc) })}
