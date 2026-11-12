@@ -179,8 +179,16 @@ function choicesOf(m, defs, v, depth = 0) {
 
 // A literal number written after `name =` in code, or null when it is an expression (T.TEXT_SCALE.min).
 function literalField(code, name) {
-  const hit = code.match(new RegExp(`\\b${name}\\s*=\\s*(-?\\d+(?:\\.\\d+)?)\\s*[,}\\n]`));
+  const hit = code.match(new RegExp(`\\b${name}\\s*=\\s*(-?(?:\\d+(?:\\.\\d+)?|\\.\\d+))\\s*[,}\\n]`));
   return hit ? Number(hit[1]) : null;
+}
+
+// The code of the table a function body (from..to) returns, or the whole body when it returns no table literal.
+function returnedTable(m, from, to) {
+  const hit = /\breturn\s*\{/.exec(m.bare.slice(from, to));
+  if (!hit) return m.code.slice(from, to);
+  const open = from + hit.index + hit[0].length - 1;
+  return m.code.slice(open, matchBracket(m.bare, open));
 }
 
 // The code of the table a slider's range expression names: a local table, or the function (glowPercentSlider())
@@ -189,7 +197,7 @@ function rangeCode(ctx, v) {
   const { m, defs } = ctx;
   if (v?.fields) return m.code.slice(v.from, v.to);
   const call = v?.expr?.match(/^(\w+)\(\s*\)$/);
-  if (call && defs.has(call[1])) return m.code.slice(defs.get(call[1]).from, defs.get(call[1]).to);
+  if (call && defs.has(call[1])) return returnedTable(m, defs.get(call[1]).from, defs.get(call[1]).to);
   const t = v?.expr ? findTable(m, `local ${v.expr}`) : null;
   return t ? m.code.slice(t.from, t.to) : "";
 }
@@ -197,7 +205,7 @@ function rangeCode(ctx, v) {
 // A slider's range { min, max, step, percent }; a bound the code does not write as a number is null (the text
 // size slider takes its limits from the theme), percent is true when its value is shown as "%d%%". null when
 // the row's expression is not a table the build can find.
-function rangeOf(ctx, v) {
+export function rangeOf(ctx, v) {
   const code = rangeCode(ctx, v);
   if (!code) return null;
   const percent = /%%/.test(code);

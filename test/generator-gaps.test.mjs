@@ -28,3 +28,17 @@ test("percentLabel guards a non-number default and reads a whole-percent step", 
   assert.equal(percentLabel({ default: 0.5, range: range(0.05) }), "50%");
   assert.equal(percentLabel({ default: 1, range: { min: 0.5, max: 2, step: 0.1, percent: true } }), "100%");
 });
+
+test("rangeOf reads the table a range function returns, and a .5 literal", async () => {
+  const { rangeOf } = await import("../scripts/lib/extract.mjs");
+  const { mask, blocks } = await import("../scripts/lib/lua.mjs");
+  const m = mask([
+    "local function glowSlider()",
+    "  local step = 7",
+    "  local scale = { min = 99 }",
+    "  return { min = .5, max = 2, step = .25 }",
+    "end",
+  ].join("\n"));
+  const range = rangeOf({ m, defs: blocks(m) }, { expr: "glowSlider()" });
+  assert.deepEqual([range.min, range.max, range.step], [0.5, 2, 0.25]);
+});
