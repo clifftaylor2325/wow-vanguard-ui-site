@@ -304,8 +304,8 @@ export const PAGES_ZH_TW = {
         a: `<p>Vanguard 自己的文字（選項視窗、設定精靈、聊天訊息和滑鼠提示）以你用戶端的語言顯示：德文、法文、西班牙文（西班牙與拉丁美洲）、義大利文、巴西葡萄牙文、俄文、韓文和中文（簡體與繁體），其他語言的用戶端則顯示英文。遊戲提供的名稱（法術、物品、區域）保持你用戶端的語言。</p><p>這些翻譯是新的機器翻譯，有些句子讀起來會不太自然。遇到這樣的句子，請在<a href="/feedback/">意見回饋頁面</a>（或在遊戲中用 <code>/vg feedback</code>）告訴我們：引用那一句，說明你的語言，如果可以，再寫出它應該怎麼說。你輸入的指令仍然是英文。</p>` },
       "perf": { q: "Vanguard 會拖慢我的遊戲嗎？",
         a: `<p><code>/vg perf</code> 會顯示 Vanguard 目前的 CPU 時間和記憶體，以及它最忙碌的十個函式。想自己測量 CPU 負擔（README：「{perfRecipe}」）：</p><ol class="steps"><li>輸入 <code>/vg perf cpu</code>，然後輸入 <code>/reload</code>。</li><li>玩一陣子（團隊拉怪是最吃重的情況）。</li><li>輸入 <code>/vg perf</code> 並查看數字。</li><li>再次輸入 <code>/vg perf cpu</code> 和 <code>/reload</code>。測量本身也有負擔，README 寫道：「{perfSlows}」。</li></ol><p>目前還沒有公布效能數據。</p>` },
-      "retail": { q: "Vanguard 能在正式版 WoW 上使用嗎？",
-        a: `<p>可以。從 v0.9.0 起，Vanguard 在支援 WoW Forever 的同時也支援正式版 12.1.5，用的是同一個下載：在正式版上，把它放進 <code>_retail_</code> 用戶端的 AddOns 資料夾。為 WoW Forever 自身規則做的部分（按鍵設定、天賦規劃器、法術等級、攻擊計時器等幾項）在正式版上保持關閉，它們的頁面、開關和指令也不會出現。</p><p>正式版支援是新加入的，如果那裡出了問題，請在<a href="/feedback/">意見回饋頁面</a>告訴我們，並說明你在玩正式版。</p>` },
+      "retail": { q: "Vanguard 能在正式服 WoW 上使用嗎？",
+        a: `<p>可以。從 v0.9.0 起，Vanguard 在支援 WoW Forever 的同時也支援正式服 12.1.5，用的是同一個下載：在正式服上，把它放進 <code>_retail_</code> 用戶端的 AddOns 資料夾。為 WoW Forever 自身規則做的部分（按鍵設定、天賦規劃器、法術等級、攻擊計時器等幾項）在正式服上保持關閉，它們的頁面、開關和指令也不會出現。</p><p>正式服支援是新加入的，如果那裡出了問題，請在<a href="/feedback/">意見回饋頁面</a>告訴我們，並說明你在玩正式服。</p>` },
     },
   },
   support: {
