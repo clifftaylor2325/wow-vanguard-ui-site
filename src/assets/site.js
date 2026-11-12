@@ -162,7 +162,7 @@
     if (s.groupSel) hideEmptyGroups(s, query !== "");
     s.searching = query !== "";
     if (s.count) s.count.textContent = countText(s.box, shown);
-    showEmpty(s, shown, query);
+    showEmpty(s, shown || anyShown(s.items) ? 1 : 0, query);
   }
 
   // Wires one search form to its list, with a Clear search button in its no-match message.

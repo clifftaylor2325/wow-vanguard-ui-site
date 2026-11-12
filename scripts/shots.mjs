@@ -176,7 +176,9 @@ async function checkOtherAddonsSearch(page, base, failures) {
     return { open: section.open && !section.hidden, rows: rows.length, cards };
   });
   const counted = r.count.startsWith(`${seen.cards} `);
-  report(failures, `/features/ "bagnon": Other addons ${seen.open ? "open" : "closed"}, ${seen.rows} row(s); counter "${r.count}" (${seen.cards} cards shown)`, seen.open && seen.rows > 0 && counted);
+  report(failures, `/features/ "bagnon": Other addons ${seen.open ? "open" : "closed"}, ${seen.rows} row(s); counter "${r.count}" (${seen.cards} cards shown); no-match message ${r.empty ? "shown" : "hidden"}`, seen.open && seen.rows > 0 && counted && r.empty === null);
+  const none = await searchFor(page, "zzqqxx");
+  report(failures, `/features/ "zzqqxx": no-match message ${none.empty ? "shown" : "hidden"}`, none.empty !== null);
 }
 
 // With JavaScript off, the Menu button and the search boxes are hidden, and the nav and the full lists show.
