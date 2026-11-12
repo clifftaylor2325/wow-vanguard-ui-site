@@ -845,6 +845,35 @@ test("a request that announces a body over 64 KB is refused without reading it",
   assert.equal((await res.json()).error, "bad_request");
 });
 
+test("a KV error while taking or giving back a slot leaves no rate slot behind", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const s = mockServices();
+  const kv = env.FEEDBACK_KV;
+  const list = kv.list;
+  kv.list = async (opts) => {
+    if (opts.prefix.startsWith("rl:d:")) throw new Error("KV list down");
+    return list(opts);
+  };
+  assert.equal((await send(env, s, featureFields(), { clock })).status, 503);
+  assert.equal(slots(env, "p").length + slots(env, "d").length, 0, "the player and day slots are gone");
+  kv.list = list;
+  const del = kv.delete;
+  let failedOnce = false;
+  kv.delete = async (key) => {
+    if (!failedOnce && key.startsWith("rl:d:")) {
+      failedOnce = true;
+      throw new Error("KV delete down");
+    }
+    return del(key);
+  };
+  const failing = await send(env, mockServices({ fail: { create: 500 } }), featureFields(), { clock });
+  assert.equal(failing.status, 503);
+  assert.equal(slots(env, "p").length, 0, "the player slot goes even when the day slot's delete throws");
+  kv.delete = del;
+  assert.equal((await send(env, mockServices(), featureFields(), { clock })).status, 200);
+});
+
 test("the rate caps count an IPv6 /64 as one player, and an IPv4 address as itself", async () => {
   assert.equal(playerNet("203.0.113.7"), "203.0.113.7");
   assert.equal(playerNet("::ffff:203.0.113.7"), "203.0.113.7");
