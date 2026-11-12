@@ -721,3 +721,12 @@ test("a built Korean page puts 이라고 or 라고 after a quote by its last sou
   }
   assert.deepEqual(wrong, []);
 });
+
+// The wizard marks the detected size with the whole Locales text "{screen} (…)  ·  your screen", so a page in another language
+// quotes the client's own word for it, and the English page still says "your screen".
+test("Getting started quotes the client's word for the marked screen size, English only in English", () => {
+  const body = (dir) => text(html(dir, "/start/").match(/<main[\s\S]*<\/main>/)[0]);
+  assert.ok(body("ko").includes("“내 화면”"), "the Korean client's word");
+  assert.ok(!body("ko").includes("your screen"), "no English fragment in Korean");
+  assert.ok(body("").includes("“your screen”"), "English reads as before");
+});

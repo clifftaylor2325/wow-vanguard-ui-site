@@ -775,7 +775,7 @@ export function extractSetup(reader) {
   const reloadModule = (m.code.match(/if state\.reload then return "([^"]+)"/) || [])[1];
   const reloadTile = (m.code.match(/if state\.retile then return "([^"]+)"/) || [])[1];
   const keepBelow = Number((m.code.match(/if h < (\d+) then return "keep"/) || [])[1]);
-  const yourScreen = (m.code.match(/·\s*(your screen)"/) || [])[1];
+  const yourScreen = (m.code.match(/"(\{screen\} \(\{width\} x \{height\}\)\s+·\s+your screen)"/) || [])[1];
   const oldCaption = (m.code.match(/string\.format\("(Step %d of %d · %s)"/) || [])[1];
   const namedCaption = (m.code.match(/"(Step \{step\} of \{count\} · \{name\})"/) || [])[1];
   const caption = oldCaption || (namedCaption && positional(namedCaption));

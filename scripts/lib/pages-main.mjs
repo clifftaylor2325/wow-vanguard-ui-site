@@ -384,9 +384,15 @@ ${setup.layouts.map((l, i) => `<tr${l.nextOnly ? ' data-avail="next"' : ""}><td 
 </ul>`;
 }
 
+// The word the wizard puts after the size it detects ("your screen"), from the whole Locales key so a translation is found.
+function yourScreenWord(setup, loc) {
+  if (!setup.yourScreen) throw new Error("Core/Setup.lua: the \"your screen\" size label was not found in the addon source");
+  return esc(loc.addon(setup.yourScreen).split("·").pop().trim());
+}
+
 // Step 2: the screen question and the presets table.
 function wizardScreenStep(setup, w, loc) {
-  const { A, lab, s } = w;
+  const { A, lab } = w;
   const S = w.S;
   const wide = num(S, "Core/Setup.lua", /if w \/ h >= ([\d.]+) then return "ultrawide"/);
   const tall4k = num(S, "Core/Setup.lua", /if h >= (\d+) then return "4k"/);
@@ -398,7 +404,7 @@ function wizardScreenStep(setup, w, loc) {
   const keepHint = namedText(setup.named.keep, { owner: loc.addon(setup.named.owner || "") }, setup.keepHint, loc);
   const head = [loc.p("Choice"), loc.p("What it sets")];
   const row = (choice, sets, fresh = false) => `<tr${fresh ? ' data-avail="next"' : ""}><td data-label="${head[0]}"><strong>${choice}</strong>${fresh ? ` ${nextBadge(loc)}` : ""}</td><td data-label="${head[1]}">${sets}</td></tr>`;
-  const presets = loc.p("The wizard picks the preset for your screen when it opens and marks it “{yours}”: <strong>{ultrawide}</strong> for a screen at least {wide} times as wide as it is tall; otherwise by height: <strong>{k4}</strong> from {tall4k} pixels tall, <strong>{q1440}</strong> from {tall1440}, and <strong>{hd}</strong> from {below}.", { yours: s("your screen"), ultrawide: scr("ultrawide"), wide: esc(wide), k4: scr("4k"), tall4k: esc(tall4k), q1440: scr("1440"), tall1440: esc(tall1440), hd: scr("1080"), below: esc(setup.keepBelow) });
+  const presets = loc.p("The wizard picks the preset for your screen when it opens and marks it “{yours}”: <strong>{ultrawide}</strong> for a screen at least {wide} times as wide as it is tall; otherwise by height: <strong>{k4}</strong> from {tall4k} pixels tall, <strong>{q1440}</strong> from {tall1440}, and <strong>{hd}</strong> from {below}.", { yours: yourScreenWord(setup, loc), ultrawide: scr("ultrawide"), wide: esc(wide), k4: scr("4k"), tall4k: esc(tall4k), q1440: scr("1440"), tall1440: esc(tall1440), hd: scr("1080"), below: esc(setup.keepBelow) });
   const small = keepLayout
     ? loc.p("On a screen under {below} pixels tall, <strong>{keep}</strong> is picked, and so it is whenever you run setup again.", { below: esc(setup.keepBelow), keep: A(setup.keepText) })
     : loc.p("On a screen under {below} pixels tall, <strong>{keep}</strong> is picked.", { below: esc(setup.keepBelow), keep: A(setup.keepText) });
