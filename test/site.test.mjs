@@ -1547,7 +1547,7 @@ test("quoted addon text and changelog labels use the page's language's marks", (
 });
 
 // The Features search reaches the Other addons table: its section is a group and its rows are items, with no data-count so
-// the counter still counts modules (npm run shots has no step for this; checked by hand in a browser: "bagnon" opens it).
+// the counter still counts modules (that "bagnon" opens it in a browser is checkOtherAddonsSearch in npm run shots).
 test("Features search covers the Other addons rows", () => {
   const html = page("features");
   assert.match(html, /data-items="\.mod, \.overlaps tbody tr" data-groups="\.area"/);

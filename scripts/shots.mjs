@@ -164,6 +164,21 @@ async function checkReleaseAnchor(page, base, failures) {
   report(failures, `/changelog/#${id} opens the earlier releases around it`, shown === true);
 }
 
+// A Features search for another addon's name opens the Other addons table with that row (H46-39-305), and the
+// counter still counts module cards only: the table's rows carry no data-count.
+async function checkOtherAddonsSearch(page, base, failures) {
+  await page.goto(base + "/features/", { waitUntil: "load" });
+  const r = await searchFor(page, "bagnon");
+  const seen = await page.evaluate(() => {
+    const section = document.getElementById("other-addons").closest("details");
+    const rows = [...section.querySelectorAll(".overlaps tbody tr")].filter((tr) => !tr.hidden && /bagnon/i.test(tr.textContent));
+    const cards = [...document.querySelectorAll("#mod-list [data-count]")].filter((el) => !el.hidden).length;
+    return { open: section.open && !section.hidden, rows: rows.length, cards };
+  });
+  const counted = r.count.startsWith(`${seen.cards} `);
+  report(failures, `/features/ "bagnon": Other addons ${seen.open ? "open" : "closed"}, ${seen.rows} row(s); counter "${r.count}" (${seen.cards} cards shown)`, seen.open && seen.rows > 0 && counted);
+}
+
 // With JavaScript off, the Menu button and the search boxes are hidden, and the nav and the full lists show.
 async function checkNoScript(browser, base, failures) {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
@@ -176,7 +191,7 @@ async function checkNoScript(browser, base, failures) {
   await context.close();
 }
 
-// The search checks for Commands and Settings, at 390px.
+// The search checks for Commands, Settings and Features, at 390px.
 async function checkSearch(browser, base, failures) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   watchErrors(page, failures);
@@ -189,6 +204,7 @@ async function checkSearch(browser, base, failures) {
   await checkSettingsCount(page, base, failures);
   await checkOpenGroupStays(page, base, failures);
   await checkReleaseAnchor(page, base, failures);
+  await checkOtherAddonsSearch(page, base, failures);
   await page.close();
 }
 
