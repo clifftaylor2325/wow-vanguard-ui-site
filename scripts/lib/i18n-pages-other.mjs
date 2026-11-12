@@ -119,7 +119,7 @@ export const PAGES_KO = {
       "broken": { q: "전부 망가졌어요",
         a: `<p><code>/vg profile reset</code>은 먼저 묻고(“{profResetAsk}”), 쓰고 있는 프로필의 사본을 남긴 뒤 기본값으로 되돌립니다(“{profReset}”). 그다음 UI를 다시 불러오세요.</p><p>설정을 잃지 않고 시험해 보려면 이 캐릭터를 새 빈 프로필로 바꾸세요: <code>/vg profile Test</code>. 다음에 다시 불러올 때 적용됩니다: “{nextSwitch}” <a href="/profiles/">프로필</a>을 참고하세요.</p>` },
       "import": { q: "가져오기에 실패했어요",
-        a: `<p>가져오기 문자열을 쓸 수 없으면 Vanguard는 “{importFailed}”와 함께 다음 이유 중 하나를 알려 줍니다.</p>{reasons}<p>대부분은 복사하거나 붙여 넣을 때 문자열이 잘린 경우입니다. 다시 내보내고 전부 복사하세요.</p>` },
+        a: `<p>가져오기 문자열을 쓸 수 없으면 Vanguard는 “{importFailed}”와(과) 함께 다음 이유 중 하나를 알려 줍니다.</p>{reasons}<p>대부분은 복사하거나 붙여 넣을 때 문자열이 잘린 경우입니다. 다시 내보내고 전부 복사하세요.</p>` },
       "health-hidden": { q: "인스턴스에서 일부 숫자가 보이지 않아요",
         a: `<p>게임 클라이언트는 인스턴스 전투 중 등 일부 값을 애드온에 숨깁니다. README에는 이 값들이 “{unread}”라고 나옵니다. 바는 그대로 차지만, Vanguard는 읽을 수 없는 숫자를 표시할 수 없습니다. 정상입니다. 효과 값이 숨겨져 있을 때 <code>/vg status</code>는 “{auraHidden}”라고 알려 줍니다.</p>` },
       "reload": { q: "설정을 바꿨는데 아무 변화가 없어요",

@@ -286,11 +286,11 @@ test("a translation keeps its file's own word for a term, not a later variant", 
   assert.deepEqual(problems, []);
 });
 
-// A Korean particle depends on the last sound of the word before it, and the page fills a {ui:Name} (or a {placeholder} in <strong>)
+// A Korean particle depends on the last sound of the word before it, and the page fills a {ui:Name} (or a {placeholder} in <strong> or in quotes)
 // with the addon's own word, which the line cannot know. So the line writes the paired form (은(는), 이(가), 을(를), 와(과), (으)로).
 test("a Korean line pairs the particle after an addon name it fills in", () => {
-  const name = String.raw`(?:\{ui:[^}]+\}|<strong>\{\w+\}</strong>)`;
-  const single = new RegExp(`${name}(?:[”"」]\\((?![으이는가를과]\\))[^)]*\\)|[”"」]?)(은|는|이|가|을|를|와|과|으로|로|이며)(?![가-힣(])`);
+  const name = String.raw`(?:\{ui:[^}]+\}|<strong>\{\w+\}</strong>|[“‘]\{\w+\}(?=[”’]))`;
+  const single = new RegExp(`${name}(?:[”"」’]\\((?![으이는가를과]\\))[^)]*\\)|[”"」’]?)(은|는|이|가|을|를|와|과|으로|로|이며)(?![가-힣(])`);
   const ko = LOCALES.find((l) => l.code === "ko");
   const wrong = translatedPairs(ko).map(([key, , text]) => [key, text]).filter(([, text]) => single.test(text));
   assert.deepEqual(wrong.map(([key, text]) => `${key.slice(0, 50)}: ${text.match(single)[0]}`), []);
