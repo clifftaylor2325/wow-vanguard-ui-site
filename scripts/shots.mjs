@@ -156,7 +156,7 @@ async function checkOpenGroupStays(page, base, failures) {
 // A feed link to an earlier release (#rel-<tag>) opens the folded sections around that release's heading.
 async function checkReleaseAnchor(page, base, failures) {
   await page.goto(base + "/changelog/", { waitUntil: "load" });
-  const id = await page.evaluate(() => [...document.querySelectorAll("h3[id^=rel-]")].pop()?.id || "");
+  const id = await page.evaluate(() => [...document.querySelectorAll("section[aria-labelledby=earlier-releases] h3[id^=rel-]")].pop()?.id || "");
   await page.goto(`${base}/changelog/#${id}`, { waitUntil: "load" });
   const shown = id && await page.evaluate((x) => document.getElementById(x).getClientRects().length > 0, id);
   report(failures, `/changelog/#${id} opens the earlier releases around it`, shown === true);
