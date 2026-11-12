@@ -266,7 +266,7 @@ const DRIFTED_TERMS = {
   it: [/addestrator/, /ranghi degli/, /Silenzioso restituisce/, /registro dei tiri/, /targhett/, /(monitoraggio|tracciamento) (delle )?missioni/, /barra informazioni/, /lancio con clic/, /(?<![{\w])look(?![}\w])/i, /timer dei colpi/],
   "pt-br": [/treinador/, /graduaç/, /do mercador/, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/, /mascote/, /temporizador de golpes/, /fila de fabricação/, /curandeiro/],
   "zh-cn": [/准备确认/, /团队格子/, /威胁/],
-  "zh-tw": [/框體/, /配置文件/, /就位確認/, /揮擊計時器/, /正式版/, /姓名板/, /動作條/, /揹包/, /標籤頁/, /嚮導/, /拍賣行/, /“|”/, /滑鼠提示/],
+  "zh-tw": [/框體/, /配置文件/, /就位確認/, /揮擊計時器/, /正式版/, /姓名板/, /動作條/, /揹包/, /標籤頁/, /嚮導/, /拍賣行/, /“|”/, /滑鼠提示/, /(?<!版面|初始|入門|治療|職業的)配置/],
 };
 
 // A pattern matches in any letter case, except Korean /Retail/: with the flag it would also match the _retail_ folder name and the {retail} slot.
