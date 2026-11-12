@@ -796,7 +796,7 @@ function featuresIntro(model, loc) {
 // The search box over the module cards (site.js, the same one as Commands and Settings).
 // It reads each card's whole text, the folded More included, and opens the areas with a match.
 function featureSearchBox(model, loc) {
-  return `<div class="search" data-target="#mod-list" data-items=".mod" data-groups=".area" data-noun="modules" data-noun-one="module">
+  return `<div class="search" data-target="#mod-list" data-items=".mod, .overlaps tbody tr" data-groups=".area" data-noun="modules" data-noun-one="module">
   <label for="mod-q" class="search-label visually-hidden">${loc.t("feat.search")}</label>
   <input id="mod-q" type="search" placeholder="${esc(loc.text("feat.placeholder"))}" autocomplete="off">
   ${model.same ? "" : `<div class="filters"><label class="switch"><input type="checkbox" data-filter="next" checked> <span>${loc.t("nextSwitch")}</span></label></div>`}
@@ -823,7 +823,7 @@ function otherAddons(model, loc) {
   const rows = [...model.overlaps].sort((a, b) => byModule(a).localeCompare(byModule(b)) || a.addon.localeCompare(b.addon));
   const head = [loc.p("Addon"), loc.p("What both do"), loc.p("Vanguard module"), loc.p("Notes")].map((h) => `<th scope="col">${h}</th>`).join("");
   const n = rows.filter((o) => o.inRel).length;
-  return disclosure({ id: "other-addons", title: esc(loc.addon(info.name)), meta: loc.pn({ one: "{n} addon", other: "{n} addons" }, n), body: `<p>${esc(loc.addon(info.desc))}</p>
+  return disclosure({ id: "other-addons", title: esc(loc.addon(info.name)), meta: loc.pn({ one: "{n} addon", other: "{n} addons" }, n), cls: "area", body: `<p>${esc(loc.addon(info.desc))}</p>
 <p>${loc.p("When one of these is loaded, Vanguard says so once in chat, and its card under <strong>/vg → {modules}</strong> offers to turn Vanguard's part off or keep both. Nothing changes until you choose.", { modules: esc(loc.addon("Modules")) })}</p>
 <div class="table-wrap"><table class="stack overlaps"><thead><tr>${head}</tr></thead><tbody>
 ${rows.map((o) => overlapRow(o, model, loc)).join("\n")}

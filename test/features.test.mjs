@@ -89,7 +89,7 @@ test("parts that depend on the client say where your client has them", () => {
 
 test("/features/: a search box over every module card, grouped by area like Settings", () => {
   const html = fs.readFileSync(path.join(cfg.outDir, "features", "index.html"), "utf8");
-  assert.match(html, /<div class="search" data-target="#mod-list" data-items="\.mod" data-groups="\.area" data-noun="modules" data-noun-one="module">/);
+  assert.match(html, /<div class="search" data-target="#mod-list" data-items="\.mod, \.overlaps tbody tr" data-groups="\.area" data-noun="modules" data-noun-one="module">/);
   assert.match(html, /<label for="mod-q" class="search-label visually-hidden">Search modules<\/label>\s*<input id="mod-q" type="search"/);
   const list = html.slice(html.indexOf('id="mod-list"'));
   const cards = (list.match(/<article class="card mod" [^>]*>/g) || []);

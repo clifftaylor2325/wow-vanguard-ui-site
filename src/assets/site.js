@@ -84,6 +84,12 @@
     return shown;
   }
 
+  // True when one of the entries is shown (not hidden, and not a heading row).
+  function anyShown(entries) {
+    for (var i = 0; i < entries.length; i++) if (!entries[i].hidden && !entries[i].classList.contains("h")) return true;
+    return false;
+  }
+
   // Hides each group (a settings page, a command group) with no visible entry
   // left. While words are typed, groups with a match open so it can be seen;
   // when the box is emptied they go back to how they started. A change with the
@@ -92,7 +98,7 @@
     var groups = s.list.querySelectorAll(s.groupSel);
     var untouched = s.searching === false && !searching;
     for (var g = 0; g < groups.length; g++) {
-      var has = !!groups[g].querySelector(s.itemSel + ":not([hidden]):not(.h)");
+      var has = anyShown(groups[g].querySelectorAll(s.itemSel));
       groups[g].hidden = !has;
       if (!untouched) setOpen(groups[g], searching ? has : openByDefault(groups[g]));
     }

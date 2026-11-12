@@ -1545,3 +1545,13 @@ test("quoted addon text and changelog labels use the page's language's marks", (
     assert.ok(!/<strong>[^<]+:<\/strong>/.test(log), `${dir}: no ASCII colon after a label`);
   }
 });
+
+// The Features search reaches the Other addons table: its section is a group and its rows are items, with no data-count so
+// the counter still counts modules (npm run shots has no step for this; checked by hand in a browser: "bagnon" opens it).
+test("Features search covers the Other addons rows", () => {
+  const html = page("features");
+  assert.match(html, /data-items="\.mod, \.overlaps tbody tr" data-groups="\.area"/);
+  assert.match(html, /<details class="disclosure area"[^>]*>\s*<summary><h2 id="other-addons">/);
+  const table = html.match(/<table class="stack overlaps">[^]*?<\/table>/)[0];
+  assert.ok(!/data-count/.test(table), "the rows are not counted as modules");
+});
