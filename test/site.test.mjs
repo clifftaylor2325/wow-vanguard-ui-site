@@ -1455,3 +1455,13 @@ test("Settings names carry no '(reload)' words beside the Needs reload tag", () 
   }
   assert.ok(settingsRow(page("settings"), "Safer colours").includes('class="badge reload"'), "the tag still says it");
 });
+
+// A slider the window shows as a percent ("%d%%") lists its default as one, even when its limits are not numbers
+// in the code (the text size takes them from the theme, the glow slider from its module).
+test("Settings shows the default of a percent slider as a percent", () => {
+  const html = page("settings");
+  const defaultOf = (name) => settingsRow(html, name).match(/data-label="Default">([^<]*)/)?.[1];
+  assert.equal(defaultOf("Text size"), "100%", "a fraction of one reads 100%");
+  assert.equal(defaultOf("Glow when this much is left"), "30%", "a whole number keeps its value");
+  assert.equal(defaultOf("Durability warning under"), "50%");
+});

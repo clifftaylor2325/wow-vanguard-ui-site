@@ -1006,7 +1006,7 @@ function valuesText(r, loc) {
   const choices = r.inRel && r.relChoices ? r.relChoices : r.choices;
   const range = r.inRel && r.relRange ? r.relRange : r.range;
   if (choices && choices.length) out.push(choicesText(choices, r.inRel && r.relChoices ? r.choices : null, loc));
-  if (range) out.push(rangeText(range, loc) + (range !== r.range && r.range && rangeText(r.range, loc) !== rangeText(range, loc) ? nextOnly(` → ${rangeText(r.range, loc)}`) : ""));
+  if (range && rangeText(range, loc)) out.push(rangeText(range, loc) + (range !== r.range && r.range && rangeText(r.range, loc) !== rangeText(range, loc) ? nextOnly(` → ${rangeText(r.range, loc)}`) : ""));
   return out.join("; ");
 }
 
@@ -1017,8 +1017,9 @@ function choicesText(choices, nextChoices, loc) {
   return choices.map(shown).join(" / ") + added.map((c) => nextOnly(` / ${shown(c)}`)).join("");
 }
 
-// A slider's range as text: its two ends.
+// A slider's range as text: its two ends, "" when the code does not give both as numbers.
 function rangeText(range, loc) {
+  if (range.min === null || range.max === null) return "";
   const f = (x) => (range.percent && range.max <= 2 ? `${Math.round(x * 100)}%` : String(x));
   return loc.t("set.range", { min: esc(f(range.min)), max: esc(f(range.max)) });
 }

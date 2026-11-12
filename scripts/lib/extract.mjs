@@ -177,13 +177,32 @@ function choicesOf(m, defs, v, depth = 0) {
   return null;
 }
 
-// A slider's literal range { min, max, step } or null.
-function rangeOf(m, v) {
-  const t = v?.fields ? v : v?.expr ? findTable(m, `local ${v.expr}`) : null;
-  if (!t) return null;
-  const r = plain(t);
-  const percent = /%%/.test(m.code.slice(t.from, t.to));
-  return typeof r?.min === "number" && typeof r?.max === "number" ? { min: r.min, max: r.max, step: r.step, percent } : null;
+// A literal number written after `name =` in code, or null when it is an expression (T.TEXT_SCALE.min).
+function literalField(code, name) {
+  const hit = code.match(new RegExp(`\\b${name}\\s*=\\s*(-?\\d+(?:\\.\\d+)?)\\s*[,}\\n]`));
+  return hit ? Number(hit[1]) : null;
+}
+
+// The code of the table a slider's range expression names: a local table, or the function (glowPercentSlider())
+// that returns one, as choicesOf follows a name. "" when there is none.
+function rangeCode(ctx, v) {
+  const { m, defs } = ctx;
+  if (v?.fields) return m.code.slice(v.from, v.to);
+  const call = v?.expr?.match(/^(\w+)\(\s*\)$/);
+  if (call && defs.has(call[1])) return m.code.slice(defs.get(call[1]).from, defs.get(call[1]).to);
+  const t = v?.expr ? findTable(m, `local ${v.expr}`) : null;
+  return t ? m.code.slice(t.from, t.to) : "";
+}
+
+// A slider's range { min, max, step, percent }; a bound the code does not write as a number is null (the text
+// size slider takes its limits from the theme), percent is true when its value is shown as "%d%%". null when
+// the row's expression is not a table the build can find.
+function rangeOf(ctx, v) {
+  const code = rangeCode(ctx, v);
+  if (!code) return null;
+  const percent = /%%/.test(code);
+  const [min, max, step] = ["min", "max", "step"].map((name) => literalField(code, name));
+  return min === null && max === null && !percent ? null : { min, max, step, percent };
 }
 
 // Where a row's value lives: { scope, key, reload } (restart: true for O.RestartSetting, which applies at once
@@ -245,7 +264,7 @@ function makeRow(ctx, kind, caption, extraParts, loop, wrapped = false) {
   const row = { kind, caption };
   const rest = extraParts.map(([a, b]) => m.code.slice(a, b)).join(", ");
   if (kind === "cycle" && extraParts[0]) row.choices = choicesOf(m, defs, parseValue(m, extraParts[0][0], extraParts[0][1]));
-  if (kind === "slider" && extraParts[0]) row.range = rangeOf(m, parseValue(m, extraParts[0][0], extraParts[0][1]));
+  if (kind === "slider" && extraParts[0]) row.range = rangeOf(ctx, parseValue(m, extraParts[0][0], extraParts[0][1]));
   if (kind === "check" || kind === "cycle" || kind === "slider") {
     row.ref = settingRef(ctx, rest);
     const last = extraParts.length >= 3 ? parseValue(m, ...extraParts[extraParts.length - 1]) : undefined;
@@ -675,6 +694,13 @@ function applyDefaults(pages, modules, reader) {
   }
 }
 
+// A "%d%%" slider's default: a fraction of one (a limit of 2 or less, else the default itself when the
+// limits are unknown) is shown as a percent of it, any other number is already one.
+function percentLabel(row) {
+  const fraction = (row.range.max ?? row.default) <= 2;
+  return `${fraction ? Math.round(row.default * 100) : row.default}%`;
+}
+
 // The text a player sees for a row's default ("On", "Off", a choice label, a number).
 export function defaultLabel(row) {
   if (row.default === undefined) return null;
@@ -683,7 +709,7 @@ export function defaultLabel(row) {
     const c = row.choices.find((x) => x[0] === row.default);
     return c ? String(c[1]) : null;
   }
-  if (row.kind === "slider") return row.range?.percent && row.range.max <= 2 ? `${Math.round(row.default * 100)}%` : String(row.default);
+  if (row.kind === "slider") return row.range?.percent ? percentLabel(row) : String(row.default);
   return null;
 }
 
