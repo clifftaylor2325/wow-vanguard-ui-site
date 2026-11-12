@@ -798,7 +798,7 @@
  "Forever rules": "Правила Forever",
  "The game rules show in /vg realm, with a note when a rules change moves your saved-data key. The TOC lists the 12.1.5 build, and beta data can be cleared on request.": "Правила игры показываются в /vg realm, с примечанием, когда изменение правил сдвигает ключ ваших сохранённых данных. TOC перечисляет сборку 12.1.5, а данные беты можно очистить по запросу.",
  "{ui:Quiet the game}": "{ui:Quiet the game}",
- "A {ui:Quiet the game} module can silence invite declines, battleground release, error and zone text and camera zoom.": "Модуль «{ui:Quiet the game}» может заглушить отказы от приглашений, выход с поля боя, текст ошибок и зон и отдаление камеры.",
+ "A {ui:Quiet the game} module can silence invite declines, battleground release, error and zone text and camera zoom.": "Модуль «{ui:Quiet the game}» может заглушить отказы от приглашений, освобождение духа на полях боя, текст ошибок и зон и отдаление камеры.",
  "{ui:Vanguard meter}": "{ui:Vanguard meter}",
  "Each line shows its share of the total. Kinds and segments, a spell panel, a chat report, a death recap link on the Deaths view, Report and Reset buttons and a width setting.": "Каждая строка показывает свою долю от общего. Виды и сегменты, панель заклинаний, отчёт в чат, ссылка на разбор смертей на виде «Смерти», кнопки «Отчёт» и «Сброс» и настройка ширины.",
  "Chat says once when another addon does a job a Vanguard module does: unit frames, action bars, nameplates, raid frames, or auction shopping and posting.": "Чат один раз сообщает, когда другой аддон делает то, что делает модуль Vanguard: рамки юнитов, панели команд, индикаторы здоровья, рамки рейда или покупки и выставление лотов на аукционе.",
