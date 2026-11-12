@@ -49,6 +49,17 @@ export function tocFiles(tocText) {
     .map((l) => l.replace(/\\/g, "/"));
 }
 
+// The files only the Retail client loads: the TOC line allows `standard` and excludes `camelot` (WoW Forever).
+export function tocRetailOnly(tocText) {
+  const out = new Set();
+  for (const raw of tocText.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!/\[AllowLoadGameType standard\]/.test(line) || !/\[ExcludeLoadGameType camelot\]/.test(line)) continue;
+    out.add(line.replace(/(\s*\[[^\]]*\])+$/, "").replace(/\\/g, "/"));
+  }
+  return out;
+}
+
 // "## Key: value" metadata from the TOC.
 export function tocMeta(tocText) {
   const meta = {};

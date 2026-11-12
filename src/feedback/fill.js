@@ -24,7 +24,7 @@ export function parseFeedback(text) {
   const lines = String(text ?? "").replace(/\r\n?/g, "\n").split("\n");
   const start = lines.findIndex((l) => l.trim() === FEEDBACK_START);
   if (start < 0) return null;
-  const end = lines.findIndex((l, i) => i > start && l.trim() === FEEDBACK_END);
+  const end = lines.findIndex((l, i) => i > start && l.trimEnd() === FEEDBACK_END);
   const out = { kind: "", title: "", area: "", did: "", expected: "", happened: "", want: "", why: "", report: "" };
   const parts = {};
   let section = null;

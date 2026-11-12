@@ -60,7 +60,7 @@ export const SHOT_GROUPS = [
         "w": 1600,
         "h": 899,
         "alt": "Unlock mode",
-        "caption": "Unlock mode (/vg unlock): a handle on every frame, a grid, and Exit without saving or Save and lock at the top.",
+        "caption": "Unlock mode (/vg unlock): a handle on every frame, a grid, and {ui:Exit without saving} or {ui:Save and lock} at the top.",
         "next": false,
         "retake": true
       },
@@ -102,8 +102,8 @@ export const SHOT_GROUPS = [
         "file": "08a-theme-contrast",
         "w": 1135,
         "h": 836,
-        "alt": "High contrast",
-        "caption": "High contrast: opaque panels and white text.",
+        "alt": "{ui:High contrast}",
+        "caption": "{ui:High contrast}: opaque panels and white text.",
         "next": false,
         "retake": true
       },
@@ -111,8 +111,8 @@ export const SHOT_GROUPS = [
         "file": "08b-theme-vellum",
         "w": 1073,
         "h": 834,
-        "alt": "Vellum and ink",
-        "caption": "Vellum and ink: a warm dark with cream text.",
+        "alt": "{ui:Vellum and ink}",
+        "caption": "{ui:Vellum and ink}: a warm dark with cream text.",
         "next": false,
         "retake": true
       },
@@ -120,8 +120,8 @@ export const SHOT_GROUPS = [
         "file": "08c-theme-classic",
         "w": 1063,
         "h": 827,
-        "alt": "Classic look",
-        "caption": "Classic look: dark leather and bronze.",
+        "alt": "{ui:Classic look}",
+        "caption": "{ui:Classic look}: dark leather and bronze.",
         "next": false,
         "retake": true
       },
@@ -129,8 +129,8 @@ export const SHOT_GROUPS = [
         "file": "08d-theme-midnight",
         "w": 1061,
         "h": 823,
-        "alt": "Midnight",
-        "caption": "Midnight.",
+        "alt": "{ui:Midnight}",
+        "caption": "{ui:Midnight}.",
         "next": false,
         "retake": true
       },
@@ -138,8 +138,8 @@ export const SHOT_GROUPS = [
         "file": "08e-theme-obsidian",
         "w": 1055,
         "h": 823,
-        "alt": "Obsidian",
-        "caption": "Obsidian.",
+        "alt": "{ui:Obsidian}",
+        "caption": "{ui:Obsidian}.",
         "next": false,
         "retake": true
       },
@@ -147,8 +147,8 @@ export const SHOT_GROUPS = [
         "file": "08f-theme-moss",
         "w": 1090,
         "h": 818,
-        "alt": "Moss",
-        "caption": "Moss.",
+        "alt": "{ui:Moss}",
+        "caption": "{ui:Moss}.",
         "next": false,
         "retake": true
       },
@@ -156,8 +156,8 @@ export const SHOT_GROUPS = [
         "file": "08g-theme-ember",
         "w": 1081,
         "h": 848,
-        "alt": "Ash and ember",
-        "caption": "Ash and ember.",
+        "alt": "{ui:Ash and ember}",
+        "caption": "{ui:Ash and ember}.",
         "next": false,
         "retake": true
       }
@@ -242,8 +242,8 @@ export const SHOT_GROUPS = [
         "file": "18-trainer-train-all",
         "w": 572,
         "h": 798,
-        "alt": "A profession trainer, with Train all beside Train",
-        "caption": "A profession trainer, with Train all beside Train.",
+        "alt": "A profession trainer, with {ui:Train all} beside Train",
+        "caption": "A profession trainer, with {ui:Train all} beside Train.",
         "next": false,
         "retake": true
       },
@@ -268,7 +268,7 @@ export const SHOT_GROUPS = [
         "w": 379,
         "h": 573,
         "alt": "Party frames growing up from just above your player frame",
-        "caption": "Party frames growing up from just above your player frame (shown with /vg preview).",
+        "caption": "Party frames growing up from just above your player frame (shown with /vg preview party).",
         "next": false,
         "retake": true
       },

@@ -18,7 +18,7 @@ npm install        # once: dev tools (playwright-core for screenshots, wawoff2 f
 npm run build      # fetch the addon source and release metadata, then generate dist/
 npm test           # check the generated site against the addon's Lua
 npm run check      # build, then test
-npm run serve      # serve dist/ at http://localhost:8080
+npm run serve      # serve dist/ at http://localhost:8788
 npm run shots      # full-page screenshots; checks: no horizontal scroll at 390 and 360px, every reference page fits one screen as it opens (1280x800 and 390x844), the Menu drawer, the search boxes, the skip link by keyboard, and the feedback form (needs Chrome)
 npm run fonts      # re-make src/fonts/*.woff2 from the addon's TTF fonts (after npm run fetch)
 npm run stub:github  # a stand-in GitHub API on 127.0.0.1:8789 for the feedback Function (see Feedback form)
@@ -43,7 +43,7 @@ Other overrides: `FUI_REF` (the source commit to read for the next release) and 
 1. `scripts/fetch.mjs` clones the addon into `.cache/wow-vanguard-ui` (or uses `FUI_SRC`). It reads every release's metadata (tag, date, notes) into `.cache/release.json` with `gh release view`. It doesn't download the release zip.
 2. `scripts/build.mjs` reads the Lua at **two refs**: the release tag (the current release) and the pinned `sourceRef` (what's coming). Each file is read with `git show <ref>:<file>`, so the checkout is never changed. `scripts/lib/lua.mjs` is a small reader for the Lua tables the addon uses. `scripts/lib/extract.mjs` pulls out:
    - `Core/Slash.lua`: every command word, its aliases and its help line, verbatim
-   - `Core/Modules.lua`, `Modules/*.lua` and `Core/Options.lua`: modules, their descriptions, and every options page, row, default, range and reload flag
+   - `Core/Modules.lua`, `Modules/*.lua` and `Core/Options.lua`: modules, their descriptions, and every options page, row, default, range and reload flag (a row whose caption is a name is read from what the code gives it, a helper's call sites or a loop's table; one it can't read is left off, and the build lists it)
    - `Core/Theme.lua`: the theme colors and accent presets (they become `assets/theme.css`)
    - `Core/Setup.lua`: the setup wizard
    - `README.md`, the `.toc` file and the release: feature text, the tagline (the TOC Notes line up to its colon, in every language), Troubleshooting's Known issues (the README's `## Known issues` list), version, interface and release notes
@@ -153,7 +153,7 @@ SHOTS_BASE=http://localhost:8788 npm run shots   # optional: the form walk-throu
 ### What gets filed
 
 - Labels: `bug` + `from-site`, or `feature-request` + `from-site`.
-- Every free-text field and the pasted report go in fenced code blocks, each fence longer than any run of backticks inside, so nothing a player types can add headings, tables, quotes, lists, rules, HTML or mentions, or close its block early. Inside a fence HTML shows as typed, so nothing there is stripped (text like `a<b and c>d` stays as written). Titles have HTML stripped and `@mentions` and `#123` broken (GitHub shows titles as plain text). One-line values in the body, such as the environment table, also have HTML stripped, inline markdown escaped, and bare URLs broken with a zero-width space so they don't autolink.
+- Every free-text field and the pasted report go in fenced code blocks, each fence longer than any run of backticks inside, so nothing a player types can add headings, tables, quotes, lists, rules, HTML or mentions, or close its block early. Inside a fence HTML shows as typed, so nothing there is stripped (text like `a<b and c>d` stays as written). Titles keep `<`, `>` and `&` as typed (GitHub shows titles as plain text) but have `@mentions` and `#123` broken and text-reordering characters dropped. One-line values in the body, such as the environment table, also have HTML stripped, inline markdown escaped, and bare URLs broken with a zero-width space so they don't autolink.
 - Every report has its own reference (`Reference: VG-…` and a hidden `<!-- fui-ref VG-… -->`; reports sent before the rename have `FUI-…` references, which still work). A repeat of an open bug becomes a comment carrying the repeat reporter's own reference; the player gets that reference back, never the first reporter's.
 - Bugs with a caught error carry a fingerprint (`fp:` + 8 hex characters from the first error and its top stack line, with line numbers, addresses and counts removed). A second report of the same open bug becomes a comment on it.
 - Contact details (only when the player ticks the box) are kept in `FEEDBACK_KV` for 90 days, never in the issue. No IP address is stored: the rate cap keys are `sha256(IP + RL_SALT + date)`, kept for 2 hours.
@@ -210,7 +210,7 @@ The footer stays at two lines: a one-sentence note on who makes Vanguard, then t
 - that nothing in `dist/` links to github.com
 - that the support links render only once a `SUPPORT` URL is set (https only), through the sidebar's Support button and on Credits, never in the footer
 
-CI (`.github/workflows/check.yml`) runs `npm run check` on every pull request (the check `main` requires to merge) and on every push to `main` (which then deploys), and weekly, when it also runs `npm run shots` in the runner's Chrome and uploads the screenshots. A red weekly run opens an issue labelled `ci-failure`; the next green one closes it. New test files under `test/` are picked up by name (`test/*.test.mjs`).
+CI (`.github/workflows/check.yml`) runs `npm run check` on every pull request (the check `main` requires to merge) and on every push to `main` (which then deploys), and weekly, when it also runs `npm run shots` in the runner's Chrome and uploads the screenshots. A red weekly run (or a hand-started one on `main`) opens an issue labelled `ci-failure`; the next green one closes it. A hand-started run on another branch runs the checks and reports nothing. New test files under `test/` are picked up by name (`test/*.test.mjs`).
 
 `test/i18n.test.mjs` builds the site with every language into a temporary folder and checks each page's `lang`, `hreflang`, canonical link and sitemap entry, the switcher and the header's language button, that no English is left in a language's sidebar, header, footer or translated pages, that links stay in the language's folder, and that the addon's translations reach Settings and Commands with English as the fallback. With languages published, `npm run shots` also checks each one: one screen, no sideways scroll, the search's words, the select, the header's language button at 390px and the offer.
 

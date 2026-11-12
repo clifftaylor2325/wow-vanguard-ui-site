@@ -11,15 +11,16 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton, navCommunity, followLine } from "../scripts/lib/html.mjs";
-import { helpPage, licenseSummary } from "../scripts/lib/pages-more.mjs";
+import { helpPage, licenseSummary, profilesPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
-import { featuresPage, startsOff } from "../scripts/lib/pages-main.mjs";
+import { tocRetailOnly } from "../scripts/lib/source.mjs";
+import { featuresPage, startsOff, startPage, settingsPage } from "../scripts/lib/pages-main.mjs";
 import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
 import { publishedLocales, EN } from "../scripts/lib/i18n-site.mjs";
 import * as EXTRACT from "../scripts/lib/extract.mjs";
-const { extractAddon, extractPages } = EXTRACT;
+const { extractAddon, extractPages, specReader } = EXTRACT;
 import { buildModel, AREAS } from "../scripts/lib/model.mjs";
 import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
 import { SHOT_GROUPS, shotByFile } from "../scripts/lib/shots-content.mjs";
@@ -389,12 +390,26 @@ test("the home page decoration is hidden from screen readers and the layout sect
   assert.ok(!own.test(fs.readFileSync(path.join(dist, "assets/site.css"), "utf8") + html), "no external images or fonts (the site's own Open Graph image is fine)");
 });
 
+// While no shot is taken, the page promises no date (the launch has passed) and its search description says so too.
+test("the Screenshots page makes no launch promise while every shot waits on a retake", () => {
+  const shots = SHOT_GROUPS.flatMap((g) => g.shots);
+  if (shots.some((s) => !s.retake)) return;
+  for (const d of LANG_DIRS) {
+    const html = page(`${d}screenshots`);
+    assert.ok(!/at launch|zum Start|au lancement|en el lanzamiento|al lancio|no lançamento|к запуску|출시 때|上线时/.test(html), `${d || "en/"}: a launch promise is on the page`);
+  }
+  const en = page("screenshots");
+  const description = en.match(/<meta name="description" content="([^"]*)"/)[1];
+  assert.equal(description, "New in-game screenshots are on the way", "the description matches the page, not the stock one for a page of real shots");
+  assert.ok(!/Real in-game screenshots/.test(description));
+});
+
 test("a screenshot waiting on a retake is a placeholder with its caption, linking no old file", () => {
   const html = page("screenshots");
   for (const s of SHOT_GROUPS.flatMap((g) => g.shots).filter((x) => x.retake)) {
     assert.ok(!html.includes(`/assets/shots/${s.file}.webp`), `${s.file}: the old file is not shown`);
     assert.ok(html.includes(`<svg viewBox="0 0 ${s.w} ${s.h}"`), `${s.file}: the placeholder keeps the shot's shape`);
-    assert.ok(html.includes(esc(s.caption)), `${s.file}: its caption stays`);
+    assert.ok(html.includes(esc(s.caption.replace(/\{ui:([^}]+)\}/g, "$1"))), `${s.file}: its caption stays`);
   }
 });
 
@@ -608,9 +623,22 @@ test("next-release items stay out of the current release's section", () => {
   const items = NEXT_RELEASE.groups.flatMap((g) => g.items);
   const current = releaseSections(html).find((s) => s.includes("Current release"));
   assert.ok(current, "no Current release section on /changelog/");
-  for (const s of releaseSections(html)) for (const i of items) assert.ok(!s.includes(esc(i.text)), `"${i.label}" is inside a release section`);
+  for (const s of releaseSections(html)) assert.deepEqual(itemsShownIn(s, items), [], "a next-release item is inside a release section");
   const next = html.match(/<section class="card" aria-labelledby="next-h">[\s\S]*?<\/section>/);
-  if (meta.current === NEXT_RELEASE.after) for (const i of items) assert.ok(next && next[0].includes(esc(i.text)), `"${i.label}" missing from What's coming`);
+  if (meta.current === NEXT_RELEASE.after) assert.deepEqual(items.filter((i) => !itemsShownIn(next ? next[0] : "", [i]).length).map((i) => i.label), [], "missing from What's coming");
+});
+
+// The labels of the items whose text a section shows, as the page renders it (a {ui:Name} filled in), not as the notes write it.
+function itemsShownIn(section, items) {
+  return items.filter((i) => section.includes(esc(EN.p(i.text)))).map((i) => i.label);
+}
+
+// The check can fail: an item with a {ui:...} name is found where it is shown, and only there.
+test("the next-release check finds an item whose text names an addon word", () => {
+  const item = { label: "Planted", text: "Click {ui:Reload now} to apply it." };
+  assert.notEqual(esc(EN.p(item.text)), esc(item.text), "the page text is not the raw note");
+  assert.deepEqual(itemsShownIn(`<li>${esc(EN.p(item.text))}</li>`, [item]), ["Planted"]);
+  assert.deepEqual(itemsShownIn("<li>Something else</li>", [item]), []);
 });
 
 // Garbled characters or a byte-order mark in any text file of the repo or the built site.
@@ -658,15 +686,34 @@ test("a Features paragraph drops out when its README phrase disappears", () => {
   }
 });
 
-// O.MODULE_INFO in Core/Options.lua: key -> [name, one-liner], read here on its own.
+// O.MODULE_INFO: the table in Core/Options.lua and the rows a module file assigns as
+// `ns.Options.MODULE_INFO.Key = { ... }`, key -> [name, one-liner], read here on its own.
 function moduleInfo(ref) {
   const lua = show(ref, "Core/Options.lua");
   const at = lua.indexOf("O.MODULE_INFO = {");
   const block = lua.slice(at, lua.indexOf("\n}\n", at));
   const str = '"((?:[^"\\\\]|\\\\.)*)"';
   const rows = [...block.matchAll(new RegExp(`^\\s{2}(\\w+)\\s*=\\s*\\{\\s*${str},\\s*${str}`, "gm"))];
-  return Object.fromEntries(rows.map((m) => [m[1], [m[2], m[3]].map((t) => t.replace(/\\(.)/g, "$1"))]));
+  const own = luaFileNames(ref).flatMap((f) => [...show(ref, f).matchAll(new RegExp(`(?:^|\\n)\\s*(?:ns\\.Options|O)\\.MODULE_INFO\\.(\\w+)\\s*=\\s*\\{\\s*${str},\\s*${str}`, "g"))]);
+  return Object.fromEntries([...rows, ...own].map((m) => [m[1], [m[2], m[3]].map((t) => t.replace(/\\(.)/g, "$1"))]));
 }
+
+// Every Core and Modules Lua file name at a ref.
+function luaFileNames(ref) {
+  return execFileSync("git", ["ls-tree", "-r", "--name-only", ref], { cwd: cfg.sourcePath }).toString().split("\n").filter((f) => /^(Core|Modules)\/.*\.lua$/.test(f));
+}
+
+// A module that sets its own MODULE_INFO row in its file still shows its name and text, never its bare key.
+test("no module on Features is shown by its key with an empty description", () => {
+  const html = page("features");
+  const info = moduleInfo(refs.next);
+  for (const key of ["HudText", "Coexist", "QuestArrow"]) assert.ok(info[key], `${key} is read from its own file`);
+  const bare = Object.keys(info).filter((key) => { const card = featureCardOf(html, key); return card && card.includes("<p></p>"); });
+  assert.deepEqual(bare, []);
+  assert.match(html, /<h2 id="other-addons">Other addons<\/h2>/, "the other-addons table keeps the id it was published with");
+  assert.ok(html.includes('<article class="card mod" id="other-addons-module"'), "the module card takes the other id");
+  assert.equal(html.split('id="other-addons"').length, 2, "one element owns #other-addons");
+});
 
 // Each Features card quotes the addon's one-liner for that module word for word.
 test("the Features one-liners match the addon word for word", () => {
@@ -714,6 +761,92 @@ test("the Features 'Off until you switch it on' labels match the addon defaults"
   const shown = Object.keys(info).filter((k) => featureCardOf(html, k).includes("Off until you switch it on"));
   assert.ok(expected.length >= 1, "no module starts off: the defaults weren't read");
   assert.deepEqual(shown.sort(), expected.sort());
+});
+
+// A model whose current release is the previous tag (v0.9.4), behind the pinned source, with its page readers; null when the clone has no such tag.
+function behindModel() {
+  const old = meta.releases.find((x) => x.tagName !== meta.current && x.tagName === "v0.9.4");
+  if (!old) return null;
+  let relReader;
+  try { relReader = gitReader(cfg.sourcePath, old.tagName); } catch { return null; }
+  const nextReader = gitReader(cfg.sourcePath, cfg.sourceRef);
+  const model = buildModel({ rel: extractAddon(relReader), next: extractAddon(nextReader), release: { tag: old.tagName, publishedAt: old.publishedAt }, releases: meta });
+  return { model, read: { rel: specReader(relReader), next: specReader(nextReader) } };
+}
+
+// With the release behind the source, the wizard is the release's, and what only the next release adds is tagged.
+test("Getting started tags the wizard layouts only the next release has", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const { model, read } = behind;
+  const onlyNext = model.next.setup.layouts.filter((l) => !model.rel.setup.layouts.some((o) => o.key === l.key));
+  assert.ok(onlyNext.length >= 1, "the pins have a layout the release lacks");
+  const body = startPage(model, read).body;
+  const table = body.slice(body.indexOf('id="setup-layout"'), body.indexOf('id="setup-screen"'));
+  for (const l of onlyNext) {
+    const row = table.match(new RegExp(`<tr[^>]*>(?:(?!</tr>)[\\s\\S])*${esc(l.text)}[\\s\\S]*?</tr>`))?.[0] || "";
+    assert.match(row, /^<tr data-avail="next">/, `${l.text} is tagged as next release only`);
+    assert.ok(row.includes("badge next"), `${l.text} carries the Next release badge`);
+  }
+  for (const l of model.rel.setup.layouts) assert.ok(!new RegExp(`<tr data-avail="next"><td[^>]*><strong>${esc(l.text)}</strong>`).test(table), `${l.text} is in the release, so untagged`);
+});
+
+// With the release behind the source, a current row lists the release's choices; a choice the next release adds is tagged.
+test("Settings lists a current row's release choices, with the next release's new ones tagged", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const { model, read } = behind;
+  const rows = model.pages.flatMap((p) => p.rows).filter((r) => r.inRel && r.inNext && r.relChoices && r.choices && r.choices.some((c) => !r.relChoices.some((o) => o[0] === c[0])));
+  assert.ok(rows.length >= 1, "a row gained a choice between the release and the pins");
+  const html = settingsPage(model, read).body;
+  for (const r of rows) {
+    const added = r.choices.filter((c) => !r.relChoices.some((o) => o[0] === c[0]));
+    for (const c of added) {
+      assert.ok(html.includes(`<span data-avail="next"> / ${esc(c[1])}</span>`), `${c[1]} is tagged as next release only`);
+    }
+  }
+});
+
+// The Feedback page counts the lines /vg status prints from the addon's own command, whatever its argument list.
+test("Feedback says how many lines /vg status prints, as counted in the addon", () => {
+  const slash = show(refs.release, "Core/Slash.lua");
+  const body = slash.match(/local function statusCommand\([^)]*\)([\s\S]*?)\nend/)?.[1] || "";
+  const lines = (body.match(/\bchat\(/g) || []).length;
+  assert.ok(lines >= 2, "the status command was found");
+  assert.match(page("feedback"), new RegExp(`it prints ${lines} lines, starting with`));
+  assert.ok(!page("feedback").includes("prints 0 lines"));
+});
+
+// /vg profile asks before it makes, copies over or deletes: the Profiles page quotes each question from the addon.
+test("Profiles says that a typed profile command asks first, quoting the addon's questions", () => {
+  const slash = show(refs.next, "Core/Slash.lua");
+  const html = page("profiles").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;/g, "'");
+  for (const [needle, button] of [["Create a new profile named ", "Create"], ["Replaces every setting in profile ", "Copy here"], ["Deletes profile ", "Delete"]]) {
+    assert.ok(slash.includes(needle), `the addon asks "${needle}"`);
+    assert.match(html, new RegExp(`It asks first: “${needle}[^”]*” Click <strong>${button}</strong>`));
+  }
+  assert.ok(!html.includes("over the one you're using, then offers a reload"), "copy goes into the profile used after the reload");
+});
+
+// With the release behind the source (before the asks), what the next release asks is tagged, not stated as current.
+test("Profiles tags the asks as next release when the release has none", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const html = profilesPage(behind.model, behind.read).body;
+  const asks = html.match(/It asks first/g) || [];
+  assert.equal(asks.length, 3);
+  assert.equal((html.match(/<span data-avail="next"> <span class="badge next">Next release<\/span> It asks first/g) || []).length, 3, "every ask sits in a next-release span");
+});
+
+// Rows other files add to a page (ns.Options.AddRows, ns.RetailRows) and rows a page takes from another file's function are listed.
+test("Settings lists rows added with AddRows and RetailRows and rows named in other files", () => {
+  const next = extractAddon(gitReader(cfg.sourcePath, refs.next));
+  const caps = (key) => next.pages.find((p) => p.key === key).rows.map((r) => r.caption);
+  assert.ok(caps("windows").includes("Item level on gear slots"), "CharacterExtras adds its rows to Game windows");
+  assert.ok(caps("windows").indexOf("Group finder and PvP windows (reload)") < caps("windows").indexOf("Reset window positions"), "RetailRows come above the Reset button");
+  assert.ok(caps("map").includes("Arrow to a Ctrl-clicked waypoint") && caps("tools").includes("Soft-reserve list"));
+  assert.ok(caps("quests").includes("Show the quest arrow"), "a module's Rows() named from the Quests page");
+  assert.ok(caps("general").includes("Calm HUD out of combat"), "O.CalmRows() from another file");
 });
 
 // A made-up module with these switch defaults, as startsOff reads it.
@@ -836,7 +969,10 @@ test("the footer says all rights reserved; Credits names each release's own lice
   assert.deepEqual(licenseSummary("MIT License\n\nCopyright (c) 2026 Clifton Taylor\n\nPermission is hereby granted"), { head: "MIT License", line: "Copyright (c) 2026 Clifton Taylor", released: "released under the MIT License" });
   assert.deepEqual(licenseSummary("Copyright (c) 2026 Clifton Taylor. All rights reserved.\n\nVanguard, an addon for World of Warcraft, and"), { head: "Copyright (c) 2026 Clifton Taylor. All rights reserved.", line: "", released: "" });
   const credits = page("credits");
-  assert.ok(/<strong>(MIT License|Copyright \(c\) [^<]*All rights reserved\.)<\/strong>/.test(credits), "the Credits page names the current release's license");
+  const want = licenseSummary(show(meta.current, "LICENSE")).head;
+  assert.ok(want, "the current release has a LICENSE");
+  assert.ok(credits.includes(`<strong>${esc(want)}</strong>`), `the Credits page names the current release's license (${want})`);
+  assert.ok(!credits.includes("<strong>MIT License</strong>") || want === "MIT License", "an all-rights-reserved release is not shown as MIT");
 });
 
 test("support links render only once a URL is set, and only https ones", () => {
@@ -978,6 +1114,48 @@ local PAGES = { { key = "bars", title = L["Bars"], rows = barRows } }`);
   assert.deepEqual(page.rows.map((r) => r.key), ["Show bar {n}", "Remove: {item}"], "the row keeps the key the game looks the text up by");
 });
 
+// A caption that is a name, not a string: a helper's own text is read from what the code gives it, and one it can't read is left off with a note.
+test("an option row whose caption is a name is read from the code, or left off and reported", () => {
+  const lua = unwrapLocale(`local ADDON, ns = ...
+local FRAMES = { { "player", L["Player"] }, { "target", L["Target"] } }
+local function sizeSlider(frame, dimension)
+  local label = dimension == "width" and L["{frame}: width"] or L["{frame}: height"]
+  return { "slider", ns.Format(label, { frame = frame[2] }), range, setting(key) }
+end
+local function portrait(label) return { "cycle", label, CHOICES, setting(label) } end
+local function rows()
+  local rows = { { "header", L["Sizes"] } }
+  for _, frame in ipairs(FRAMES) do rows[#rows + 1] = sizeSlider(frame, "width") end
+  rows[#rows + 1] = portrait(L["Player portrait"])
+  rows[#rows + 1] = portrait(L["Target portrait"])
+  for _, g in ipairs(FRAMES) do rows[#rows + 1] = check(g[2], setting(g[1])) end
+  rows[#rows + 1] = { "header", L["Empty"] }
+  rows[#rows + 1] = { "text", SOME.TEXT }
+  return rows
+end
+local PAGES = { { key = "x", title = L["X"], rows = rows } }`);
+  const skipped = [];
+  const [page] = extractPages({ read: (file) => (file === "Core/Options.lua" ? lua : null) }, ["Core/Options.lua"], [], skipped);
+  assert.deepEqual(page.rows.map((r) => `${r.kind}:${r.caption}`), ["header:Sizes", "slider:<frame>: width", "slider:<frame>: height", "cycle:Player portrait", "cycle:Target portrait", "check:Player", "check:Target"]);
+  assert.equal(page.rows.find((r) => r.kind === "slider").key, "{frame}: width", "the slider keeps the key the game looks it up by");
+  assert.equal(skipped.length, 1, "the text row named by a table field is reported");
+  assert.ok(!page.rows.some((r) => r.caption === "Empty"), "a heading with nothing under it is left off");
+});
+
+// The settings pages of the addon itself: no caption the build mistook for a string, no empty group.
+test("every settings row has a readable caption and no group is empty", () => {
+  const next = extractAddon(gitReader(cfg.sourcePath, refs.next));
+  for (const p of next.pages) {
+    p.rows.forEach((r, i) => {
+      if (r.kind === "header") assert.ok(p.rows[i + 1] && p.rows[i + 1].kind !== "header", `${p.title}: "${r.caption}" has no rows`);
+      assert.ok(r.caption.length >= 3 && !/^[a-z]{3}$/.test(r.caption), `${p.title}: caption "${r.caption}" looks misread`);
+    });
+  }
+  const frames = next.pages.find((p) => p.key === "unitframes").rows.map((r) => r.caption);
+  assert.ok(frames.includes("<frame>: width") && frames.includes("<frame>: height") && frames.includes("Player portrait"), "the Unit frames size and portrait rows are listed");
+  assert.ok(!page("settings").includes("unit-frames-abe"), "no 'abe' row on Settings");
+});
+
 // A caption joined with `..` to a dotted or indexed value reads in full, worded like the next release's ns.Format version.
 test("an option row's caption joined to BS.MAX or SI.LABELS[name] keeps the whole name and the text after it", () => {
   const lua = unwrapLocale(`local ADDON, ns = ...
@@ -1057,11 +1235,24 @@ test("a renamed setting is one row: its short name, with the old caption as its 
   const { renamed } = extractRowTips(gitReader(cfg.sourcePath, cfg.sourceRef));
   const html = page("settings");
   const at = (name) => `class="opt-cap">${esc(name)} <`;
-  const shown = [...renamed].filter(([name]) => html.includes(at(name)));
-  if (renamed.size) assert.ok(shown.length >= renamed.size / 2, `only ${shown.length} of ${renamed.size} renamed rows found on /settings/`);
+  const caption = (name) => (html.includes(at(name)) ? at(name) : `class="opt-cap">${esc(name)} (reload) <`);
+  const shown = [...renamed].filter(([name]) => html.includes(caption(name)));
+  const missing = [...renamed.keys()].filter((name) => !html.includes(caption(name)));
+  assert.deepEqual(missing, [], "renamed rows missing from /settings/");
   for (const [name, old] of shown) {
-    const row = html.slice(html.indexOf(at(name))).split("</th>")[0];
+    const row = html.slice(html.indexOf(caption(name))).split("</th>")[0];
     assert.ok(row.includes(`<span class="opt-tip">${esc(old.replace(/ \(reload\)$/, ""))}</span>`), `"${name}" lacks its old caption as a tip`);
     assert.ok(!html.includes(`class="opt-cap">${esc(old)} <span class="badge old">`), `"${old}" is still listed as its own release-only row`);
   }
+});
+
+// The rows a Retail-only file adds are marked "Retail only", read from the TOC's load flags rather than typed.
+test("Settings marks the rows from Retail-only files, and no other row", () => {
+  const toc = "Modules/A.lua\nModules/RetailWindows.lua [AllowLoadGameType standard] [ExcludeLoadGameType camelot]\nModules/Forever.lua [AllowLoadGameType camelot] [ExcludeLoadGameType standard]\n";
+  assert.deepEqual([...tocRetailOnly(toc)], ["Modules/RetailWindows.lua"]);
+  const html = page("settings");
+  const marked = [...html.matchAll(/<th scope="row" class="opt-cap">([^<]*?)(?: \(reload\))? (?:<span class="badge reload">[^<]*<\/span> )?<span class="badge plain">Retail only<\/span>/g)].map((m) => m[1]);
+  assert.deepEqual(marked, ["Group finder and PvP windows", "Great Vault window", "Great Vault progress on the info strip", "Expansion and transmog windows"]);
+  assert.equal((html.match(/Retail only/g) || []).length, 4);
+  assert.match(page("de/settings"), /Nur Retail/);
 });

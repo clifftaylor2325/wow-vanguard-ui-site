@@ -18,7 +18,7 @@ npm run build         # fetch the addon source and release metadata, then genera
 npm test              # tests against the generated site (node --test test/*.test.mjs)
 npm run check:encoding
 npm run check         # build + encoding + tests. Run this before a PR.
-npm run serve         # dist/ at http://localhost:8080
+npm run serve         # dist/ at http://localhost:8788
 npm run shots         # browser checks (needs Chrome; set CHROME_PATH if not found)
 npm run fonts         # remake src/fonts/*.woff2 from the addon's TTFs
 npm run dev           # wrangler pages dev, with the feedback Function, at http://localhost:8788
@@ -28,7 +28,7 @@ Needs Node 20 or newer (CI uses 22) and `gh` signed in. Local overrides: `FUI_SR
 
 ## Source pins
 
-`site.config.json` sets two things:
+`site.config.json` sets these:
 - `sourceRef`: the addon commit the site reads for the **next release**. Changing it is a deliberate act. It changes what the site says is coming.
 - `release`: `latest`. The current release.
 - `launch`: WoW Forever's launch time (UTC). Home counts down to it, says the game is live for a week after, then drops it.

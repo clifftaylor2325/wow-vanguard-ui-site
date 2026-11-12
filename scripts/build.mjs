@@ -151,6 +151,37 @@ function writeProse(locales) {
   }
 }
 
+// Says which settings rows the build could not read a caption for (they are left off the pages).
+function warnSkippedRows(rel, next) {
+  for (const a of [rel, next]) {
+    if (a.skippedRows?.length) console.warn(`settings: ${a.skippedRows.length} rows at ${a.ref.slice(0, 7)} have a caption that is not a string the build can read, so they are left off: ${a.skippedRows.join(", ")}`);
+  }
+}
+
+// While the current release is the pinned source, the lines the pages show only when it is behind (a next-release note,
+// the "Other" area) are never looked up. Looking each page up once more with the release before this one as the current
+// release records them, so the prose check (test/i18n.test.mjs, scripts/prose.mjs) sees every line before a bump needs it.
+function lookUpBehindProse({ meta, release, next, read, site }) {
+  const older = meta.releases.find((r, i) => meta.releases[i - 1]?.tagName === release.tag);
+  if (!older) return;
+  const reader = gitReader(cfg.sourcePath, older.tagName);
+  const rel = publicAddon(extractAddon(reader));
+  const model = buildModel({ rel, next, release: { tag: older.tagName, publishedAt: older.publishedAt }, releases: meta });
+  const behind = { rel: specReader(reader), next: read.next };
+  const loc = siteLocale();
+  startPage(model, behind, loc);
+  featuresPage(model, loc);
+  screenshotsPage(model, loc);
+  commandsPage(model, loc);
+  settingsPage(model, behind, loc);
+  profilesPage(model, behind, loc);
+  helpPage(model, behind, loc);
+  feedbackPage(model, behind, loc);
+  changelogPage(model, loc);
+  creditsPage(model, site, loc);
+  areaPages(model, loc);
+}
+
 // Entry point.
 function main() {
   need(fs.existsSync(path.join(cfg.sourcePath, ".git")), `no addon clone at ${cfg.sourcePath}; run \`npm run fetch\` or set FUI_SRC`);
@@ -159,6 +190,7 @@ function main() {
   const nextReader = gitReader(cfg.sourcePath, cfg.sourceRef);
   const rel = publicAddon(extractAddon(relReader));
   const next = publicAddon(extractAddon(nextReader));
+  warnSkippedRows(rel, next);
   need(`v${rel.meta.Version}` === release.tag, `release ${release.tag} has TOC version ${rel.meta.Version}`);
   const releases = { ...meta, releases: meta.releases.map((r) => ({ ...r, body: publicText(r.body) })) };
   const model = buildModel({ rel, next, release, releases });
@@ -220,6 +252,7 @@ function main() {
     write(path.join(loc.prefix, "changelog", "feed.xml"), changelogFeed(model, site, loc));
   }
 
+  if (model.same) lookUpBehindProse({ meta: releases, release, next, read: { rel: read.rel, next: read.next }, site });
   writeProse(locales);
   const data = {
     source: { release: release.tag, releaseCommit: rel.commit, nextCommit: next.commit },

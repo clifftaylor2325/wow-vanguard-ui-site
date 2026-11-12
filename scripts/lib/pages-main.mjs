@@ -374,7 +374,7 @@ function wizardLayoutStep(setup, w, loc) {
   return `<h3 id="setup-layout">${loc.p("Step 1 · {name}", { name: A(setup.steps[0]) })}</h3>
 <p>${loc.p("It asks: “{question}”", { question: A(setup.questions[0] || "") })} ${picked} ${loc.p("Click a layout to see what it does under the list. Your choice takes effect when you click <strong>{next}</strong>.", { next: lab(w.S, "Core/Setup.lua", "Next") })}</p>
 <div class="table-wrap"><table class="stack"><thead><tr><th scope="col">${head[0]}</th><th scope="col">${head[1]}</th></tr></thead><tbody>
-${setup.layouts.map((l, i) => `<tr><td data-label="${head[0]}"><strong>${A(l.text)}</strong>${i === 0 && !keepLayout ? ` <span class="badge plain">${loc.p("Default")}</span>` : ""}</td><td data-label="${head[1]}">${A(l.hint)}</td></tr>`).join("\n")}
+${setup.layouts.map((l, i) => `<tr${l.nextOnly ? ' data-avail="next"' : ""}><td data-label="${head[0]}"><strong>${A(l.text)}</strong>${i === 0 && !keepLayout ? ` <span class="badge plain">${loc.p("Default")}</span>` : ""}${l.nextOnly ? ` ${nextBadge(loc)}` : ""}</td><td data-label="${head[1]}">${A(l.hint)}</td></tr>`).join("\n")}
 </tbody></table></div>
 <ul>
   <li>${loc.p("<strong>{healing}</strong> also turns on the raid frames and click casting if they were off.", { healing: layoutName("healing") })}</li>
@@ -395,7 +395,7 @@ function wizardScreenStep(setup, w, loc) {
   const keepLayout = setup.layouts.some((l) => l.key === "keep");
   const keepHint = namedText(setup.named.keep, { owner: loc.addon(setup.named.owner || "") }, setup.keepHint, loc);
   const head = [loc.p("Choice"), loc.p("What it sets")];
-  const row = (choice, sets) => `<tr><td data-label="${head[0]}"><strong>${choice}</strong></td><td data-label="${head[1]}">${sets}</td></tr>`;
+  const row = (choice, sets, fresh = false) => `<tr${fresh ? ' data-avail="next"' : ""}><td data-label="${head[0]}"><strong>${choice}</strong>${fresh ? ` ${nextBadge(loc)}` : ""}</td><td data-label="${head[1]}">${sets}</td></tr>`;
   const presets = loc.p("The wizard picks the preset for your screen when it opens and marks it “{yours}”: <strong>{ultrawide}</strong> for a screen at least {wide} times as wide as it is tall; otherwise by height: <strong>{k4}</strong> from {tall4k} pixels tall, <strong>{q1440}</strong> from {tall1440}, and <strong>{hd}</strong> from {below}.", { yours: s("your screen"), ultrawide: scr("ultrawide"), wide: esc(wide), k4: scr("4k"), tall4k: esc(tall4k), q1440: scr("1440"), tall1440: esc(tall1440), hd: scr("1080"), below: esc(setup.keepBelow) });
   const small = keepLayout
     ? loc.p("On a screen under {below} pixels tall, <strong>{keep}</strong> is picked, and so it is whenever you run setup again.", { below: esc(setup.keepBelow), keep: A(setup.keepText) })
@@ -403,7 +403,7 @@ function wizardScreenStep(setup, w, loc) {
   return `<h3 id="setup-screen">${loc.p("Step 2 · {name}", { name: A(setup.steps[1]) })}</h3>
 <p>${loc.p("It asks: “{question}”", { question: A(setup.questions[1] || "") })} ${presets} ${small} ${loc.p("Your choice takes effect when you click <strong>{next}</strong>.", { next: lab(S, "Core/Setup.lua", "Next") })}</p>
 <div class="table-wrap"><table class="stack"><thead><tr><th scope="col">${head[0]}</th><th scope="col">${head[1]}</th></tr></thead><tbody>
-${setup.screens.map((p) => row(screenRow(p), esc(namedText(setup.named.hint, p.values, p.hint, loc)))).join("\n")}
+${setup.screens.map((p) => row(screenRow(p), esc(namedText(setup.named.hint, p.values, p.hint, loc)), p.nextOnly)).join("\n")}
 ${setup.pixelText ? `${row(A(setup.pixelText), loc.p("Leaves the game's UI scale alone and turns on <strong>{pixel}</strong> under {general} → {look} instead.", { pixel, ...pageNames(loc) }))}\n` : ""}${row(A(setup.keepText), esc(keepHint))}
 </tbody></table></div>
 <p>${loc.p("The UI scale a preset sets is the game's own UI scale (the one in the game's graphics settings). It changes once you're out of combat, and choosing a preset turns off <strong>{pixel}</strong> under <strong>{general} → {look}</strong>.", { pixel, ...pageNames(loc) })} ${A(setup.reloadTile)}</p>`;
@@ -428,7 +428,7 @@ function wizardLookStep(setup, w, loc) {
   return `${stepHeading(setup, "look", 3, "setup-look", loc, w)}
 <ul>
   <li>${loc.p(`<strong>{accent}:</strong> click a swatch to change the accent color right away. They're the same colors as in <a href="#accent">Pick an accent color</a> below.`, { accent: lab(w.S, "Core/Setup.lua", "Accent") })}</li>
-  <li>${loc.p("<strong>{style}:</strong> three small raid tiles, each drawn in its style. Click one to switch to it right away: {styles}.", { style: lab(w.S, "Core/Setup.lua", "Raid frame style"), styles: setup.styles.map((x) => `<strong>${A(x[2])}</strong> (${A(x[1])})`).join(", ") })}</li>
+  <li>${loc.p("<strong>{style}:</strong> three small raid tiles, each drawn in its style. Click one to switch to it right away: {styles}.", { style: lab(w.S, "Core/Setup.lua", "Raid frame style"), styles: setup.styles.map((x, i) => { const one = `<strong>${A(x[2])}</strong> (${A(x[1])})`; return x.nextOnly ? nextOnly(`${i ? ", " : ""}${one}`) : `${i ? ", " : ""}${one}`; }).join("") })}</li>
 </ul>
 `;
 }
@@ -449,7 +449,7 @@ function wizardGuideSteps(setup, w, loc) {
   const steps = ["comfort", "game", "helpers", "combat"].filter((k) => setup.guide.steps[k]);
   const one = (key) => {
     const g = setup.guide.steps[key];
-    const rows = g.rows.map((r) => `<li>${say(text, "Core/SetupGuide.lua", r.caption)} <em>(${guideMark(r, loc)})</em></li>`).join("\n");
+    const rows = g.rows.map((r) => `<li${r.nextOnly ? ' data-avail="next"' : ""}>${r.nextOnly ? A(r.caption) : say(text, "Core/SetupGuide.lua", r.caption)} <em>(${guideMark(r, loc)})</em>${r.nextOnly ? ` ${nextBadge(loc)}` : ""}</li>`).join("\n");
     return `${stepHeading(setup, key, 0, `setup-${key}`, loc, w)}
 <p>${loc.p("It asks: “{question}”", { question: A(g.question) })}</p>
 <ul>
@@ -531,12 +531,30 @@ ${ends}
 ${shotFigure(shotByFile("02-setup-wizard"), { loc })}`;
 }
 
-// The setup wizard section (from Core/Setup.lua), when the source has one. Plain player
-// language only: every label and message is quoted from the addon and checked by says().
-function wizardSection(setup, inRel, read, loc) {
-  if (!setup) return "";
-  const S = read.next("Core/Setup.lua");
-  const w = { ...setupWords(S, loc), S, G: read.next("Core/SetupGuide.lua"), D: read.next("Core/Dialog.lua"), O: read.next("Core/Options.lua") };
+// The release's list with the entries only the next release has added, each marked nextOnly.
+function withNextEntries(relList, nextList, same) {
+  const old = (relList || []).map((x) => ({ ...x }));
+  const added = (nextList || []).filter((x) => !old.some((o) => same(o, x))).map((x) => ({ ...x, nextOnly: true }));
+  return [...old, ...added];
+}
+
+// The wizard as the release has it, with what only the next release adds marked nextOnly (a layout, a screen
+// preset, a raid style, a guided row), so the page shows it only when asked to show what's coming.
+function mergeSetup(rel, next) {
+  const sameKey = (a, b) => a.key === b.key;
+  const guide = rel.guide && next.guide ? { ...rel.guide, steps: Object.fromEntries(Object.entries(rel.guide.steps).map(([k, g]) => [k, { ...g, rows: withNextEntries(g.rows, next.guide.steps[k]?.rows, sameKey) }])) } : rel.guide;
+  return { ...rel, guide, layouts: withNextEntries(rel.layouts, next.layouts, sameKey), screens: withNextEntries(rel.screens, next.screens, sameKey), styles: withNextEntries(rel.styles.map((x) => ({ key: x[0], row: x })), next.styles.map((x) => ({ key: x[0], row: x })), sameKey).map((x) => Object.assign(x.row.slice(), { nextOnly: x.nextOnly })) };
+}
+
+// The setup wizard section (from Core/Setup.lua), when the source has one. It reads the current release's
+// wizard (words and messages checked against that release's files); what only the next release has is tagged.
+function wizardSection(relSetup, nextSetup, read, loc) {
+  if (!nextSetup) return "";
+  const inRel = !!relSetup;
+  const setup = inRel ? mergeSetup(relSetup, nextSetup) : nextSetup;
+  const reader = inRel ? read.rel : read.next;
+  const S = reader("Core/Setup.lua");
+  const w = { ...setupWords(S, loc), S, G: reader("Core/SetupGuide.lua"), D: reader("Core/Dialog.lua"), O: reader("Core/Options.lua") };
   const body = `${wizardIntro(setup, inRel, w, loc)}
 
 ${wizardLayoutStep(setup, w, loc)}
@@ -614,7 +632,7 @@ export function startPage(model, read, loc = EN) {
     body: `${pageHero(loc.t("title./start/"), loc.p(`After you <a href="/install/">install</a> Vanguard and log in, its frames replace the game's. Here's how to find the options and put things where you want them.`))}
 ${startGlance(rel, next, loc)}
 ${disclosure({ id: "options", title: loc.p("Open the options"), open: "always", body: startOptions(model, read, loc) })}
-${wizardSection(next.setup, !!rel.setup, read, loc)}
+${wizardSection(rel.setup, next.setup, read, loc)}
 ${disclosure({ id: "move", title: loc.p("Move your frames"), open: "always", body: startMove(model, read, loc) })}
 ${disclosure({ id: "accent", title: loc.p("Pick an accent color"), open: "always", body: accent })}
 ${disclosure({ id: "modules", title: loc.p("Keep the game's version of something"), body: modules })}`,
@@ -705,8 +723,8 @@ function areaSection([area, list], model, loc) {
   const rel = list.filter((m) => m.inRel).length;
   const mods = (n) => loc.pn({ one: "{n} module", other: "{n} modules" }, n);
   const meta = rel === list.length ? mods(rel) : `${mods(rel)}${nextOnly(` ${loc.p("+ {n} next release", { n: list.length - rel })}`)}`;
-  const page = `<p class="small area-page"><a href="${areaPath(area)}">${loc.p("Open the {area} page", { area: esc(loc.p(area)) })}</a></p>`;
-  return disclosure({ id: `area-${slug(area)}`, title: esc(loc.p(area)), meta, next: rel === 0, cls: "area", body: `${page}\n<div class="mods">${list.map((m) => featureCard(m, model, loc)).join("\n")}</div>` });
+  const page = `<p class="small area-page"><a href="${areaPath(area)}">${loc.p("Open the {area} page", { area: esc(loc.t(`area.${area}`)) })}</a></p>`;
+  return disclosure({ id: `area-${slug(area)}`, title: esc(loc.t(`area.${area}`)), meta, next: rel === 0, cls: "area", body: `${page}\n<div class="mods">${list.map((m) => featureCard(m, model, loc)).join("\n")}</div>` });
 }
 
 // An area's own page's path, under Features.
@@ -717,13 +735,13 @@ function areaPath(area) {
 // One feature area as a page of its own (/features/unit-frames/): every module card in it, open,
 // for a link to just that part of Vanguard. The cards are the same as on Features.
 function areaPage([area, list], model, loc) {
-  const name = esc(loc.p(area));
+  const name = esc(loc.t(`area.${area}`));
   const rel = list.filter((m) => m.inRel).length;
   const facts = [loc.pn({ one: "{n} module", other: "{n} modules" }, rel), rel < list.length ? nextOnly(loc.p("+ {n} next release", { n: list.length - rel })) : "", loc.p(`<a href="/features/">Every area is on Features</a>`)];
   return {
     path: areaPath(area),
-    title: loc.p(area),
-    description: loc.p("Vanguard's {area} modules: what each one does, and its settings and commands.", { area: loc.p(area) }),
+    title: loc.t(`area.${area}`),
+    description: loc.p("Vanguard's {area} modules: what each one does, and its settings and commands.", { area: loc.t(`area.${area}`) }),
     translated: true,
     body: `${pageHero(name, loc.p("Every module in this part of Vanguard, in the addon's own words. Open <strong>More</strong> on a card for its settings and commands."))}
 ${glance(facts)}
@@ -958,12 +976,24 @@ function defaultText(r, loc) {
 // A row's choices and range, as one line ("" when it has neither).
 function valuesText(r, loc) {
   const out = [];
-  if (r.choices && r.choices.length) out.push(r.choices.map((c) => esc(loc.addon(c[1]))).join(" / "));
-  if (r.range) {
-    const f = (x) => (r.range.percent && r.range.max <= 2 ? `${Math.round(x * 100)}%` : String(x));
-    out.push(loc.t("set.range", { min: esc(f(r.range.min)), max: esc(f(r.range.max)) }));
-  }
+  const choices = r.inRel && r.relChoices ? r.relChoices : r.choices;
+  const range = r.inRel && r.relRange ? r.relRange : r.range;
+  if (choices && choices.length) out.push(choicesText(choices, r.inRel && r.relChoices ? r.choices : null, loc));
+  if (range) out.push(rangeText(range, loc) + (range !== r.range && r.range && rangeText(r.range, loc) !== rangeText(range, loc) ? nextOnly(` → ${rangeText(r.range, loc)}`) : ""));
   return out.join("; ");
+}
+
+// A row's choices as the release has them; the ones only the next release adds (nextChoices) follow, tagged.
+function choicesText(choices, nextChoices, loc) {
+  const shown = (c) => esc(loc.addon(c[1]));
+  const added = (nextChoices || []).filter((c) => !choices.some((o) => o[0] === c[0]));
+  return choices.map(shown).join(" / ") + added.map((c) => nextOnly(` / ${shown(c)}`)).join("");
+}
+
+// A slider's range as text: its two ends.
+function rangeText(range, loc) {
+  const f = (x) => (range.percent && range.max <= 2 ? `${Math.round(x * 100)}%` : String(x));
+  return loc.t("set.range", { min: esc(f(range.min)), max: esc(f(range.max)) });
 }
 
 // A unique id for a row's anchor: the page id plus the caption's slug.
@@ -1016,7 +1046,7 @@ function optRow(r, version, pageTitle, id, loc) {
   const attrs = `data-avail="${avail(r.inRel, r.inNext)}" data-search="${esc(rowSearch(r, pageTitle, loc))}"`;
   if (r.kind === "header" || r.kind === "text") return wideRow(r, attrs, version, loc);
   const loop = r.loop ? ` <span class="small">(${esc(r.loop.variable)} = ${loc.t("set.range", { min: r.loop.from, max: r.loop.to })})</span>` : "";
-  const tags = [r.reload ? reloadBadge(loc) : "", badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
+  const tags = [r.reload ? reloadBadge(loc) : "", r.clientOnly === "retail" ? `<span class="badge plain">${loc.t("badge.retailOnly")}</span>` : "", badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
   const kind = KINDS.includes(r.kind) ? ` <span class="opt-kind">${loc.t(`kind.${r.kind}`)}</span>` : "";
   const cells = [valuesText(r, loc), defaultText(r, loc)].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
   return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${tags ? ` ${tags}` : ""}${kind}${rowTip(r, loc)}</th>${cells.join("")}</tr>`;

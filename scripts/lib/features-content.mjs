@@ -57,7 +57,7 @@ export const MORE = {
     check: ["combined bag", "with a Sort button beside the search box", "item slots bordered in each item's quality color", "quest items, equipment, consumables, trade goods, other, junk (gray items", "and empty slots", "the bank in the same look"], from: "Everything else" },
   Merchant: { more: "Repairs with your own gold and sells your gray items. The error line drops what the action bar already shows (ability not ready, not enough rage or energy, no target). Each part can be turned off.",
     check: ["repairs with your own gold and sells your gray items", "The error line drops what the action bar already shows (ability not ready, not enough rage or energy, no target", "Each can be turned off"], from: "At a merchant" },
-  ChatExtras: { more: "Web addresses in chat become links you can click to copy. A Copy button (or /vg copy) opens the shown tab's recent chat as plain text. Short channel names are on by default, and Ctrl + mouse wheel jumps to the top or bottom of a chat window.",
+  ChatExtras: { more: "Web addresses in chat become links you can click to copy. A Copy button (or /vg copy) opens the shown tab's recent chat as plain text. {ui:Short channel names} are on by default, and Ctrl + mouse wheel jumps to the top or bottom of a chat window.",
     check: ["web addresses in chat become links", "click one and it opens selected, ready to copy", "(or `/vg copy`) opens the recent chat of the tab you are looking at as plain text", "Short channel names (on by default", "Ctrl + wheel jumps to the top or the bottom"], from: "Chat extras" },
   ChatWatch: { more: "Add phrases (for example \"LFM\") and pick the channels to watch. When someone says one, the whisper sound plays and a small toast shows who said it; click it to whisper them. Your own lines never ring.",
     check: ["phrases that ring a sound and show a toast you can click to whisper the sender", "Add phrases (\"LFM\"", "tick the channels to watch", "the whisper sound plays and a small accent-edged toast", "for 8 seconds; click it to whisper them", "your own lines (your name, alone or with your realm) never ring"], from: "Chat watch" },
@@ -83,7 +83,7 @@ export const MORE = {
     check: ["accept quests a party member shares with you (its own switch", "turn in finished ones (it never chooses among rewards for you, unless you also switch on \"take the one that sells for most\"", "skip the chatter when an NPC has just one quest for you", "hold Shift while talking to skip it"], from: "Quest automation" },
   GameAlerts: { more: "Loss of control and the talking head on flat panels (or the talking head hidden). On a Hardcore realm, death notices take the theme's font and red. If you like, a rare that shows up on your minimap is announced once, out of combat.",
     check: ["Loss of control (stunned, feared...) shows on a flat panel", "the talking head on one at the top left", "under the raid tools", "on a Hardcore realm the game's death notices there take the theme's title font and its red", "a rare that shows up on your minimap is announced", "out of combat and once per rare"], from: "Game windows" },
-  Errands: { more: "A Train all button on the trainer's window shows how many skills your gold covers and learns them in one click. Keep stocked tops up items you name from merchants who sell them, while you can pay. The flight timer counts down to landing on routes you've flown before.",
+  Errands: { more: "A {ui:Train all} button on the trainer's window shows how many skills your gold covers and learns them in one click. {ui:Keep stocked} tops up items you name from merchants who sell them, while you can pay. The flight timer counts down to landing on routes you've flown before.",
     check: ["a **Train all** button on the trainer's window shows how many one click learns (the skills your gold covers", "learns them in one click", "**Keep stocked**", "a merchant who sells it tops you up", "while you can pay", "The **flight timer** saves each flight's time by route", "and the next flight on that route shows a bar (movable) counting down to landing"], from: "Errands" },
   InstancePrep: { more: "Stepping into a dungeon or raid, a card lists what you're short of: ammo, soul shards, your class's reagents, food and drink, bandages, potions, worn gear and your stocked items. A ready check or /vg prep always shows it, saying \"{ui:Everything's packed.}\" when nothing is short.",
     check: ["a card at the door listing what you're short of", "Stepping into a dungeon or raid, it lists what is low", "ammo (hunters), soul shards (warlocks), your class's reagents", "food and drink, bandages, potions, durability under 50%, and anything on your Keep-stocked list", "A ready check (or `/vg prep`) always shows it, saying \"Everything's packed.\" when nothing is short"], from: "Instance prep" },
@@ -101,7 +101,7 @@ export const MORE = {
     check: ["tooltips say which merchant sells an item (and where) once you've visited one", "\"Sold by Thomas Miller (Elwynn Forest, Goldshire)\"", "with \"limited stock\" when the merchant carries only a few", "What merchants sell is remembered for every character on the account"], from: "Vendor memory" },
   AuctionHelper: { more: "Two tabs on the auction house window. Lists: your shopping lists, searched one item at a time, with Recent, Deals and Upgrades beside them. Posting: suggests a price just under the cheapest and posts, and marks your auctions someone undercut, each with a Cancel button. Scan: prices from your scans in item tooltips. It only posts or cancels when you click; buying stays in the game's own window.",
     check: ["two Vanguard tabs join the game's window after its Buy, Sell and Auctions", "the **Lists** tab (the Lists pane on the left", "the **Posting** tab (the Sell card on the left; what's up now and your auctions on the right)", "the pane lists your named shopping lists with how many items each holds, then Recent, Deals and Upgrades", "searches each item in turn (one search at a time", "**Sell**", "the price it will ask: 1 silver under the cheapest", "**Post** puts up one stack per click", "**Your auctions**", "marks with a red square each auction someone else asks less for per unit; each row has a **Cancel** button", "only a click on it cancels", "**Scan the auction house**", "item tooltips everywhere say \"AH: ", "Buying and bidding stay in the game's own window"], from: "Auction helper" },
-  TalentPlanner: { more: "Plan where your talent points will go before you have them, on the game's own talents window. With Plan on, clicking a talent sets the rank you want instead of buying it: the planned rank sits on the talent as a badge and the next point to buy is ringed. Spend planned buys the next picks in a legal order.",
+  TalentPlanner: { more: "Plan where your talent points will go before you have them, on the game's own talents window. With Plan on, clicking a talent sets the rank you want instead of buying it: the planned rank sits on the talent as a badge and the next point to buy is ringed. {ui:Spend planned} buys the next picks in a legal order.",
     check: ["plan where your talent points will go before you have them, on the game's own talents window", "With Plan on, clicking a talent sets the rank you want instead of buying it", "the planned rank sits on the talent as a badge in your accent, the next point to buy wears an accent ring", "Spend planned (or `/vg talents spend`) buys the next picks in a legal order"], from: "Talent planner" },
   Nameplates: { more: "Class, reaction and threat colors, the name in outlined text with the level, your debuffs with timers and your crowd control, casts, the raid icon, an accent border and diamond on your target, and a gold \"!\" by units your quests need.",
     check: ["class/reaction/threat colors, the name in outlined text with the level", "your debuffs (soonest to expire first, with timers) and your crowd control", "casts, raid icon, an accent border", "a diamond on your target", "a gold quest \"!\" (Vanguard's own mark) by the name of units your quests need"], from: "Nameplates" },
@@ -162,7 +162,7 @@ export const LONGER = {
     C("The threat number sits above the target frame, toward its top-right corner, and the mood glyph in the pet frame's top-right corner.", "Modules/UnitExtras.lua", "-- The threat text above the target frame, clear of its corner diamond,", "UX.threat:SetPoint(\"BOTTOMRIGHT\", UF.Crown(target), \"TOPRIGHT\"", "-- The mood glyph in the pet frame's top-right corner, following your pet", "UX.happy:SetPoint(\"TOPRIGHT\", pet, \"TOPRIGHT\""),
   ],
   PartyExtras: [
-    R("Turn it on under Unit frames in /vg.", "off until you turn it on under Unit frames"),
+    R("Turn it on under {ui:Unit frames} in /vg.", "off until you turn it on under Unit frames"),
     R("Each tile shows only while its unit exists.", "each while its unit exists"),
   ],
   RaidFrames: [
@@ -205,16 +205,16 @@ export const LONGER = {
   ],
   SpecialBars: [
     R("They get their own spots because the game's spot for them lies over the bar stack.", "(the game's own spot for them lies over the bar stack)"),
-    R("Move them with /vg unlock, or turn that off under Action bars to leave them to the game's Edit Mode, where your client has it.", "or turn that off under Action bars to leave them to Edit Mode"),
+    R("Move them with /vg unlock, or turn that off under {ui:Action bars} to leave them to the game's Edit Mode, where your client has it.", "or turn that off under Action bars to leave them to Edit Mode"),
   ],
   DataBars: [
     RC("Hover a bar to see its numbers: your level, XP and rested XP, or the watched faction's name and progress.", ["over thin XP and reputation bars", "hover the XP bar for what is left in the level"], "Modules/DataBars.lua", "text = \"hover\"", "\"Level {level}  {cur} / {max} ({percent}%)\"", "-- Shows the bar's text only while hovered (text = \"hover\"), or always."),
     RC("The XP bar shows rested XP as a lighter strip and hides at the level cap; the reputation bar takes its standing's color and shows only while you watch a faction.", ["over thin XP and reputation bars", "hover the XP bar for what is left in the level"], "Modules/DataBars.lua", "-- The rested overlay: a lighter strip from the left edge", "-- Fills the XP bar", "or hides it at max level", "-- Fills the reputation bar in its standing color, or hides it with no watched"),
-    R("They're always shown unless you pick another visibility (On mouseover, In combat, Hidden or the action bars' row of conditions), one setting for both.", "On mouseover, In combat, Hidden or the action bars' row of conditions", "so are the XP and reputation bars, which share one setting"),
+    R("They're always shown unless you pick another visibility ({ui:On mouseover}, In combat, Hidden or the action bars' row of conditions), one setting for both.", "On mouseover, In combat, Hidden or the action bars' row of conditions", "so are the XP and reputation bars, which share one setting"),
   ],
   QuestHistory: [
     R("A quest you meet again says in a muted line where and when it was done, such as “{ui:Done on this character}”.", "A quest you meet again says so in a muted line", "(\"Done on this character\" for one you did here"),
-    R("It remembers, for the whole account, which character last turned in each quest, up to 1000 quests, and its List latest turn-ins button or /vg quests history lists the latest.", "Vanguard remembers for the whole account which of your characters last turned in each quest and when", "`/vg quests history [n]` list the latest turn-ins"),
+    R("It remembers, for the whole account, which character last turned in each quest, up to 1000 quests, and its {ui:List latest turn-ins} button or /vg quests history lists the latest.", "Vanguard remembers for the whole account which of your characters last turned in each quest and when", "`/vg quests history [n]` list the latest turn-ins"),
     R("With no turn-in remembered, a quest the game itself flags as done on this character reads \"{ui:Done on this character}\", so quests finished before Vanguard count too.", "With no turn-in remembered, a quest the game itself flags as done on this character reads \"Done on this character\" (so quests finished before Vanguard count too"),
   ],
   CooldownKeys: [
@@ -224,7 +224,7 @@ export const LONGER = {
   ],
   ChatWindows: [
     R("The main chat window (docked tabs share its size) and each floating window that is showing have a Width and a Height slider, set instead of dragging its corner.", "the main window (docked tabs share its size) and each floating window that is showing have a Width and a Height slider (set instead of dragging its corner"),
-    R("Lock chat windows is the game's own lock for all of them.", "Lock chat windows is the game's lock for all of them"),
+    R("{ui:Lock chat windows} is the game's own lock for all of them.", "Lock chat windows is the game's lock for all of them"),
   ],
   QuestArrow: [
     R("A small panel at the top centre shows an arrow in your accent that turns toward the nearest unfinished objective among the quests you watch, with the quest's title and the distance in yards.", "an arrow in your accent that turns toward the nearest unfinished objective among the quests you watch, the quest's title and the distance in yards"),
@@ -243,7 +243,7 @@ export const LONGER = {
   ],
   ChatHistory: [
     R("The lines in your chat windows come back after a /reload or the next login, each in its own tab and in the colour it had.", "The lines in your chat windows come back after a `/reload` or the next login, each in its own tab and in the colour it had"),
-    R("The lines are saved for this character only, never in a profile or a profile export, and whispers are not kept unless you tick Keep whispers.", "The lines are saved for this character only, in its own file, never in a profile or a profile export", "Whispers are not kept unless you tick Keep whispers"),
+    R("The lines are saved for this character only, never in a profile or a profile export, and whispers are not kept unless you tick {ui:Keep whispers}.", "The lines are saved for this character only, in its own file, never in a profile or a profile export", "Whispers are not kept unless you tick Keep whispers"),
     R("Where the game hides chat from addons (dungeons, raids, encounters), a line is not read and is not kept.", "Where the game hides chat from addons (dungeons, raids, encounters) a line is not read and is not kept"),
   ],
   ChatBubbles: [
@@ -256,7 +256,7 @@ export const LONGER = {
     C("The floating damage numbers over your target follow, unless the theme font is the game's own.", "Modules/HudText.lua", "DAMAGE_TEXT_FONT = path", "path == STANDARD_TEXT_FONT"),
   ],
   Quiet: [
-    R("Each switch is off until you turn it on, under Game windows.", "each off until you switch it on, under Game windows"),
+    R("Each switch is off until you turn it on, under {ui:Game windows}.", "each off until you switch it on, under Game windows"),
     R("It can decline guild invites, group invites from strangers and Battle.net friend requests, saying in chat what it did.", "decline guild invites (the game's invite window closes)", "decline group invites from people who are not friends, Battle.net friends or guildmates", "decline Battle.net friend requests (each decline says in chat what it did"),
     R("It can also release your spirit at once in a battleground, hide the red error line and the zone names that fade in, and zoom the camera further out.", "release your spirit at once when you die in a battleground", "hide the red error line", "a furthest camera zoom of 1.5, 2 or 2.6 times"),
   ],
@@ -274,13 +274,13 @@ export const LONGER = {
     R("Durability turns orange at 25% or less and red at 10% or less; ammo shows for any class whose ranged weapon needs it where the game says so (otherwise hunters, warriors and rogues), and soul shards for warlocks.", "orange at 25% or less, red at 10% or less", "ammo (for any class whose ranged weapon needs it, where the game says so, else hunters, warriors and rogues; red at none) (soul shards for warlocks"),
     R("The leveling row waits a minute for the numbers to settle, and the XP figures hide at the level cap.", "they wait a minute for the numbers to settle", "the XP ones hide at the level cap"),
     R("In a group, the fourth row can also show your place in the last fight's DPS (\"#2 of 5\"), also off until you turn it on.", "in a group, your place in that fight's DPS", "also off until you turn it on"),
-    R("The strip is always shown unless you pick another visibility for it, like On mouseover or In combat.", "The strip is always shown unless you pick another visibility for it"),
+    R("The strip is always shown unless you pick another visibility for it, like {ui:On mouseover} or In combat.", "The strip is always shown unless you pick another visibility for it"),
   ],
   MenuStrip: [
     R("The bags sit in a row centered over the menu buttons, with the key ring too where your client has one.", "in a row centered over the menu buttons", "the key ring too, where the client has one"),
     R("A bag's bar turns red when it's full (a soul bag or quiver counts only its own slots), and the backpack shows how many slots your bags have free.", "red when it is full; a soul bag or quiver counts only its own slots", "the backpack shows how many slots your bags have free"),
     R("Vanguard's line icons stand in for the game's menu icons; a switch brings the game's own back.", "Vanguard's line icons stand in for the game's menu icons", "on by default; the switch under Bars and bags brings the game's own back"),
-    R("The bar is always shown, or you can pick On mouseover, Auto-hide after 10 s, In combat or Hidden under Bars and bags.", "Auto-hide after 10 s", "In combat, Hidden or the same row of conditions as the action bars instead, under Bars and bags"),
+    R("The bar is always shown, or you can pick {ui:On mouseover}, {ui:Auto-hide after 10 s}, In combat or Hidden under {ui:Bars and bags}.", "Auto-hide after 10 s", "In combat, Hidden or the same row of conditions as the action bars instead, under Bars and bags"),
   ],
   MinimapButtons: [
     R("The \"...\" button only shows once there's a button to gather.", "it only shows once there's a button to gather"),
@@ -294,7 +294,7 @@ export const LONGER = {
     R("/vg status shows how many pixels tall chat text draws on your screen.", "how many pixels tall chat text draws on your screen"),
   ],
   ChatExtras: [
-    R("Short channel names are on by default: [2. Trade - City] shows as [2] and [Guild] as [G], and clicking the short tag still opens the channel.", "Short channel names (on by default", "`[2. Trade - City]` as `[2]`", "`[Guild]` as `[G]`", "clicking the short tag still opens the channel"),
+    R("{ui:Short channel names} are on by default: [2. Trade - City] shows as [2] and [Guild] as [G], and clicking the short tag still opens the channel.", "Short channel names (on by default", "`[2. Trade - City]` as `[2]`", "`[Guild]` as `[G]`", "clicking the short tag still opens the channel"),
     R("The game's own chat timestamps and class-colored names can be set from /vg too, under Chat.", "The game's own chat timestamps and class-colored names can be set under"),
     R("Chat the game hides from addons in instances is left untouched, never shortened, and left out of the copy.", "Chat the game hides from addons (in instances) is left untouched, never shortened, and out of the copy"),
   ],
@@ -308,27 +308,27 @@ export const LONGER = {
     R("The combined bag is switched on once, not at every login, and given back when you switch the module off.", "switched on once, not at every login, and given back when you switch the module off"),
     R("Sort sits beside the search box where the game can sort bags, and search dimming is kept.", "with a Sort button beside the search box where the game can sort bags", "search dimming kept"),
     R("In combat the bag keeps its layout and catches up when combat ends.", "in combat the bag keeps its layout and catches up when combat ends"),
-    R("One switch under Bars and bags gives back the plain grid at once.", "one switch under Bars and bags gives back the plain grid at once"),
+    R("One switch under {ui:Bars and bags} gives back the plain grid at once.", "one switch under Bars and bags gives back the plain grid at once"),
   ],
   Merchant: [
     R("Selling is tried again a few times, since the server limits how fast items sell.", "tried again a few times, since the server limits how fast items sell"),
     R("Errors you can act on stay, shown by the game's own error line.", "errors you can act on stay, shown by the game's own error line"),
   ],
   Errands: [
-    R("Train all says what it cost, and nothing is read or changed in combat.", "and says what it cost", "nothing is read or changed in combat"),
+    R("{ui:Train all} says what it cost, and nothing is read or changed in combat.", "and says what it cost", "nothing is read or changed in combat"),
     R("Type /vg stock, shift-click an item and add a number (say 20) to keep that many in your bags; ammo comes 200 at a time.", "`/vg stock <shift-click an item> 20` keeps 20 in your bags", "ammo comes 200 at a time"),
     R("The flight timer's bar can be moved.", "shows a bar (movable) counting down to landing"),
       ],
   VendorMemory: [
     R("Up to three merchants show per item, the one you saw last first.", "for up to three merchants per item, the one you saw last first"),
-    R("The Keep stocked list (/vg stock) says where to buy each item too.", "The Keep stocked list (`/vg stock`) says where to buy each item too"),
+    R("The {ui:Keep stocked} list (/vg stock) says where to buy each item too.", "The Keep stocked list (`/vg stock`) says where to buy each item too"),
     R("/vg vendors says how many merchants are remembered, and /vg vendors clear forgets them.", "`/vg vendors` says how many merchants are remembered and `/vg vendors clear` forgets them"),
   ],
   AuctionHelper: [
     R("Up to 20 shopping lists of 50 items are kept for the account, and a list is searched at most one item a second, well under the game's limit.", "up to 20 lists of 50 items, kept for the account", "at most one a second, so well under the game's limit"),
     R("The asking price is 1 silver under the cheapest (or 1 copper, 1 %, or the same price), or under your 7-day low when nothing is up.", "1 silver under the cheapest (or 1 copper, 1 %, or the same price", "else under the 7-day low when nothing is up"),
     R("A full scan is allowed once every 15 minutes, the game's own limit, and after one, item tooltips everywhere show the price, like \"AH: 1s 0c · market 1s 50c (today)\".", "one scan every 15 minutes for the whole account, the game's own limit", "AH: 1s 0c · market 1s 50c (today)"),
-    R("The Upgrades list shows the armor and weapons your scans and searches saw that beat what you wear, the biggest gain first; click one and the game's own list shows it, to buy there.", "lists the armor and weapons your scans and item searches saw that beat what you wear", "the biggest gain first", "Click one and the game's own list shows that item, to buy there; nothing is bought for you"),
+    R("The {ui:Upgrades list} shows the armor and weapons your scans and searches saw that beat what you wear, the biggest gain first; click one and the game's own list shows it, to buy there.", "lists the armor and weapons your scans and item searches saw that beat what you wear", "the biggest gain first", "Click one and the game's own list shows that item, to buy there; nothing is bought for you"),
   ],
   QuestDialog: [
     R("It sits just above the frames around your character, clear of the cast bars, and can be moved with /vg unlock.", "just above the frames around your character (clear of the cast bars)", "Movable with `/vg unlock`"),
@@ -358,9 +358,9 @@ export const LONGER = {
     R("It only shows out of combat and never hides the game's own frames.", "It only shows out of combat and never hides the game's own frames"),
   ],
   AutoAccept: [
-    R("Turn each one on under Game windows.", "(each off until you switch it on, under Game windows"),
+    R("Turn each one on under {ui:Game windows}.", "(each off until you switch it on, under Game windows"),
     R("Accepting a resurrection closes the game's prompt, whichever kind it was.", "the game's prompt closes whichever kind it was"),
-    R("Faster auto-loot works while the game is auto-looting and takes every slot at once; an item still being rolled for stays in the loot window, and a bind-on-pickup item still asks first.", "when the game is auto-looting (its Auto Loot setting, or its auto-loot key held), every slot is taken at once instead of one by one", "a slot the game has locked (an item still being rolled for) stays in the loot window, and a bind-on-pickup item still asks first"),
+    R("{ui:Faster auto-loot} works while the game is auto-looting and takes every slot at once; an item still being rolled for stays in the loot window, and a bind-on-pickup item still asks first.", "when the game is auto-looting (its Auto Loot setting, or its auto-loot key held), every slot is taken at once instead of one by one", "a slot the game has locked (an item still being rolled for) stays in the loot window, and a bind-on-pickup item still asks first"),
   ],
   Waypoints: [
     R("Name a zone and a title too, as in /way Elwynn Forest 42 65 Inn, and /way clear removes the waypoint.", "`/way Elwynn Forest 42 65 Inn` names a zone", "`/way clear` removes it"),
@@ -376,7 +376,7 @@ export const LONGER = {
     R("Rings and trinkets compare with the weaker of the two you wear, a two-hander with both hands, and an empty slot is always an upgrade, except the off hand while you wear a two-hander; gear you can't wear is left alone.", "rings and trinkets compare with the weaker of the two you wear", "a two-hander with both hands", "an empty slot is always an upgrade, except the off hand while you wear a two-hander", "gear you can't wear left alone"),
     R("The default weights are a starting point for Forever's vanilla-style stats, not simulated values.", "The default weights are a starting point for Forever's vanilla-style stats, not simulated values"),
     R("/vg weights shows the weights in use, /vg weights set changes one, and export and import share them as a string; each profile keeps its own.", "`/vg weights` shows the ones in use", "`/vg weights set AGI 1.2` changes one", "`export`/`import` share them as a string. Each profile keeps its own"),
-    R("The auction house's Upgrades list, under Auction helper, judges listings by the same weights.", "auction house's Upgrades list (under Auction helper) judges listings by the same weights"),
+    R("The auction house's {ui:Upgrades list}, under {ui:Auction helper}, judges listings by the same weights.", "auction house's Upgrades list (under Auction helper) judges listings by the same weights"),
   ],
   BrokerStrip: [
     R("Each feed shows its icon and text, its own tooltip on hover, and takes your clicks.", "each shows its icon", "its own tooltip on hover", "and takes your clicks"),
@@ -384,8 +384,8 @@ export const LONGER = {
     R("The addons that share feeds bring what the strip needs, so with none of them installed it stays hidden.", "the addons that share feeds load it, so with none of them the strip stays hidden"),
   ],
   GameAlerts: [
-    R("Loss of control (stunned, feared...) shows a little above your character and the talking head at the top left, under the raid tools; hiding the talking head is your choice under Combat tools.", "Loss of control (stunned, feared...) shows on a flat panel a little above your character", "the talking head on one at the top left", "under the raid tools", "or hidden; your choice under Combat tools)"),
-    R("The rare announcement is off until you switch it on under Combat tools; it plays the raid warning sound with one chat line, out of combat and once per rare.", "(off until you switch it on, under Combat tools), a rare", "with the raid warning sound and one chat line, out of combat and once per rare"),
+    R("Loss of control (stunned, feared...) shows a little above your character and the talking head at the top left, under the raid tools; hiding the talking head is your choice under {ui:Combat tools}.", "Loss of control (stunned, feared...) shows on a flat panel a little above your character", "the talking head on one at the top left", "under the raid tools", "or hidden; your choice under Combat tools)"),
+    R("The rare announcement is off until you switch it on under {ui:Combat tools}; it plays the raid warning sound with one chat line, out of combat and once per rare.", "(off until you switch it on, under Combat tools), a rare", "with the raid warning sound and one chat line, out of combat and once per rare"),
   ],
   InstancePrep: [
     R("Each item you're short of gets a red mark and \"have / want\", and the reagents are your class's for your level.", "each with a red mark and \"have / want\"", "your class's reagents for your level"),
@@ -399,7 +399,7 @@ export const LONGER = {
     RC("Move them with /vg unlock; where your client has Edit Mode, Vanguard stands aside while it's open, and one switch leaves placing them to Edit Mode.", ["Move them with `/vg unlock`; while Edit Mode is open, Vanguard stands aside", "One switch leaves placing them to Edit Mode"], "Core/Movers.lua", "local edit = _G.EditModeManagerFrame", "if type(edit) ~= \"table\" or not edit.HookScript then return end"),
   ],
   FightHistory: [
-    R("Turn it on under Combat tools.", "(off until you turn it on under Combat tools)"),
+    R("Turn it on under {ui:Combat tools}.", "(off until you turn it on under Combat tools)"),
     R("The latest fight is in your accent color, and a fight whose figure the game kept hidden leaves an empty slot.", "the latest in your accent color; a fight whose figure the game kept hidden leaves an empty slot"),
     R("Fights are kept even while the strip is off, and it has its own visibility and moves with /vg unlock.", "Fights are kept even while the strip is off", "It has its own visibility"),
   ],
@@ -415,7 +415,7 @@ export const LONGER = {
   ],
   TalentPlanner: [
     R("A rank the plan can never reach, because a talent it hangs from or its row's points are missing from the plan, is marked red.", "a rank the plan can never reach (a talent it hangs from, or its row's points, missing from the plan", "is marked red"),
-    R("At a level-up, chat names the next pick, and \"Spend planned points by itself\" (off until you tick it) buys them without asking.", "At a level-up chat names the next pick", "\"Spend planned points by itself\" (under `/vg` → Talents, off until you tick it) buys and applies them without asking"),
+    R("At a level-up, chat names the next pick, and \"{ui:Spend planned points at a level-up}\" (off until you tick it) buys them without asking.", "At a level-up chat names the next pick", "\"Spend planned points by itself\" (under `/vg` → Talents, off until you tick it) buys and applies them without asking"),
     R("Plans are kept per character and spec, and /vg talents export and import share one as a string for your class.", "Plans are kept per character and spec (Primary, Secondary)", "`export` and `import` share it as a string (for your class only"),
   ],
   Nameplates: [
@@ -427,7 +427,7 @@ export const LONGER = {
   Situations: [
     R("One situation holds at a time: the first of PvP, Instance, Raid, Party, Resting and Solo.", "One situation holds at a time, the first of PvP"),
     R("/vg situation record raid starts recording, and /vg situation stop saves it.", "`/vg situation record raid`", "**Stop recording and save** (`/vg situation stop`"),
-    R("Only what you changed is kept, and only frames' spot, scale, opacity and anchors, the info strip, menu bar and XP bar visibility, the info strip's parts and the nameplates' levels, threat colors, target border and quest marks, and the Calm HUD can be recorded.", "only what you changed is kept", "An override can hold any frame's spot, scale and opacity", "the nameplates' levels, threat colors, target border and quest marks, and the Calm HUD, and the Situations page lists them; nothing else is recorded"),
+    R("Only what you changed is kept, and only frames' spot, scale, opacity and anchors, the info strip, menu bar and XP bar visibility, the info strip's parts and the nameplates' levels, threat colors, target border and quest marks, and the {ui:Calm HUD} can be recorded.", "only what you changed is kept", "An override can hold any frame's spot, scale and opacity", "the nameplates' levels, threat colors, target border and quest marks, and the Calm HUD, and the Situations page lists them; nothing else is recorded"),
     R("Your profile is always saved and exported with your own values, and profiles carry their situations.", "your profile is always saved and exported with your own values", "Profiles carry their overrides"),
   ],
 };
@@ -476,7 +476,7 @@ Object.assign(MORE, {
     check: ["from the client's own data only, never a community quest database", "a **New** mark in your accent", "after the title of quests new in WoW Forever", "**quest-start pins** on the world map, a small gold \"!\"", "Shift-click a quest in the tracker and the game's own quest marker follows it"], from: "Quest guidance" },
   OfficerLoot: { more: "For a raid leader or officer: a soft-reserve list kept on this character. A roll by a player who reserved the item being rolled for is marked [SR] in the roll tracker. Nothing is synced or sent for you.",
     check: ["for a raid leader or officer, a soft-reserve list", "The list is kept on this character (not in the profile, not synced)", "a roll by a player who reserved the item being rolled for is marked \"[SR]\" after their name", "off until switched on: `/vg loot on`"], from: "Officer loot tools" },
-  Coexist: { more: "At login Vanguard notices addons that do a job one of its modules also does (bag, nameplate, action bar and unit frame addons among them), and says so once in chat. The Modules page then offers Turn off or Keep both for each.",
+  Coexist: { more: "At login Vanguard notices addons that do a job one of its modules also does (bag, nameplate, action bar and unit frame addons among them), and says so once in chat. The Modules page then offers Turn off or {ui:Keep both} for each.",
     check: ["at login Vanguard notices addons that do a job one of its modules also does", "(bag, nameplate, action bar, unit frame", "says so once in chat", "**Turn off** or **Keep both** for each", "an answer isn't asked again in that profile"], from: "Other addons" },
   GroupBoard: { more: "Experimental: it has not been seen working in the game yet, so the board may stay empty. WoW Forever has no Dungeon Finder, so groups form in chat. The board lists each player's latest looking-for-more or looking-for-group post from the numbered channels and yell: the dungeon with its level range, the roles it names, who posted it and how long ago. Click a row to open a whisper; nothing is ever sent for you.",
     check: ["WoW Forever has no Dungeon Finder, so groups form in chat", "lists each player's latest looking-for-more or looking-for-group post on a board, newest first", "Click a row and the chat box opens a whisper to them with a message filled in", "Nothing is ever sent for you"], from: "Group board" },
@@ -484,7 +484,7 @@ Object.assign(MORE, {
 
 Object.assign(LONGER, {
   GroupThreat: [
-    R("It is off until you turn it on under Unit frames, and it needs a reload.", "off until you turn it on under Unit frames, then reload"),
+    R("It is off until you turn it on under {ui:Unit frames}, and it needs a reload.", "off until you turn it on under Unit frames, then reload"),
     R("Each line is a name and a percentage, such as “Name 87%”.", "as \"Name  87%\""),
     R("It updates in combat, since nothing in it is protected.", "updates in combat since nothing in it is protected"),
   ],
@@ -501,7 +501,7 @@ Object.assign(LONGER, {
   ],
   CraftQueue: [
     R("It is off until you turn it on under {ui:Town and gear} → {ui:Craft queue}.", "off until you turn it on under Town and gear → Craft queue"),
-    R("/vg craft lists the queue and the reagents you are still short of, and /vg craft stock raises Keep stocked to what the queue needs.", "`/vg craft` lists the queue and the reagents you are still short of", "`/vg craft stock` raises Keep stocked to what the queue needs"),
+    R("/vg craft lists the queue and the reagents you are still short of, and /vg craft stock raises {ui:Keep stocked} to what the queue needs.", "`/vg craft` lists the queue and the reagents you are still short of", "`/vg craft stock` raises Keep stocked to what the queue needs"),
     R("A craft you finish comes off the queue; done takes one off and clear empties it.", "a craft you finish (your own cast, out of combat) comes off the queue", "`done` takes one off and `clear` empties it"),
     R("/vg craft cd lists every character's profession cooldowns, and /vg craft top ranks the best five recipes by profit.", "`/vg craft cd` lists every character's", "`/vg craft top`: the best five"),
   ],
@@ -512,7 +512,7 @@ Object.assign(LONGER, {
     R("Attaching happens out of combat, and you press Send.", "out of combat; you press Send"),
   ],
   Rolls: [
-    R("It is on by default, with its switches under Combat tools.", "on by default; switches under Combat tools"),
+    R("It is on by default, with its switches under {ui:Combat tools}.", "on by default; switches under Combat tools"),
     R("A round is the rolls in one range (1-100, 1-6...) within 30 seconds of each other, and the panel goes 30 seconds after the last roll.", "A round is the rolls in one range (1-100, 1-6...) within 30 seconds of each other", "goes 30 seconds after the last roll"),
     R("/vg rolls lists the session's rolls, newest first, and /vg rolls clear forgets them.", "Up to 40 rolls are kept this session", "`/vg rolls` lists them, newest first, and `/vg rolls clear` forgets them"),
     R("Where the client lacks the loot history, that part stays off and the /roll list still works.", "where it doesn't, or the history holds nothing for a roll, that part stays empty with no error and the `/roll` list still works"),
@@ -547,7 +547,7 @@ Object.assign(LONGER, {
   ],
   GroupBoard: [
     R("Open it with /vg lfg, or {ui:Open the group board} under {ui:Chat} → {ui:Group board}.", "`/vg lfg`, or **Open the group board** under Chat → Group board"),
-    R("A filter button shows all posts, only looking for more or only looking for a group, and Only dungeons for my level is on by default.", "**Only dungeons for my level** (on by default)"),
+    R("A filter button shows all posts, only looking for more or only looking for a group, and {ui:Only dungeons for my level} is on by default.", "**Only dungeons for my level** (on by default)"),
     R("Posts go after 10 minutes (5 or 20 if you like), and a newer post from the same player replaces the older one.", "Posts go after 10 minutes (5 or 20 if you like)", "a newer post from the same player replaces the older one"),
     R("In dungeons and raids, where the game hides chat from addons, nothing is read.", "In dungeons and raids, where the game hides chat from addons, nothing is read"),
   ],

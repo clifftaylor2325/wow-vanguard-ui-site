@@ -189,6 +189,22 @@ test("a prose translation keeps every {ui:Text} of its English line", () => {
   assert.match(proseProblems("Click {ui:Reload now}.", "Klick „Neu laden“.", "de", words).join(), /slots\} differ/);
 });
 
+test("a plural translation keeps the English slots, and every form keeps the entities", () => {
+  const en = { one: "{n} change for {who}", other: "{n} changes for {who}" };
+  assert.deepEqual(proseProblems(en, { one: "ein Eintrag für {who}", other: "{n} Einträge für {who}" }, "de", words), [], "one form may leave out {n}");
+  assert.match(proseProblems(en, { one: "ein Eintrag für {wer}", other: "{n} Einträge für {who}" }, "de", words).join(), /slots\} differ/);
+  assert.match(proseProblems(en, { one: "ein Eintrag für {who}", other: "{n} Einträge" }, "de", words).join(), /slots\} differ/);
+  assert.match(proseProblems("WoW&nbsp;Forever", "WoW Forever", "de", words).join(), /entities differ/);
+  assert.deepEqual(proseProblems("WoW&nbsp;Forever &amp; you", "WoW&nbsp;Forever &amp; du", "de", words), []);
+});
+
+// The lines a page shows only while the release is behind the pinned source are looked up too (the build runs the pages once more
+// with the release before this one), so a translation for each is checked before a bump needs it.
+test("the prose check covers the lines that show only while the release is behind the source", () => {
+  for (const line of ["+ {n} next release", "Other modules", "As listed in the addon's README for the next release:"]) assert.ok(used.has(line), `${line} is looked up`);
+  for (const loc of publishedLocales(cfg.locales).slice(1)) assert.ok(proseOf(loc.code).has("Other modules"), `${loc.code} translates it`);
+});
+
 // The addon's own words, as the Locales files hold them: every English text the addon translates.
 const addonKeys = [...addonTranslations([relReader, nextReader], "deDE").keys()];
 
@@ -207,6 +223,45 @@ test("prose never types a button, switch, message or page name the addon has; it
     }
   }
   assert.deepEqual(typed, []);
+});
+
+// A button, switch or page name of two or more words is written {ui:Text} so each language shows the addon's own word for it.
+// The names below are still typed bare where they read as a noun or as the site's own words; the list only shrinks.
+test("a prose line names no new addon control bare: it uses {ui:Text}", () => {
+  const baseline = new Set(JSON.parse(fs.readFileSync(new URL("./bare-names-baseline.json", import.meta.url), "utf8")));
+  const names = addonKeys.filter((k) => /^[A-Z]/.test(k) && /^\S+( \S+){1,5}$/.test(k) && k.length >= 8 && !/[{%<.:?!]/.test(k));
+  const bare = new Set();
+  for (const line of used.keys()) {
+    const plain = line.replace(/\{ui:[^}]+\}/g, "@@");
+    for (const k of names) if (new RegExp(`(?<![\\w{:])${k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w}])`).test(plain)) bare.add(k);
+  }
+  assert.deepEqual([...bare].filter((k) => !baseline.has(k)), [], "write these as {ui:Name}");
+  assert.deepEqual([...baseline].filter((k) => !bare.has(k)), [], "these are written {ui:Name} now: drop them from test/bare-names-baseline.json");
+});
+
+// One word per term in each language: the variants below were drafted later and drifted from the file's own word
+// (the English term, and the word the file and the game use, in the comments). A new line uses the established word.
+const DRIFTED_TERMS = {
+  ru: [/рамки персонажей/, /таймер ударов/, /кликкастинг/, /счётчик урона/, /панелей действий/, /Улучшения экипировки/, /странице отзывов/, /Другие аддоны»/],
+  ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /퀘스트 일지/, /Retail/],
+  es: [/página de Feedback/, /entrenador/],
+  "es-mx": [/calabozo/, /«|»/],
+  fr: [/page Feedback/, /minuteur de coups/],
+  it: [/addestrator/, /ranghi degli/, /Silenzioso restituisce/, /registro dei tiri/, /targhette dei nomi/],
+  "pt-br": [/treinador/, /graduaç/, /do mercador/, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/],
+  "zh-tw": [/框體/, /配置文件/],
+};
+
+test("a translation keeps its file's own word for a term, not a later variant", () => {
+  const problems = [];
+  for (const [code, patterns] of Object.entries(DRIFTED_TERMS)) {
+    for (const [line, tr] of proseOf(code)) {
+      const text = typeof tr === "string" ? tr : Object.values(tr).join(" ");
+      const plain = text.replace(/\{ui:[^}]+\}/g, "").replace(/\/vg [^ ]*/g, "");
+      for (const re of patterns) if (re.test(plain)) problems.push(`${code} ${re}: ${line.slice(0, 60)}`);
+    }
+  }
+  assert.deepEqual(problems, []);
 });
 
 test("the addon's words used in {ui:Text} need no HTML escaping", () => {
