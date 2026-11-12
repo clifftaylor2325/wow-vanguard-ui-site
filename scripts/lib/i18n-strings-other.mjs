@@ -207,7 +207,7 @@ export const STRINGS_KO = {
   "glance.more": "다음 버전에서 **{n}**개 추가",
   "group.moreNext": "다음 버전 {n}개",
   "area.General": "일반",
-  "area.Unit frames": "개체 창",
+  "area.Unit frames": "개체창",
   "area.Raid and group": "공격대와 파티",
   "area.Action bars": "행동 단축바",
   "area.Map and HUD": "지도와 HUD",
