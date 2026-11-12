@@ -780,20 +780,25 @@ test("the shared builder gives the page's preview and the Function the same text
 });
 
 // Hostile pastes that made the parsers and the sanitizer quadratic: long runs of
-// white space or of non-space characters on one line.
-test("bugIssue answers a 20,000-character hostile report in well under 50 ms", async () => {
-  const spaces = " ".repeat(19_990);
+// white space or of non-space characters on one line. The cost is linear now (about 20 ms for 40,000 characters), and the
+// quadratic form took seconds at this size, so the budget sits far from both; the best of three runs keeps a cold
+// start or a busy machine from failing it.
+test("bugIssue answers a 40,000-character hostile report in well under a quadratic parser's time", async () => {
+  const spaces = " ".repeat(39_990);
   const hostile = [
     `a${spaces}b`,
     `a${spaces}b (x1)`,
-    `Vanguard 1.0\nbuild ${"x".repeat(19_980)} (1)`,
-    `${"a".repeat(10)}\n${"\n".repeat(19_980)}b`,
+    `Vanguard 1.0\nbuild ${"x".repeat(39_980)} (1)`,
+    `${"a".repeat(10)}\n${"\n".repeat(39_980)}b`,
   ];
   for (const report of hostile) {
-    const started = performance.now();
-    await bugIssue(readFields(bugFields({ report })), "FUI-ABCDEF");
-    const took = performance.now() - started;
-    assert.ok(took < 50, `${took.toFixed(0)} ms for ${JSON.stringify(report.slice(0, 20))}`);
+    let best = Infinity;
+    for (let run = 0; run < 3; run++) {
+      const started = performance.now();
+      await bugIssue(readFields(bugFields({ report })), "FUI-ABCDEF");
+      best = Math.min(best, performance.now() - started);
+    }
+    assert.ok(best < 250, `${best.toFixed(0)} ms for ${JSON.stringify(report.slice(0, 20))}`);
   }
 });
 
