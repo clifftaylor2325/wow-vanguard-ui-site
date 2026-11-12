@@ -9,7 +9,7 @@
 export function commandWords(slashLua) {
   const table = (/^local COMMANDS = \{\n([\s\S]*?)\n\}/m.exec(slashLua) || [])[1] || "";
   const words = new Map([...table.matchAll(/^\s*(\w+) =/gm)].map((m) => [m[1], new Set()]));
-  for (const [, syntax] of slashLua.matchAll(/^\s*\{ "([^"]+)", (?:L\[)?"/gm)) {
+  for (const [, syntax] of slashLua.matchAll(/^\s*\{ "([^"]+)",\s*(?:L\[)?"/gm)) {
     for (const part of syntax.split(/,\s*|\s+\|\s+/)) {
       const [name, ...rest] = part.replace(/<[^>]*>/g, " ").split(/[^a-z0-9]+/).filter(Boolean);
       if (!words.has(name)) words.set(name, new Set());

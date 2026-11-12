@@ -334,6 +334,11 @@ test("a command is read with its own words, placeholders and groups, and stops a
   assert.notDeepEqual(commandsIn("/vg zurücksetzen <Rahmen|jeden>", words), commandsIn("/vg reset <frame|all>", words));
 });
 
+test("a help entry whose text sits on the next line still gives its command its words", () => {
+  assert.deepEqual([...words.get("errors")].sort(), ["clear", "resume"]);
+  assert.deepEqual([...words.get("profile")].includes("copy"), true);
+});
+
 test("a menu path shows /vg as a command, apart from the translated page names; attributes keep theirs", () => {
   assert.equal(menuPaths('<p data-search="/vg → Módulos">Bajo <strong>/vg → Módulos</strong>.</p>'), '<p data-search="/vg → Módulos">Bajo <strong><code>/vg</code> → Módulos</strong>.</p>');
 });
