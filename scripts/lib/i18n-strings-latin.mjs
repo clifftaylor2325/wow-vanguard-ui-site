@@ -142,7 +142,7 @@ export const STRINGS_DE = {
   "feat.offBadge": "Aus, bis du es einschaltest",
   "feat.everyOn": "Jedes Modul ist an, außer es ist mit {badge} markiert",
   "feat.search": "Module durchsuchen",
-  "feat.placeholder": "Module durchsuchen, zum Beispiel: raid, bags, cast bar",
+  "feat.placeholder": "Module durchsuchen, zum Beispiel: Schlachtzug, Taschen, Zauberleiste",
 };
 
 export const STRINGS_FR = {
@@ -278,7 +278,7 @@ export const STRINGS_FR = {
   "feat.offBadge": "Désactivé tant que vous ne l’activez pas",
   "feat.everyOn": "Chaque module est activé, sauf s’il est marqué {badge}",
   "feat.search": "Chercher un module",
-  "feat.placeholder": "Chercher un module, par exemple : raid, bags, cast bar",
+  "feat.placeholder": "Chercher un module, par exemple : raid, sacs, incantation",
 };
 
 export const STRINGS_ES = {
@@ -414,7 +414,7 @@ export const STRINGS_ES = {
   "feat.offBadge": "Desactivado hasta que lo actives",
   "feat.everyOn": "Todos los módulos están activados salvo los marcados con {badge}",
   "feat.search": "Buscar módulos",
-  "feat.placeholder": "Buscar módulos, por ejemplo: raid, bags, cast bar",
+  "feat.placeholder": "Buscar módulos, por ejemplo: banda, bolsas, barra de lanzamiento",
 };
 
 export const STRINGS_ES_MX = {
@@ -561,7 +561,7 @@ export const STRINGS_IT = {
   "feat.offBadge": "Disattivo finché non lo attivi",
   "feat.everyOn": "Ogni modulo è attivo, salvo quelli contrassegnati con {badge}",
   "feat.search": "Cerca moduli",
-  "feat.placeholder": "Cerca moduli, per esempio: raid, bags, cast bar",
+  "feat.placeholder": "Cerca moduli, per esempio: incursione, borse, barra di lancio",
 };
 
 export const STRINGS_PT_BR = {
@@ -697,5 +697,5 @@ export const STRINGS_PT_BR = {
   "feat.offBadge": "Desligado até você ligar",
   "feat.everyOn": "Todo módulo vem ligado, exceto os marcados com {badge}",
   "feat.search": "Buscar módulos",
-  "feat.placeholder": "Buscar módulos, por exemplo: raid, bags, cast bar",
+  "feat.placeholder": "Buscar módulos, por exemplo: raide, bolsas, barra de lançamento",
 };

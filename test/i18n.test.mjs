@@ -257,22 +257,27 @@ test("a prose line names no new addon control bare: it uses {ui:Text}", () => {
 // (the English term, and the word the file and the game use, in the comments). A new line uses the established word.
 // Every translated text is read (the page prose, the Troubleshooting and Support drafts, the site strings); es-mx also takes es's.
 const DRIFTED_TERMS = {
-  de: [/Schlagtimer/, /Würfelverfolger/, /Schrott/, /HUD-Look/, /Gruppentafel/, /Chat-Wächter/, /Nebenhand/, /Questverfolgung/],
-  ru: [/рамки персонажей/, /таймер ударов/, /кликкастинг/, /счётчик урона/, /панел[а-я]* действий/, /Улучшения экипировки/, /странице отзывов/, /Другие аддоны»/, /тренер/],
-  ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /퀘스트 일지/, /Retail/, /측정기/, /정보 (바|막대)/, /픽셀 퍼펙트/, /재능/],
+  de: [/Schlagtimer/, /Würfelverfolger/, /Schrott/, /HUD-Look| -Look\b/, /Gruppentafel/, /Chat-Wächter/, /Nebenhand/, /Questverfolgung/],
+  ru: [/рамки персонажей/, /таймер ударов/, /кликкастинг/, /счётчик урона/, /панел[а-я]* действий/, /Улучшения экипировки/, /странице отзывов/, /Другие аддоны»/, /тренер/, /Автоприём/, /Более безопасные цвета/, /помощник Legacy/, /панель брокеров/],
+  ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /퀘스트 일지/, /Retail/, /측정기/, /정보 (바|막대)/, /픽셀 퍼펙트/, /재능/, /옵션 창/, /(?<!단축)키 설정/, /개체 창/, /공격대 프레임/, /브로커 줄/],
   es: [/cronômetro/, /temporizador de golpes/, /página de Feedback/, /entrenador/, /cola de fabricación/, /registro de tiradas/, /tira de información/, /más se vende/],
   "es-mx": [/calabozo/, /«|»/],
-  fr: [/page Feedback/, /minuteur de coups/, /barres? d’info\b/, /(?<![\w/-])chat(?![\w/-])/, /Looks? du HUD/, /lancer au clic/, /panneau du personnage/, /bandeau d’infos/, /entraîneur/],
-  it: [/addestrator/, /ranghi degli/, /Silenzioso restituisce/, /registro dei tiri/, /targhett/, /(monitoraggio|tracciamento) (delle )?missioni/, /barra informazioni/, /lancio con clic/],
-  "pt-br": [/treinador/, /graduaç/, /mercador/i, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/, /mascote/, /temporizador de golpes/, /fila de fabricação/, /curandeiro/],
+  fr: [/page Feedback/, /minuteur de coups/, /barres? d’info\b/, /(?<![\w/-])chat(?![\w/-])/, /(?<![{\w])looks?(?![}\w])/i, /\bdu HUD\b/, /lancer au clic/, /panneau du personnage/, /bandeau d’infos/, /entraîneur/, /barre broker/],
+  it: [/addestrator/, /ranghi degli/, /Silenzioso restituisce/, /registro dei tiri/, /targhett/, /(monitoraggio|tracciamento) (delle )?missioni/, /barra informazioni/, /lancio con clic/, /(?<![{\w])look(?![}\w])/i, /timer dei colpi/, /barra broker/],
+  "pt-br": [/treinador/, /graduaç/, /mercador/i, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/, /mascote/, /temporizador de golpes/, /fila de fabricação/, /curandeiro/, /barra broker/],
   "zh-cn": [/准备确认/, /团队格子/, /威胁/],
-  "zh-tw": [/框體/, /配置文件/, /就位確認/, /揮擊計時器/, /正式版/, /姓名板/, /動作條/, /揹包/, /標籤頁/, /嚮導/, /拍賣行/, /“|”/],
+  "zh-tw": [/框體/, /配置文件/, /就位確認/, /揮擊計時器/, /正式版/, /姓名板/, /動作條/, /揹包/, /標籤頁/, /嚮導/, /拍賣行/, /“|”/, /滑鼠提示/, /(?<!版面|初始|入門|治療|職業的)配置/],
 };
+
+// A pattern matches in any letter case, except Korean /Retail/: with the flag it would also match the _retail_ folder name and the {retail} slot.
+function ignoringCase(re) {
+  return re.source === "Retail" || re.flags.includes("i") ? re : new RegExp(re.source, `${re.flags}i`);
+}
 
 test("a translation keeps its file's own word for a term, not a later variant", () => {
   const problems = [];
   for (const loc of LOCALES) {
-    const patterns = [...(loc.code === "es-mx" ? DRIFTED_TERMS.es : []), ...(DRIFTED_TERMS[loc.code] ?? [])];
+    const patterns = [...(loc.code === "es-mx" ? DRIFTED_TERMS.es : []), ...(DRIFTED_TERMS[loc.code] ?? [])].map(ignoringCase);
     for (const [key, , text] of translatedPairs(loc)) {
       const plain = text.replace(/\{ui:[^}]+\}/g, "").replace(/\/vg [^ ]*/g, "");
       for (const re of patterns) if (re.test(plain)) problems.push(`${loc.code} ${re}: ${key.slice(0, 60)}`);
@@ -281,11 +286,20 @@ test("a translation keeps its file's own word for a term, not a later variant", 
   assert.deepEqual(problems, []);
 });
 
-// A Korean particle depends on the last sound of the word before it, and the page fills a {ui:Name} (or a {placeholder} in <strong>)
+// A translated text uses its language's quotation marks, never a straight " (inside a tag, an attribute's quotes are fine).
+test("a translated text holds no straight double quote outside tags", () => {
+  const problems = [];
+  for (const loc of LOCALES) {
+    for (const [key, , text] of translatedPairs(loc)) if (/"/.test(text.replace(/<[^>]*>/g, ""))) problems.push(`${loc.code}: ${key.slice(0, 60)}`);
+  }
+  assert.deepEqual(problems, []);
+});
+
+// A Korean particle depends on the last sound of the word before it, and the page fills a {ui:Name} (or a {placeholder} in <strong> or in quotes)
 // with the addon's own word, which the line cannot know. So the line writes the paired form (은(는), 이(가), 을(를), 와(과), (으)로).
 test("a Korean line pairs the particle after an addon name it fills in", () => {
-  const name = String.raw`(?:\{ui:[^}]+\}|<strong>\{\w+\}</strong>)`;
-  const single = new RegExp(`${name}(?:[”"」]\\((?![으이는가를과]\\))[^)]*\\)|[”"」]?)(은|는|이|가|을|를|와|과|으로|로|이며)(?![가-힣(])`);
+  const name = String.raw`(?:\{ui:[^}]+\}|<strong>\{\w+\}</strong>|[“‘]\{\w+\}(?=[”’]))`;
+  const single = new RegExp(`${name}(?:[”"」’]\\((?![으이는가를과]\\))[^)]*\\)|[”"」’]?)(은|는|이|가|을|를|와|과|으로|로|이며)(?![가-힣(])`);
   const ko = LOCALES.find((l) => l.code === "ko");
   const wrong = translatedPairs(ko).map(([key, , text]) => [key, text]).filter(([, text]) => single.test(text));
   assert.deepEqual(wrong.map(([key, text]) => `${key.slice(0, 50)}: ${text.match(single)[0]}`), []);
@@ -688,4 +702,41 @@ test("a built Getting started page uses each language's own words for General �
       assert.ok(body.includes(want), `${l.code}: “${want}”`);
     }
   }
+});
+
+// The page fills a quoted sentence the line cannot know, so the quote particle (이라고 after a final consonant, 라고 after none)
+// is checked on the built Korean pages, by the last Hangul letter before the closing quote. Latin or digit endings are skipped.
+test("a built Korean page puts 이라고 or 라고 after a quote by its last sound", () => {
+  const pages = fs.readdirSync(path.join(out, "ko"), { recursive: true }).filter((f) => String(f).endsWith("index.html"));
+  assert.ok(pages.length > 10);
+  const wrong = [];
+  for (const page of pages) {
+    const plain = text(fs.readFileSync(path.join(out, "ko", String(page)), "utf8"));
+    for (const m of plain.matchAll(/([가-힣A-Za-z0-9])[.?!]?[’”」"](이라고|라고)/g)) {
+      const code = m[1].charCodeAt(0);
+      if (code < 0xac00 || code > 0xd7a3) continue;
+      const hasFinal = (code - 0xac00) % 28 !== 0;
+      if (hasFinal !== (m[2] === "이라고")) wrong.push(`${page}: ${plain.slice(Math.max(0, m.index - 20), m.index + 8)}`);
+    }
+  }
+  assert.deepEqual(wrong, []);
+});
+
+// The wizard marks the detected size with the whole Locales text "{screen} (…)  ·  your screen", so a page in another language
+// quotes the client's own word for it, and the English page still says "your screen".
+test("Getting started quotes the client's word for the marked screen size, English only in English", () => {
+  const body = (dir) => text(html(dir, "/start/").match(/<main[\s\S]*<\/main>/)[0]);
+  assert.ok(body("ko").includes("“내 화면”"), "the Korean client's word");
+  assert.ok(!body("ko").includes("your screen"), "no English fragment in Korean");
+  assert.ok(body("").includes("“your screen”"), "English reads as before");
+});
+
+// The client prints the translated text "Import failed: {reason}.", so Troubleshooting quotes the part before the reason in the
+// addon's language, not as an English fragment.
+test("Troubleshooting quotes the client's translated 'Import failed:' lead, English only in English", () => {
+  const body = (dir) => html(dir, "/help/");
+  assert.ok(body("ko").includes("“가져오기 실패:”"), "the Korean client's text");
+  assert.ok(!/<span lang="en">Import failed:/.test(body("ko")), "not marked as English");
+  assert.ok(body("zh-cn").includes("导入失败："), "the Simplified Chinese text");
+  assert.ok(body("").includes("“Import failed:”"), "English reads as before");
 });
