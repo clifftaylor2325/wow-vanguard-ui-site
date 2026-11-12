@@ -83,6 +83,7 @@ export const ENGLISH_STRINGS = {
   "notFound.home": "home page",
   "badge.next": "Next release",
   "badge.retailOnly": "Retail only",
+  "badge.foreverOnly": "WoW Forever only",
   "badge.old": "v{version} only",
   "badge.reload": "Needs reload",
   "source": "Source",

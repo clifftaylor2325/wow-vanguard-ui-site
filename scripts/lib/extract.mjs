@@ -4,7 +4,7 @@
 // the setup wizard's choices. Extraction is deliberately narrow; the test
 // suite fails if anything the Lua defines doesn't reach the site.
 import { mask, findTable, blocks, parseTable, parseValue, splitTop, matchBracket, readString, plain } from "./lua.mjs";
-import { tocFiles, tocMeta, tocRetailOnly } from "./source.mjs";
+import { tocFiles, tocMeta, tocRetailOnly, tocForeverOnly } from "./source.mjs";
 
 // Reads and masks a Lua file (null when the ref doesn't have it).
 function luaFile(reader, file) {
@@ -343,9 +343,10 @@ function captionNames(ctx, i) {
   if (!text) return [];
   const entries = fieldEntries(ctx, text[0], i);
   if (entries) return entries.map((e) => ({ caption: e.value, variable: null, end: i + text[0].length, entryKey: e.key }));
-  const retail = new Set((ctx.constants?.get(text[0]) || []).filter((c) => c.retail).map((c) => c.text));
+  const own = (flag) => new Set((ctx.constants?.get(text[0]) || []).filter((c) => c[flag]).map((c) => c.text));
+  const [retail, forever] = [own("retail"), own("forever")];
   const constant = ctx.constants?.has(text[0]);
-  return (captionChoices(ctx, text[0], i) || []).map((value) => ({ caption: value, variable: null, end: i + text[0].length, retail: retail.has(value), constant }));
+  return (captionChoices(ctx, text[0], i) || []).map((value) => ({ caption: value, variable: null, end: i + text[0].length, retail: retail.has(value), forever: forever.has(value), constant }));
 }
 
 // The rows of a constant table a loop walks, when the caption is one field of its loop variable
@@ -483,6 +484,7 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
       const row = makeRow(ctx, kind, cap.caption, parts.slice(capIdx + 1), loopFor, wrappedInReloadRow(ctx, f.at));
       if (cap.key) row.key = cap.key;
       if (cap.retail) Object.assign(row, { clientOnly: "retail", retailName: true });
+      if (cap.forever) row.clientOnly = "forever";
       if (cap.entryKey) row.ref ??= entryRef(m.code.slice(open, close), cap.entryKey);
       if (kind === "visibility") row.choices = ctx.visibility(m.code.slice(open, close));
       if (here && !loopFor) row.repeated = here;
@@ -556,13 +558,15 @@ export function extractRowTips(reader) {
 export function extractPages(reader, files, modules, skipped = []) {
   const visibility = visibilityChoices(reader);
   const contexts = files.map((file) => pageContext(reader, file, visibility, skipped)).filter(Boolean);
-  const retailOnly = tocRetailOnly(reader.read("Vanguard.toc") || reader.read("ForeverUI.toc") || "");
-  for (const ctx of contexts) ctx.retailOnly = retailOnly.has(ctx.file);
+  const toc = reader.read("Vanguard.toc") || reader.read("ForeverUI.toc") || "";
+  const [retailOnly, foreverOnly] = [tocRetailOnly(toc), tocForeverOnly(toc)];
+  for (const ctx of contexts) Object.assign(ctx, { retailOnly: retailOnly.has(ctx.file), foreverOnly: foreverOnly.has(ctx.file) });
   const globals = rowFunctions(contexts);
   const constants = captionConstants(contexts);
   for (const ctx of contexts) Object.assign(ctx, { globals, constants, contexts });
   const pages = contexts.flatMap((ctx) => filePages(ctx));
   for (const ctx of contexts) addedRows(ctx, pages);
+  markForeverModules(pages, modules.filter((m) => foreverOnly.has(m.file)).map((m) => m.name));
   for (const p of pages) p.rows = withoutEmptyGroups(dedupe(p.rows));
   pages.sort((a, b) => a.order - b.order);
   applyDefaults(pages, modules, reader);
@@ -587,7 +591,7 @@ function captionConstants(contexts) {
   for (const { m } of contexts) {
     const published = new Map([...m.code.matchAll(/^ns\.(\w+)\s*=\s*(\w+)\s*$/gm)].map((x) => [x[2], `ns.${x[1]}`]));
     const plainOnes = [...m.code.matchAll(/^([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*=\s*"((?:[^"\\\n]|\\.)*)"\s*$/gm)].map((x) => [x[1], x[2], [{ text: x[3], retail: false }]]);
-    const perClient = [...m.code.matchAll(/^([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*=\s*ns\.ClientData\(\{\s*forever\s*=\s*"((?:[^"\\\n]|\\.)*)",\s*retail\s*=\s*"((?:[^"\\\n]|\\.)*)",?\s*\}\)/gm)].map((x) => [x[1], x[2], [{ text: x[3], retail: false }, { text: x[4], retail: true }]]);
+    const perClient = [...m.code.matchAll(/^([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*=\s*ns\.ClientData\(\{\s*forever\s*=\s*"((?:[^"\\\n]|\\.)*)",\s*retail\s*=\s*"((?:[^"\\\n]|\\.)*)",?\s*\}\)/gm)].map((x) => [x[1], x[2], [{ text: x[3], retail: false, forever: true }, { text: x[4], retail: true }]]);
     for (const [table, field, values] of [...plainOnes, ...perClient]) {
       for (const name of [table, published.get(table)].filter(Boolean)) out.set(`${name}.${field}`, values);
     }
@@ -628,14 +632,26 @@ function filePages(ctx) {
     if (!rowsV || typeof f.title !== "string") continue;
     const key = typeof f.key === "string" ? f.key : f.key?.expr ? resolveConst(m, f.key.expr) : f.title.toLowerCase();
     const range = rowsV.expr !== undefined ? [rowsV.from, rowsV.to] : [t.from, t.to];
-    pages.push({ key, title: f.title, order: typeof f.order === "number" ? f.order : 999, file, rows: fromClient(ctx, expandRows(ctx, range[0], range[1])) });
+    const rows = expandRows(ctx, range[0], range[1]);
+    const page = { key, title: f.title, order: typeof f.order === "number" ? f.order : 999, file };
+    pages.push(ctx.foreverOnly ? { ...page, clientOnly: "forever", rows } : { ...page, rows: fromClient(ctx, rows) });
   }
   return pages;
 }
 
-// Rows from a file only Retail loads (read from the TOC's load flags) carry clientOnly: "retail".
+// Rows from a file only one client loads (read from the TOC's load flags) carry clientOnly: "retail" or "forever".
 function fromClient(ctx, rows) {
-  return ctx.retailOnly ? rows.map((r) => ({ ...r, clientOnly: "retail" })) : rows;
+  const only = ctx.retailOnly ? "retail" : ctx.foreverOnly ? "forever" : null;
+  return only ? rows.map((r) => ({ ...r, clientOnly: only })) : rows;
+}
+
+// A row whose setting belongs to a module only WoW Forever loads is a Forever-only row, wherever its page is
+// (the threat readouts on Unit frames, the swing timer): it carries clientOnly "forever" unless its page already does.
+function markForeverModules(pages, names) {
+  const forever = new Set(names);
+  for (const p of pages.filter((x) => !x.clientOnly)) {
+    p.rows = p.rows.map((r) => (!r.clientOnly && forever.has(r.ref?.scope) ? { ...r, clientOnly: "forever" } : r));
+  }
 }
 
 // Rows a file adds to another file's page: ns.Options.AddRows("page", Fn[, true]) (after the page's own rows, or

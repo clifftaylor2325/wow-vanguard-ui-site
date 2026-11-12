@@ -49,15 +49,25 @@ export function tocFiles(tocText) {
     .map((l) => l.replace(/\\/g, "/"));
 }
 
-// The files only the Retail client loads: the TOC line allows `standard` and excludes `camelot` (WoW Forever).
-export function tocRetailOnly(tocText) {
+// The files only one client loads: the TOC line allows `allowed` and excludes `excluded` (game types).
+function tocLoadedOnlyOn(tocText, allowed, excluded) {
   const out = new Set();
   for (const raw of tocText.split(/\r?\n/)) {
     const line = raw.trim();
-    if (!/\[AllowLoadGameType standard\]/.test(line) || !/\[ExcludeLoadGameType camelot\]/.test(line)) continue;
+    if (!line.includes(`[AllowLoadGameType ${allowed}]`) || !line.includes(`[ExcludeLoadGameType ${excluded}]`)) continue;
     out.add(line.replace(/(\s*\[[^\]]*\])+$/, "").replace(/\\/g, "/"));
   }
   return out;
+}
+
+// The files only the Retail client loads: the TOC line allows `standard` and excludes `camelot` (WoW Forever).
+export function tocRetailOnly(tocText) {
+  return tocLoadedOnlyOn(tocText, "standard", "camelot");
+}
+
+// The files only WoW Forever loads: the TOC line allows `camelot` and excludes `standard` (Retail).
+export function tocForeverOnly(tocText) {
+  return tocLoadedOnlyOn(tocText, "camelot", "standard");
 }
 
 // "## Key: value" metadata from the TOC.

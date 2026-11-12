@@ -14,11 +14,11 @@ import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYR
 import { helpPage, licenseSummary, profilesPage, changelogPage, feedbackPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
-import { tocRetailOnly } from "../scripts/lib/source.mjs";
+import { tocRetailOnly, tocForeverOnly } from "../scripts/lib/source.mjs";
 import { featuresPage, startsOff, startPage, settingsPage, commandsPage } from "../scripts/lib/pages-main.mjs";
 import { MORE, capitalised } from "../scripts/lib/features-content.mjs";
 import { gitReader, unwrapLocale } from "../scripts/lib/source.mjs";
-import { publishedLocales, EN } from "../scripts/lib/i18n-site.mjs";
+import { publishedLocales, EN, LOCALES } from "../scripts/lib/i18n-site.mjs";
 import * as EXTRACT from "../scripts/lib/extract.mjs";
 const { extractAddon, extractPages, specReader } = EXTRACT;
 import { buildModel, AREAS } from "../scripts/lib/model.mjs";
@@ -1554,4 +1554,29 @@ test("Features search covers the Other addons rows", () => {
   assert.match(html, /<details class="disclosure area"[^>]*>\s*<summary><h2 id="other-addons">/);
   const table = html.match(/<table class="stack overlaps">[^]*?<\/table>/)[0];
   assert.ok(!/data-count/.test(table), "the rows are not counted as modules");
+});
+
+// The mirror of "Retail only": rows of files the TOC loads on WoW Forever only, rows whose setting belongs to a module
+// from such a file, and the Forever text of a per-client caption wear "WoW Forever only"; a page of its own (Talents)
+// wears it once on its heading instead of on every row.
+test("Settings marks what only WoW Forever has, in every language", () => {
+  const toc = "Modules/A.lua\nModules/RetailWindows.lua [AllowLoadGameType standard] [ExcludeLoadGameType camelot]\nModules/Forever.lua [AllowLoadGameType camelot] [ExcludeLoadGameType standard]\n";
+  assert.deepEqual([...tocForeverOnly(toc)], ["Modules/Forever.lua"]);
+  const next = extractAddon(gitReader(cfg.sourcePath, refs.next));
+  const forever = tocForeverOnly(show(refs.next, "Vanguard.toc"));
+  assert.ok(forever.size >= 5, "the TOC has Forever-only files");
+  const modules = new Set(next.modules.filter((m) => forever.has(m.file)).map((m) => m.name));
+  const unmarked = next.pages.flatMap((p) => p.rows.filter((r) => (forever.has(p.file) && !p.clientOnly) || modules.has(r.ref?.scope)).filter((r) => !p.clientOnly && r.clientOnly !== "forever").map((r) => `${p.key}: ${r.caption}`));
+  assert.deepEqual(unmarked, [], "rows of Forever-only files and modules without the mark");
+  const html = page("settings");
+  for (const name of ["Swing timer", "Your threat on your target", "Notice older ranks on bars", "Druid mana in bear and cat form"]) {
+    assert.ok(/WoW Forever only/.test(settingsRow(html, name)), `${name} wears the mark`);
+  }
+  assert.match(html, /<h2 id="talents">Talents<\/h2><span class="dis-meta">[^<]*<span class="badge plain">WoW Forever only<\/span>/, "the Talents heading wears it once");
+  assert.ok(!/WoW Forever only/.test(settingsRow(html, "Talent planner")), "and not each of its rows");
+  assert.ok(!/WoW Forever only/.test(settingsRow(html, "Show bar")), "an ordinary row has none");
+  for (const loc of LOCALES.filter((l) => cfg.locales.includes(l.code))) {
+    assert.ok(loc.strings["badge.foreverOnly"].includes("WoW Forever"), `${loc.code} has its word for it`);
+    assert.ok(page(`${loc.code}/settings`).includes(loc.strings["badge.foreverOnly"]), `${loc.code} page shows it`);
+  }
 });

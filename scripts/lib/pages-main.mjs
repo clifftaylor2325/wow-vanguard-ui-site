@@ -1088,7 +1088,7 @@ function optRow(r, version, pageTitle, id, loc) {
   const attrs = `data-avail="${avail(r.inRel, r.inNext)}" data-search="${esc(rowSearch(r, pageTitle, loc))}"`;
   if (r.kind === "header" || r.kind === "text") return wideRow(r, attrs, version, loc);
   const loop = r.loop ? ` <span class="small">(${esc(r.loop.variable)} = ${loc.t("set.range", { min: r.loop.from, max: r.loop.to })})</span>` : "";
-  const tags = [r.reload ? reloadBadge(loc) : "", r.clientOnly === "retail" ? `<span class="badge plain">${loc.t("badge.retailOnly")}</span>` : "", badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
+  const tags = [r.reload ? reloadBadge(loc) : "", clientBadge(r.clientOnly, loc), badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
   const kind = KINDS.includes(r.kind) ? ` <span class="opt-kind">${loc.t(`kind.${r.kind}`)}</span>` : "";
   const cells = [valuesText(r, loc), defaultText(r, loc)].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
   return `<tr class="opt-row opt-item" id="${id}"${countsAsSetting(r) ? " data-count" : ""} ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${tags ? ` ${tags}` : ""}${kind}${rowTip(r, loc)}</th>${cells.join("")}</tr>`;
@@ -1132,12 +1132,18 @@ function pageCount(p, loc) {
   return `${rel ? loc.n("set.count", rel) : ""}${more ? nextOnly(`${rel ? " + " : ""}${loc.t("group.moreNext", { n: more })}`) : ""}`;
 }
 
+// The "Retail only" or "WoW Forever only" badge for a row or page that only one client has ("" for both).
+function clientBadge(only, loc) {
+  const key = { retail: "badge.retailOnly", forever: "badge.foreverOnly" }[only];
+  return key ? `<span class="badge plain">${loc.t(key)}</span>` : "";
+}
+
 // One options page, folded: its heading opens a table of its settings (one card per row on narrow screens).
 function pageSection(p, model, used, loc) {
   const head = `<thead><tr>${COLS.map((c) => `<th scope="col">${loc.t(c)}</th>`).join("")}</tr></thead>`;
   const b = badge(p.inRel, p.inNext, model.version, loc);
   return `<details class="opt-page disclosure" data-page="${esc(p.key)}"${p.inRel ? "" : ' data-avail="next"'}>
-<summary><h2 id="${p.id}">${esc(loc.addon(p.title))}</h2><span class="dis-meta">${pageCount(p, loc)}${b ? ` ${b}` : ""}</span></summary>
+<summary><h2 id="${p.id}">${esc(loc.addon(p.title))}</h2><span class="dis-meta">${pageCount(p, loc)}${[clientBadge(p.clientOnly, loc), b].filter(Boolean).map((x) => ` ${x}`).join("")}</span></summary>
 <div class="dis-body">
 <table class="opt-table" aria-labelledby="${p.id}">${head}<tbody>
 ${pageRows(p, model.version, used, loc)}
