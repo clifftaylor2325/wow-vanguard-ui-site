@@ -812,6 +812,13 @@ test("Settings lists a module only the next release has behind the Next release 
   for (const m of behind.model.modules.filter((x) => x.inRel)) assert.ok(!note.includes(`data-avail="next">, <a href="/features/#${m.id}">`), `${m.key} is current`);
 });
 
+// Core/Options.lua's resetProfile asks (confirmReset) before it backs the profile up and resets it.
+test("Profiles says the Reset profile button asks first, with the addon's own question", () => {
+  const html = page("profiles");
+  assert.ok(!/straight away and without asking first/.test(html));
+  assert.match(html, /it asks “Reset this profile\?” first, then keeps a copy of the profile and resets it/);
+});
+
 // With the release behind the source, the wizard is the release's, and what only the next release adds is tagged.
 test("Getting started tags the wizard layouts only the next release has", () => {
   const behind = behindModel();

@@ -516,7 +516,6 @@
  "“{a}” or “{b}”": "「{a}」或「{b}」",
  "Copies that profile's settings over the one you'll use after the reload, then offers a reload.": "把該設定檔的設定複製到重新載入後你將使用的設定檔上，然後提供重新載入。",
  "Asks first (“{ask}”), keeps a copy of the profile you're using, then puts every setting in it back to its default; reload to apply.": "先詢問（「{ask}」），保留你正在使用的設定檔的一份副本，然後把其中的每項設定還原為預設值；重新載入後才會套用。",
- "On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>, straight away and without asking first. The options window then shows its <strong>{ui:Reload now}</strong> button.": "在設定檔頁面上，<strong>{reset}</strong> 的作用與 <code>/vg profile reset</code> 相同，只是會立即執行，不先詢問。設定視窗接著會顯示它的 <strong>{ui:Reload now}</strong> 按鈕。",
  "Move a profile to another account or PC": "把設定檔移到另一個帳號或電腦",
  "its scale": "它的縮放",
  "width": "寬度",
@@ -1300,5 +1299,6 @@
  "It is off until you turn it on under {ui:Unit frames}, and the switch applies at once, or when the fight ends.": "在 {ui:Unit frames} 中開啟前它是關閉的，開關會立即生效，或在戰鬥結束後生效。",
  "A small, display-only row of icons for what the game's Cooldown Manager misses: the on-use trinkets you wear, items and spells you choose, your pet's abilities and totems you have down. It adds to the game's manager and never replaces it. Off until you switch it on; it applies at once, or when the fight ends.": "一排小型、僅供顯示的圖示，顯示遊戲的冷卻管理器所缺少的東西：你穿戴的使用型飾品、你選擇的物品和法術、你寵物的技能，以及你放下的圖騰。它是對遊戲管理器的補充，絕不取代它。在你開啟之前為關閉；它會立即生效，或在戰鬥結束後生效。",
  "Two switches, both off until you tick them. {ui:Notice older ranks on bars} says in chat when a bar button holds an older rank of a spell you know a higher rank of, and /vg ranks swap puts the newest rank there. {ui:Remember what trainers teach} remembers what each trainer you open teaches, and /vg trainers next lists what the next levels bring.": "兩個開關，勾選之前都是關閉的。{ui:Notice older ranks on bars}會在快捷列按鈕放著你已學會更高等級的法術的舊等級時在聊天視窗告知，/vg ranks swap 則把最新的等級放到那裡。{ui:Remember what trainers teach}會記住你開啟的每位訓練師所教的內容，/vg trainers next 則列出接下來幾級會帶來什麼。",
- "<strong>/vg → {modules}</strong>": "<strong>/vg → {modules}</strong>"
+ "<strong>/vg → {modules}</strong>": "<strong>/vg → {modules}</strong>",
+ "On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>: it asks “{question}” first, then keeps a copy of the profile and resets it. The options window then shows its <strong>{ui:Reload now}</strong> button.": "在設定檔頁面上，<strong>{reset}</strong> 的作用與 <code>/vg profile reset</code> 相同：它會先詢問「{question}」，然後保留一份該設定檔的副本並將其重設。設定視窗接著會顯示它的 <strong>{ui:Reload now}</strong> 按鈕。"
 }
