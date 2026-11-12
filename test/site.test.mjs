@@ -23,7 +23,7 @@ import * as EXTRACT from "../scripts/lib/extract.mjs";
 const { extractAddon, extractPages, specReader } = EXTRACT;
 import { buildModel, AREAS } from "../scripts/lib/model.mjs";
 import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
-import { SHOT_GROUPS, shotByFile } from "../scripts/lib/shots-content.mjs";
+import { SHOT_GROUPS, shotByFile, readyShots } from "../scripts/lib/shots-content.mjs";
 
 const cfg = loadConfig();
 if (!fs.existsSync(path.join(cfg.sourcePath, ".git"))) {
@@ -817,6 +817,15 @@ test("Profiles says the Reset profile button asks first, with the addon's own qu
   const html = page("profiles");
   assert.ok(!/straight away and without asking first/.test(html));
   assert.match(html, /it asks “Reset this profile\?” first, then keeps a copy of the profile and resets it/);
+});
+
+// While no screenshot is ready (every shot waits on a retake) Home, Screenshots and Credits don't send readers to pictures.
+test("Home, Screenshots and Credits mention pictures only while some are ready", () => {
+  const ready = readyShots().length > 0;
+  assert.equal(page("").includes("More pictures are on"), ready);
+  assert.equal(page("screenshots").includes("The same pictures sit beside their module"), ready);
+  assert.equal(/the share card and the screenshots in articles/.test(page("credits")), ready);
+  assert.ok(/You may use the crest (?:, the share card )?and the (?:share card|screenshots)/.test(page("credits")));
 });
 
 // With the release behind the source, the wizard is the release's, and what only the next release adds is tagged.

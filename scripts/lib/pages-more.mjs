@@ -902,7 +902,7 @@ function creditsPress(model, site, loc) {
   <li><a href="/assets/og-image.png">${loc.p("The share card (PNG, 1200 × 630)")}</a></li>
   ${n ? `<li>${loc.pn({ one: `<a href="/screenshots/">{n} in-game screenshot</a>: click one for the full-size file`, other: `<a href="/screenshots/">{n} in-game screenshots</a>: click one for the full-size file` }, n)}</li>` : ""}
 </ul>
-<p class="small">${loc.p("You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.")}</p>`;
+<p class="small">${n ? loc.p("You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.") : loc.p("You may use the crest and the share card in articles and videos about Vanguard. For anything else, ask on Discord first.")}</p>`;
 }
 
 // What this website keeps about a visit: no cookies or trackers, the two choices kept in the
@@ -1010,7 +1010,7 @@ export function screenshotsPage(model, loc = EN) {
     ownDescription: !n,
     translated: true,
     body: `${pageHero(loc.t("title./screenshots/"), lead)}
-${glance([count, ...(model && !model.same ? [loc.p("Shots of things only the next release has hide with the rest of it")] : []), loc.p(`The same pictures sit beside their module on <a href="/features/">Features</a>`)])}
+${glance([count, ...(model && !model.same ? [loc.p("Shots of things only the next release has hide with the rest of it")] : []), ...(n ? [loc.p(`The same pictures sit beside their module on <a href="/features/">Features</a>`)] : [])])}
 <div class="dis-grid">${SHOT_GROUPS.map((g) => shotGroup(g, loc)).join("\n")}</div>
 ${n ? `<p class="small">${loc.p("Taken in WoW Forever with the default Slate and brass look. Names of other players are blurred or cropped out.")}</p>` : ""}`,
   };

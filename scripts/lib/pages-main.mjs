@@ -1,7 +1,7 @@
 // Home, Install & Update, Getting started, Features, Commands and Settings.
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
-import { shotByFile } from "./shots-content.mjs";
+import { shotByFile, readyShots } from "./shots-content.mjs";
 import { supportAsk, esc, md, slug, badge, nextBadge, reloadBadge, avail, shotFigure, ornament, heroFrame, pageHero, storeCtas, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestImg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
@@ -120,8 +120,10 @@ function highlightCard(m, version, loc) {
 
 // The layout at a glance: a real screenshot of the default layout, with what is in it.
 function layoutShot(loc) {
+  const layout = "The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner.";
+  const more = readyShots().length ? loc.p(`${layout} More pictures are on <a href="/screenshots/">Screenshots</a>.`) : loc.p(layout);
   return `${shotFigure(shotByFile("01-hud-overview"), { caption: false, loc, sizes: "wide" })}
-<p class="small">${loc.p(`The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner. More pictures are on <a href="/screenshots/">Screenshots</a>.`)}</p>`;
+<p class="small">${more}</p>`;
 }
 
 // The hero's decorative layers: sky, glow, rune ring, ridges, embers and frame.

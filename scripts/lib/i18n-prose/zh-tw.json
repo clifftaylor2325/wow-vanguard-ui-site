@@ -21,7 +21,6 @@
  "Read more<span class=\"visually-hidden\"> about {name}</span>": "了解更多<span class=\"visually-hidden\">：{name}</span>",
  "The layout at a glance": "版面配置一覽",
  "The default layout": "預設版面配置",
- "The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner. More pictures are on <a href=\"/screenshots/\">Screenshots</a>.": "遊戲中的預設版面配置：玩家與目標框架分列角色兩側，施法條位於兩者之間，快捷列在下方，任務追蹤和資訊列在方形小地圖下，背包與選單列則在角落。更多圖片請見<a href=\"/screenshots/\">截圖</a>。",
  "How to install, update and remove Vanguard: through CurseForge or Wago.": "如何安裝、更新和移除 Vanguard：透過 CurseForge 或 Wago。",
  "Vanguard is on CurseForge and Wago. Install and update it through CurseForge: the CurseForge app or the CurseForge website.": "Vanguard 可在 CurseForge 和 Wago 取得。請透過 CurseForge 安裝和更新：使用 CurseForge 應用程式或 CurseForge 網站。",
  "Install and update it with the CurseForge app or from its page on the CurseForge website, or get it from Wago Addons.": "可以用 CurseForge 應用程式安裝和更新，或到 CurseForge 網站上的頁面下載，也可以從 Wago Addons 取得。",
@@ -436,7 +435,6 @@
  "Posts go after 10 minutes (5 or 20 if you like), and a newer post from the same player replaces the older one.": "貼文在 10 分鐘後消失（你也可以選 5 或 20 分鐘），同一位玩家較新的貼文會取代較舊的。",
  "In dungeons and raids, where the game hides chat from addons, nothing is read.": "在地城和團隊副本中，遊戲會對插件隱藏聊天，所以不會讀取任何東西。",
  "Experimental: it has not been seen working in the game yet, so the board may stay empty. WoW Forever has no Dungeon Finder, so groups form in chat. The board lists each player's latest looking-for-more or looking-for-group post from the numbered channels and yell: the dungeon with its level range, the roles it names, who posted it and how long ago. Click a row to open a whisper; nothing is ever sent for you.": "實驗性功能：尚未在遊戲中看過它運作，所以公告板可能保持空白。WoW Forever 沒有地城搜尋器，所以隊伍是在聊天中組成的。公告板會列出每位玩家在編號頻道和大喊中最新的徵求更多成員或徵求隊伍貼文：地城及其等級範圍、貼文提到的職責、發文者以及多久前發的。點擊一列可開啟密語；絕不會替你傳送任何東西。",
- "The same pictures sit beside their module on <a href=\"/features/\">Features</a>": "同樣的圖片也放在<a href=\"/features/\">功能</a>頁面中各自模組的旁邊",
  "First look": "初見",
  "{n} shots": {
   "other": "{n} 張截圖"
@@ -1105,7 +1103,6 @@
  "News and questions": "消息與提問",
  "The crest (PNG, 1024 × 1024)": "徽記（PNG，1024 × 1024）",
  "The share card (PNG, 1200 × 630)": "分享卡片（PNG，1200 × 630）",
- "You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.": "你可以在介紹 Vanguard 的文章和影片中使用徽記、分享卡片和截圖。其他用途請先在 Discord 詢問。",
  "Privacy": "隱私",
  "This site sets no cookies and loads no analytics, ads or tracking scripts.": "本站不設定 Cookie，也不載入任何分析、廣告或追蹤指令碼。",
  "Your browser keeps two choices of yours on your own device: the language you picked and whether to show what's coming in the next release.": "你的瀏覽器只會在你自己的裝置上保存你的兩個選擇：所選語言，以及是否顯示下一版本的內容。",
@@ -1300,5 +1297,7 @@
  "A small, display-only row of icons for what the game's Cooldown Manager misses: the on-use trinkets you wear, items and spells you choose, your pet's abilities and totems you have down. It adds to the game's manager and never replaces it. Off until you switch it on; it applies at once, or when the fight ends.": "一排小型、僅供顯示的圖示，顯示遊戲的冷卻管理器所缺少的東西：你穿戴的使用型飾品、你選擇的物品和法術、你寵物的技能，以及你放下的圖騰。它是對遊戲管理器的補充，絕不取代它。在你開啟之前為關閉；它會立即生效，或在戰鬥結束後生效。",
  "Two switches, both off until you tick them. {ui:Notice older ranks on bars} says in chat when a bar button holds an older rank of a spell you know a higher rank of, and /vg ranks swap puts the newest rank there. {ui:Remember what trainers teach} remembers what each trainer you open teaches, and /vg trainers next lists what the next levels bring.": "兩個開關，勾選之前都是關閉的。{ui:Notice older ranks on bars}會在快捷列按鈕放著你已學會更高等級的法術的舊等級時在聊天視窗告知，/vg ranks swap 則把最新的等級放到那裡。{ui:Remember what trainers teach}會記住你開啟的每位訓練師所教的內容，/vg trainers next 則列出接下來幾級會帶來什麼。",
  "<strong>/vg → {modules}</strong>": "<strong>/vg → {modules}</strong>",
- "On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>: it asks “{question}” first, then keeps a copy of the profile and resets it. The options window then shows its <strong>{ui:Reload now}</strong> button.": "在設定檔頁面上，<strong>{reset}</strong> 的作用與 <code>/vg profile reset</code> 相同：它會先詢問「{question}」，然後保留一份該設定檔的副本並將其重設。設定視窗接著會顯示它的 <strong>{ui:Reload now}</strong> 按鈕。"
+ "On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>: it asks “{question}” first, then keeps a copy of the profile and resets it. The options window then shows its <strong>{ui:Reload now}</strong> button.": "在設定檔頁面上，<strong>{reset}</strong> 的作用與 <code>/vg profile reset</code> 相同：它會先詢問「{question}」，然後保留一份該設定檔的副本並將其重設。設定視窗接著會顯示它的 <strong>{ui:Reload now}</strong> 按鈕。",
+ "The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner.": "遊戲中的預設版面配置：玩家與目標框架分列角色兩側，施法條位於兩者之間，快捷列在下方，任務追蹤和資訊列在方形小地圖下，背包與選單列則在角落。",
+ "You may use the crest and the share card in articles and videos about Vanguard. For anything else, ask on Discord first.": "你可以在介紹 Vanguard 的文章和影片中使用徽記和分享卡片。其他用途請先在 Discord 詢問。"
 }

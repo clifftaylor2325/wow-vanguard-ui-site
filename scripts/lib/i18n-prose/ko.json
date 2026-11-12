@@ -21,7 +21,6 @@
  "Read more<span class=\"visually-hidden\"> about {name}</span>": "더 보기<span class=\"visually-hidden\"> ({name}에 대해)</span>",
  "The layout at a glance": "한눈에 보는 배치",
  "The default layout": "기본 배치",
- "The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner. More pictures are on <a href=\"/screenshots/\">Screenshots</a>.": "게임 속 기본 배치: 캐릭터 양옆의 플레이어와 대상 프레임, 그 사이의 시전바, 아래쪽의 행동 단축바, 사각형 미니맵 아래의 퀘스트 추적기와 정보 막대, 구석의 가방과 메뉴 막대. 더 많은 사진은 <a href=\"/screenshots/\">스크린샷</a>에 있습니다.",
  "How to install, update and remove Vanguard: through CurseForge or Wago.": "CurseForge나 Wago로 Vanguard를 설치, 업데이트, 제거하는 방법.",
  "Vanguard is on CurseForge and Wago. Install and update it through CurseForge: the CurseForge app or the CurseForge website.": "Vanguard는 CurseForge와 Wago에 있습니다. CurseForge 앱이나 CurseForge 웹사이트로 설치하고 업데이트하세요.",
  "Install and update it with the CurseForge app or from its page on the CurseForge website, or get it from Wago Addons.": "CurseForge 앱이나 CurseForge 웹사이트의 페이지에서 설치하고 업데이트하거나, Wago Addons에서 받으세요.",
@@ -436,7 +435,6 @@
  "Posts go after 10 minutes (5 or 20 if you like), and a newer post from the same player replaces the older one.": "글은 10분 뒤(원하면 5분 또는 20분)에 사라지며, 같은 플레이어의 새 글이 이전 글을 대체합니다.",
  "In dungeons and raids, where the game hides chat from addons, nothing is read.": "게임이 애드온에 대화를 숨기는 던전과 공격대에서는 아무것도 읽지 않습니다.",
  "Experimental: it has not been seen working in the game yet, so the board may stay empty. WoW Forever has no Dungeon Finder, so groups form in chat. The board lists each player's latest looking-for-more or looking-for-group post from the numbered channels and yell: the dungeon with its level range, the roles it names, who posted it and how long ago. Click a row to open a whisper; nothing is ever sent for you.": "실험적 기능: 아직 게임에서 작동하는 것을 확인하지 못해 게시판이 비어 있을 수 있습니다. WoW Forever에는 던전 찾기가 없으므로 파티는 대화로 구성됩니다. 게시판은 번호 채널과 외치기에서 각 플레이어의 최신 파티원 모집 또는 파티 구함 글을 나열합니다. 던전과 레벨 범위, 언급된 역할, 글쓴이, 얼마나 전에 올렸는지가 나옵니다. 줄을 클릭하면 귓속말이 열리며, 대신 보내지는 것은 없습니다.",
- "The same pictures sit beside their module on <a href=\"/features/\">Features</a>": "같은 사진이 <a href=\"/features/\">기능</a> 페이지의 해당 모듈 옆에도 있습니다",
  "First look": "처음 보기",
  "{n} shots": {
   "other": "사진 {n}장"
@@ -1105,7 +1103,6 @@
  "News and questions": "소식과 질문",
  "The crest (PNG, 1024 × 1024)": "문장 (PNG, 1024 × 1024)",
  "The share card (PNG, 1200 × 630)": "공유 카드 (PNG, 1200 × 630)",
- "You may use the crest, the share card and the screenshots in articles and videos about Vanguard. For anything else, ask on Discord first.": "문장, 공유 카드, 스크린샷은 Vanguard에 관한 기사와 영상에 사용할 수 있습니다. 그 밖의 용도는 먼저 Discord에서 문의해 주세요.",
  "Privacy": "개인정보",
  "This site sets no cookies and loads no analytics, ads or tracking scripts.": "이 사이트는 쿠키를 사용하지 않으며 분석, 광고, 추적 스크립트를 불러오지 않습니다.",
  "Your browser keeps two choices of yours on your own device: the language you picked and whether to show what's coming in the next release.": "브라우저는 내 기기에 두 가지 선택만 저장합니다: 고른 언어, 그리고 다음 버전에 나올 내용을 표시할지 여부.",
@@ -1300,5 +1297,7 @@
  "A small, display-only row of icons for what the game's Cooldown Manager misses: the on-use trinkets you wear, items and spells you choose, your pet's abilities and totems you have down. It adds to the game's manager and never replaces it. Off until you switch it on; it applies at once, or when the fight ends.": "게임의 재사용 대기시간 관리자가 놓치는 것을 보여 주는 표시 전용의 작은 아이콘 줄입니다. 착용 중인 사용 효과 장신구, 내가 고른 아이템과 주문, 소환수의 기술, 설치한 토템이 해당합니다. 게임의 관리자를 보완할 뿐 대체하지 않습니다. 켜기 전까지는 꺼져 있으며, 바로 또는 전투가 끝나면 적용됩니다.",
  "Two switches, both off until you tick them. {ui:Notice older ranks on bars} says in chat when a bar button holds an older rank of a spell you know a higher rank of, and /vg ranks swap puts the newest rank there. {ui:Remember what trainers teach} remembers what each trainer you open teaches, and /vg trainers next lists what the next levels bring.": "스위치 두 개이며 모두 체크하기 전까지는 꺼져 있습니다. {ui:Notice older ranks on bars}은 단축바 버튼에 내가 더 높은 등급을 아는 주문의 낮은 등급이 있을 때 대화창에 알리며, /vg ranks swap은 그 자리에 최신 등급을 넣습니다. {ui:Remember what trainers teach}은 열어 본 각 훈련사가 가르치는 것을 기억하며, /vg trainers next는 다음 레벨에 무엇이 오는지 나열합니다.",
  "<strong>/vg → {modules}</strong>": "<strong>/vg → {modules}</strong>",
- "On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>: it asks “{question}” first, then keeps a copy of the profile and resets it. The options window then shows its <strong>{ui:Reload now}</strong> button.": "프로필 페이지의 <strong>{reset}</strong>은 <code>/vg profile reset</code>과 같은 일을 합니다. 먼저 “{question}”라고 묻고, 그다음 프로필의 사본을 남긴 뒤 초기화합니다. 그러면 설정 창에 <strong>{ui:Reload now}</strong> 버튼이 나타납니다."
+ "On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>: it asks “{question}” first, then keeps a copy of the profile and resets it. The options window then shows its <strong>{ui:Reload now}</strong> button.": "프로필 페이지의 <strong>{reset}</strong>은 <code>/vg profile reset</code>과 같은 일을 합니다. 먼저 “{question}”라고 묻고, 그다음 프로필의 사본을 남긴 뒤 초기화합니다. 그러면 설정 창에 <strong>{ui:Reload now}</strong> 버튼이 나타납니다.",
+ "The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner.": "게임 속 기본 배치: 캐릭터 양옆의 플레이어와 대상 프레임, 그 사이의 시전바, 아래쪽의 행동 단축바, 사각형 미니맵 아래의 퀘스트 추적기와 정보 막대, 구석의 가방과 메뉴 막대.",
+ "You may use the crest and the share card in articles and videos about Vanguard. For anything else, ask on Discord first.": "문장과 공유 카드는 Vanguard에 관한 기사와 영상에 사용할 수 있습니다. 그 밖의 용도는 먼저 Discord에서 문의해 주세요."
 }
