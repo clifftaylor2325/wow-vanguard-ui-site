@@ -742,7 +742,7 @@ test("Troubleshooting quotes the client's translated 'Import failed:' lead, Engl
 });
 
 test("French guillemets keep a no-break space inside them", () => {
-  for (const [en, fr] of proseOf("fr")) assert.doesNotMatch(fr, /« | »/, `fr.json row: ${en}`);
+  for (const [en, fr] of proseOf("fr")) assert.doesNotMatch(JSON.stringify(fr), /« | »/, `fr.json row: ${en}`);
 });
 
 test("the French changelog puts a no-break space before the colon of a list label", () => {
