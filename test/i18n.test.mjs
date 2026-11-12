@@ -740,3 +740,7 @@ test("Troubleshooting quotes the client's translated 'Import failed:' lead, Engl
   assert.ok(body("zh-cn").includes("导入失败："), "the Simplified Chinese text");
   assert.ok(body("").includes("“Import failed:”"), "English reads as before");
 });
+
+test("French guillemets keep a no-break space inside them", () => {
+  for (const [en, fr] of proseOf("fr")) assert.doesNotMatch(fr, /« | »/, `fr.json row: ${en}`);
+});
