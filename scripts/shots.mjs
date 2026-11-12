@@ -479,7 +479,7 @@ async function checkLanguage(browser, base, loc, failures) {
 async function checkReleaseBehind(browser, failures) {
   const cfg = loadConfig();
   const meta = JSON.parse(fs.readFileSync(cfg.releaseJson, "utf8"));
-  const before = meta.releases[1];
+  const before = meta.releases[meta.releases.findIndex((r) => r.tagName === meta.current) + 1];
   if (!before) return console.log("skip release-behind pass: no earlier release in the metadata");
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vg-behind-"));
   const json = path.join(dir, "release.json");
