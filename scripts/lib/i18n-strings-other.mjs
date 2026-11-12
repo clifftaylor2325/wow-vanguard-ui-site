@@ -197,7 +197,7 @@ export const STRINGS_KO = {
   "notFound.lede": "{home}로 가 보세요.",
   "notFound.home": "홈 페이지",
   "badge.next": "다음 버전",
-  "badge.retailOnly": "Retail 전용",
+  "badge.retailOnly": "리테일 전용",
   "badge.old": "v{version} 전용",
   "badge.reload": "다시 불러오기 필요",
   "source": "출처",

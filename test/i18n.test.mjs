@@ -255,6 +255,7 @@ test("a prose line names no new addon control bare: it uses {ui:Text}", () => {
 
 // One word per term in each language: the variants below were drafted later and drifted from the file's own word
 // (the English term, and the word the file and the game use, in the comments). A new line uses the established word.
+// Every translated text is read (the page prose, the Troubleshooting and Support drafts, the site strings); es-mx also takes es's.
 const DRIFTED_TERMS = {
   ru: [/рамки персонажей/, /таймер ударов/, /кликкастинг/, /счётчик урона/, /панелей действий/, /Улучшения экипировки/, /странице отзывов/, /Другие аддоны»/],
   ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /퀘스트 일지/, /Retail/],
@@ -268,11 +269,11 @@ const DRIFTED_TERMS = {
 
 test("a translation keeps its file's own word for a term, not a later variant", () => {
   const problems = [];
-  for (const [code, patterns] of Object.entries(DRIFTED_TERMS)) {
-    for (const [line, tr] of proseOf(code)) {
-      const text = typeof tr === "string" ? tr : Object.values(tr).join(" ");
+  for (const loc of LOCALES) {
+    const patterns = [...(loc.code === "es-mx" ? DRIFTED_TERMS.es : []), ...(DRIFTED_TERMS[loc.code] ?? [])];
+    for (const [key, , text] of translatedPairs(loc)) {
       const plain = text.replace(/\{ui:[^}]+\}/g, "").replace(/\/vg [^ ]*/g, "");
-      for (const re of patterns) if (re.test(plain)) problems.push(`${code} ${re}: ${line.slice(0, 60)}`);
+      for (const re of patterns) if (re.test(plain)) problems.push(`${loc.code} ${re}: ${key.slice(0, 60)}`);
     }
   }
   assert.deepEqual(problems, []);

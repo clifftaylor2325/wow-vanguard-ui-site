@@ -640,7 +640,7 @@ export const STRINGS_PT_BR = {
   "js.count.commands": romance("{n} comando exibido", "{n} comandos exibidos"),
   "js.count.modules": romance("{n} módulo exibido", "{n} módulos exibidos"),
   "cmd.description": "Todos os comandos /vg com o texto de ajuda, palavra por palavra do addon.",
-  "cmd.lede": "Um comando de chat, `/vg` (ou `/vanguard`), e uma palavra. A ajuda aparece como `/vg help` a mostra.",
+  "cmd.lede": "Um comando de bate-papo, `/vg` (ou `/vanguard`), e uma palavra. A ajuda aparece como `/vg help` a mostra.",
   "cmd.words": romance("**{n}** palavra de comando na v{version}", "**{n}** palavras de comando na v{version}"),
   "cmd.unknown": "Palavra desconhecida: “{text}”",
   "cmd.search": "Buscar comandos",
