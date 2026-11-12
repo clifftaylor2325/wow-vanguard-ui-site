@@ -136,6 +136,21 @@ async function checkCopyButton(page, base, failures) {
   report(failures, `/commands/ double-click on Copy: "${during[0]}" announced "${during[1]}", back to "${after}"`, during[0] !== before && during[1] === during[0] && after === before);
 }
 
+// A group the reader opened stays open when the search runs again with an empty box (what a version switch does),
+// and goes back to its start once a typed search is cleared.
+async function checkOpenGroupStays(page, base, failures) {
+  await page.goto(base + "/settings/", { waitUntil: "load" });
+  const group = page.locator("details.opt-page").first();
+  await group.evaluate((d) => { d.open = true; });
+  await page.dispatchEvent(".search input[type=search]", "input");
+  const stays = await group.evaluate((d) => d.open);
+  report(failures, "/settings/ an opened page stays open when the search runs with an empty box", stays === true);
+  await searchFor(page, "reset");
+  await searchFor(page, "");
+  const folded = await group.evaluate((d) => d.open);
+  report(failures, "/settings/ a page folds back to its start once a typed search is cleared", folded === false);
+}
+
 // With JavaScript off, the Menu button and the search boxes are hidden, and the nav and the full lists show.
 async function checkNoScript(browser, base, failures) {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
@@ -159,6 +174,7 @@ async function checkSearch(browser, base, failures) {
   await checkNoMatch(page, base, "/commands/", "commands", failures);
   await checkNoMatch(page, base, "/settings/", "settings", failures);
   await checkSettingsCount(page, base, failures);
+  await checkOpenGroupStays(page, base, failures);
   await page.close();
 }
 
