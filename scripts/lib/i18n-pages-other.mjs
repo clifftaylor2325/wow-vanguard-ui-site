@@ -135,7 +135,7 @@ export const PAGES_KO = {
       "setup": { q: "설정 마법사가 열리지 않았어요",
         a: `<p>설정 마법사는 계정에 처음 접속할 때 열립니다. 전투 중이면 기다립니다: “{setupCombat}” 마치거나 닫은 뒤에는 <code>/vg setup</code> 또는 <code>/vg</code>의 <strong>{ui:General} → {ui:Layout}</strong>에 있는 <strong>{ui:Run setup}</strong>으로 다시 열 수 있습니다.</p>` },
       "edit-mode": { q: "편집 모드에서 Vanguard 프레임이 보이지 않아요",
-        a: `<p>게임의 편집 모드를 열면 Vanguard의 핸들도 안내와 함께 나타납니다: “{editNote}” 나타나지 않으면 <code>/vg</code>의 <strong>{ui:General} → {ui:Layout}</strong>에서 <strong>{editOpt}</strong>를 켜세요.</p><p>Vanguard가 숨기거나 대신하는 게임 프레임(행동 단축바, 경험치 및 평판 바, 개체창 등)에는 일부러 편집 모드 핸들을 두지 않습니다. 대신 Vanguard 프레임을 옮기세요.</p>` },
+        a: `<p>게임의 편집 모드를 열면 Vanguard의 핸들도 안내와 함께 나타납니다: “{editNote}” 나타나지 않으면 <code>/vg</code>의 <strong>{ui:General} → {ui:Layout}</strong>에서 <strong>{editOpt}</strong>을(를) 켜세요.</p><p>Vanguard가 숨기거나 대신하는 게임 프레임(행동 단축바, 경험치 및 평판 바, 개체창 등)에는 일부러 편집 모드 핸들을 두지 않습니다. 대신 Vanguard 프레임을 옮기세요.</p>` },
       "edit-layout": { q: "대화창에 내 프로필이 이 계정에 없는 편집 모드 레이아웃을 쓴다고 나와요",
         a: `<p>프로필은 함께 쓰는 게임의 편집 모드 레이아웃을 기억합니다. 캐릭터가 그 프로필을 불러오면, 계정에 같은 이름의 레이아웃이 있을 때 Vanguard가 편집 모드를 그 레이아웃으로 바꿉니다. 없으면 Vanguard는 “{editMissing}”라고 알리고 편집 모드를 그대로 둡니다.</p>` },
       "errors-badge": { q: "애드온 버튼에 빨간 숫자가 있어요",
