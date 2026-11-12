@@ -991,7 +991,7 @@
  "Your auctions: each one someone undercut is marked, {ui:Cancel next undercut} cancels them one click at a time, and sold or expired items can be relisted from your bags.": "你的拍賣：每一個被別人削價的都會被標示，「{ui:Cancel next undercut}」會一次點擊取消一個，已售出或過期的物品可以從你的背包重新上架。",
  "Prices are kept per realm and faction. Every scan and search feeds them, with each item's daily low and market value for 30 days.": "價格依伺服器和陣營保存。每次掃描和搜尋都會更新它們，並附有每個物品 30 天的每日最低價和市場價值。",
  "A Deals card of listings priced under a vendor's price or well under market value, price alerts for shopping list items with a max price, and a Restock list made from what you're short of.": "一張「特價」卡片，列出標價低於商人收購價或遠低於市場價值的商品，為設有最高價格的購物清單物品提供價格警示，並有一份依你缺少的東西製作的補貨清單。",
- "Beside the profession window: what a recipe's reagents cost, what the item sells for and the profit. A sales ledger of what sold, ran out or was cancelled, and disenchant values in tooltips.": "在專業技能視窗旁：配方的材料花費多少、物品賣多少錢，以及利潤。另有記錄已售出、已賣完或已取消的銷售帳本，以及浮動提示中的分解價值。",
+ "Beside the profession window: what a recipe's reagents cost, what the item sells for and the profit. A sales ledger of what sold, ran out or was cancelled, and disenchant values in tooltips.": "在專業技能視窗旁：配方的材料花費多少、物品賣多少錢，以及利潤。另有記錄已售出、已過期或已取消的銷售帳本，以及浮動提示中的分解價值。",
  "Other addons can read Vanguard's auction prices through an API that follows another auction addon's function names. It never posts, buys or cancels.": "其他插件可以透過一個沿用其他拍賣插件函式名稱的 API 讀取 Vanguard 的拍賣價格。它絕不會上架、購買或取消。",
  "The toast shows the auction price beside a linked item.": "通知會在連結的物品旁顯示拍賣價格。",
  "/vg report puts everything a bug report needs in one box, ready to copy and paste into the Feedback form on this site.": "/vg report 會把錯誤回報所需的一切放進一個方塊，可直接複製並貼到本網站的意見回饋表單。",
