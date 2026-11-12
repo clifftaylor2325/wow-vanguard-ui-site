@@ -684,20 +684,24 @@ function ownHelp(l, loc) {
   return (whole !== l.line && splitHelp(whole).text) || loc.addon(l.text || "");
 }
 
-// A command's help text as the addon prints it (newest source first), in the page's language.
+// A command's help text as the release prints it, in the page's language; the next release's own words
+// follow behind the Next release badge when they differ. A command only the next release has is tagged as a whole.
 function helpText(model, id, loc) {
   const e = model.commands.entries.find((x) => x.id === id);
-  return ownHelp((e?.nextLines || e?.relLines || [])[0] || {}, loc);
+  const line = (e?.relLines || e?.nextLines || [])[0] || {};
+  const next = e?.changed ? nextOnly(` ${esc(ownHelp(e.nextLines[0], loc))} ${nextBadge(loc)}`) : "";
+  return `${esc(ownHelp(line, loc))}${next}`;
 }
 
 // The "Settings / Commands / Turn it off" lines under a module.
 function featureFacts(m, model, loc) {
   const rows = [];
   if (m.pages.length) rows.push([loc.p("Settings"), m.pages.map((p) => `<a href="/settings/#${p.id}">${esc(loc.addon(p.title))}</a>`).join(", ")]);
-  for (const c of m.commands) rows.push([loc.p("Command"), `<a href="/commands/#cmd-${esc(c)}"><code>/vg ${esc(c)}</code></a> ${esc(helpText(model, c, loc))}`]);
+  for (const c of m.commands) rows.push([loc.p("Command"), `<a href="/commands/#cmd-${esc(c)}"><code>/vg ${esc(c)}</code></a> ${helpText(model, c, loc)}`, model.commands.entries.find((x) => x.id === c)?.inRel === false]);
   const where = { modules: esc(loc.addon("Modules")) };
   rows.push([loc.p("Turn it off"), m.live ? loc.p("<strong>/vg → {modules}</strong>", where) : loc.p("<strong>/vg → {modules}</strong>, then reload", where)]);
-  return `<dl class="facts">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
+  const only = (next) => (next ? ' data-avail="next"' : "");
+  return `<dl class="facts">${rows.map(([k, v, next]) => `<dt${only(next)}>${k}</dt><dd${only(next)}>${v}</dd>`).join("")}</dl>`;
 }
 
 // Where a card's words come from, in plain words (no file names).

@@ -785,6 +785,21 @@ test("Features tags a module's longer text that the release's README does not sa
   assert.match(card("GroupThreat"), /data-avail="next"[^>]*> It is off until you turn it on/, "a longer sentence the release lacks is tagged");
 });
 
+// With the release behind the source, a module's command line shows the release's help text and the next one's tagged.
+test("Features shows a module's command help as the release prints it, with the next release's wording tagged", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const changed = behind.model.commands.entries.filter((e) => e.changed && e.modules.length);
+  assert.ok(changed.length >= 1, "a module's command help changed between the release and the pins");
+  const body = featuresPage(behind.model).body;
+  for (const e of changed) {
+    const card = body.split("<article ").find((a) => a.includes(`data-module="${e.modules[0]}"`)) || "";
+    const row = card.match(new RegExp(`/vg ${e.id}</code></a>([^]*?)</dd>`))?.[1] || "";
+    assert.ok(row.startsWith(` ${esc(e.relLines[0].text)}`), `${e.id}: the release's text first: ${row}`);
+    assert.match(row, /^[^<]*<span data-avail="next">[^]*badge next/, `${e.id}: the next text is tagged`);
+  }
+});
+
 // With the release behind the source, the wizard is the release's, and what only the next release adds is tagged.
 test("Getting started tags the wizard layouts only the next release has", () => {
   const behind = behindModel();
