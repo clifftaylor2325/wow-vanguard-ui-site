@@ -146,7 +146,7 @@ export const STRINGS_RU = {
   "feat.offBadge": "Выключен, пока вы его не включите",
   "feat.everyOn": "Все модули включены, кроме отмеченных {badge}",
   "feat.search": "Поиск модулей",
-  "feat.placeholder": "Поиск модулей, например: raid, bags, cast bar",
+  "feat.placeholder": "Поиск модулей, например: рейд, сумки, полоса заклинаний",
 };
 
 export const STRINGS_KO = {
@@ -281,7 +281,7 @@ export const STRINGS_KO = {
   "feat.offBadge": "직접 켜기 전까지 꺼짐",
   "feat.everyOn": "{badge} 표시가 없는 모듈은 모두 켜져 있습니다",
   "feat.search": "모듈 검색",
-  "feat.placeholder": "모듈 검색, 예: raid, bags, cast bar",
+  "feat.placeholder": "모듈 검색, 예: 공격대, 가방, 시전바",
 };
 
 export const STRINGS_ZH_CN = {
@@ -416,7 +416,7 @@ export const STRINGS_ZH_CN = {
   "feat.offBadge": "需手动开启",
   "feat.everyOn": "除标有 {badge} 的模块外，其余默认开启",
   "feat.search": "搜索模块",
-  "feat.placeholder": "搜索模块，例如：raid、bags、cast bar",
+  "feat.placeholder": "搜索模块，例如：团队、背包、施法条",
 };
 
 export const STRINGS_ZH_TW = {
@@ -551,5 +551,5 @@ export const STRINGS_ZH_TW = {
   "feat.offBadge": "需手動開啟",
   "feat.everyOn": "除標有 {badge} 的模組外，其餘預設開啟",
   "feat.search": "搜尋模組",
-  "feat.placeholder": "搜尋模組，例如：raid、bags、cast bar",
+  "feat.placeholder": "搜尋模組，例如：團隊、背包、施法條",
 };
