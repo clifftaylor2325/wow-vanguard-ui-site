@@ -730,3 +730,13 @@ test("Getting started quotes the client's word for the marked screen size, Engli
   assert.ok(!body("ko").includes("your screen"), "no English fragment in Korean");
   assert.ok(body("").includes("“your screen”"), "English reads as before");
 });
+
+// The client prints the translated text "Import failed: {reason}.", so Troubleshooting quotes the part before the reason in the
+// addon's language, not as an English fragment.
+test("Troubleshooting quotes the client's translated 'Import failed:' lead, English only in English", () => {
+  const body = (dir) => html(dir, "/help/");
+  assert.ok(body("ko").includes("“가져오기 실패:”"), "the Korean client's text");
+  assert.ok(!/<span lang="en">Import failed:/.test(body("ko")), "not marked as English");
+  assert.ok(body("zh-cn").includes("导入失败："), "the Simplified Chinese text");
+  assert.ok(body("").includes("“Import failed:”"), "English reads as before");
+});

@@ -339,13 +339,14 @@ function shown(text, key, english, loc) {
 // One fact from FACTS: the captured text, or null when it isn't in the code
 // ("both" needs the same text in the current release and the next, a %s and a
 // {name} slot being the same), in the page's language when the addon translates
-// that text (English otherwise; the next release's wording is the one translated).
-function readFact(read, [, where, file, re, names], loc, english) {
+// that text (English otherwise; the next release's wording is the one translated). A fact with a cut-at slot
+// shows only the translated text before it, the whole key still being what is looked up in Locales.
+function readFact(read, [, where, file, re, names, cutAt], loc, english) {
   const one = (ref) => grab(read[ref](file), re);
   const same = (a, b) => a !== null && b !== null && luaText(a, names) === luaText(b, names);
   const raw = where === "both" ? (same(one("rel"), one("next")) ? one("next") : null) : one(where);
   if (raw === null) return null;
-  const { key, text } = where === "rel" && names ? placeholderFact(raw, one("next"), names, loc) : { key: raw, text: luaText(loc.addon(raw), names) };
+  const { key, text } = where === "rel" && names ? placeholderFact(raw, one("next"), names, loc) : { key: raw, text: cutAt ? loc.addon(raw).split(cutAt)[0].trim() : luaText(loc.addon(raw), names) };
   return shown(text, key, english, loc);
 }
 
