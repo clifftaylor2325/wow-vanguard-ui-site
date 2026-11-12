@@ -1051,12 +1051,22 @@ function wideRow(r, attrs, version, loc) {
   return `<tr class="opt-row t opt-item" ${attrs}><td colspan="${COLS.length}">${esc(rowCaption(r, loc))}${b}</td></tr>`;
 }
 
+// A caption's or tip's words without the " (reload)" bracket the game's window moves into the Needs reload tag:
+// the bracket is dropped from `text` (its translation or itself) when `english` ends with it.
+function withoutReloadWords(english, text) {
+  return / \(reload\)$/.test(english) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
+}
+
 // The words the search box matches for a row: its page, caption and choices,
-// in English and in the page's language.
+// in English and in the page's language, and the tag's words when the row wears it (as the game's own search does).
 function rowSearch(r, pageTitle, loc) {
-  const words = [pageTitle, r.caption, ...(r.tip ? [r.tip] : []), ...(r.choices || []).map((c) => c[1])];
-  const own = loc.english ? [] : [...words.map((w) => loc.addon(w)), rowCaption(r, loc)].filter((w) => !words.includes(w));
-  return `${pageTitle} ${r.caption}${r.tip ? ` ${r.tip}` : ""} ${(r.choices || []).map((c) => c[1]).join(" ")}${own.length ? ` ${own.join(" ")}` : ""}`;
+  const caption = withoutReloadWords(r.caption, r.caption);
+  const tip = r.tip ? withoutReloadWords(r.tip, r.tip) : "";
+  const words = [pageTitle, caption, ...(tip ? [tip] : []), ...(r.choices || []).map((c) => c[1])];
+  const translated = [pageTitle, r.caption, ...(r.tip ? [r.tip] : []), ...(r.choices || []).map((c) => c[1])].map((w) => withoutReloadWords(w, loc.addon(w)));
+  const own = loc.english ? [] : [...translated, rowCaption(r, loc)].filter((w) => !words.includes(w));
+  const tag = r.reload ? ` reload${loc.english ? "" : ` ${loc.t("badge.reload")}`}` : "";
+  return `${pageTitle} ${caption}${tip ? ` ${tip}` : ""} ${(r.choices || []).map((c) => c[1]).join(" ")}${own.length ? ` ${own.join(" ")}` : ""}${tag}`;
 }
 
 // A row's tip under its name, in the page's language, without the reload bracket the old caption carried (the

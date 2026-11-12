@@ -1428,3 +1428,19 @@ test("Settings tags the rows O.ReloadRow wraps and not a row whose helper only s
   assert.deepEqual(untagged, [], "ReloadRow rows without the Needs reload tag");
   assert.ok(!settingsRow(html, "Theme variant").includes('class="badge reload"'), "Theme variant applies at once");
 });
+
+// Every Settings row as { id, search, tagged, kind }, from the built page.
+function settingsRows(html) {
+  return [...html.matchAll(/<tr class="opt-row (opt-item|t opt-item)"[^>]*?data-search="([^"]*)"[^>]*>([\s\S]*?)<\/tr>/g)].map((m) => ({ search: m[2], tagged: m[3].includes('class="badge reload"'), note: m[1] !== "opt-item" }));
+}
+
+// The search box finds the rows that wear the Needs reload tag when you type "reload", and no row that needs none:
+// the game's own search adds the word only for a row with row.reload.
+test("a Settings search for 'reload' matches the rows with the Needs reload tag", () => {
+  for (const dir of ["", "de/", "zh-cn/"]) {
+    const rows = settingsRows(page(`${dir}settings`)).filter((r) => !r.note);
+    assert.ok(rows.filter((r) => r.tagged).length > 30, `${dir}: tagged rows read`);
+    const wrong = rows.filter((r) => /reload/i.test(r.search) !== r.tagged);
+    assert.deepEqual(wrong.map((r) => r.search.slice(0, 60)), [], `${dir}: rows whose 'reload' search and tag disagree`);
+  }
+});
