@@ -129,7 +129,8 @@ function mergeModules(rel, next, pages, commands) {
     const area = (AREAS.find(([, list]) => list.includes(key)) || ["Other"])[0];
     const onPages = pages.filter((p) => p.rows.some((r) => r.ref?.scope === key)).map((p) => ({ title: p.title, id: p.id }));
     const cmds = commands.entries.filter((e) => e.modules.includes(key)).map((e) => e.id);
-    return { key, name: info[0], desc: info[1], id: cardId(info[0]), area, inRel: relNames.has(key), inNext: nextNames.has(key) || key in next.moduleInfo, pages: onPages, commands: cmds };
+    const live = (rel.modules.find((x) => x.name === key) || next.modules.find((x) => x.name === key))?.live === true;
+    return { key, name: info[0], desc: info[1], id: cardId(info[0]), area, live, inRel: relNames.has(key), inNext: nextNames.has(key) || key in next.moduleInfo, pages: onPages, commands: cmds };
   });
 }
 

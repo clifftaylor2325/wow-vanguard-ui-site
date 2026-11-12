@@ -96,3 +96,10 @@ test("/features/: a search box over every module card, grouped by area like Sett
   assert.ok(cards.length > 0 && cards.every((c) => / data-count[ >]/.test(c)), "every module card counts toward the search's total");
   assert.ok(html.indexOf('id="mod-list"') > html.indexOf('data-target="#mod-list"'), "the search box comes before the list");
 });
+
+// A module that declares live = true is switched on and off at once from Modules, so its card says no reload.
+test("a live module's Turn it off line has no reload, and a reload-only module's keeps it", () => {
+  const facts = (key) => (html.match(new RegExp(`data-module="${key}"[^]*?Turn it off</dt><dd>([^]*?)</dd>`)) || [])[1] || "";
+  assert.ok(!/reload/.test(facts("CooldownGaps")), facts("CooldownGaps"));
+  assert.match(facts("UnitFrames"), /then reload/);
+});
