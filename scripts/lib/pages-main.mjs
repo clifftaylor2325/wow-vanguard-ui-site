@@ -1098,7 +1098,10 @@ function pageRows(p, version, used, loc) {
 // The Modules page's closing note: one switch per module.
 function modulesRow(p, model, loc) {
   if (p.key !== "modules") return "";
-  const mods = model.modules.map((m) => `<a href="/features/#${m.id}">${esc(loc.addon(m.name))}</a>${m.inRel ? "" : ` ${loc.t("set.moduleNext")}`}`).join(", ");
+  const link = (m) => `<a href="/features/#${m.id}">${esc(loc.addon(m.name))}</a>`;
+  const current = model.modules.filter((m) => m.inRel).map(link).join(", ");
+  const coming = model.modules.filter((m) => !m.inRel).map((m) => nextOnly(`, ${link(m)} ${loc.t("set.moduleNext")}`)).join("");
+  const mods = current + coming;
   return `<tr class="opt-row t"><td colspan="${COLS.length}">${loc.t("set.modulesRow", { modules: mods })}</td></tr>`;
 }
 

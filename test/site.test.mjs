@@ -800,6 +800,18 @@ test("Features shows a module's command help as the release prints it, with the 
   }
 });
 
+// With the release behind the source, the closing note on the Modules page lists a next-only module only behind the switch.
+test("Settings lists a module only the next release has behind the Next release switch", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const nextOnly = behind.model.modules.filter((m) => !m.inRel);
+  assert.ok(nextOnly.length >= 1, "the pins have a module the release lacks");
+  const body = settingsPage(behind.model, behind.read).body;
+  const note = body.match(/<tr class="opt-row t"><td colspan="\d+">[^]*?<\/td><\/tr>/g)?.find((r) => r.includes("/features/#")) || "";
+  for (const m of nextOnly) assert.ok(note.includes(`<span data-avail="next">, <a href="/features/#${m.id}">`), `${m.key} is tagged`);
+  for (const m of behind.model.modules.filter((x) => x.inRel)) assert.ok(!note.includes(`data-avail="next">, <a href="/features/#${m.id}">`), `${m.key} is current`);
+});
+
 // With the release behind the source, the wizard is the release's, and what only the next release adds is tagged.
 test("Getting started tags the wizard layouts only the next release has", () => {
   const behind = behindModel();
