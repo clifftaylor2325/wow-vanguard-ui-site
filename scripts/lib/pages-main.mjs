@@ -1007,13 +1007,23 @@ function defaultText(r, loc) {
   return a || b ? esc(a || b) : "";
 }
 
+// A row's range cell: the release's range, then " → next" when the next release changes it. When the release's
+// bound is not a literal (no text), a range only the next release can read shows on its own, tagged.
+function rangeCell(r, loc) {
+  const range = r.inRel && r.relRange ? r.relRange : r.range;
+  const shown = range ? rangeText(range, loc) : "";
+  const next = r.range ? rangeText(r.range, loc) : "";
+  if (shown) return shown + (range !== r.range && next && next !== shown ? nextOnly(` → ${next}`) : "");
+  return range !== r.range && next ? nextOnly(next) : "";
+}
+
 // A row's choices and range, as one line ("" when it has neither).
-function valuesText(r, loc) {
+export function valuesText(r, loc) {
   const out = [];
   const choices = r.inRel && r.relChoices ? r.relChoices : r.choices;
-  const range = r.inRel && r.relRange ? r.relRange : r.range;
   if (choices && choices.length) out.push(choicesText(choices, r.inRel && r.relChoices ? r.choices : null, loc));
-  if (range && rangeText(range, loc)) out.push(rangeText(range, loc) + (range !== r.range && r.range && rangeText(r.range, loc) !== rangeText(range, loc) ? nextOnly(` → ${rangeText(r.range, loc)}`) : ""));
+  const cell = rangeCell(r, loc);
+  if (cell) out.push(cell);
   return out.join("; ");
 }
 
