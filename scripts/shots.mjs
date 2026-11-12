@@ -140,6 +140,7 @@ async function checkCopyButton(page, base, failures) {
 async function checkNoScript(browser, base, failures) {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
+  watchErrors(page, failures);
   await page.goto(base + "/commands/", { waitUntil: "load" });
   const r = await page.evaluate(() => ["nav-toggle", "search"].map((c) => getComputedStyle(document.querySelector("." + c)).display));
   const nav = await page.evaluate(() => getComputedStyle(document.getElementById("site-nav")).visibility);
@@ -150,6 +151,8 @@ async function checkNoScript(browser, base, failures) {
 // The search checks for Commands and Settings, at 390px.
 async function checkSearch(browser, base, failures) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  watchErrors(page, failures);
+  await stubFeedbackApi(page);
   await checkNoScript(browser, base, failures);
   await checkCommandRows(page, base, failures);
   await checkCopyButton(page, base, failures);
@@ -337,6 +340,7 @@ async function checkOfferClear(page, failures) {
 async function checkLangOffer(browser, base, loc, failures) {
   const context = await browser.newContext({ locale: loc.lang, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
+  watchErrors(page, failures);
   await page.goto(`${base}/install/`, { waitUntil: "load" });
   const offer = await page.evaluate(() => document.querySelector(".lang-offer a")?.textContent || null);
   report(failures, `a ${loc.lang} browser on /install/ is offered "${offer}"`, offer === loc.strings["lang.offer"]);
@@ -352,6 +356,7 @@ async function checkLangOffer(browser, base, loc, failures) {
 async function checkSpanishRegionOffer(browser, base, loc, failures) {
   const context = await browser.newContext({ locale: "es-419", viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
+  watchErrors(page, failures);
   await page.goto(`${base}/install/#by-hand`, { waitUntil: "load" });
   const href = await page.evaluate(() => document.querySelector(".lang-offer a")?.getAttribute("href") || null);
   report(failures, `an es-419 browser on /install/#by-hand is offered ${href}`, href === `/${loc.code}/install/#by-hand`);
@@ -361,6 +366,8 @@ async function checkSpanishRegionOffer(browser, base, loc, failures) {
 // At 320px no page of the language scrolls sideways, folded or with every section open.
 async function checkNarrowest(browser, base, loc, failures) {
   const page = await browser.newPage({ viewport: { width: 320, height: 700 } });
+  watchErrors(page, failures);
+  await stubFeedbackApi(page);
   for (const n of NAV) {
     await page.goto(`${base}/${loc.code}${n.path}`, { waitUntil: "load" });
     await noSideScroll(page, `/${loc.code}${n.path} at 320px folded`, failures);
@@ -373,6 +380,8 @@ async function checkNarrowest(browser, base, loc, failures) {
 // From 560px up, no line of the page title runs under the Expand all button.
 async function checkTitleClear(browser, base, loc, failures) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  watchErrors(page, failures);
+  await stubFeedbackApi(page);
   let under = 0;
   for (const n of NAV) {
     await page.setViewportSize({ width: 1280, height: 800 });
@@ -396,6 +405,7 @@ async function checkTitleClear(browser, base, loc, failures) {
 async function checkLanguage(browser, base, loc, failures) {
   for (const [width, height] of [[1280, 800], [390, 844]]) {
     const page = await browser.newPage({ viewport: { width, height } });
+    watchErrors(page, failures);
     await stubFeedbackApi(page);
     for (const n of NAV.filter((x) => !OPEN_PAGES.has(x.path))) {
       await page.goto(`${base}/${loc.code}${n.path}`, { waitUntil: "load" });
@@ -441,6 +451,8 @@ async function main() {
     // Skip link, with real keyboard focus: first Tab, then Enter.
     {
       const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+      watchErrors(page, failures);
+      await stubFeedbackApi(page);
       for (const n of NAV) {
         await page.goto(base + n.path, { waitUntil: "load" });
         await page.keyboard.press("Tab");
@@ -457,6 +469,7 @@ async function main() {
     // One screen as it opens, at desktop and phone sizes; and the drawer on the phone.
     for (const [width, height] of [[1280, 800], [390, 844]]) {
       const page = await browser.newPage({ viewport: { width, height } });
+      watchErrors(page, failures);
       await stubFeedbackApi(page);
       for (const n of NAV.filter((x) => !OPEN_PAGES.has(x.path))) {
         await page.goto(base + n.path, { waitUntil: "load" });
@@ -470,6 +483,7 @@ async function main() {
     for (const loc of builtLocales(loadConfig().outDir)) await checkLanguage(browser, base, loc, failures);
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
+      watchErrors(page, failures);
       await stubFeedbackApi(page);
       for (const [name, url] of SHOOT) {
         await page.goto(base + url, { waitUntil: "load" });
