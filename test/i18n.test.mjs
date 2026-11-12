@@ -227,9 +227,23 @@ test("prose never types a button, switch, message or page name the addon has; it
 
 // A button, switch or page name of two or more words is written {ui:Text} so each language shows the addon's own word for it.
 // The names below are still typed bare where they read as a noun or as the site's own words; the list only shrinks.
+// Most one-word control names are also plain English words, so a long list of them would flag ordinary prose. These few are
+// controls in the lines the site writes; mid-sentence with a capital (after a lower-case word or a comma) one is the control,
+// and it is written {ui:Text} too (a sentence's first word is left alone, as are the word's plain uses).
+const ONE_WORD_CONTROLS = ["Tabs", "Plain", "Standards", "Combat", "Stack", "Max", "Abandon", "Filtered"];
+
+test("a one-word addon control inside a sentence is written {ui:Text}, not bare", () => {
+  const bare = [];
+  for (const line of used.keys()) {
+    const plain = line.replace(/\{ui:[^}]+\}/g, "@@");
+    for (const w of ONE_WORD_CONTROLS) if (new RegExp(`(?<=[a-z,] )${w}(?![\\w}]| tools| Log)`).test(plain)) bare.push(`${w} in: ${line.slice(0, 80)}`);
+  }
+  assert.deepEqual(bare, []);
+});
+
 test("a prose line names no new addon control bare: it uses {ui:Text}", () => {
   const baseline = new Set(JSON.parse(fs.readFileSync(new URL("./bare-names-baseline.json", import.meta.url), "utf8")));
-  const names = addonKeys.filter((k) => /^[A-Z]/.test(k) && /^\S+( \S+){1,5}$/.test(k) && k.length >= 8 && !/[{%<.:?!]/.test(k));
+  const names = addonKeys.filter((k) => /^[A-Z]/.test(k) && /^\S+( \S+){1,9}$/.test(k) && k.length >= 8 && !/[{%<.:?!]/.test(k));
   const bare = new Set();
   for (const line of used.keys()) {
     const plain = line.replace(/\{ui:[^}]+\}/g, "@@");
