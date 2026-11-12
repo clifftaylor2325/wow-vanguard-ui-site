@@ -204,7 +204,7 @@
  "The game's emptied minimap frame at the top right stops taking mouse clicks.": "게임에서 비워진 오른쪽 위의 미니맵 프레임은 더 이상 마우스 클릭을 받지 않습니다.",
  "The brass corner diamonds take your accent color.": "황동 모서리 다이아몬드가 강조색을 띱니다.",
  "A square minimap with brass diamonds on its corners. The zone name sits on a see-through band along its top edge and the coordinates on one along its bottom, so both read over bright ground. Tracking, mail, dungeon difficulty and the group finder eye move onto its corners.": "모서리마다 황동 다이아몬드가 있는 사각형 미니맵입니다. 지역 이름은 위쪽 가장자리의 반투명 띠에, 좌표는 아래쪽 가장자리의 띠에 놓여 밝은 배경 위에서도 읽을 수 있습니다. 추적, 우편, 던전 난이도, 파티 찾기 눈이 모서리로 옮겨집니다.",
- "Name a zone and a title too, as in /way Elwynn Forest 42 65 Inn, and /way clear removes the waypoint.": "/way Elwynn Forest 42 65 Inn처럼 지역과 이름도 쓸 수 있으며, /way clear는 지점을 지웁니다.",
+ "Name a zone (as your game names it) and a title too, as in /way Elwynn Forest 42 65 Inn, and /way clear removes the waypoint.": "/way Elwynn Forest 42 65 Inn처럼 지역(게임에서 부르는 이름으로)과 이름도 쓸 수 있으며, /way clear는 지점을 지웁니다.",
  "All three are on by default, under Map.": "세 가지 모두 기본적으로 켜져 있으며, 지도에 있습니다.",
  "Type /way with coordinates, such as /way 45.2 61.8, to put a waypoint on the map you're on, and the game's own navigation arrow points to it. While the world map is open, a line along its bottom shows your coordinates and the cursor's.": "/way 45.2 61.8처럼 좌표와 함께 /way를 입력하면 현재 지도에 지점이 표시되고 게임의 길 안내 화살표가 그곳을 가리킵니다. 세계 지도가 열려 있는 동안 아래쪽 줄에 내 좌표와 커서의 좌표가 표시됩니다.",
  "Each feed shows its icon and text, its own tooltip on hover, and takes your clicks.": "각 피드는 아이콘과 글자, 마우스를 올리면 나오는 자체 툴팁을 보여 주며 클릭에 반응합니다.",

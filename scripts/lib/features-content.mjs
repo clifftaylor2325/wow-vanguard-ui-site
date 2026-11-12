@@ -363,7 +363,7 @@ export const LONGER = {
     R("{ui:Faster auto-loot} works while the game is auto-looting and takes every slot at once; an item still being rolled for stays in the loot window, and a bind-on-pickup item still asks first.", "when the game is auto-looting (its Auto Loot setting, or its auto-loot key held), every slot is taken at once instead of one by one", "a slot the game has locked (an item still being rolled for) stays in the loot window, and a bind-on-pickup item still asks first"),
   ],
   Waypoints: [
-    R("Name a zone and a title too, as in /way Elwynn Forest 42 65 Inn, and /way clear removes the waypoint.", "`/way Elwynn Forest 42 65 Inn` names a zone", "`/way clear` removes it"),
+    R("Name a zone (as your game names it) and a title too, as in /way Elwynn Forest 42 65 Inn, and /way clear removes the waypoint.", "`/way Elwynn Forest 42 65 Inn` names a zone", "`/way clear` removes it"),
     R("All three are on by default, under Map.", "All three are on by default, under Map."),
   ],
   Inventory: [

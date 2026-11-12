@@ -204,7 +204,7 @@
  "The game's emptied minimap frame at the top right stops taking mouse clicks.": "遊戲右上角清空的小地圖框架不再接收滑鼠點擊。",
  "The brass corner diamonds take your accent color.": "黃銅色的角落菱形會採用你的強調色。",
  "A square minimap with brass diamonds on its corners. The zone name sits on a see-through band along its top edge and the coordinates on one along its bottom, so both read over bright ground. Tracking, mail, dungeon difficulty and the group finder eye move onto its corners.": "方形小地圖，四個角落有黃銅菱形。區域名稱位於頂端邊緣的半透明橫帶上，座標則在底部邊緣的橫帶上，所以兩者在明亮的背景上都看得清楚。追蹤、郵件、地城難度和尋找隊伍的眼睛會移到它的角落。",
- "Name a zone and a title too, as in /way Elwynn Forest 42 65 Inn, and /way clear removes the waypoint.": "也可以加上區域名稱和標題，例如 /way Elwynn Forest 42 65 Inn，而 /way clear 會移除路徑點。",
+ "Name a zone (as your game names it) and a title too, as in /way Elwynn Forest 42 65 Inn, and /way clear removes the waypoint.": "也可以加上區域名稱（依你遊戲中的叫法）和標題，例如 /way Elwynn Forest 42 65 Inn，而 /way clear 會移除路徑點。",
  "All three are on by default, under Map.": "三項預設全部開啟，位於「地圖」下。",
  "Type /way with coordinates, such as /way 45.2 61.8, to put a waypoint on the map you're on, and the game's own navigation arrow points to it. While the world map is open, a line along its bottom shows your coordinates and the cursor's.": "輸入帶有座標的 /way，例如 /way 45.2 61.8，就會在你所在的地圖上放置一個路徑點，並由遊戲內建的導航箭頭指向它。開啟世界地圖時，底部的一行會顯示你的座標和游標的座標。",
  "Each feed shows its icon and text, its own tooltip on hover, and takes your clicks.": "每個資料來源都顯示它的圖示和文字，指向時有它自己的浮動提示，也接受你的點擊。",
