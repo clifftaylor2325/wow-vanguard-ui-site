@@ -433,6 +433,7 @@ async function checkTitleClear(browser, base, loc, failures) {
 async function checkPageRows(browser, base, loc, failures) {
   for (const width of [900, 1024]) {
     const page = await browser.newPage({ viewport: { width, height: 800 } });
+    watchErrors(page, failures);
     await page.goto(`${base}/${loc.code}/settings/`, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const tallest = await page.evaluate(() => Math.max(...[...document.querySelectorAll("#opt-list > details > summary")].map((s) => Math.round(s.getBoundingClientRect().height))));
@@ -491,6 +492,7 @@ async function checkReleaseBehind(browser, failures) {
   try {
     for (const [width, height] of [[1280, 800], [390, 844]]) {
       const page = await browser.newPage({ viewport: { width, height } });
+      watchErrors(page, failures);
       await stubFeedbackApi(page);
       for (const loc of [{ code: "" }, ...builtLocales(out)]) {
         for (const n of NAV.filter((x) => !OPEN_PAGES.has(x.path))) {
