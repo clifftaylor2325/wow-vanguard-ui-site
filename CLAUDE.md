@@ -40,7 +40,7 @@ Anything only in `sourceRef` is tagged "Next release" and hidden until the reade
 
 - **Player-facing pages never link to the GitHub repo**, and there is no download.
 - **Store links:** `CURSEFORGE_URL` and `WAGO_URL` in `scripts/lib/html.mjs` are both set. Set one back to `null` and that store's button becomes a "Coming soon" badge.
-- **Hand-written words** are limited to three pages (Cliff approved the third, Support, on 2026-10-13), and each claim stays traceable:
+- **Hand-written words** are limited to these places (Cliff approved Support on 2026-10-13), and each claim stays traceable:
   - `scripts/lib/help-content.mjs` (Troubleshooting & FAQ): every message an answer quotes is read from the addon at build time. If a message can't be found in the code, leave the answer off the page. Don't guess.
   - `supportPage()` in `scripts/lib/pages-more.mjs` (Support): what support pays for and the Ko-fi link. It makes no claim about Vanguard's features. Ko-fi asks elsewhere are one sentence each (`supportAsk()`), on Install, Changelog and Troubleshooting, with a `utm_campaign` per page. No Ko-fi script is ever loaded.
   - `scripts/lib/changelog-content.mjs`: release notes in player language. Each line lists the merged PRs it came from. Those PR numbers are never shown on the site.
