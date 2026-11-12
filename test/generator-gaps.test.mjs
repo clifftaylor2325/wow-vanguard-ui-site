@@ -19,3 +19,12 @@ test("reloadRowNames reads a call with commas before the alias, and ignores a pr
   assert.ok(predeclare.has("reloadRow"));
   assert.ok(!predeclare.has("essential"));
 });
+
+test("percentLabel guards a non-number default and reads a whole-percent step", async () => {
+  const { percentLabel } = await import("../scripts/lib/extract.mjs");
+  const range = (step) => ({ min: null, max: null, step, percent: true });
+  assert.equal(percentLabel({ default: "auto", range: range(null) }), "auto");
+  assert.equal(percentLabel({ default: 1, range: range(5) }), "1%");
+  assert.equal(percentLabel({ default: 0.5, range: range(0.05) }), "50%");
+  assert.equal(percentLabel({ default: 1, range: { min: 0.5, max: 2, step: 0.1, percent: true } }), "100%");
+});

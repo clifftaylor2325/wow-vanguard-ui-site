@@ -711,11 +711,19 @@ function applyDefaults(pages, modules, reader) {
   }
 }
 
-// A "%d%%" slider's default: a fraction of one (a limit of 2 or less, else the default itself when the
-// limits are unknown) is shown as a percent of it, any other number is already one.
-function percentLabel(row) {
-  const fraction = (row.range.max ?? row.default) <= 2;
-  return `${fraction ? Math.round(row.default * 100) : row.default}%`;
+// Whether a "%d%%" slider holds a fraction of one: its largest limit is 2 or less, else (the limit is unknown) a
+// step below 1, else (neither is known) a default of 2 or less.
+function isFractionRange(row) {
+  const { max, step } = row.range;
+  if (max !== null && max !== undefined) return max <= 2;
+  return typeof step === "number" ? step < 1 : row.default <= 2;
+}
+
+// A "%d%%" slider's default: a fraction of one is shown as a percent of it, any other number is already one;
+// a default that is not a number is shown as it is.
+export function percentLabel(row) {
+  if (typeof row.default !== "number") return String(row.default);
+  return `${isFractionRange(row) ? Math.round(row.default * 100) : row.default}%`;
 }
 
 // The text a player sees for a row's default ("On", "Off", a choice label, a number).
