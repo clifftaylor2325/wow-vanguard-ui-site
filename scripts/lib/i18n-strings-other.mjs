@@ -522,7 +522,7 @@ export const STRINGS_ZH_TW = {
   "set.pages": single("**{n}** 個頁面"),
   "set.countsLine": "{parts}。",
   "set.search": "搜尋設定",
-  "set.placeholder": "例如：團隊、滑鼠提示、聊天",
+  "set.placeholder": "例如：團隊、浮動提示、聊天",
   "set.showOld": "顯示僅 v{version} 有的設定",
   "set.col.setting": "設定",
   "set.col.values": "選項值",

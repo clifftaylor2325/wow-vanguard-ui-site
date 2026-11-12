@@ -301,7 +301,7 @@ export const PAGES_ZH_TW = {
       "errors-badge": { q: "插件按鈕上有個紅色數字",
         a: `<p>那是 Vanguard 本次登入期間攔截到的錯誤數量。選項視窗底部也會顯示同樣的內容（「{footerLine}」）。點擊那一行或輸入 <code>/vg errors</code> 就能列出它們；清單的 <strong>{errorsReport}</strong> 按鈕會開啟 Vanguard 的錯誤回饋表單並附上清單，你也可以把它貼到這裡的<a href="/feedback/">錯誤回報</a>中。它的 <strong>{errorsClear}</strong> 按鈕（或 <code>/vg errors clear</code>）會清空清單，數字也會消失。沒有攔截到錯誤時，<code>/vg errors</code> 會顯示「{noErrors}」</p>` },
       "language": { q: "Vanguard 有我的語言版本嗎？",
-        a: `<p>Vanguard 自己的文字（選項視窗、設定精靈、聊天訊息和滑鼠提示）以你用戶端的語言顯示：德文、法文、西班牙文（西班牙與拉丁美洲）、義大利文、巴西葡萄牙文、俄文、韓文和中文（簡體與繁體），其他語言的用戶端則顯示英文。遊戲提供的名稱（法術、物品、區域）保持你用戶端的語言。</p><p>這些翻譯是新的機器翻譯，有些句子讀起來會不太自然。遇到這樣的句子，請在<a href="/feedback/">意見回饋頁面</a>（或在遊戲中用 <code>/vg feedback</code>）告訴我們：引用那一句，說明你的語言，如果可以，再寫出它應該怎麼說。你輸入的指令仍然是英文。</p>` },
+        a: `<p>Vanguard 自己的文字（選項視窗、設定精靈、聊天訊息和浮動提示）以你用戶端的語言顯示：德文、法文、西班牙文（西班牙與拉丁美洲）、義大利文、巴西葡萄牙文、俄文、韓文和中文（簡體與繁體），其他語言的用戶端則顯示英文。遊戲提供的名稱（法術、物品、區域）保持你用戶端的語言。</p><p>這些翻譯是新的機器翻譯，有些句子讀起來會不太自然。遇到這樣的句子，請在<a href="/feedback/">意見回饋頁面</a>（或在遊戲中用 <code>/vg feedback</code>）告訴我們：引用那一句，說明你的語言，如果可以，再寫出它應該怎麼說。你輸入的指令仍然是英文。</p>` },
       "perf": { q: "Vanguard 會拖慢我的遊戲嗎？",
         a: `<p><code>/vg perf</code> 會顯示 Vanguard 目前的 CPU 時間和記憶體，以及它最忙碌的十個函式。想自己測量 CPU 負擔（README：「{perfRecipe}」）：</p><ol class="steps"><li>輸入 <code>/vg perf cpu</code>，然後輸入 <code>/reload</code>。</li><li>玩一陣子（團隊拉怪是最吃重的情況）。</li><li>輸入 <code>/vg perf</code> 並查看數字。</li><li>再次輸入 <code>/vg perf cpu</code> 和 <code>/reload</code>。測量本身也有負擔，README 寫道：「{perfSlows}」。</li></ol><p>目前還沒有公布效能數據。</p>` },
       "retail": { q: "Vanguard 能在正式服 WoW 上使用嗎？",
