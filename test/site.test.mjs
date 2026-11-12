@@ -1515,3 +1515,18 @@ test("Commands hides its version boxes on a phone and the no-match hint counts o
   assert.match(fs.readFileSync(path.join(root, "src/assets/site.css"), "utf8"), /max-width: 559px\) \{ \.search\[data-target="#opt-list"\] \.filters, \.search\[data-target="#cmd-list"\] \.filters \{ display: none/);
   assert.match(fs.readFileSync(path.join(root, "src/assets/site.js"), "utf8"), /!filters\[i\]\.checked && filters\[i\]\.getClientRects\(\)\.length > 0/);
 });
+
+// The v0.9.4 note names click casting's switch as the options show it: its caption without the "(reload)" words, in each
+// language the addon's own words for it, and never the "Also on your unit frames" no release has had.
+test("the Changelog names click casting's unit-frame switch as the addon does", () => {
+  const caption = "Also on player, target and focus (reload)";
+  for (const dir of LANG_DIRS) {
+    const html = page(`${dir}changelog`);
+    assert.ok(!html.includes("Also on your unit frames"), `${dir || "en/"}: the old name`);
+    if (dir) assert.ok(!/[“„«「”]Also on player/.test(html), `${dir}: no English quote marks round the addon's words`);
+  }
+  assert.ok(page("changelog").includes("click casting's Also on player, target and focus leaves"), "English");
+  const de = fs.readFileSync(path.join(cfg.sourcePath, "Locales/deDE.lua"), "utf8").match(new RegExp(`L\\["${caption.replace(/[()]/g, "\\$&")}"\\] = "([^"]+)"`))?.[1];
+  assert.ok(de, "the addon translates it in German");
+  assert.ok(page("de/changelog").includes(`Klickzauberei ${esc(de.replace(/\s*\([^)]*\)$/, ""))} lässt`), "German: the addon's words, bracket stripped");
+});

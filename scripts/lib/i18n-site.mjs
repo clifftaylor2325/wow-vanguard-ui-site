@@ -302,10 +302,17 @@ function englishList(items) {
   return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
 
+// A caption's or tip's words without the " (reload)" bracket the game's window moves into the Needs reload tag:
+// the bracket is dropped from `text` (its translation or itself) when `english` ends with it.
+export function withoutReloadWords(english, text) {
+  return / \(reload\)$/.test(english) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
+}
+
 // A prose line with each {ui:Text} (a button, switch or page name of the addon's) replaced by the
-// addon's own words for it in this language: the translation when the addon has one, else Text.
+// addon's own words for it in this language: the translation when the addon has one, else Text; a switch
+// named with " (reload)" is drawn as the options window draws it, without those words.
 function uiWords(template, translations) {
-  return template.replace(/\{ui:([^}]+)\}/g, (_, text) => esc(translations.get(text) ?? text));
+  return template.replace(/\{ui:([^}]+)\}/g, (_, text) => esc(withoutReloadWords(text, translations.get(text) ?? text)));
 }
 
 // The page context every localised generator takes: which language, its

@@ -6,7 +6,7 @@ import { supportAsk, esc, md, slug, badge, nextBadge, reloadBadge, avail, shotFi
 import { crestImg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
 import { MORE, longerRows, readmeSays } from "./features-content.mjs";
-import { EN } from "./i18n-site.mjs";
+import { EN, withoutReloadWords } from "./i18n-site.mjs";
 import { splitHelp, showSlots } from "./extract.mjs";
 
 // "September 27, 2026" in New York time, in the page's language.
@@ -1041,12 +1041,6 @@ function groupRow(html, attrs) {
 
 // The kinds of row that are a setting with a value (the window gives them the Needs reload tag).
 const SETTING_KINDS = ["check", "cycle", "slider"];
-
-// A caption's or tip's words without the " (reload)" bracket the game's window moves into the Needs reload tag:
-// the bracket is dropped from `text` (its translation or itself) when `english` ends with it.
-function withoutReloadWords(english, text) {
-  return / \(reload\)$/.test(english) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
-}
 
 // A row's caption in the page's language, as plain text. A ns.Format caption is looked up by its
 // {slot} text, as the game does, and its slots show as <slot>.

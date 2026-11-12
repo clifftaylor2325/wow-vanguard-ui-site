@@ -440,7 +440,7 @@ RELEASE_NOTES["v0.9.4"] = { groups: [
       { label: "Quests and mail", text: "A quest held on the arrow stays held through a reload, and {ui:Take all} stops at the first item with no free bag slot.", from: [793] },
       { label: "Merchants and the auction house", text: "Clicking a price alert shows the Buy page from any tab, and the merchant's {ui:Stack} and {ui:Max} line names what stops a buy: gold, stock or bag room.", from: [787] },
       { label: "{ui:Gear upgrades}", text: "A one-hand weapon is compared with the weaker hand while you wear a weapon in each, a WoW Forever shaman in the tank role weighs tank stats, and trainer memory is kept per faction.", from: [787, 793] },
-      { label: "Frames and the meter", text: "The interrupt mark follows the interrupt you can use in your stance, click casting's “Also on your unit frames” leaves the boss frames out, a WoW Forever paladin's buff watch counts Blessing of Sanctuary, and the meter's Deaths report says when each death happened.", from: [793] },
+      { label: "Frames and the meter", text: "The interrupt mark follows the interrupt you can use in your stance, click casting's {ui:Also on player, target and focus (reload)} leaves the boss frames out, a WoW Forever paladin's buff watch counts Blessing of Sanctuary, and the meter's Deaths report says when each death happened.", from: [793] },
     ] },
     { id: "fixed", title: "Fixed", items: [
       { label: "Saved settings", text: "The notice that your saved settings didn't load no longer comes back at every login when nothing was lost, and {ui:Keep these settings} answers it when it does show.", from: [785] },
