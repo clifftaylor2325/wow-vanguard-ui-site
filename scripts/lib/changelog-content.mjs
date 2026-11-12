@@ -455,7 +455,7 @@ RELEASE_NOTES["v0.9.4"] = { groups: [
 RELEASE_NOTES["v0.9.5"] = { groups: [
     { id: "new", title: "New", items: [
       { label: "HUD looks", text: "Your frames now point away from you as shields, with their bars filling toward you, and a crest on a rail between your frame and your target's (swords while you fight). Three more looks, {ui:Hairline}, {ui:Rimmed} and Tabs, sit beside Plain under General, {ui:HUD look}, and setup offers the {ui:Shield} look as a recommended choice.", from: [796, 809] },
-      { label: "HUD layouts", text: "Two layouts under General, Where the frames stand: The keep, a wall of frames at the foot of a wide screen, and Standards, tall banners either side of your character. Setup's layout step offers both.", from: [830] },
+      { label: "HUD layouts", text: "Two layouts under General, {ui:Where the frames stand}: {ui:The keep}, a wall of frames at the foot of a wide screen, and Standards, tall banners either side of your character. Setup's layout step offers both.", from: [830] },
       { label: "{ui:Unit frames}", text: "Width and height sliders for each frame, more ways to show health, incoming heal and shield bars, a row of status marks (leader, tank or healer, resting, PvP), portraits under the {ui:Hairline}, {ui:Rimmed} and Tabs looks, and a frame for your focus's target.", from: [823, 833] },
       { label: "Nameplates and auras", text: "Plate size, aura counts, icon size and text sizes are sliders that apply at once, your target's plate can be drawn larger, and a switch (off until you turn it on) shows only the name on units you can't attack. Target and focus auras get sliders too, and Target's buffs shows All, Important or Yours.", from: [801, 804] },
       { label: "{ui:Tooltips}", text: "A player's tooltip adds their guild, rank, realm and role, yours shows your equipped item level, one switch adds Item ID and Spell ID, and each kind of tooltip gets its own position.", from: [799, 807] },
@@ -483,10 +483,23 @@ RELEASE_NOTES["v0.9.5"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.9.6"] = { groups: [
+    { id: "improved", title: "Improved", items: [
+      { label: "Modules", text: "Many modules switch off and on at once under Modules, with no reload: the chat modules, the data bars, the broker strip and HUD text, Situations and the cooldown tools among them. A switch made in a fight applies when it ends.", from: [837, 865, 876] },
+      { label: "Options and setup", text: "Options search finds the pages you changed and Safer colours by its translated words, settings that need a reload carry the reload tag, and {ui:Undo setup} puts your UI scale back and says what it undid.", from: [879] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Bags and town", text: "A profession bag's empty slots get their own section (“Empty: herb bag”), so the combined bag no longer counts them as room for anything. {ui:Train all} runs once and its summary matches what you learned, and Mail's {ui:Take all} leaves game master mail.", from: [870, 880] },
+      { label: "Auctions", text: "The Cancel question names the item, Post waits for the sell card's price check, and a per-stack price is for the stack that goes up next.", from: [870, 880] },
+      { label: "Frames and auras", text: "Level colours repaint at a level-up, a new {ui:HUD layout} choice keeps each frame's scale and opacity, aura icons follow a new size or scale, and an aura row the game holds back in a fight no longer raises an error on nameplates.", from: [873, 875, 878] },
+      { label: "Keys, quests and chat", text: "Auto Shot shows its ammo on WoW Forever, key setup gives way to a spell's top rank, a chat window dragged back into the dock stays docked, a Shift-click waypoint keeps its quest, and declining strangers' group invites works again.", from: [870, 878, 879] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.9.5 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.9.6 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.9.5",
+  after: "v0.9.6",
   groups: [],
 };

@@ -199,7 +199,7 @@ test("a plural translation keeps the English slots, and every form keeps the ent
 });
 
 // The lines a page shows only while the release is behind the pinned source are looked up too (the build runs the pages once more
-// with the release before this one), so a translation for each is checked before a bump needs it.
+// with an older release whose modules differ), so a translation for each is checked before a bump needs it.
 test("the prose check covers the lines that show only while the release is behind the source", () => {
   for (const line of ["+ {n} next release", "Other modules", "As listed in the addon's README for the next release:"]) assert.ok(used.has(line), `${line} is looked up`);
   for (const loc of publishedLocales(cfg.locales).slice(1)) assert.ok(proseOf(loc.code).has("Other modules"), `${loc.code} translates it`);
