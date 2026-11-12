@@ -786,14 +786,14 @@ function releaseNotes(r, level, loc) {
   return notes.length ? `<ul class="changes">${notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : `<p>${loc.p("No notes.")}</p>`;
 }
 
-// One published release: its tag, date, a Current release badge, and its notes.
-// `level` is its heading's (the earlier releases sit one level down).
+// One published release: its tag, date, a Current release badge, and its notes. The date and badge stay
+// under the tag on a phone (dis-meta keep); `level` is its heading's (the earlier releases sit one level down).
 function releaseSection(r, model, level, loc) {
   const isCurrent = r.tagName === model.release.tag;
   const current = isCurrent ? ` <span class="badge rel">${loc.p("Current release")}</span>` : "";
   return `<section aria-labelledby="rel-${esc(r.tagName)}">
 <details class="disclosure"${isCurrent ? " open data-open" : ""}>
-<summary><h${level} id="rel-${esc(r.tagName)}">${esc(r.tagName)}</h${level}><span class="dis-meta">${esc(dateET(r.publishedAt, loc))}${current}</span></summary>
+<summary><h${level} id="rel-${esc(r.tagName)}">${esc(r.tagName)}</h${level}><span class="dis-meta keep">${esc(dateET(r.publishedAt, loc))}${current}</span></summary>
 <div class="dis-body">
 ${releaseNotes(r, level, loc)}
 </div>

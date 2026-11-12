@@ -632,6 +632,16 @@ test("the Changelog folds the earlier releases into one section and keeps every 
   for (const id of feed.match(/#rel-v[\d.]+/g)) assert.ok(html.includes(`id="${id.slice(1)}"`), `${id} is on the page`);
 });
 
+// site.css hides every .dis-meta under 560px; the Changelog's release dates and badge carry .keep so they stay.
+test("the Changelog's release dates and Current release badge are kept on a phone", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.match(css, /@media \(max-width: 559px\) \{[^}]*\.dis-meta \{ display: none; \}[^]*?\.dis-meta\.keep \{ display: block;/);
+  const html = page("changelog");
+  const metas = html.match(/<span class="dis-meta[^"]*">/g) || [];
+  assert.ok(metas.length >= 2 && metas.filter((m) => m.includes("keep")).length >= meta.releases.length, "every release's meta is .keep");
+  assert.ok(/<span class="dis-meta keep">[^<]*<span class="badge rel">Current release/.test(html), "the Current release badge is in one");
+});
+
 // What's coming lists next-release items; no published release's section may.
 test("next-release items stay out of the current release's section", () => {
   const html = page("changelog");
