@@ -18,7 +18,7 @@ export const FACTS = [
   ["errorsHelp", "rel", "Core/Slash.lua", /"errors \[clear\|resume\]"?,?\s+"?(opens the errors Vanguard caught this session, with stacks and counts, in the copy window \(for a bug report\); clear empties the list; resume runs parts paused after repeated errors again)/],
   ["profResetAsk", "both", "Core/Options.lua", /confirmReset\("(Reset this profile\?)", "Reset"/],
   ["profReset", "both", "Core/Options.lua", /"(Profile (?:%s|\{\w+\}) as it was is saved as profile (?:%s|\{\w+\})\.)"/],
-  ["nextSwitch", "rel", "Core/Slash.lua", /OfferReload\((?:ns\.Format\()?"(This character will use profile (?:" \.\. name \.\. "|\{profile\}) after the reload\.)"/, ["name"]],
+  ["nextSwitch", "rel", "Core/Slash.lua", /(?:OfferReload\(|ns\.Format\()(?:ns\.Format\()?"(This character will use profile (?:" \.\. name \.\. "|\{profile\}) after the reload\.)"/, ["name"]],
   ["importFailed", "both", "Core/Slash.lua", /chat\((?:ns\.Format\()?"(Import failed:) (?:"|\{reason\})/],
   ["unread", "both", "README.md", /(go to the bars unread)/],
   ["auraHidden", "rel", "Core/Slash.lua", /and "(hidden right now)" or/],

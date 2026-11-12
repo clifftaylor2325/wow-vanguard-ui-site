@@ -158,15 +158,33 @@ function warnSkippedRows(rel, next) {
   }
 }
 
-// While the current release is the pinned source, the lines the pages show only when it is behind (a next-release note,
-// the "Other" area) are never looked up. Looking each page up once more with the release before this one as the current
-// release records them, so the prose check (test/i18n.test.mjs, scripts/prose.mjs) sees every line before a bump needs it.
-function lookUpBehindProse({ meta, release, next, read, site }) {
-  const older = meta.releases.find((r, i) => meta.releases[i - 1]?.tagName === release.tag);
-  if (!older) return;
+// The model of an older release against the pinned source, with its reader.
+function olderModel(older, next, meta) {
   const reader = gitReader(cfg.sourcePath, older.tagName);
   const rel = publicAddon(extractAddon(reader));
-  const model = buildModel({ rel, next, release: { tag: older.tagName, publishedAt: older.publishedAt }, releases: meta });
+  return { reader, model: buildModel({ rel, next, release: { tag: older.tagName, publishedAt: older.publishedAt }, releases: meta }) };
+}
+
+// The newest older release whose modules differ from the pinned source's (a module only one of them has), so the
+// per-area "+ n next release" counts and the feedback form's "Other modules" group show; the release before this one
+// when none differs. A release that changed no module (0.9.6 after 0.9.5) would otherwise leave those lines unlooked-up.
+function behindModel(meta, release, next) {
+  const older = meta.releases.slice(meta.releases.findIndex((r) => r.tagName === release.tag) + 1);
+  if (!older.length) return null;
+  for (const r of older) {
+    const found = olderModel(r, next, meta);
+    if (found.model.modules.some((m) => !m.inRel || !m.inNext)) return found;
+  }
+  return olderModel(older[0], next, meta);
+}
+
+// While the current release is the pinned source, the lines the pages show only when it is behind (a next-release note,
+// the "Other" area) are never looked up. Looking each page up once more with an older release as the current
+// release records them, so the prose check (test/i18n.test.mjs, scripts/prose.mjs) sees every line before a bump needs it.
+function lookUpBehindProse({ meta, release, next, read, site }) {
+  const found = behindModel(meta, release, next);
+  if (!found) return;
+  const { reader, model } = found;
   const behind = { rel: specReader(reader), next: read.next };
   const loc = siteLocale();
   startPage(model, behind, loc);
