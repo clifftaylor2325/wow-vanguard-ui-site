@@ -756,6 +756,31 @@ test("the shared builder gives the page's preview and the Function the same text
   assert.equal(s.issues[0].title, preview.title);
 });
 
+// Hostile pastes that made the parsers and the sanitizer quadratic: long runs of
+// white space or of non-space characters on one line.
+test("bugIssue answers a 20,000-character hostile report in well under 50 ms", async () => {
+  const spaces = " ".repeat(19_990);
+  const hostile = [
+    `a${spaces}b`,
+    `a${spaces}b (x1)`,
+    `Vanguard 1.0\nbuild ${"x".repeat(19_980)} (1)`,
+    `${"a".repeat(10)}\n${"\n".repeat(19_980)}b`,
+  ];
+  for (const report of hostile) {
+    const started = performance.now();
+    await bugIssue(readFields(bugFields({ report })), "FUI-ABCDEF");
+    const took = performance.now() - started;
+    assert.ok(took < 50, `${took.toFixed(0)} ms for ${JSON.stringify(report.slice(0, 20))}`);
+  }
+});
+
+test("the error line reader and normalize give the same fingerprints as before", async () => {
+  const parsed = parseReport("[3]  Foo.lua:12: boom 0xABC (x4)\n  Bar.lua:9: in x\n[1] (x1)\n(x2)\nx (x2)");
+  assert.deepEqual(parsed.errors.map((e) => [e.text, e.count]), [["Foo.lua:12: boom 0xABC", 4], ["[1]", 1], ["x", 2]]);
+  assert.equal(normalize("a  (x3)  b (x1)"), "a b");
+  assert.equal(await fingerprint(parseReport(ERRORS)), await fingerprint(parseReport(ERRORS.replace(/\(x\d+\)/g, "(x9)"))));
+});
+
 // ------------------------------------------------------------- rate caps
 
 const slots = (env, kind) => [...env.FEEDBACK_KV.map.keys()].filter((k) => k.startsWith(`rl:${kind}:`));

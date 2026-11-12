@@ -78,7 +78,7 @@ export function block(value) {
 // backticks inside it, so nothing in the paste can close the block. Text in a
 // fenced block is shown as typed: no HTML, mentions or autolinks.
 export function fence(value, lang = "text") {
-  const text = plain(value).replace(/\s+$/, "");
+  const text = plain(value).trimEnd();
   const longest = Math.max(0, ...(text.match(/`+/g) || []).map((run) => run.length));
   const ticks = "`".repeat(Math.max(3, longest + 1));
   return `${ticks}${lang}\n${text}\n${ticks}`;

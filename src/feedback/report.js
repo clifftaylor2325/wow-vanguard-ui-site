@@ -40,15 +40,27 @@ function grab(lines, re) {
   return "";
 }
 
+// { text, count } of an unindented line ending in "(xN)" after white space,
+// or null. Anchored on the literal "(xN)" so a long run of spaces can't make it slow.
+function errorLine(line) {
+  const trimmed = line.trimEnd();
+  const m = trimmed.match(/\(x(\d+)\)$/);
+  if (!m || /^\s/.test(line)) return null;
+  const before = trimmed.slice(0, m.index);
+  const text = before.trimEnd().replace(/^\[\d+\]\s+(?=\S)/, "");
+  if (!text || text.length === before.length) return null;
+  return { text, count: Number(m[1]) };
+}
+
 // The caught errors: an unindented line ending in "(xN)" (optionally "[n] "
 // in front), then its indented stack lines.
 function readErrors(lines) {
   const errors = [];
   let current = null;
   for (const l of lines) {
-    const m = l.match(/^(?:\[\d+\]\s+)?(\S.*?)\s+\(x(\d+)\)\s*$/);
-    if (m && !/^\s/.test(l)) {
-      current = { text: m[1], count: Number(m[2]), stack: [] };
+    const found = errorLine(l);
+    if (found) {
+      current = { ...found, stack: [] };
       errors.push(current);
     } else if (current && /^\s+\S/.test(l)) {
       current.stack.push(l.trim());
@@ -64,7 +76,7 @@ function readErrors(lines) {
 export function parseReport(text) {
   if (!String(text ?? "").trim()) return { format: "empty", version: "", client: "", release: "", build: "", iface: "", errors: [] };
   const { format, lines } = reportLines(text);
-  const build = lines.map((l) => l.match(/\bbuild (\S+) \((\d+)\)/)).find(Boolean);
+  const build = lines.map((l) => l.match(/\bbuild (\S{1,64}) \((\d{1,12})\)/)).find(Boolean);
   return {
     format,
     version: grab(lines, /^\s*(?:Vanguard|ForeverUI) v?(\d[\w.-]*)\b/),
@@ -81,7 +93,8 @@ export function parseReport(text) {
 // addresses (`0x...`, `table: 0000...`), counts like `(x3)`, and extra spaces.
 export function normalize(value) {
   return String(value ?? "")
-    .replace(/\s*\(x\d+\)/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/ ?\(x\d+\)/g, "")
     .replace(/\b(table|function|userdata|thread|cdata): (?:0x)?[0-9a-fA-F]+/g, "$1: ?")
     .replace(/\b0x[0-9a-fA-F]+\b/g, "0x?")
     .replace(/:\d+:/g, "::")
