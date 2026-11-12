@@ -151,6 +151,15 @@ async function checkOpenGroupStays(page, base, failures) {
   report(failures, "/settings/ a page folds back to its start once a typed search is cleared", folded === false);
 }
 
+// A feed link to an earlier release (#rel-<tag>) opens the folded sections around that release's heading.
+async function checkReleaseAnchor(page, base, failures) {
+  await page.goto(base + "/changelog/", { waitUntil: "load" });
+  const id = await page.evaluate(() => [...document.querySelectorAll("h3[id^=rel-]")].pop()?.id || "");
+  await page.goto(`${base}/changelog/#${id}`, { waitUntil: "load" });
+  const shown = id && await page.evaluate((x) => document.getElementById(x).getClientRects().length > 0, id);
+  report(failures, `/changelog/#${id} opens the earlier releases around it`, shown === true);
+}
+
 // With JavaScript off, the Menu button and the search boxes are hidden, and the nav and the full lists show.
 async function checkNoScript(browser, base, failures) {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
@@ -175,6 +184,7 @@ async function checkSearch(browser, base, failures) {
   await checkNoMatch(page, base, "/settings/", "settings", failures);
   await checkSettingsCount(page, base, failures);
   await checkOpenGroupStays(page, base, failures);
+  await checkReleaseAnchor(page, base, failures);
   await page.close();
 }
 

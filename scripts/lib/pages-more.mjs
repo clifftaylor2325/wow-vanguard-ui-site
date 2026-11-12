@@ -772,40 +772,51 @@ ${NEXT_RELEASE.groups.map((g) => nextGroup(g, loc)).join("\n")}
 </section>`;
 }
 
-// A release's grouped notes (New, Improved, Fixed), each group folded under its heading.
-function groupedNotes(r, groups, loc) {
-  return groups.map((g) => disclosure({ id: `rel-${esc(r.tagName)}-${g.id}`, level: 3, title: esc(loc.p(g.title)), meta: loc.pn({ one: "{n} change", other: "{n} changes" }, g.items.length),
+// A release's grouped notes (New, Improved, Fixed), each group folded under its heading (one level under the release's own).
+function groupedNotes(r, groups, level, loc) {
+  return groups.map((g) => disclosure({ id: `rel-${esc(r.tagName)}-${g.id}`, level: level + 1, title: esc(loc.p(g.title)), meta: loc.pn({ one: "{n} change", other: "{n} changes" }, g.items.length),
     body: `<ul class="changes">${g.items.map((i) => `<li><strong>${esc(loc.p(i.label))}:</strong> ${esc(loc.p(i.text))}</li>`).join("")}</ul>` })).join("\n");
 }
 
 // A release's bullets: the player-language notes (grouped for a big release), else its release note titles.
-function releaseNotes(r, loc) {
+function releaseNotes(r, level, loc) {
   const own = RELEASE_NOTES[r.tagName];
-  if (own?.groups) return groupedNotes(r, own.groups, loc);
+  if (own?.groups) return groupedNotes(r, own.groups, level, loc);
   const notes = own?.map((n) => loc.p(n.text)) || notesOf(r.body);
   return notes.length ? `<ul class="changes">${notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : `<p>${loc.p("No notes.")}</p>`;
 }
 
 // One published release: its tag, date, a Current release badge, and its notes.
-function releaseSection(r, model, loc) {
+// `level` is its heading's (the earlier releases sit one level down).
+function releaseSection(r, model, level, loc) {
   const isCurrent = r.tagName === model.release.tag;
   const current = isCurrent ? ` <span class="badge rel">${loc.p("Current release")}</span>` : "";
   return `<section aria-labelledby="rel-${esc(r.tagName)}">
 <details class="disclosure"${isCurrent ? " open data-open" : ""}>
-<summary><h2 id="rel-${esc(r.tagName)}">${esc(r.tagName)}</h2><span class="dis-meta">${esc(dateET(r.publishedAt, loc))}${current}</span></summary>
+<summary><h${level} id="rel-${esc(r.tagName)}">${esc(r.tagName)}</h${level}><span class="dis-meta">${esc(dateET(r.publishedAt, loc))}${current}</span></summary>
 <div class="dis-body">
-${releaseNotes(r, loc)}
+${releaseNotes(r, level, loc)}
 </div>
 </details>
 </section>`;
 }
 
-// The Changelog page: the next release first, then every release, newest first.
+// Every release but the current one, each still its own folded row, under one folded "Earlier releases"
+// heading so the page doesn't grow with every release; the feed's #rel-<tag> links open it (site.js openForHash).
+function earlierReleases(rels, model, loc) {
+  if (!rels.length) return "";
+  return `<section aria-labelledby="earlier-releases">
+${disclosure({ id: "earlier-releases", title: loc.p("Earlier releases"), body: rels.map((r) => releaseSection(r, model, 3, loc)).join("\n") })}
+</section>`;
+}
+
+// The Changelog page: the current release, what's coming, then the earlier releases, newest first.
 export function changelogPage(model, loc = EN) {
   const rels = model.releases.releases.slice().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  const current = rels.filter((r) => r.tagName === model.release.tag);
   const body = [pageHero(loc.t("title./changelog/"), loc.p("Newest first: what each Vanguard release changed, in plain words.")),
     supportAsk("changelog", loc.p("Vanguard is free. If these releases are useful to you,"), undefined, loc.p("Say thanks on Ko-fi")),
-    ...rels.map((r) => releaseSection(r, model, loc)), nextSection(model, loc), `<p class="small">${loc.p("Every line comes from the changes merged into the addon for that release.")} ${loc.p(`New releases are also in the <a href="/changelog/feed.xml">release feed</a>, for feed readers and Discord bots.`)}</p>`];
+    ...current.map((r) => releaseSection(r, model, 2, loc)), nextSection(model, loc), earlierReleases(rels.filter((r) => !current.includes(r)), model, loc), `<p class="small">${loc.p("Every line comes from the changes merged into the addon for that release.")} ${loc.p(`New releases are also in the <a href="/changelog/feed.xml">release feed</a>, for feed readers and Discord bots.`)}</p>`];
   return { path: "/changelog/", title: "Changelog", description: loc.p("What changed in each Vanguard release, newest first, and what's coming next."), body: body.join("\n"), translated: true };
 }
 

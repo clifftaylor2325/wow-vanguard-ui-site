@@ -617,6 +617,21 @@ function releaseSections(html) {
   return [...html.matchAll(/<section aria-labelledby="rel-[^"]+">[\s\S]*?<\/section>/g)].map((m) => m[0]);
 }
 
+// Changelog fits one screen: every release but the current one sits in one folded "Earlier releases" section, and each
+// release keeps its #rel-<tag> heading (the feed links to them; site.js opens the folded sections around the link).
+test("the Changelog folds the earlier releases into one section and keeps every #rel- anchor", () => {
+  const html = page("changelog");
+  const from = html.indexOf('<details class="disclosure">\n<summary><h2 id="earlier-releases">Earlier releases</h2>');
+  const earlier = from < 0 ? "" : html.slice(from, html.indexOf("Every line comes from", from));
+  assert.ok(earlier, "an Earlier releases section, folded");
+  for (const r of meta.releases) {
+    assert.match(html, new RegExp(`<h[23] id="rel-${r.tagName.replace(/\./g, "\\.")}">`), `${r.tagName} has its heading`);
+    assert.equal(earlier.includes(`id="rel-${r.tagName}"`), r.tagName !== meta.current, `${r.tagName} is ${r.tagName === meta.current ? "not " : ""}in Earlier releases`);
+  }
+  const feed = fs.readFileSync(path.join(dist, "changelog/feed.xml"), "utf8");
+  for (const id of feed.match(/#rel-v[\d.]+/g)) assert.ok(html.includes(`id="${id.slice(1)}"`), `${id} is on the page`);
+});
+
 // What's coming lists next-release items; no published release's section may.
 test("next-release items stay out of the current release's section", () => {
   const html = page("changelog");

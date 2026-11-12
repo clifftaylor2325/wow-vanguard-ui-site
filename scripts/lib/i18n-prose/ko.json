@@ -1299,5 +1299,6 @@
  "<strong>/vg → {modules}</strong>": "<strong>/vg → {modules}</strong>",
  "On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>: it asks “{question}” first, then keeps a copy of the profile and resets it. The options window then shows its <strong>{ui:Reload now}</strong> button.": "프로필 페이지의 <strong>{reset}</strong>은 <code>/vg profile reset</code>과 같은 일을 합니다. 먼저 “{question}”라고 묻고, 그다음 프로필의 사본을 남긴 뒤 초기화합니다. 그러면 설정 창에 <strong>{ui:Reload now}</strong> 버튼이 나타납니다.",
  "The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner.": "게임 속 기본 배치: 캐릭터 양옆의 플레이어와 대상 프레임, 그 사이의 시전바, 아래쪽의 행동 단축바, 사각형 미니맵 아래의 퀘스트 추적기와 정보 막대, 구석의 가방과 메뉴 막대.",
- "You may use the crest and the share card in articles and videos about Vanguard. For anything else, ask on Discord first.": "문장과 공유 카드는 Vanguard에 관한 기사와 영상에 사용할 수 있습니다. 그 밖의 용도는 먼저 Discord에서 문의해 주세요."
+ "You may use the crest and the share card in articles and videos about Vanguard. For anything else, ask on Discord first.": "문장과 공유 카드는 Vanguard에 관한 기사와 영상에 사용할 수 있습니다. 그 밖의 용도는 먼저 Discord에서 문의해 주세요.",
+ "Earlier releases": "이전 버전"
 }
