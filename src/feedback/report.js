@@ -47,8 +47,9 @@ function errorLine(line) {
   const m = trimmed.match(/\(x(\d+)\)$/);
   if (!m || /^\s/.test(line)) return null;
   const before = trimmed.slice(0, m.index);
-  const text = before.trimEnd().replace(/^\[\d+\]\s+(?=\S)/, "");
-  if (!text || text.length === before.length) return null;
+  const body = before.trimEnd();
+  const text = body.replace(/^\[\d+\]\s+(?=\S)/, "");
+  if (!text || body.length === before.length) return null;
   return { text, count: Number(m[1]) };
 }
 

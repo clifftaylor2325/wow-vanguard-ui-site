@@ -781,6 +781,11 @@ test("the error line reader and normalize give the same fingerprints as before",
   assert.equal(await fingerprint(parseReport(ERRORS)), await fingerprint(parseReport(ERRORS.replace(/\(x\d+\)/g, "(x9)"))));
 });
 
+test("an error line needs white space before (xN), with or without the [n] prefix", () => {
+  assert.deepEqual(parseReport("Vanguard v1\n[1] foo.lua:3: bad(x3)").errors, []);
+  assert.deepEqual(parseReport("Vanguard v1\n[1] foo.lua:3: bad (x3)").errors.map((e) => e.text), ["foo.lua:3: bad"]);
+});
+
 test("starting over clears the 'Filled in from what you pasted' line", () => {
   const script = fs.readFileSync(path.join(root, "src/assets/feedback.js"), "utf8");
   const again = script.slice(script.indexOf("function again()"));
