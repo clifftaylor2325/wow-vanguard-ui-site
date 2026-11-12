@@ -768,7 +768,7 @@
  "{ui:Bags}": "{ui:Bags}",
  "Make your own categories in the combined bag, search with words, deposit to the bank, and use Filter and Groups buttons on the search row.": "在合併背包中建立你自己的分類，用文字搜尋，存入銀行，並使用搜尋列上的「過濾」和「分組」按鈕。",
  "Town": "城鎮",
- "The merchant window has a sell list, Sell all of one item, and {ui:Stack} and {ui:Max} buying. Mail has {ui:Take all} and {ui:Return all}.": "商人視窗有出售清單、「Sell all of one item」，以及「{ui:Stack}」和「{ui:Max}」購買。郵件有「{ui:Take all}」和「{ui:Return all}」。",
+ "The merchant window has a sell list, Sell all of one item, and {ui:Stack} and {ui:Max} buying. Mail has {ui:Take all} and {ui:Return all}.": "商人視窗有出售清單、「出售同一物品的全部」，以及「{ui:Stack}」和「{ui:Max}」購買。郵件有「{ui:Take all}」和「{ui:Return all}」。",
  "Alts": "分身",
  "/vg alts shows an overview of your characters, also on the {ui:Game windows} page.": "/vg alts 會顯示你的角色總覽，在「{ui:Game windows}」頁面上也有。",
  "{ui:HUD}": "{ui:HUD}",
