@@ -10,3 +10,12 @@ test("valuesText shows a next-only range when the release's range is not a liter
   assert.match(html, /1/);
   assert.match(html, /next/i);
 });
+
+test("reloadRowNames reads a call with commas before the alias, and ignores a predeclare above it", async () => {
+  const { reloadRowNames } = await import("../scripts/lib/extract.mjs");
+  const call = reloadRowNames("local a, reloadRow = f(x, y), O.ReloadRow\n");
+  assert.ok(call.has("reloadRow"));
+  const predeclare = reloadRowNames("local a, b\nlocal essential, reloadRow = O.Essential, O.ReloadRow\n");
+  assert.ok(predeclare.has("reloadRow"));
+  assert.ok(!predeclare.has("essential"));
+});

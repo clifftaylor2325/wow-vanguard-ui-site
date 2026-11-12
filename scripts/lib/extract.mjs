@@ -237,10 +237,11 @@ function settingRef(ctx, text, depth = 0) {
 
 // The names a file calls O.ReloadRow by: "O.ReloadRow" itself and each local assigned it
 // (`local essential, reloadRow = O.Essential, O.ReloadRow`).
-function reloadRowNames(code) {
+export function reloadRowNames(code) {
   const names = new Set(["O.ReloadRow"]);
-  for (const decl of code.matchAll(/^local\s+([\w\s,]+?)\s*=\s*([^\n]+)$/gm)) {
-    const values = decl[2].split(",").map((v) => v.trim());
+  for (const decl of code.matchAll(/^local[ \t]+([\w \t,]+?)[ \t]*=[ \t]*([^\n]+)$/gm)) {
+    const bare = mask(decl[2]).bare;
+    const values = splitTop(bare, 0, bare.length).map(([a, b]) => bare.slice(a, b).trim());
     decl[1].split(",").forEach((name, i) => { if (values[i] === "O.ReloadRow") names.add(name.trim()); });
   }
   return names;
