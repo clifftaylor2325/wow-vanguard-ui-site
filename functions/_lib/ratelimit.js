@@ -69,17 +69,31 @@ async function names(kv, prefix) {
 // `cap` other slots inside the window are as old as ours or older (a slot
 // with the same time counts against us, so a tie can't squeeze past an
 // already accepted send). Returns { key } on success, or { retryAfter }
-// (seconds) after deleting our slot.
+// (seconds) after deleting our slot (a failed delete still refuses; the slot's expiry clears it).
 async function takeSlot(kv, prefixes, cap, windowMs, ttl, now, retryAt) {
   const key = slotKey(prefixes[0], now);
   await kv.put(key, "1", { expirationTtl: ttl });
-  const all = (await Promise.all(prefixes.map((p) => names(kv, p)))).flat();
-  const before = all
-    .filter((n) => n !== key && slotTime(n) > now - windowMs && slotTime(n) <= now)
-    .sort((a, b) => slotTime(a) - slotTime(b));
-  if (before.length < cap) return { key };
-  await kv.delete(key);
-  return { retryAfter: Math.max(1, Math.ceil((retryAt(before) - now) / 1000)) };
+  try {
+    const all = (await Promise.all(prefixes.map((p) => names(kv, p)))).flat();
+    const before = all
+      .filter((n) => n !== key && slotTime(n) > now - windowMs && slotTime(n) <= now)
+      .sort((a, b) => slotTime(a) - slotTime(b));
+    if (before.length < cap) return { key };
+    await dropQuietly(kv, key);
+    return { retryAfter: Math.max(1, Math.ceil((retryAt(before) - now) / 1000)) };
+  } catch (e) {
+    await dropQuietly(kv, key);
+    throw e;
+  }
+}
+
+// Deletes a slot and ignores a failure: the slot's expiry clears it if KV is down.
+async function dropQuietly(kv, key) {
+  try {
+    await kv.delete(key);
+  } catch {
+    // KV is failing as well; the expiry takes the slot.
+  }
 }
 
 // Seconds until the next UTC day.
@@ -89,23 +103,35 @@ function nextDay(now) {
   return d.getTime();
 }
 
+// The day slot; on a refusal or a KV error the player slot taken just before goes back too.
+async function takeDaySlot(kv, keys, playerKey, now) {
+  try {
+    const day = await takeSlot(kv, [keys.day], PER_DAY, DAY, 2 * 86400, now, () => nextDay(now));
+    if (day.retryAfter) await dropQuietly(kv, playerKey);
+    return day;
+  } catch (e) {
+    await dropQuietly(kv, playerKey);
+    throw e;
+  }
+}
+
 // Reserves this send against both caps. Returns { slots } to pass to
 // release() later, or { retryAfter } when a cap is reached (nothing kept).
 export async function reserve(kv, keys, now) {
   // The rolling hour frees up when the oldest slot that's in the way turns an hour old.
   const player = await takeSlot(kv, [keys.player, keys.playerBefore], PER_HOUR, HOUR, 2 * 3600, now, (before) => slotTime(before[before.length - PER_HOUR]) + HOUR);
   if (player.retryAfter) return player;
-  const day = await takeSlot(kv, [keys.day], PER_DAY, DAY, 2 * 86400, now, () => nextDay(now));
-  if (day.retryAfter) {
-    await kv.delete(player.key);
-    return day;
-  }
+  const day = await takeDaySlot(kv, keys, player.key, now);
+  if (day.retryAfter) return day;
   return { slots: { player: player.key, day: day.key } };
 }
 
 // Gives back slots: all of them when the send failed, or just the day slot
 // when no new issue was made (a duplicate became a comment).
 export async function release(kv, slots, { failed }) {
-  await kv.delete(slots.day);
-  if (failed) await kv.delete(slots.player);
+  const drops = [kv.delete(slots.day)];
+  if (failed) drops.push(kv.delete(slots.player));
+  const results = await Promise.allSettled(drops);
+  const broken = results.find((r) => r.status === "rejected");
+  if (broken) throw broken.reason;
 }

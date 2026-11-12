@@ -11,7 +11,7 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton, navCommunity, followLine } from "../scripts/lib/html.mjs";
-import { helpPage, licenseSummary, profilesPage } from "../scripts/lib/pages-more.mjs";
+import { helpPage, licenseSummary, profilesPage, changelogPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 import { tocRetailOnly } from "../scripts/lib/source.mjs";
@@ -23,7 +23,7 @@ import * as EXTRACT from "../scripts/lib/extract.mjs";
 const { extractAddon, extractPages, specReader } = EXTRACT;
 import { buildModel, AREAS } from "../scripts/lib/model.mjs";
 import { repoTextFiles, scanFiles } from "../scripts/lib/encoding.mjs";
-import { SHOT_GROUPS, shotByFile } from "../scripts/lib/shots-content.mjs";
+import { SHOT_GROUPS, shotByFile, readyShots } from "../scripts/lib/shots-content.mjs";
 
 const cfg = loadConfig();
 if (!fs.existsSync(path.join(cfg.sourcePath, ".git"))) {
@@ -492,6 +492,16 @@ test("Troubleshooting's Known issues lists the README's Known issues, in the add
   }
 });
 
+// A screen reader's heading list stays in order: no heading is more than one level below the one before it.
+test("headings in main never skip a level", () => {
+  for (const n of NAV) {
+    const html = page(n.path.replace(/^\/|\/$/g, ""));
+    const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
+    const levels = [...main.matchAll(/<h([1-6])[\s>]/g)].map((x) => Number(x[1]));
+    levels.forEach((lv, i) => assert.ok(i === 0 || lv <= levels[i - 1] + 1, `${n.path}: h${lv} follows h${levels[i - 1]}`));
+  }
+});
+
 test("pages are well formed: one h1, skip link, shared nav and footer", () => {
   const dirs = ["", "install", "start", "features", "commands", "settings", "profiles", "help", "feedback", "changelog", "credits", "support", "screenshots"];
   for (const d of dirs) {
@@ -616,6 +626,41 @@ test("an FAQ entry is dropped when the addon no longer has its quote", () => {
 function releaseSections(html) {
   return [...html.matchAll(/<section aria-labelledby="rel-[^"]+">[\s\S]*?<\/section>/g)].map((m) => m[0]);
 }
+
+// Changelog fits one screen: every release but the current one sits in one folded "Earlier releases" section, and each
+// release keeps its #rel-<tag> heading (the feed links to them; site.js opens the folded sections around the link).
+test("the Changelog folds the earlier releases into one section and keeps every #rel- anchor", () => {
+  const html = page("changelog");
+  const from = html.indexOf('<details class="disclosure">\n<summary><h2 id="earlier-releases">Earlier releases</h2>');
+  const earlier = from < 0 ? "" : html.slice(from, html.indexOf("Every line comes from", from));
+  assert.ok(earlier, "an Earlier releases section, folded");
+  for (const r of meta.releases) {
+    assert.match(html, new RegExp(`<h[23] id="rel-${r.tagName.replace(/\./g, "\\.")}">`), `${r.tagName} has its heading`);
+    assert.equal(earlier.includes(`id="rel-${r.tagName}"`), r.tagName !== meta.current, `${r.tagName} is ${r.tagName === meta.current ? "not " : ""}in Earlier releases`);
+  }
+  const feed = fs.readFileSync(path.join(dist, "changelog/feed.xml"), "utf8");
+  for (const id of feed.match(/#rel-v[\d.]+/g)) assert.ok(html.includes(`id="${id.slice(1)}"`), `${id} is on the page`);
+});
+
+// A release newer than the current one (a pre-release) is shown with the current release, not folded under Earlier.
+test("the Changelog keeps a release newer than the current one out of Earlier releases", () => {
+  const rel = (tagName, publishedAt) => ({ tagName, publishedAt, body: "" });
+  const model = { release: { tag: "v1.0.0" }, releases: { releases: [rel("v0.9.0", "2026-01-01T00:00:00Z"), rel("v1.0.0", "2026-02-01T00:00:00Z"), rel("v1.1.0-rc1", "2026-03-01T00:00:00Z")] }, same: true };
+  const html = changelogPage(model).body;
+  const earlier = html.slice(html.indexOf('id="earlier-releases"'));
+  assert.ok(!earlier.includes('id="rel-v1.1.0-rc1"') && !earlier.includes('id="rel-v1.0.0"'), "newer and current are above Earlier");
+  assert.ok(earlier.includes('id="rel-v0.9.0"'), "the older release is under Earlier");
+});
+
+// site.css hides every .dis-meta under 560px; the Changelog's release dates and badge carry .keep so they stay.
+test("the Changelog's release dates and Current release badge are kept on a phone", () => {
+  const css = fs.readFileSync(path.join(dist, "assets/site.css"), "utf8");
+  assert.match(css, /@media \(max-width: 559px\) \{[^}]*\.dis-meta \{ display: none; \}[^]*?\.dis-meta\.keep \{ display: block;/);
+  const html = page("changelog");
+  const metas = html.match(/<span class="dis-meta[^"]*">/g) || [];
+  assert.ok(metas.length >= 2 && metas.filter((m) => m.includes("keep")).length >= meta.releases.length, "every release's meta is .keep");
+  assert.ok(/<span class="dis-meta keep">[^<]*<span class="badge rel">Current release/.test(html), "the Current release badge is in one");
+});
 
 // What's coming lists next-release items; no published release's section may.
 test("next-release items stay out of the current release's section", () => {
@@ -773,6 +818,81 @@ function behindModel() {
   const model = buildModel({ rel: extractAddon(relReader), next: extractAddon(nextReader), release: { tag: old.tagName, publishedAt: old.publishedAt }, releases: meta });
   return { model, read: { rel: specReader(relReader), next: specReader(nextReader) } };
 }
+
+// With the release behind the source, a longer text only the next README backs is hidden with the Next release badge.
+test("Features tags a module's longer text that the release's README does not say", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const body = featuresPage(behind.model).body;
+  const card = (key) => body.split("<article ").find((a) => a.includes(`data-module="${key}"`)) || "";
+  assert.match(card("UnitFrames"), /<div data-avail="next"><p class="mod-more">[^]*?badge next[^]*?<\/p><\/div>/, "UnitFrames' More is the next release's");
+  assert.match(card("CastBars"), /<p class="mod-more">(?:(?!badge)[^<])*<\/p>/, "CastBars' More is in v0.9.4 too, so untagged");
+  assert.match(card("GroupThreat"), /data-avail="next"[^>]*> It is off until you turn it on/, "a longer sentence the release lacks is tagged");
+});
+
+// With the release behind the source, a module's command line shows the release's help text and the next one's tagged.
+test("Features shows a module's command help as the release prints it, with the next release's wording tagged", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const changed = behind.model.commands.entries.filter((e) => e.changed && e.modules.length);
+  assert.ok(changed.length >= 1, "a module's command help changed between the release and the pins");
+  const body = featuresPage(behind.model).body;
+  for (const e of changed) {
+    const card = body.split("<article ").find((a) => a.includes(`data-module="${e.modules[0]}"`)) || "";
+    const row = card.match(new RegExp(`/vg ${e.id}</code></a>([^]*?)</dd>`))?.[1] || "";
+    assert.ok(row.startsWith(` ${esc(e.relLines[0].text)}`), `${e.id}: the release's text first: ${row}`);
+    const reworded = e.relLines[0].text !== e.nextLines[0].text;
+    if (reworded) assert.match(row, /^[^<]*<span data-avail="next">[^]*badge next/, `${e.id}: the next text is tagged`);
+    else assert.ok(!row.includes("data-avail"), `${e.id}: only the syntax changed, so the same text is not repeated: ${row}`);
+  }
+  assert.ok(changed.some((e) => e.relLines[0].text !== e.nextLines[0].text), "at least one command is reworded");
+  assert.ok(changed.some((e) => e.relLines[0].text === e.nextLines[0].text), "at least one command only changed its syntax");
+});
+
+// With the release behind the source, the closing note on the Modules page lists a next-only module only behind the switch.
+test("Settings lists a module only the next release has behind the Next release switch", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const nextOnly = behind.model.modules.filter((m) => !m.inRel);
+  assert.ok(nextOnly.length >= 1, "the pins have a module the release lacks");
+  const body = settingsPage(behind.model, behind.read).body;
+  const note = body.match(/<tr class="opt-row t"><td colspan="\d+">[^]*?<\/td><\/tr>/g)?.find((r) => r.includes("/features/#")) || "";
+  for (const m of nextOnly) assert.ok(note.includes(`<span data-avail="next">, <a href="/features/#${m.id}">`), `${m.key} is tagged`);
+  for (const m of behind.model.modules.filter((x) => x.inRel)) assert.ok(!note.includes(`data-avail="next">, <a href="/features/#${m.id}">`), `${m.key} is current`);
+});
+
+// Core/Options.lua's resetProfile asks (confirmReset) before it backs the profile up and resets it.
+test("Profiles says the Reset profile button asks first, with the addon's own question", () => {
+  const html = page("profiles");
+  assert.ok(!/straight away and without asking first/.test(html));
+  assert.match(html, /it asks “Reset this profile\?” first, then keeps a copy of the profile and resets it/);
+});
+
+// While no screenshot is ready (every shot waits on a retake) Home, Screenshots and Credits don't send readers to pictures.
+test("Home, Screenshots and Credits mention pictures only while some are ready", () => {
+  const ready = readyShots().length > 0;
+  assert.equal(page("").includes("More pictures are on"), ready);
+  assert.equal(page("screenshots").includes("The same pictures sit beside their module"), ready);
+  assert.equal(/the share card and the screenshots in articles/.test(page("credits")), ready);
+  assert.ok(/You may use the crest (?:, the share card )?and the (?:share card|screenshots)/.test(page("credits")));
+});
+
+// Credits is a reference page: it opens folded and fits one screen (npm run shots checks the fit).
+test("Credits starts with its License section folded", () => {
+  const main = page("credits").split("<main")[1] || "";
+  assert.ok(main.includes('id="license"'), "the License section is there");
+  assert.ok(!/<details[^>]*\bopen\b/.test(main), "and no section starts open");
+});
+
+// Settings fits one screen: the About row and the source note are one folded row above the list of pages.
+test("Settings has one folded About row, with the source note inside, above the list of pages", () => {
+  const main = page("settings").split("<main")[1];
+  const about = main.indexOf('id="reloads"');
+  assert.ok(about > 0 && about < main.indexOf('id="opt-list"'), "the About row comes before the list");
+  assert.equal((main.match(/<details class="src"/g) || []).length, 1, "one source note");
+  assert.ok(main.indexOf('<details class="src"') > about && main.indexOf('<details class="src"') < main.indexOf('id="opt-list"'), "inside the About row");
+  assert.ok(!/<details[^>]*\bopen\b/.test(main.slice(0, main.indexOf('id="opt-list"'))), "folded");
+});
 
 // With the release behind the source, the wizard is the release's, and what only the next release adds is tagged.
 test("Getting started tags the wizard layouts only the next release has", () => {
@@ -1247,12 +1367,44 @@ test("a renamed setting is one row: its short name, with the old caption as its 
 });
 
 // The rows a Retail-only file adds are marked "Retail only", read from the TOC's load flags rather than typed.
+// Rows whose caption the build reads through a call by a local alias (the Calm HUD parts), a dotted constant
+// (the mana bar and Dungeon card names) or a field of a loop's table (the chat filter's three categories).
+test("Settings lists the Calm HUD parts, the mana bar, the Dungeon card and the chat filter categories", () => {
+  const html = page("settings");
+  const names = ["Unit frames", "Action bars", "Your buffs and debuffs", "Info strip, menu bar and broker strip", "XP and rep bars", "Damage meter and fight history", "Minimap", "Druid mana in bear and cat form", "Dungeon card", "Gold selling", "Boosting", "Guild recruiting"];
+  for (const name of names) assert.ok(html.includes(`>${name}`), `${name} is on Settings`);
+  const data = JSON.parse(fs.readFileSync(path.join(dist, "site-data.json"), "utf8"));
+  assert.ok(JSON.stringify(data).includes("Mana under the player frame"));
+  assert.match(html, /Mana under the player frame[^<]*(?:<[^>]*>\s*)*[^]{0,200}Retail only/);
+  assert.ok(!/had a caption|left off/.test(html));
+});
+
+// One switch with a different name per client is one setting: its Retail-worded row is listed but not counted twice.
+test("the mana bar switch is counted once though it has a Forever and a Retail name", () => {
+  const html = page("settings");
+  const forever = html.match(/<tr[^>]*id="unit-frames-druid-mana-in-bear-and-cat-form-reload"[^>]*>/)?.[0] || "";
+  const retail = html.match(/<tr[^>]*id="unit-frames-mana-under-the-player-frame-reload"[^>]*>/)?.[0] || "";
+  assert.match(forever, /data-count/);
+  assert.ok(retail && !/data-count/.test(retail), retail);
+});
+
+// O.RestartSetting rebuilds a live module at once, so its row has no reload words and no Needs reload tag; the
+// row's id (a deep link) keeps the full caption.
+test("a restart setting of a live module is not tagged as needing a reload", () => {
+  const html = page("settings");
+  const row = html.match(/id="cooldowns-gaps-row-reload"[^>]*>(<th.*?<\/th>)/s)?.[1] || "";
+  assert.match(row, /class="opt-cap">Gaps row /);
+  assert.ok(!/\(reload\)|Needs reload/.test(row), row);
+  const german = page("de/settings").match(/id="cooldowns-gaps-row-reload"[^>]*>(<th.*?<\/th>)/s)?.[1] || "";
+  assert.ok(german && !/\(|Needs reload|Neustart/.test(german.replace(/<span[^>]*>.*?<\/span>/g, "")), german);
+});
+
 test("Settings marks the rows from Retail-only files, and no other row", () => {
   const toc = "Modules/A.lua\nModules/RetailWindows.lua [AllowLoadGameType standard] [ExcludeLoadGameType camelot]\nModules/Forever.lua [AllowLoadGameType camelot] [ExcludeLoadGameType standard]\n";
   assert.deepEqual([...tocRetailOnly(toc)], ["Modules/RetailWindows.lua"]);
   const html = page("settings");
   const marked = [...html.matchAll(/<th scope="row" class="opt-cap">([^<]*?)(?: \(reload\))? (?:<span class="badge reload">[^<]*<\/span> )?<span class="badge plain">Retail only<\/span>/g)].map((m) => m[1]);
-  assert.deepEqual(marked, ["Group finder and PvP windows", "Great Vault window", "Great Vault progress on the info strip", "Expansion and transmog windows"]);
-  assert.equal((html.match(/Retail only/g) || []).length, 4);
+  assert.deepEqual(marked, ["Mana under the player frame", "Group finder and PvP windows", "Great Vault window", "Great Vault progress on the info strip", "Expansion and transmog windows"]);
+  assert.equal((html.match(/Retail only/g) || []).length, 5);
   assert.match(page("de/settings"), /Nur Retail/);
 });

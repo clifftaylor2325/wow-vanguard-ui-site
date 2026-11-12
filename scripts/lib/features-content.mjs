@@ -77,7 +77,7 @@ export const MORE = {
     check: ["talking to a quest giver opens Vanguard's own dialog", "instead of the game's quest and gossip windows", "the NPC's portrait", "numbered lines for quests", "reward cards with quality borders", "and the money and XP you'll get", "Press a number to pick a line or a reward, Space or Enter for the main button", "Escape to say goodbye"], from: "Quest dialog" },
   QuestTracker: { more: "Each quest you watch, with its level in its difficulty color, its objectives as rows (muted gray with a check when done) or \"{ui:Ready to turn in}\", and its quest item as a button beside it. Left-click a quest to open it, Shift-click to point the arrow at it, right-click to stop watching it, and order it as the game does or nearest first.",
     check: ["each quest you watch as \"[12] Title\" in its difficulty color", "its objectives as rows like the quest log's", "once done it turns muted gray with a check before it) or \"Ready to turn in\"", "its usable quest item as a button beside it", "Left-click a quest to open it", "Shift-click to point the arrow at it", "right-click to stop watching it", "order it as the game does", "or nearest first"], from: "Quest tracker" },
-  QuestLog: { more: "Your quests under their zones (click a zone to fold it), with the chosen quest's text, objectives and rewards, and Track, Share, Abandon and Map buttons. The game's quest log key and /vg quests open it.",
+  QuestLog: { more: "Your quests under their zones (click a zone to fold it), with the chosen quest's text, objectives and rewards, and {ui:Track}, {ui:Share}, {ui:Abandon} and {ui:Map} buttons. The game's quest log key and /vg quests open it.",
     check: ["your quests under their zones", "each zone a small-capitals header with a chevron: click it to fold the zone", "the chosen quest's text, its objectives as rows", "Track/Untrack", "Share (in a group) and Map along the right, and Abandon", "the game's quest log key", "`/vg quests`) open Vanguard's own"], from: "Quest log" },
   QuestAuto: { more: "Accept quests (and quests a party member shares with you, on its own switch), turn in finished ones and skip the chatter when an NPC has just one quest for you. It never picks a reward for you unless you also switch on taking the one that sells for most. Hold Shift while talking to skip it.",
     check: ["accept quests a party member shares with you (its own switch", "turn in finished ones (it never chooses among rewards for you, unless you also switch on \"take the one that sells for most\"", "skip the chatter when an NPC has just one quest for you", "hold Shift while talking to skip it"], from: "Quest automation" },
@@ -261,7 +261,7 @@ export const LONGER = {
     R("It can also release your spirit at once in a battleground, hide the red error line and the zone names that fade in, and zoom the camera further out.", "release your spirit at once when you die in a battleground", "hide the red error line", "a furthest camera zoom of 1.5, 2 or 2.6 times"),
   ],
   ChatFilter: [
-    R("Each line in the Filtered tab starts with why it was caught, and clicking the sender's name lets their lines through again until you log out.", "Each line there starts with why it was caught", "clicking the sender's name lets their lines through again until you log out"),
+    R("Each line in the {ui:Filtered} tab starts with why it was caught, and clicking the sender's name lets their lines through again until you log out.", "Each line there starts with why it was caught", "clicking the sender's name lets their lines through again until you log out"),
     R("Whispers, guild, party and raid lines, and your own, are never filtered.", "Whispers, guild, party and raid lines, and your own, are never filtered"),
     R("Where the game hides chat from addons (dungeons, raids, encounters), a line is not read and passes through.", "Where the game hides chat from addons (dungeons, raids, encounters) a line is not read and passes through"),
   ],
@@ -343,7 +343,7 @@ export const LONGER = {
   ],
   QuestLog: [
     R("The quest log button on the bag and menu bar opens it too, and clicking a quest in the tracker opens it here.", "the quest log button on the bag and menu bar", "Clicking a quest in the tracker opens it here"),
-    R("A quest ready to turn in gets a check, Abandon goes through the game's own confirmation, and Ctrl-click marks several quests to abandon at once.", "with a green check when ready to turn in", "Abandon (through the game's own confirmation", "alone at the far left", "Ctrl-click quests to mark several"),
+    R("A quest ready to turn in gets a check, {ui:Abandon} goes through the game's own confirmation, and Ctrl-click marks several quests to abandon at once.", "with a green check when ready to turn in", "Abandon (through the game's own confirmation", "alone at the far left", "Ctrl-click quests to mark several"),
     R("A long list and a long quest text scroll with the mouse wheel.", "a long list, and a long quest text, scroll with the mouse wheel"),
     R("Switch it off under /vg → Quests to keep the game's.", "Switch it off under `/vg` → Quests to keep the game's"),
   ],
@@ -363,7 +363,7 @@ export const LONGER = {
     R("{ui:Faster auto-loot} works while the game is auto-looting and takes every slot at once; an item still being rolled for stays in the loot window, and a bind-on-pickup item still asks first.", "when the game is auto-looting (its Auto Loot setting, or its auto-loot key held), every slot is taken at once instead of one by one", "a slot the game has locked (an item still being rolled for) stays in the loot window, and a bind-on-pickup item still asks first"),
   ],
   Waypoints: [
-    R("Name a zone and a title too, as in /way Elwynn Forest 42 65 Inn, and /way clear removes the waypoint.", "`/way Elwynn Forest 42 65 Inn` names a zone", "`/way clear` removes it"),
+    R("Name a zone (as your game names it) and a title too, as in /way Elwynn Forest 42 65 Inn, and /way clear removes the waypoint.", "`/way Elwynn Forest 42 65 Inn` names a zone", "`/way clear` removes it"),
     R("All three are on by default, under Map.", "All three are on by default, under Map."),
   ],
   Inventory: [
@@ -436,6 +436,13 @@ export function longerOf(key) {
   return (LONGER[key] || []).map((x) => x.s);
 }
 
+// A module's longer sentences with whether the release's README backs each one: { s, current }. A
+// sentence pinned only to the addon's code counts as current only while the release is the pinned source
+// (same), since the code at the release is not read at build time.
+export function longerRows(key, releaseReadme, same) {
+  return (LONGER[key] || []).map((x) => ({ s: x.s, current: x.readme?.length ? x.readme.every((p) => readmeSays(releaseReadme, p)) : same }));
+}
+
 // A phrase as the addon's feature pages may start a paragraph with it: capitalised.
 export const capitalised = (phrase) => phrase.charAt(0).toUpperCase() + phrase.slice(1);
 
@@ -471,7 +478,7 @@ Object.assign(MORE, {
     check: ["a small flat, movable panel with the top lines of the game's damage meter for the current fight", "each a theme bar in the player's class color with a rank, a name and a per-second figure (yours in the accent)", "Click the title to step through the kinds (damage and healing per second, damage and healing done, damage taken, interrupts, dispels, deaths", "off until you turn it on under Combat tools → Vanguard meter"], from: "Vanguard meter" },
   SpellRanks: { more: "Two switches, both off until you tick them. {ui:Notice older ranks on bars} says in chat when a bar button holds an older rank of a spell you know a higher rank of, and /vg ranks swap puts the newest rank there. {ui:Remember what trainers teach} remembers what each trainer you open teaches, and /vg trainers next lists what the next levels bring.",
     check: ["both switches start off, under Town and gear", "(the bar notice) says in chat, once and out of combat", "`/vg ranks swap` puts the newest rank on them", "(trainer memory) remembers", "`/vg trainers next` lists what the next five levels bring and where to learn it"], from: "Spell ranks" },
-  QuestGuide: { more: "Quest help from the client's own data only, never a community quest database: a New mark on quests new in WoW Forever when the client flags them, quest-start pins on the world map, and an arrow that follows the quest you Shift-click in the tracker.",
+  QuestGuide: { more: "Quest help from the client's own data only, never a community quest database: a {ui:New} mark on quests new in WoW Forever when the client flags them, quest-start pins on the world map, and an arrow that follows the quest you Shift-click in the tracker.",
     check: ["from the client's own data only, never a community quest database", "a **New** mark in your accent", "after the title of quests new in WoW Forever", "**quest-start pins** on the world map, a small gold \"!\"", "Shift-click a quest in the tracker and the game's own quest marker follows it"], from: "Quest guidance" },
   OfficerLoot: { more: "For a raid leader or officer: a soft-reserve list kept on this character. A roll by a player who reserved the item being rolled for is marked [SR] in the roll tracker. Nothing is synced or sent for you.",
     check: ["for a raid leader or officer, a soft-reserve list", "The list is kept on this character (not in the profile, not synced)", "a roll by a player who reserved the item being rolled for is marked \"[SR]\" after their name", "off until switched on: `/vg loot on`"], from: "Officer loot tools" },

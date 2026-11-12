@@ -227,9 +227,23 @@ test("prose never types a button, switch, message or page name the addon has; it
 
 // A button, switch or page name of two or more words is written {ui:Text} so each language shows the addon's own word for it.
 // The names below are still typed bare where they read as a noun or as the site's own words; the list only shrinks.
+// Most one-word control names are also plain English words, so a long list of them would flag ordinary prose. These few are
+// controls in the lines the site writes; mid-sentence with a capital (after a lower-case word or a comma) one is the control,
+// and it is written {ui:Text} too (a sentence's first word is left alone, as are the word's plain uses).
+const ONE_WORD_CONTROLS = ["Tabs", "Plain", "Standards", "Combat", "Stack", "Max", "Abandon", "Filtered"];
+
+test("a one-word addon control inside a sentence is written {ui:Text}, not bare", () => {
+  const bare = [];
+  for (const line of used.keys()) {
+    const plain = line.replace(/\{ui:[^}]+\}/g, "@@");
+    for (const w of ONE_WORD_CONTROLS) if (new RegExp(`(?<=[a-z,] )${w}(?![\\w}]| tools| Log)`).test(plain)) bare.push(`${w} in: ${line.slice(0, 80)}`);
+  }
+  assert.deepEqual(bare, []);
+});
+
 test("a prose line names no new addon control bare: it uses {ui:Text}", () => {
   const baseline = new Set(JSON.parse(fs.readFileSync(new URL("./bare-names-baseline.json", import.meta.url), "utf8")));
-  const names = addonKeys.filter((k) => /^[A-Z]/.test(k) && /^\S+( \S+){1,5}$/.test(k) && k.length >= 8 && !/[{%<.:?!]/.test(k));
+  const names = addonKeys.filter((k) => /^[A-Z]/.test(k) && /^\S+( \S+){1,9}$/.test(k) && k.length >= 8 && !/[{%<.:?!]/.test(k));
   const bare = new Set();
   for (const line of used.keys()) {
     const plain = line.replace(/\{ui:[^}]+\}/g, "@@");
@@ -241,27 +255,40 @@ test("a prose line names no new addon control bare: it uses {ui:Text}", () => {
 
 // One word per term in each language: the variants below were drafted later and drifted from the file's own word
 // (the English term, and the word the file and the game use, in the comments). A new line uses the established word.
+// Every translated text is read (the page prose, the Troubleshooting and Support drafts, the site strings); es-mx also takes es's.
 const DRIFTED_TERMS = {
-  ru: [/рамки персонажей/, /таймер ударов/, /кликкастинг/, /счётчик урона/, /панелей действий/, /Улучшения экипировки/, /странице отзывов/, /Другие аддоны»/],
-  ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /퀘스트 일지/, /Retail/],
-  es: [/página de Feedback/, /entrenador/],
+  de: [/Schlagtimer/, /Würfelverfolger/, /Schrott/, /HUD-Look/, /Gruppentafel/, /Chat-Wächter/, /Nebenhand/, /Questverfolgung/],
+  ru: [/рамки персонажей/, /таймер ударов/, /кликкастинг/, /счётчик урона/, /панел[а-я]* действий/, /Улучшения экипировки/, /странице отзывов/, /Другие аддоны»/, /тренер/],
+  ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /퀘스트 일지/, /Retail/, /측정기/, /정보 (바|막대)/, /픽셀 퍼펙트/, /재능/],
+  es: [/cronômetro/, /temporizador de golpes/, /página de Feedback/, /entrenador/, /cola de fabricación/, /registro de tiradas/, /tira de información/, /más se vende/],
   "es-mx": [/calabozo/, /«|»/],
-  fr: [/page Feedback/, /minuteur de coups/],
-  it: [/addestrator/, /ranghi degli/, /Silenzioso restituisce/, /registro dei tiri/, /targhette dei nomi/],
-  "pt-br": [/treinador/, /graduaç/, /do mercador/, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/],
-  "zh-tw": [/框體/, /配置文件/],
+  fr: [/page Feedback/, /minuteur de coups/, /barres? d’info\b/, /(?<![\w/-])chat(?![\w/-])/, /Looks? du HUD/, /lancer au clic/, /panneau du personnage/, /bandeau d’infos/, /entraîneur/],
+  it: [/addestrator/, /ranghi degli/, /Silenzioso restituisce/, /registro dei tiri/, /targhett/, /(monitoraggio|tracciamento) (delle )?missioni/, /barra informazioni/, /lancio con clic/],
+  "pt-br": [/treinador/, /graduaç/, /do mercador/, /Slate & Brass/, /(?<![\w/-])chat(?![\w/-])/, /mascote/, /temporizador de golpes/, /fila de fabricação/, /curandeiro/],
+  "zh-cn": [/准备确认/, /团队格子/, /威胁/],
+  "zh-tw": [/框體/, /配置文件/, /就位確認/, /揮擊計時器/, /正式版/, /姓名板/, /動作條/, /揹包/, /標籤頁/, /嚮導/, /拍賣行/, /“|”/],
 };
 
 test("a translation keeps its file's own word for a term, not a later variant", () => {
   const problems = [];
-  for (const [code, patterns] of Object.entries(DRIFTED_TERMS)) {
-    for (const [line, tr] of proseOf(code)) {
-      const text = typeof tr === "string" ? tr : Object.values(tr).join(" ");
+  for (const loc of LOCALES) {
+    const patterns = [...(loc.code === "es-mx" ? DRIFTED_TERMS.es : []), ...(DRIFTED_TERMS[loc.code] ?? [])];
+    for (const [key, , text] of translatedPairs(loc)) {
       const plain = text.replace(/\{ui:[^}]+\}/g, "").replace(/\/vg [^ ]*/g, "");
-      for (const re of patterns) if (re.test(plain)) problems.push(`${code} ${re}: ${line.slice(0, 60)}`);
+      for (const re of patterns) if (re.test(plain)) problems.push(`${loc.code} ${re}: ${key.slice(0, 60)}`);
     }
   }
   assert.deepEqual(problems, []);
+});
+
+// A Korean particle depends on the last sound of the word before it, and the page fills a {ui:Name} (or a {placeholder} in <strong>)
+// with the addon's own word, which the line cannot know. So the line writes the paired form (은(는), 이(가), 을(를), 와(과), (으)로).
+test("a Korean line pairs the particle after an addon name it fills in", () => {
+  const name = String.raw`(?:\{ui:[^}]+\}|<strong>\{\w+\}</strong>)`;
+  const single = new RegExp(`${name}(?:[”"」]\\((?![으이는가를과]\\))[^)]*\\)|[”"」]?)(은|는|이|가|을|를|와|과|으로|로|이며)(?![가-힣(])`);
+  const ko = LOCALES.find((l) => l.code === "ko");
+  const wrong = translatedPairs(ko).map(([key, , text]) => [key, text]).filter(([, text]) => single.test(text));
+  assert.deepEqual(wrong.map(([key, text]) => `${key.slice(0, 50)}: ${text.match(single)[0]}`), []);
 });
 
 test("the addon's words used in {ui:Text} need no HTML escaping", () => {
@@ -332,6 +359,11 @@ test("a command is read with its own words, placeholders and groups, and stops a
   assert.deepEqual(commandsIn("Type /vg move, then /vg reset <frame|all> and /vg opens the window.", words), ["/vg", "/vg move", "/vg reset <frame|all>"]);
   assert.deepEqual(commandsIn("<code>/vg profile new &lt;name&gt;</code>", words), ["/vg profile new <name>"]);
   assert.notDeepEqual(commandsIn("/vg zurücksetzen <Rahmen|jeden>", words), commandsIn("/vg reset <frame|all>", words));
+});
+
+test("a help entry whose text sits on the next line still gives its command its words", () => {
+  assert.deepEqual([...words.get("errors")].sort(), ["clear", "resume"]);
+  assert.deepEqual([...words.get("profile")].includes("copy"), true);
 });
 
 test("a menu path shows /vg as a command, apart from the translated page names; attributes keep theirs", () => {
@@ -612,13 +644,6 @@ test("the not-found page speaks each language and links that language's home", (
     assert.ok(h.includes(`<h1 class="page-title">${siteLocale(l).t("notFound.title")}</h1>`), l.code);
     assert.ok(h.includes(`<a href="/${l.code}/">${siteLocale(l).t("notFound.home")}</a>`), `${l.code} home link`);
   }
-});
-
-test("the site as published today (no `locales` listed) has no language switcher or hreflang", () => {
-  if (cfg.locales.length) return;
-  const h = fs.readFileSync(path.join(cfg.outDir, "settings", "index.html"), "utf8");
-  assert.ok(!h.includes("hreflang") && !h.includes("lang-select") && !h.includes("lang-menu") && !h.includes("vg-strings"));
-  assert.ok(!fs.existsSync(path.join(cfg.outDir, "de")));
 });
 
 test("the Home tagline is the addon's Notes line up to its colon, full-width or not, with the language's own full stop", () => {

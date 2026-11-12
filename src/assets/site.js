@@ -86,13 +86,15 @@
 
   // Hides each group (a settings page, a command group) with no visible entry
   // left. While words are typed, groups with a match open so it can be seen;
-  // when the box is emptied they go back to how they started.
+  // when the box is emptied they go back to how they started. A change with the
+  // box already empty (a version switch) leaves the groups the reader opened.
   function hideEmptyGroups(s, searching) {
     var groups = s.list.querySelectorAll(s.groupSel);
+    var untouched = s.searching === false && !searching;
     for (var g = 0; g < groups.length; g++) {
       var has = !!groups[g].querySelector(s.itemSel + ":not([hidden]):not(.h)");
       groups[g].hidden = !has;
-      setOpen(groups[g], searching ? has : openByDefault(groups[g]));
+      if (!untouched) setOpen(groups[g], searching ? has : openByDefault(groups[g]));
     }
   }
 
@@ -151,6 +153,7 @@
     var query = s.input.value.trim();
     var shown = filterItems(s, fold(query).split(/\s+/).filter(Boolean));
     if (s.groupSel) hideEmptyGroups(s, query !== "");
+    s.searching = query !== "";
     if (s.count) s.count.textContent = countText(s.box, shown);
     showEmpty(s, shown, query);
   }

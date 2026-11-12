@@ -542,6 +542,21 @@ test("60 new issues a day for everyone, then 429", async () => {
   assert.equal(s.issues.length, 60);
 });
 
+test("a refused cap answers 429 even when giving the slot back fails", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const s = mockServices();
+  for (let i = 0; i < 60; i++) assert.equal((await send(env, s, featureFields(), { clock, at: clock.now + i, ip: `198.51.100.${i}` })).status, 200);
+  const del = env.FEEDBACK_KV.delete;
+  env.FEEDBACK_KV.delete = async () => { throw new Error("KV delete down"); };
+  assert.equal((await send(env, s, featureFields(), { clock, at: clock.now + 60, ip: "192.0.2.1" })).status, 429, "the day cap");
+  env.FEEDBACK_KV.delete = del;
+  const hourly = testEnv(clock);
+  for (let i = 0; i < 5; i++) assert.equal((await send(hourly, s, featureFields(), { clock, at: clock.now + i, ip: "192.0.2.9" })).status, 200);
+  hourly.FEEDBACK_KV.delete = async () => { throw new Error("KV delete down"); };
+  assert.equal((await send(hourly, s, featureFields(), { clock, at: clock.now + 10, ip: "192.0.2.9" })).status, 429, "the hour cap");
+});
+
 test("not configured, or test keys and the stub off localhost: GET says not accepting, POST 503", async () => {
   const clock = newClock();
   const s = mockServices();
@@ -756,6 +771,42 @@ test("the shared builder gives the page's preview and the Function the same text
   assert.equal(s.issues[0].title, preview.title);
 });
 
+// Hostile pastes that made the parsers and the sanitizer quadratic: long runs of
+// white space or of non-space characters on one line.
+test("bugIssue answers a 20,000-character hostile report in well under 50 ms", async () => {
+  const spaces = " ".repeat(19_990);
+  const hostile = [
+    `a${spaces}b`,
+    `a${spaces}b (x1)`,
+    `Vanguard 1.0\nbuild ${"x".repeat(19_980)} (1)`,
+    `${"a".repeat(10)}\n${"\n".repeat(19_980)}b`,
+  ];
+  for (const report of hostile) {
+    const started = performance.now();
+    await bugIssue(readFields(bugFields({ report })), "FUI-ABCDEF");
+    const took = performance.now() - started;
+    assert.ok(took < 50, `${took.toFixed(0)} ms for ${JSON.stringify(report.slice(0, 20))}`);
+  }
+});
+
+test("the error line reader and normalize give the same fingerprints as before", async () => {
+  const parsed = parseReport("[3]  Foo.lua:12: boom 0xABC (x4)\n  Bar.lua:9: in x\n[1] (x1)\n(x2)\nx (x2)");
+  assert.deepEqual(parsed.errors.map((e) => [e.text, e.count]), [["Foo.lua:12: boom 0xABC", 4], ["[1]", 1], ["x", 2]]);
+  assert.equal(normalize("a  (x3)  b (x1)"), "a b");
+  assert.equal(await fingerprint(parseReport(ERRORS)), await fingerprint(parseReport(ERRORS.replace(/\(x\d+\)/g, "(x9)"))));
+});
+
+test("an error line needs white space before (xN), with or without the [n] prefix", () => {
+  assert.deepEqual(parseReport("Vanguard v1\n[1] foo.lua:3: bad(x3)").errors, []);
+  assert.deepEqual(parseReport("Vanguard v1\n[1] foo.lua:3: bad (x3)").errors.map((e) => e.text), ["foo.lua:3: bad"]);
+});
+
+test("starting over clears the 'Filled in from what you pasted' line", () => {
+  const script = fs.readFileSync(path.join(root, "src/assets/feedback.js"), "utf8");
+  const again = script.slice(script.indexOf("function again()"));
+  assert.ok(again.slice(0, again.indexOf("\n}")).includes('say(filled, "")'));
+});
+
 // ------------------------------------------------------------- rate caps
 
 const slots = (env, kind) => [...env.FEEDBACK_KV.map.keys()].filter((k) => k.startsWith(`rl:${kind}:`));
@@ -843,6 +894,35 @@ test("a request that announces a body over 64 KB is refused without reading it",
   const res = await handlePost(req, env, { fetchFn: mockServices().fetchFn, now: () => clock.now, areas: AREAS });
   assert.equal(res.status, 400);
   assert.equal((await res.json()).error, "bad_request");
+});
+
+test("a KV error while taking or giving back a slot leaves no rate slot behind", async () => {
+  const clock = newClock();
+  const env = testEnv(clock);
+  const s = mockServices();
+  const kv = env.FEEDBACK_KV;
+  const list = kv.list;
+  kv.list = async (opts) => {
+    if (opts.prefix.startsWith("rl:d:")) throw new Error("KV list down");
+    return list(opts);
+  };
+  assert.equal((await send(env, s, featureFields(), { clock })).status, 503);
+  assert.equal(slots(env, "p").length + slots(env, "d").length, 0, "the player and day slots are gone");
+  kv.list = list;
+  const del = kv.delete;
+  let failedOnce = false;
+  kv.delete = async (key) => {
+    if (!failedOnce && key.startsWith("rl:d:")) {
+      failedOnce = true;
+      throw new Error("KV delete down");
+    }
+    return del(key);
+  };
+  const failing = await send(env, mockServices({ fail: { create: 500 } }), featureFields(), { clock });
+  assert.equal(failing.status, 503);
+  assert.equal(slots(env, "p").length, 0, "the player slot goes even when the day slot's delete throws");
+  kv.delete = del;
+  assert.equal((await send(env, mockServices(), featureFields(), { clock })).status, 200);
 });
 
 test("the rate caps count an IPv6 /64 as one player, and an IPv4 address as itself", async () => {

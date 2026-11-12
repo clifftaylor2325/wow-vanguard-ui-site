@@ -1,11 +1,11 @@
 // Home, Install & Update, Getting started, Features, Commands and Settings.
 // Generated parts come from the model (the addon's Lua, TOC, README and the
 // release metadata); the prose around them only restates what those sources say.
-import { shotByFile } from "./shots-content.mjs";
+import { shotByFile, readyShots } from "./shots-content.mjs";
 import { supportAsk, esc, md, slug, badge, nextBadge, reloadBadge, avail, shotFigure, ornament, heroFrame, pageHero, storeCtas, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestImg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
-import { MORE, longerOf, readmeSays } from "./features-content.mjs";
+import { MORE, longerRows, readmeSays } from "./features-content.mjs";
 import { EN } from "./i18n-site.mjs";
 import { splitHelp, showSlots } from "./extract.mjs";
 
@@ -120,8 +120,10 @@ function highlightCard(m, version, loc) {
 
 // The layout at a glance: a real screenshot of the default layout, with what is in it.
 function layoutShot(loc) {
+  const layout = "The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner.";
+  const more = readyShots().length ? loc.p(`${layout} More pictures are on <a href="/screenshots/">Screenshots</a>.`) : loc.p(layout);
   return `${shotFigure(shotByFile("01-hud-overview"), { caption: false, loc, sizes: "wide" })}
-<p class="small">${loc.p(`The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner. More pictures are on <a href="/screenshots/">Screenshots</a>.`)}</p>`;
+<p class="small">${more}</p>`;
 }
 
 // The hero's decorative layers: sky, glow, rune ring, ridges, embers and frame.
@@ -651,10 +653,29 @@ export function startsOff(m, model) {
   return flags.length > 0 && flags.every((v) => !v) && /off until|switch it on/i.test(m.desc);
 }
 
-// The module's longer description, while the README still says what it's written from.
+// The module's longer description, while the README still says what it's written from: { text, current },
+// current when the release's README says it too (otherwise it describes the next release only). null when none.
 function moreOf(m, model) {
   const entry = MORE[m.key];
-  return entry && entry.check.every((c) => readmeSays(model.next.readme, c)) ? entry.more : null;
+  if (!entry || !entry.check.every((c) => readmeSays(model.next.readme, c))) return null;
+  return { text: entry.more, current: entry.check.every((c) => readmeSays(model.rel.readme, c)) };
+}
+
+// The More paragraph: the release's own, or the next release's behind the Next release badge.
+function moreParagraph(more, loc) {
+  if (!more) return "";
+  if (more.current) return `<p class="mod-more">${esc(loc.p(more.text))}</p>`;
+  return nextOnly(`<p class="mod-more">${esc(loc.p(more.text))} ${nextBadge(loc)}</p>`, "div");
+}
+
+// The longer paragraph under a module: each sentence the release's README doesn't back is hidden, with the
+// Next release badge, until the reader asks for what's coming. "" when the module has none.
+function longerParagraph(m, model, loc) {
+  const rows = longerRows(m.key, model.rel.readme, model.same);
+  if (!rows.length) return "";
+  const text = rows.map((r, i) => (r.current ? `${i ? " " : ""}${esc(loc.p(r.s))}` : nextOnly(` ${esc(loc.p(r.s))} ${nextBadge(loc)}`))).join("");
+  const body = `<p class="mod-longer">${text}</p>`;
+  return rows.some((r) => r.current) ? body : nextOnly(body, "div");
 }
 
 // One help line's text in the page's language: the addon translates either the whole line
@@ -665,19 +686,26 @@ function ownHelp(l, loc) {
   return (whole !== l.line && splitHelp(whole).text) || loc.addon(l.text || "");
 }
 
-// A command's help text as the addon prints it (newest source first), in the page's language.
+// A command's help text as the release prints it, in the page's language; the next release's own words
+// follow behind the Next release badge when they differ. A command only the next release has is tagged as a whole.
 function helpText(model, id, loc) {
   const e = model.commands.entries.find((x) => x.id === id);
-  return ownHelp((e?.nextLines || e?.relLines || [])[0] || {}, loc);
+  const line = (e?.relLines || e?.nextLines || [])[0] || {};
+  const now = ownHelp(line, loc);
+  const coming = e?.changed ? ownHelp(e.nextLines[0], loc) : now;
+  const next = coming === now ? "" : nextOnly(` ${esc(coming)} ${nextBadge(loc)}`);
+  return `${esc(now)}${next}`;
 }
 
 // The "Settings / Commands / Turn it off" lines under a module.
 function featureFacts(m, model, loc) {
   const rows = [];
   if (m.pages.length) rows.push([loc.p("Settings"), m.pages.map((p) => `<a href="/settings/#${p.id}">${esc(loc.addon(p.title))}</a>`).join(", ")]);
-  for (const c of m.commands) rows.push([loc.p("Command"), `<a href="/commands/#cmd-${esc(c)}"><code>/vg ${esc(c)}</code></a> ${esc(helpText(model, c, loc))}`]);
-  rows.push([loc.p("Turn it off"), loc.p("<strong>/vg → {modules}</strong>, then reload", { modules: esc(loc.addon("Modules")) })]);
-  return `<dl class="facts">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
+  for (const c of m.commands) rows.push([loc.p("Command"), `<a href="/commands/#cmd-${esc(c)}"><code>/vg ${esc(c)}</code></a> ${helpText(model, c, loc)}`, model.commands.entries.find((x) => x.id === c)?.inRel === false]);
+  const where = { modules: esc(loc.addon("Modules")) };
+  rows.push([loc.p("Turn it off"), m.live ? loc.p("<strong>/vg → {modules}</strong>", where) : loc.p("<strong>/vg → {modules}</strong>, then reload", where)]);
+  const only = (next) => (next ? ' data-avail="next"' : "");
+  return `<dl class="facts">${rows.map(([k, v, next]) => `<dt${only(next)}>${k}</dt><dd${only(next)}>${v}</dd>`).join("")}</dl>`;
 }
 
 // Where a card's words come from, in plain words (no file names).
@@ -698,14 +726,13 @@ const FEATURE_SHOTS = {
 function featureCard(m, model, loc) {
   const off = startsOff(m, model) ? ` <span class="badge plain">${loc.t("feat.offBadge")}</span>` : "";
   const more = moreOf(m, model);
-  const longer = longerOf(m.key).map((s) => loc.p(s));
   const name = esc(loc.addon(m.name));
   return `<article class="card mod" id="${m.id}" data-module="${esc(m.key)}" data-count${m.inRel ? "" : ' data-avail="next"'}>
   <h3>${name} ${badge(m.inRel, m.inNext, model.version, loc)}${off}</h3>
   ${m.desc ? `<p>${esc(loc.addon(m.desc))}</p>` : ""}
   <details class="mod-details"><summary>${loc.p("More<span class=\"visually-hidden\"> about {name}</span>", { name })}</summary>
   ${(FEATURE_SHOTS[m.key] || []).map((f) => shotFigure(shotByFile(f), { loc })).join("")}
-  ${more ? `<p class="mod-more">${esc(loc.p(more))}</p>` : ""}${longer.length ? `\n  <p class="mod-longer">${esc(longer.join(" "))}</p>` : ""}
+  ${moreParagraph(more, loc)}${longerParagraph(m, model, loc)}
   ${featureFacts(m, model, loc)}
   ${featureSource(m, more, loc)}
   </details>
@@ -1013,7 +1040,8 @@ function groupRow(html, attrs) {
 // A row's caption in the page's language, as plain text. A ns.Format caption is looked up by its
 // {slot} text, as the game does, and its slots show as <slot>.
 function rowCaption(r, loc) {
-  return r.key ? showSlots(loc.addon(r.key)) : loc.addon(r.caption);
+  const text = r.key ? showSlots(loc.addon(r.key)) : loc.addon(r.caption);
+  return r.appliesLive && / \(reload\)$/.test(r.caption) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
 }
 
 // A heading or note row from the addon, spanning the table.
@@ -1040,6 +1068,12 @@ function rowTip(r, loc) {
   return `<span class="opt-tip">${esc(plain)}</span>`;
 }
 
+// Whether a row is one setting to count: not a heading or note, and not the Retail wording of a switch that is
+// already listed under its Forever name.
+function countsAsSetting(r) {
+  return r.kind !== "header" && r.kind !== "text" && !r.retailName;
+}
+
 // One setting as a table row: the caption is the row header, with its reload and release tags
 // beside it; each other cell carries its card label.
 function optRow(r, version, pageTitle, id, loc) {
@@ -1049,7 +1083,7 @@ function optRow(r, version, pageTitle, id, loc) {
   const tags = [r.reload ? reloadBadge(loc) : "", r.clientOnly === "retail" ? `<span class="badge plain">${loc.t("badge.retailOnly")}</span>` : "", badge(r.inRel, r.inNext, version, loc)].filter(Boolean).join(" ");
   const kind = KINDS.includes(r.kind) ? ` <span class="opt-kind">${loc.t(`kind.${r.kind}`)}</span>` : "";
   const cells = [valuesText(r, loc), defaultText(r, loc)].map((h, i) => `<td data-label="${loc.t(COLS[i + 1])}">${h}</td>`);
-  return `<tr class="opt-row opt-item" id="${id}" data-count ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${tags ? ` ${tags}` : ""}${kind}${rowTip(r, loc)}</th>${cells.join("")}</tr>`;
+  return `<tr class="opt-row opt-item" id="${id}"${countsAsSetting(r) ? " data-count" : ""} ${attrs}><th scope="row" class="opt-cap">${esc(rowCaption(r, loc))}${loop}${tags ? ` ${tags}` : ""}${kind}${rowTip(r, loc)}</th>${cells.join("")}</tr>`;
 }
 
 // The heading over rows the options window repeats, e.g. "The rows below repeat for each n from 1 to 8".
@@ -1074,14 +1108,17 @@ function pageRows(p, version, used, loc) {
 // The Modules page's closing note: one switch per module.
 function modulesRow(p, model, loc) {
   if (p.key !== "modules") return "";
-  const mods = model.modules.map((m) => `<a href="/features/#${m.id}">${esc(loc.addon(m.name))}</a>${m.inRel ? "" : ` ${loc.t("set.moduleNext")}`}`).join(", ");
+  const link = (m) => `<a href="/features/#${m.id}">${esc(loc.addon(m.name))}</a>`;
+  const current = model.modules.filter((m) => m.inRel).map(link).join(", ");
+  const coming = model.modules.filter((m) => !m.inRel).map((m) => nextOnly(`, ${link(m)} ${loc.t("set.moduleNext")}`)).join("");
+  const mods = current + coming;
   return `<tr class="opt-row t"><td colspan="${COLS.length}">${loc.t("set.modulesRow", { modules: mods })}</td></tr>`;
 }
 
 // One options page, folded: its heading opens a table of its settings (one card per row on narrow screens).
 function pageSection(p, model, used, loc) {
   const head = `<thead><tr>${COLS.map((c) => `<th scope="col">${loc.t(c)}</th>`).join("")}</tr></thead>`;
-  const n = p.rows.filter((r) => r.kind !== "header" && r.kind !== "text").length;
+  const n = p.rows.filter(countsAsSetting).length;
   const b = badge(p.inRel, p.inNext, model.version, loc);
   return `<details class="opt-page disclosure" data-page="${esc(p.key)}"${p.inRel ? "" : ' data-avail="next"'}>
 <summary><h2 id="${p.id}">${esc(loc.addon(p.title))}</h2><span class="dis-meta">${loc.n("set.count", n)}${b ? ` ${b}` : ""}</span></summary>
@@ -1128,18 +1165,22 @@ function settingsSearchBox(model, loc) {
 // The counts line: settings in the release (and the next one), and pages.
 function settingsCounts(model, loc) {
   const { pages, version } = model;
-  const count = (f) => pages.reduce((n, p) => n + p.rows.filter((r) => r.kind !== "header" && r.kind !== "text" && f(r)).length, 0);
+  const count = (f) => pages.reduce((n, p) => n + p.rows.filter((r) => countsAsSetting(r) && f(r)).length, 0);
   const release = loc.n("set.inRelease", count((r) => r.inRel), { version: esc(version) });
   const differs = pages.some((p) => p.rows.some((r) => r.inRel !== r.inNext));
   const next = model.same || !differs ? "" : nextOnly(` · ${loc.t("set.inNext", { n: count((r) => r.inNext) })}`);
   return `<p class="counts">${loc.t("set.countsLine", { parts: `${release}${next} · ${loc.n("set.pages", pages.length)}` })}</p>`;
 }
 
-// The folded aside under the settings: reloads, defaults and what isn't listed.
+// The files the Settings page is read from.
+const SETTINGS_SOURCES = ["Core/Options.lua (PAGES and row builders)", "Modules/RaidHealing.lua", "Modules/ClickCastOptions.lua", "Modules/Nameplates.lua", "Modules/Situations.lua", "Core/Visibility.lua", "Core/Dialog.lua (ns.ReloadButton)", "module defaults tables"];
+
+// The folded row above the settings: reloads, defaults and what isn't listed, with the page's source note.
 function settingsAside(read, loc) {
-  return disclosure({ id: "reloads", level: 3, title: loc.t("set.aboutTitle"), cls: "aside", body: `<p>${loc.t("set.aboutReload", { badge: reloadBadge(loc), ...reloadWords(loc) })}</p>
+  return disclosure({ id: "reloads", title: loc.t("set.aboutTitle"), cls: "aside", body: `<p>${loc.t("set.aboutReload", { badge: reloadBadge(loc), ...reloadWords(loc) })}</p>
 ${combatReloadNote(read, loc)}
-<p class="small">${loc.t("set.aboutClients")}</p>` });
+<p class="small">${loc.t("set.aboutClients")}</p>
+${sourceNote(loc, SETTINGS_SOURCES)}` });
 }
 
 export function settingsPage(model, read, loc = EN) {
@@ -1152,10 +1193,9 @@ export function settingsPage(model, read, loc = EN) {
     body: `${pageHero(loc.t("title./settings/"), loc.t("set.lede"))}
 ${settingsCounts(model, loc)}
 ${settingsSearchBox(model, loc)}
-<div id="opt-list" class="dis-grid">
-${model.pages.map((p) => pageSection(p, model, used, loc)).join("\n")}
-</div>
 ${settingsAside(read, loc)}
-${sourceNote(loc, ["Core/Options.lua (PAGES and row builders)", "Modules/RaidHealing.lua", "Modules/ClickCastOptions.lua", "Modules/Nameplates.lua", "Modules/Situations.lua", "Core/Visibility.lua", "Core/Dialog.lua (ns.ReloadButton)", "module defaults tables"])}`,
+<div id="opt-list" class="dis-grid pages">
+${model.pages.map((p) => pageSection(p, model, used, loc)).join("\n")}
+</div>`,
   };
 }

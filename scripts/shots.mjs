@@ -27,6 +27,8 @@
 // go to the stub, never to GitHub.
 //   SHOTS_BASE=http://localhost:8788 npm run shots
 import fs from "node:fs";
+import os from "node:os";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { chromium } from "playwright-core";
 import { loadConfig, root } from "./lib/config.mjs";
@@ -136,10 +138,35 @@ async function checkCopyButton(page, base, failures) {
   report(failures, `/commands/ double-click on Copy: "${during[0]}" announced "${during[1]}", back to "${after}"`, during[0] !== before && during[1] === during[0] && after === before);
 }
 
+// A group the reader opened stays open when the search runs again with an empty box (what a version switch does),
+// and goes back to its start once a typed search is cleared.
+async function checkOpenGroupStays(page, base, failures) {
+  await page.goto(base + "/settings/", { waitUntil: "load" });
+  const group = page.locator("details.opt-page").first();
+  await group.evaluate((d) => { d.open = true; });
+  await page.dispatchEvent(".search input[type=search]", "input");
+  const stays = await group.evaluate((d) => d.open);
+  report(failures, "/settings/ an opened page stays open when the search runs with an empty box", stays === true);
+  await searchFor(page, "reset");
+  await searchFor(page, "");
+  const folded = await group.evaluate((d) => d.open);
+  report(failures, "/settings/ a page folds back to its start once a typed search is cleared", folded === false);
+}
+
+// A feed link to an earlier release (#rel-<tag>) opens the folded sections around that release's heading.
+async function checkReleaseAnchor(page, base, failures) {
+  await page.goto(base + "/changelog/", { waitUntil: "load" });
+  const id = await page.evaluate(() => [...document.querySelectorAll("section[aria-labelledby=earlier-releases] h3[id^=rel-]")].pop()?.id || "");
+  await page.goto(`${base}/changelog/#${id}`, { waitUntil: "load" });
+  const shown = id && await page.evaluate((x) => document.getElementById(x).getClientRects().length > 0, id);
+  report(failures, `/changelog/#${id} opens the earlier releases around it`, shown === true);
+}
+
 // With JavaScript off, the Menu button and the search boxes are hidden, and the nav and the full lists show.
 async function checkNoScript(browser, base, failures) {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
+  watchErrors(page, failures);
   await page.goto(base + "/commands/", { waitUntil: "load" });
   const r = await page.evaluate(() => ["nav-toggle", "search"].map((c) => getComputedStyle(document.querySelector("." + c)).display));
   const nav = await page.evaluate(() => getComputedStyle(document.getElementById("site-nav")).visibility);
@@ -150,12 +177,16 @@ async function checkNoScript(browser, base, failures) {
 // The search checks for Commands and Settings, at 390px.
 async function checkSearch(browser, base, failures) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  watchErrors(page, failures);
+  await stubFeedbackApi(page);
   await checkNoScript(browser, base, failures);
   await checkCommandRows(page, base, failures);
   await checkCopyButton(page, base, failures);
   await checkNoMatch(page, base, "/commands/", "commands", failures);
   await checkNoMatch(page, base, "/settings/", "settings", failures);
   await checkSettingsCount(page, base, failures);
+  await checkOpenGroupStays(page, base, failures);
+  await checkReleaseAnchor(page, base, failures);
   await page.close();
 }
 
@@ -337,6 +368,7 @@ async function checkOfferClear(page, failures) {
 async function checkLangOffer(browser, base, loc, failures) {
   const context = await browser.newContext({ locale: loc.lang, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
+  watchErrors(page, failures);
   await page.goto(`${base}/install/`, { waitUntil: "load" });
   const offer = await page.evaluate(() => document.querySelector(".lang-offer a")?.textContent || null);
   report(failures, `a ${loc.lang} browser on /install/ is offered "${offer}"`, offer === loc.strings["lang.offer"]);
@@ -352,6 +384,7 @@ async function checkLangOffer(browser, base, loc, failures) {
 async function checkSpanishRegionOffer(browser, base, loc, failures) {
   const context = await browser.newContext({ locale: "es-419", viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
+  watchErrors(page, failures);
   await page.goto(`${base}/install/#by-hand`, { waitUntil: "load" });
   const href = await page.evaluate(() => document.querySelector(".lang-offer a")?.getAttribute("href") || null);
   report(failures, `an es-419 browser on /install/#by-hand is offered ${href}`, href === `/${loc.code}/install/#by-hand`);
@@ -361,6 +394,8 @@ async function checkSpanishRegionOffer(browser, base, loc, failures) {
 // At 320px no page of the language scrolls sideways, folded or with every section open.
 async function checkNarrowest(browser, base, loc, failures) {
   const page = await browser.newPage({ viewport: { width: 320, height: 700 } });
+  watchErrors(page, failures);
+  await stubFeedbackApi(page);
   for (const n of NAV) {
     await page.goto(`${base}/${loc.code}${n.path}`, { waitUntil: "load" });
     await noSideScroll(page, `/${loc.code}${n.path} at 320px folded`, failures);
@@ -373,6 +408,8 @@ async function checkNarrowest(browser, base, loc, failures) {
 // From 560px up, no line of the page title runs under the Expand all button.
 async function checkTitleClear(browser, base, loc, failures) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  watchErrors(page, failures);
+  await stubFeedbackApi(page);
   let under = 0;
   for (const n of NAV) {
     await page.setViewportSize({ width: 1280, height: 800 });
@@ -392,10 +429,24 @@ async function checkTitleClear(browser, base, loc, failures) {
   await page.close();
 }
 
+// At 900 and 1024px the Settings page list keeps one or two lines per page: no row taller than 56px in any language.
+async function checkPageRows(browser, base, loc, failures) {
+  for (const width of [900, 1024]) {
+    const page = await browser.newPage({ viewport: { width, height: 800 } });
+    watchErrors(page, failures);
+    await page.goto(`${base}/${loc.code}/settings/`, { waitUntil: "load" });
+    await page.evaluate(() => document.fonts.ready);
+    const tallest = await page.evaluate(() => Math.max(...[...document.querySelectorAll("#opt-list > details > summary")].map((s) => Math.round(s.getBoundingClientRect().height))));
+    report(failures, `/${loc.code}/settings/ page rows at ${width}px: tallest ${tallest}px (max 56)`, tallest > 0 && tallest <= 56);
+    await page.close();
+  }
+}
+
 // Every check of one published language, with screenshots of its Settings and Commands.
 async function checkLanguage(browser, base, loc, failures) {
   for (const [width, height] of [[1280, 800], [390, 844]]) {
     const page = await browser.newPage({ viewport: { width, height } });
+    watchErrors(page, failures);
     await stubFeedbackApi(page);
     for (const n of NAV.filter((x) => !OPEN_PAGES.has(x.path))) {
       await page.goto(`${base}/${loc.code}${n.path}`, { waitUntil: "load" });
@@ -420,6 +471,42 @@ async function checkLanguage(browser, base, loc, failures) {
   if (loc.code === "es-mx") await checkSpanishRegionOffer(browser, base, loc, failures);
   await checkNarrowest(browser, base, loc, failures);
   await checkTitleClear(browser, base, loc, failures);
+  await checkPageRows(browser, base, loc, failures);
+}
+
+// Builds the site once more into a temp folder with the release before the current one as "current",
+// the state between releases (the pinned source is ahead), and checks every reference page still fits
+// one screen there in every language: the version boxes and the next-release counts add rows then.
+async function checkReleaseBehind(browser, failures) {
+  const cfg = loadConfig();
+  const meta = JSON.parse(fs.readFileSync(cfg.releaseJson, "utf8"));
+  const before = meta.releases[meta.releases.findIndex((r) => r.tagName === meta.current) + 1];
+  if (!before) return console.log("skip release-behind pass: no earlier release in the metadata");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vg-behind-"));
+  const json = path.join(dir, "release.json");
+  fs.writeFileSync(json, JSON.stringify({ ...meta, current: before.tagName }));
+  const out = path.join(dir, "site");
+  execFileSync(process.execPath, [path.join(root, "scripts", "build.mjs")], { cwd: root, stdio: "ignore", env: { ...process.env, SITE_OUT: out, SITE_RELEASE_JSON: json } });
+  const server = await serve(out, 0);
+  const base = `http://127.0.0.1:${server.address().port}`;
+  try {
+    for (const [width, height] of [[1280, 800], [390, 844]]) {
+      const page = await browser.newPage({ viewport: { width, height } });
+      watchErrors(page, failures);
+      await stubFeedbackApi(page);
+      for (const loc of [{ code: "" }, ...builtLocales(out)]) {
+        for (const n of NAV.filter((x) => !OPEN_PAGES.has(x.path))) {
+          await page.goto(`${base}${loc.code ? `/${loc.code}` : ""}${n.path}`, { waitUntil: "load" });
+          await page.evaluate(() => document.fonts.ready);
+          await fitsOneScreen(page, `release behind (${before.tagName}) ${loc.code || "en"}${n.path} at ${width}x${height}`, failures);
+        }
+      }
+      await page.close();
+    }
+  } finally {
+    server.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 // Entry point.
@@ -441,6 +528,8 @@ async function main() {
     // Skip link, with real keyboard focus: first Tab, then Enter.
     {
       const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+      watchErrors(page, failures);
+      await stubFeedbackApi(page);
       for (const n of NAV) {
         await page.goto(base + n.path, { waitUntil: "load" });
         await page.keyboard.press("Tab");
@@ -457,6 +546,7 @@ async function main() {
     // One screen as it opens, at desktop and phone sizes; and the drawer on the phone.
     for (const [width, height] of [[1280, 800], [390, 844]]) {
       const page = await browser.newPage({ viewport: { width, height } });
+      watchErrors(page, failures);
       await stubFeedbackApi(page);
       for (const n of NAV.filter((x) => !OPEN_PAGES.has(x.path))) {
         await page.goto(base + n.path, { waitUntil: "load" });
@@ -468,8 +558,10 @@ async function main() {
     }
     await checkSearch(browser, base, failures);
     for (const loc of builtLocales(loadConfig().outDir)) await checkLanguage(browser, base, loc, failures);
+    await checkReleaseBehind(browser, failures);
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
+      watchErrors(page, failures);
       await stubFeedbackApi(page);
       for (const [name, url] of SHOOT) {
         await page.goto(base + url, { waitUntil: "load" });

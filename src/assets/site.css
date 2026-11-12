@@ -255,16 +255,21 @@ details.disclosure[open] > summary::before { background: var(--accent); }
 details.disclosure > summary:hover { background: var(--raised); }
 details.disclosure > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 details.disclosure[open] > summary { border-bottom: 1px solid var(--divider); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-details.disclosure > summary > h2, details.disclosure > summary > h3 { flex: 1; margin: 0; padding: 0; font-size: var(--fs-lg); min-width: 0; }
-details.disclosure > summary > h3 { font-size: var(--fs-md); }
+details.disclosure > summary > h2, details.disclosure > summary > h3, details.disclosure > summary > h4 { flex: 1; margin: 0; padding: 0; font-size: var(--fs-lg); min-width: 0; }
+details.disclosure > summary > h3, details.disclosure > summary > h4 { font-size: var(--fs-md); }
 .dis-meta { margin-left: auto; flex: none; max-width: 50%; text-align: right; font-size: var(--fs-sm); color: var(--text2); }
 .dis-body { padding: var(--sp-3) 14px var(--sp-4); }
 .dis-body > :first-child { margin-top: 0; }
 .dis-body > :last-child { margin-bottom: 0; }
 details.disclosure details.disclosure { background: var(--raised); border-color: var(--divider); }
 details.disclosure.aside { margin-top: var(--sp-4); }
+.dis-grid.pages { margin-top: var(--sp-2); }
+@media (min-width: 900px) { .dis-grid.pages > details.disclosure > summary { min-height: 36px; padding: 4px 12px; } }
+/* Three columns only where one holds the longest translated page name beside its count. */
+@media (min-width: 1200px) { .dis-grid.pages { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 559px) { .search[data-target="#opt-list"] .filters { display: none; } details.disclosure.aside { margin-top: var(--sp-2); } details.disclosure.aside > summary { min-height: 32px; padding: 3px 10px; } .dis-grid.pages > details.disclosure > summary { min-height: 32px; padding: 2px 8px; gap: 6px; } .dis-grid.pages > details.disclosure > summary > h2 { font-size: .9375rem; line-height: 1.25; } }
 details.disclosure.aside > summary { min-height: 38px; }
-details.disclosure.aside > summary > h3 { font-size: var(--fs-sm); color: var(--text2); }
+details.disclosure.aside > summary > :is(h2, h3) { font-size: var(--fs-sm); color: var(--text2); }
 .dis-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2); margin: 0 0 var(--sp-2); }
 .dis-grid > details.disclosure { margin: 0; }
 .dis-grid > details[open], .dis-grid > :has(> details[open]) { grid-column: 1 / -1; }
@@ -279,7 +284,7 @@ details.src > summary { gap: 8px; }
 details.src > summary::before { content: ""; flex: none; width: 7px; height: 7px; border: 1.5px solid var(--accent); transform: rotate(45deg); }
 details.src[open] > summary::before { background: var(--accent); }
 details.src > p { margin: 4px 0 0; }
-@media (max-width: 559px) { .dis-meta { display: none; } }
+@media (max-width: 559px) { .dis-meta { display: none; } details.disclosure > summary:has(> .dis-meta.keep) { flex-wrap: wrap; } .dis-meta.keep { display: block; flex-basis: 100%; max-width: none; margin: -4px 0 0 21px; text-align: left; } }
 
 /* The facts strip under a page's hero. */
 .glance { list-style: none; margin: 0 0 var(--sp-3); padding: 0; display: flex; flex-wrap: wrap; gap: 6px 8px; }
@@ -363,6 +368,8 @@ html.nav-open .lang-offer { display: none; }
 .filters label { display: inline-flex; align-items: center; gap: 6px; }
 .filters input[type=checkbox]:not(.switch input) { accent-color: var(--accent); }
 .count { margin: 6px 0 0; font-size: var(--fs-sm); color: var(--text2); }
+/* From 900px the version boxes and the live count share one row under the search box, so a release behind the pinned source still leaves Settings on one screen. */
+@media (min-width: 900px) { .search { display: flex; flex-wrap: wrap; align-items: center; column-gap: 18px; } .search-label, .search input[type=search] { flex: 0 0 100%; } .search .filters { flex: 0 1 auto; margin-top: 6px; } .search .count { margin-left: auto; } }
 .search-empty { margin-top: var(--sp-3); }
 .search-clear { font: inherit; font-size: var(--fs-sm); cursor: pointer; padding: 4px 10px; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); }
 

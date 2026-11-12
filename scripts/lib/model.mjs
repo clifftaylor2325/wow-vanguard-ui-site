@@ -94,7 +94,8 @@ function mergePages(rel, next) {
     const relKey = (r) => (r.was && relRows.has(`${r.kind}|${r.was}`) ? `${r.kind}|${r.was}` : rowKey(r));
     const rows = nextRows.map((r) => {
       const old = relRows.get(relKey(r));
-      return { ...r, reload: r.reload || !!old?.reload, inNext: true, inRel: !!old, relDefault: old ? releaseDefault(r, old) : null, nextDefault: defaultLabel(r), relChoices: old?.choices, relRange: old?.range };
+      const restart = r.ref?.restart && old?.ref?.restart;
+      return { ...r, reload: restart ? old.reload : r.reload || !!old?.reload, appliesLive: restart ? !!old.appliesLive : r.appliesLive, inNext: true, inRel: !!old, relDefault: old ? releaseDefault(r, old) : null, nextDefault: defaultLabel(r), relChoices: old?.choices, relRange: old?.range };
     });
     const matched = new Set(nextRows.map(relKey));
     for (const r of rp?.rows || []) {
@@ -128,7 +129,8 @@ function mergeModules(rel, next, pages, commands) {
     const area = (AREAS.find(([, list]) => list.includes(key)) || ["Other"])[0];
     const onPages = pages.filter((p) => p.rows.some((r) => r.ref?.scope === key)).map((p) => ({ title: p.title, id: p.id }));
     const cmds = commands.entries.filter((e) => e.modules.includes(key)).map((e) => e.id);
-    return { key, name: info[0], desc: info[1], id: cardId(info[0]), area, inRel: relNames.has(key), inNext: nextNames.has(key) || key in next.moduleInfo, pages: onPages, commands: cmds };
+    const live = (rel.modules.find((x) => x.name === key) || next.modules.find((x) => x.name === key))?.live === true;
+    return { key, name: info[0], desc: info[1], id: cardId(info[0]), area, live, inRel: relNames.has(key), inNext: nextNames.has(key) || key in next.moduleInfo, pages: onPages, commands: cmds };
   });
 }
 

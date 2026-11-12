@@ -80,6 +80,25 @@ test("serve.mjs answers only for files inside the folder it serves", async () =>
   assert.equal(resolveInside(root, "/%E0%A4%A"), 400, "a bad escape is a 400, not a crash");
 });
 
+// Without these the local preview served .webp, .md and .xml files as downloads.
+test("serve.mjs gives images, Markdown copies and XML their types", async () => {
+  const { serve } = await import("../scripts/serve.mjs");
+  const server = await serve(path.resolve("dist"));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  try {
+    const types = {};
+    for (const file of ["assets/crest.webp", "llms.txt", "sitemap.xml", "index.md"]) {
+      const res = await fetch(`${base}/${file}`);
+      types[file] = res.status === 200 ? res.headers.get("content-type") : "";
+    }
+    assert.equal(types["assets/crest.webp"], "image/webp");
+    assert.ok(types["index.md"].startsWith("text/markdown"), types["index.md"]);
+    assert.ok(types["sitemap.xml"].startsWith("application/xml"), types["sitemap.xml"]);
+  } finally {
+    server.close();
+  }
+});
+
 // A caption that names a chat command names the one that does what the picture shows.
 test("the party frames caption names /vg preview party, the command that shows them", () => {
   const caption = SHOT_GROUPS.flatMap((g) => g.shots).find((s) => s.file === "20-party-preview").caption;
