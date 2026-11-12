@@ -634,7 +634,7 @@
  "{label} is required.": "{label}為必填。",
  "{label} needs at least {min} characters.": "{label}至少需要 {min} 個字元。",
  "{label} can be at most {max} characters (it has {length}).": "{label}最多 {max} 個字元（目前 {length} 個）。",
- "Choose Report a bug or Request a feature.": "請選擇「回報錯誤」或「請求功能」。",
+ "Choose Report a bug or Request a feature.": "請選擇「回報錯誤」或「提出功能建議」。",
  "Paste your report, or tick the box to say you couldn't get one.": "請貼上你的報告，或勾選方框表示你無法取得報告。",
  "Choose the part of Vanguard it's about.": "請選擇相關的 Vanguard 部分。",
  "Please tick this to say you understand where the report goes.": "請勾選此項，表示你了解報告的去向。",
