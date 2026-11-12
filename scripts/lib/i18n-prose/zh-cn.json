@@ -1138,7 +1138,7 @@
  "{ui:Your keys}": "{ui:Your keys}",
  "A {ui:Your keys} tab on the {ui:Action bars} page draws your keyboard and mouse and shows what every key does, with the Shift, Ctrl and Alt keys on their own tabs.": "{ui:Action bars}页面上的“{ui:Your keys}”标签页画出你的键盘和鼠标，显示每个键的作用；Shift、Ctrl 和 Alt 各有自己的标签页。",
  "{ui:Key setup}": "{ui:Key setup}",
- "On WoW Forever, {ui:Set up keys} (on the {ui:Your keys} tab) suggests keys for your class and role, shows every change on the keyboard and lists it with a tick box before anything moves, and can put your old keys back. {ui:Place new spells as I learn them} puts each spell you learn on its key for you.": "在 WoW Forever 上，“{ui:Set up keys}”（在“{ui:Your keys}”标签页上）会为你的职业和角色推荐按键，在任何东西移动前把每项更改画在键盘上并带勾选框列出，还能把你原来的按键放回去。“{ui:Place new spells as I learn them}”会把你学到的每个法术替你放到它的键上。",
+ "On WoW Forever, {ui:Set up keys} (on the {ui:Your keys} tab) suggests keys for your class and role, shows every change on the keyboard and lists it with a tick box before anything moves, and can put your old keys back. {ui:Place new spells as I learn them} puts each spell you learn on its key for you.": "在 WoW Forever 上，“{ui:Set up keys}”（在“{ui:Your keys}”标签页上）会为你的职业和职责推荐按键，在任何东西移动前把每项更改画在键盘上并带勾选框列出，还能把你原来的按键放回去。“{ui:Place new spells as I learn them}”会把你学到的每个法术替你放到它的键上。",
  "Click-casting starter layouts": "点击施法初始布局",
  "On WoW Forever, the Click casting page has starter layouts for every class, with two healer layouts for priests, druids, paladins and shamans, and an Undo.": "在 WoW Forever 上，点击施法页面为每个职业提供初始布局，牧师、德鲁伊、圣骑士和萨满还有两套治疗布局，并可撤销。",
  "{ui:Calm HUD}": "{ui:Calm HUD}",
