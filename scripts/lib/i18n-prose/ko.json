@@ -621,7 +621,7 @@
  "The spam check couldn't load. Check your connection, then try again.": "스팸 확인을 불러오지 못했습니다. 연결을 확인한 뒤 다시 시도하세요.",
  "Your contact details are not in the report: they're kept privately for 90 days.": "연락처는 보고서에 들어가지 않으며 90일 동안 비공개로 보관됩니다.",
  "The reference ({ref} above) is filled in when you send. If this matches a bug that's already been reported, your notes are added to that report instead.": "참조 번호(위의 {ref})는 보낼 때 채워집니다. 이미 보고된 버그와 같으면 메모가 그 보고서에 추가됩니다.",
- "Some fields need another look: go back with Edit.": "다시 확인해야 할 항목이 있습니다. 편집으로 돌아가세요.",
+ "Some fields need another look: go back with Edit.": "다시 확인해야 할 항목이 있습니다. 수정으로 돌아가세요.",
  "You've sent several reports in a short time. Please wait a while before sending another.": "짧은 시간에 보고서를 여러 개 보냈습니다. 잠시 기다린 뒤 다시 보내세요.",
  "That didn't look like a report from this page. Reload the page and try again.": "이 페이지에서 보낸 보고서로 보이지 않습니다. 페이지를 새로고침한 뒤 다시 시도하세요.",
  "That was sent too quickly. Wait a few seconds and try again.": "너무 빨리 보냈습니다. 몇 초 기다린 뒤 다시 시도하세요.",
