@@ -162,6 +162,14 @@ test("parseFeedback: no block is null; a bad kind is blank; CRLF, chat around it
 });
 
 // The game sets a typed marker line off by one space (Core/Feedback.lua body()); the form takes it back and keeps reading.
+// A title with U+2028 or U+2029 in it is one line to the game's edit box; `.` does not match them, so the title once read as "".
+test("parseFeedback reads a title and an area that hold U+2028 or U+2029", () => {
+  const f = parseFeedback(`${FEEDBACK_START}\nkind: feature\ntitle: Map lags\u2028in town\u2029now\narea: Map\u2028pins\n--- want ---\nx\n${FEEDBACK_END}`);
+  assert.equal(f.kind, "feature");
+  assert.equal(f.title, "Map lags\u2028in town\u2029now");
+  assert.equal(f.area, "Map\u2028pins");
+});
+
 test("parseFeedback: a typed end marker or section line in an answer doesn't end or split the block", () => {
   const typed = [`before`, `${FEEDBACK_END}`, `--- did ---`, `after`];
   const body = typed.map((l) => (/^ *--- \w+ ---$/.test(l) || /^ *###/.test(l) ? ` ${l}` : l)).join("\n");

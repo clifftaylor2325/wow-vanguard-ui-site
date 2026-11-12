@@ -36,7 +36,7 @@ export function parseFeedback(text) {
     } else if (section) {
       parts[section].push(l.replace(/^ (?= *(?:--- \w+ ---$|###))/, ""));
     } else {
-      const head = l.match(/^(kind|title|area): ?(.*)$/);
+      const head = l.match(/^(kind|title|area): ?([^\n]*)$/);
       if (head) out[head[1]] = head[2].trim();
     }
   }
