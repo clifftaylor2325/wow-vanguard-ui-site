@@ -381,7 +381,7 @@
  "The share is a slider, 30% by default and from 10 to 60; /vg cdmglow sets it from chat.": "比例是一個滑桿，預設 30%，範圍 10 到 60；/vg cdmglow 可從聊天視窗設定。",
  "It decorates the game's own icon and never copies it.": "它只裝飾遊戲自己的圖示，絕不複製它。",
  "Where the client hides the time, or which aura an icon tracks, the glow stays off with no error; the glow itself is static, with no fade.": "在用戶端隱藏時間，或某個圖示追蹤的是哪個光環的地方，光暈會保持關閉且不出現錯誤；光暈本身是靜態的，沒有淡入淡出。",
- "A Cooldown Manager icon whose aura is in the last part of its time gets the accent glow ring, for spells that lack the game's own pandemic flag, heal-over-time spells especially. Off until you switch it on, and you choose the share.": "光環處於其時間最後一段的冷卻管理器圖示會得到強調色光暈環，適用於沒有遊戲自己的 pandemic 標記的法術，尤其是持續治療法術。在你開啟之前為關閉，比例由你選擇。",
+ "A Cooldown Manager icon whose aura is in the last part of its time gets the accent glow ring, for spells that lack the game's own pandemic flag, heal-over-time spells especially. Off until you switch it on, and you choose the share.": "光環處於其時間最後一段的冷卻管理器圖示會得到強調色光暈環，適用於沒有遊戲內建延續標記的法術，尤其是持續治療法術。在你開啟之前為關閉，比例由你選擇。",
  "It decorates the game's own icon and copies nothing.": "它只裝飾遊戲自己的圖示，不複製任何東西。",
  "A spell that is not on a Vanguard bar, or an icon whose spell the client will not name, shows no text and raises no error.": "不在 Vanguard 快捷列上的法術，或用戶端不肯說出法術名稱的圖示，不會顯示文字，也不會產生錯誤。",
  "It follows your bars and bindings as you change them, in combat too, and has no fades or sounds.": "它會隨著你變更快捷列和綁定而跟上，戰鬥中也一樣，而且沒有淡入淡出或音效。",
