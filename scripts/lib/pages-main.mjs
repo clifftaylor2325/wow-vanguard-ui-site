@@ -691,8 +691,10 @@ function ownHelp(l, loc) {
 function helpText(model, id, loc) {
   const e = model.commands.entries.find((x) => x.id === id);
   const line = (e?.relLines || e?.nextLines || [])[0] || {};
-  const next = e?.changed ? nextOnly(` ${esc(ownHelp(e.nextLines[0], loc))} ${nextBadge(loc)}`) : "";
-  return `${esc(ownHelp(line, loc))}${next}`;
+  const now = ownHelp(line, loc);
+  const coming = e?.changed ? ownHelp(e.nextLines[0], loc) : now;
+  const next = coming === now ? "" : nextOnly(` ${esc(coming)} ${nextBadge(loc)}`);
+  return `${esc(now)}${next}`;
 }
 
 // The "Settings / Commands / Turn it off" lines under a module.

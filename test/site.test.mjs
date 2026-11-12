@@ -831,8 +831,12 @@ test("Features shows a module's command help as the release prints it, with the 
     const card = body.split("<article ").find((a) => a.includes(`data-module="${e.modules[0]}"`)) || "";
     const row = card.match(new RegExp(`/vg ${e.id}</code></a>([^]*?)</dd>`))?.[1] || "";
     assert.ok(row.startsWith(` ${esc(e.relLines[0].text)}`), `${e.id}: the release's text first: ${row}`);
-    assert.match(row, /^[^<]*<span data-avail="next">[^]*badge next/, `${e.id}: the next text is tagged`);
+    const reworded = e.relLines[0].text !== e.nextLines[0].text;
+    if (reworded) assert.match(row, /^[^<]*<span data-avail="next">[^]*badge next/, `${e.id}: the next text is tagged`);
+    else assert.ok(!row.includes("data-avail"), `${e.id}: only the syntax changed, so the same text is not repeated: ${row}`);
   }
+  assert.ok(changed.some((e) => e.relLines[0].text !== e.nextLines[0].text), "at least one command is reworded");
+  assert.ok(changed.some((e) => e.relLines[0].text === e.nextLines[0].text), "at least one command only changed its syntax");
 });
 
 // With the release behind the source, the closing note on the Modules page lists a next-only module only behind the switch.
