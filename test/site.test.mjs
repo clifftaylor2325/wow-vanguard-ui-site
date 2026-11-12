@@ -11,7 +11,7 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { loadConfig, root } from "../scripts/lib/config.mjs";
 import { CURSEFORGE_URL, WAGO_URL, DISCORD_URL, X_URL, X_HANDLE, esc, NAV, COPYRIGHT, SUPPORT, supportOn, footerLinks, discordButton, navCommunity, followLine } from "../scripts/lib/html.mjs";
-import { helpPage, licenseSummary, profilesPage, changelogPage } from "../scripts/lib/pages-more.mjs";
+import { helpPage, licenseSummary, profilesPage, changelogPage, feedbackPage } from "../scripts/lib/pages-more.mjs";
 import { FACTS, SECTIONS } from "../scripts/lib/help-content.mjs";
 import { NEXT_RELEASE } from "../scripts/lib/changelog-content.mjs";
 import { tocRetailOnly } from "../scripts/lib/source.mjs";
@@ -1481,4 +1481,16 @@ test("Settings counts a page's settings as the release has them, the next releas
     const more = rows.filter((a) => a === "next").length;
     assert.equal(/data-avail="next">[^<]*\d/.test(meta), more > 0, "the next-only count shows when the page has such rows");
   }
+});
+
+// With the release behind the source, the feedback form's "Part of Vanguard" list names only modules the release has;
+// site-data.json (what the Function accepts) keeps every module, so a value an older cached page sends still files.
+test("Feedback lists no module only the next release has", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const html = feedbackPage(behind.model, behind.read).body;
+  const nextOnly = behind.model.modules.filter((m) => !m.inRel);
+  assert.ok(nextOnly.length >= 1, "the pins have a module the release lacks");
+  for (const m of nextOnly) assert.ok(!html.includes(`<option value="${m.key}"`), `${m.key} is not offered`);
+  for (const m of behind.model.modules.filter((x) => x.inRel)) assert.ok(html.includes(`<option value="${m.key}"`), `${m.key} is offered`);
 });

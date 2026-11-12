@@ -462,14 +462,15 @@ export function faqQuestions(model, read, loc = EN) {
 // Function reads the same list from site-data.json. Each option carries its English name in
 // data-en, which the preview shows, so it reads as the report the Function files.
 function areaOptions(model, loc) {
-  const byKey = new Map(model.modules.map((m) => [m.key, m]));
+  const listed = model.modules.filter((m) => m.inRel);
+  const byKey = new Map(listed.map((m) => [m.key, m]));
   const used = new Set();
   const groups = AREAS.map(([title, keys]) => {
     const mods = keys.map((k) => byKey.get(k)).filter(Boolean);
     mods.forEach((m) => used.add(m.key));
     return [title, mods];
   });
-  const rest = model.modules.filter((m) => !used.has(m.key));
+  const rest = listed.filter((m) => !used.has(m.key));
   if (rest.length) groups.push(["Other modules", rest]);
   const opt = (value, label, english) => `<option value="${esc(value)}" data-en="${esc(english)}">${esc(label)}</option>`;
   return [`<option value="">${loc.p("Choose one")}</option>`,
