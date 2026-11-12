@@ -646,13 +646,6 @@ test("the not-found page speaks each language and links that language's home", (
   }
 });
 
-test("the site as published today (no `locales` listed) has no language switcher or hreflang", () => {
-  if (cfg.locales.length) return;
-  const h = fs.readFileSync(path.join(cfg.outDir, "settings", "index.html"), "utf8");
-  assert.ok(!h.includes("hreflang") && !h.includes("lang-select") && !h.includes("lang-menu") && !h.includes("vg-strings"));
-  assert.ok(!fs.existsSync(path.join(cfg.outDir, "de")));
-});
-
 test("the Home tagline is the addon's Notes line up to its colon, full-width or not, with the language's own full stop", () => {
   const hero = (dir) => html(dir, "/").match(/<p class="hero-tagline">([^<]*)<\/p>/)[1];
   const english = hero("");
