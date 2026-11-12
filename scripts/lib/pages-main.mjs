@@ -1164,11 +1164,15 @@ function settingsCounts(model, loc) {
   return `<p class="counts">${loc.t("set.countsLine", { parts: `${release}${next} · ${loc.n("set.pages", pages.length)}` })}</p>`;
 }
 
-// The folded aside under the settings: reloads, defaults and what isn't listed.
+// The files the Settings page is read from.
+const SETTINGS_SOURCES = ["Core/Options.lua (PAGES and row builders)", "Modules/RaidHealing.lua", "Modules/ClickCastOptions.lua", "Modules/Nameplates.lua", "Modules/Situations.lua", "Core/Visibility.lua", "Core/Dialog.lua (ns.ReloadButton)", "module defaults tables"];
+
+// The folded row above the settings: reloads, defaults and what isn't listed, with the page's source note.
 function settingsAside(read, loc) {
   return disclosure({ id: "reloads", level: 3, title: loc.t("set.aboutTitle"), cls: "aside", body: `<p>${loc.t("set.aboutReload", { badge: reloadBadge(loc), ...reloadWords(loc) })}</p>
 ${combatReloadNote(read, loc)}
-<p class="small">${loc.t("set.aboutClients")}</p>` });
+<p class="small">${loc.t("set.aboutClients")}</p>
+${sourceNote(loc, SETTINGS_SOURCES)}` });
 }
 
 export function settingsPage(model, read, loc = EN) {
@@ -1181,10 +1185,9 @@ export function settingsPage(model, read, loc = EN) {
     body: `${pageHero(loc.t("title./settings/"), loc.t("set.lede"))}
 ${settingsCounts(model, loc)}
 ${settingsSearchBox(model, loc)}
-<div id="opt-list" class="dis-grid">
-${model.pages.map((p) => pageSection(p, model, used, loc)).join("\n")}
-</div>
 ${settingsAside(read, loc)}
-${sourceNote(loc, ["Core/Options.lua (PAGES and row builders)", "Modules/RaidHealing.lua", "Modules/ClickCastOptions.lua", "Modules/Nameplates.lua", "Modules/Situations.lua", "Core/Visibility.lua", "Core/Dialog.lua (ns.ReloadButton)", "module defaults tables"])}`,
+<div id="opt-list" class="dis-grid pages">
+${model.pages.map((p) => pageSection(p, model, used, loc)).join("\n")}
+</div>`,
   };
 }

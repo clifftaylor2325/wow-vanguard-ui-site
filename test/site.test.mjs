@@ -835,6 +835,16 @@ test("Credits starts with its License section folded", () => {
   assert.ok(!/<details[^>]*\bopen\b/.test(main), "and no section starts open");
 });
 
+// Settings fits one screen: the About row and the source note are one folded row above the list of pages.
+test("Settings has one folded About row, with the source note inside, above the list of pages", () => {
+  const main = page("settings").split("<main")[1];
+  const about = main.indexOf('id="reloads"');
+  assert.ok(about > 0 && about < main.indexOf('id="opt-list"'), "the About row comes before the list");
+  assert.equal((main.match(/<details class="src"/g) || []).length, 1, "one source note");
+  assert.ok(main.indexOf('<details class="src"') > about && main.indexOf('<details class="src"') < main.indexOf('id="opt-list"'), "inside the About row");
+  assert.ok(!/<details[^>]*\bopen\b/.test(main.slice(0, main.indexOf('id="opt-list"'))), "folded");
+});
+
 // With the release behind the source, the wizard is the release's, and what only the next release adds is tagged.
 test("Getting started tags the wizard layouts only the next release has", () => {
   const behind = behindModel();
