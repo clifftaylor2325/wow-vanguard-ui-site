@@ -5,7 +5,7 @@ import { shotByFile } from "./shots-content.mjs";
 import { supportAsk, esc, md, slug, badge, nextBadge, reloadBadge, avail, shotFigure, ornament, heroFrame, pageHero, storeCtas, CURSEFORGE_URL, WAGO_URL, disclosure, glance, nextOnly, NEXT_BADGE } from "./html.mjs";
 import { crestImg } from "./brand.mjs";
 import { AREAS } from "./model.mjs";
-import { MORE, longerOf, readmeSays } from "./features-content.mjs";
+import { MORE, longerRows, readmeSays } from "./features-content.mjs";
 import { EN } from "./i18n-site.mjs";
 import { splitHelp, showSlots } from "./extract.mjs";
 
@@ -651,10 +651,29 @@ export function startsOff(m, model) {
   return flags.length > 0 && flags.every((v) => !v) && /off until|switch it on/i.test(m.desc);
 }
 
-// The module's longer description, while the README still says what it's written from.
+// The module's longer description, while the README still says what it's written from: { text, current },
+// current when the release's README says it too (otherwise it describes the next release only). null when none.
 function moreOf(m, model) {
   const entry = MORE[m.key];
-  return entry && entry.check.every((c) => readmeSays(model.next.readme, c)) ? entry.more : null;
+  if (!entry || !entry.check.every((c) => readmeSays(model.next.readme, c))) return null;
+  return { text: entry.more, current: entry.check.every((c) => readmeSays(model.rel.readme, c)) };
+}
+
+// The More paragraph: the release's own, or the next release's behind the Next release badge.
+function moreParagraph(more, loc) {
+  if (!more) return "";
+  if (more.current) return `<p class="mod-more">${esc(loc.p(more.text))}</p>`;
+  return nextOnly(`<p class="mod-more">${esc(loc.p(more.text))} ${nextBadge(loc)}</p>`, "div");
+}
+
+// The longer paragraph under a module: each sentence the release's README doesn't back is hidden, with the
+// Next release badge, until the reader asks for what's coming. "" when the module has none.
+function longerParagraph(m, model, loc) {
+  const rows = longerRows(m.key, model.rel.readme, model.same);
+  if (!rows.length) return "";
+  const text = rows.map((r, i) => (r.current ? `${i ? " " : ""}${esc(loc.p(r.s))}` : nextOnly(` ${esc(loc.p(r.s))} ${nextBadge(loc)}`))).join("");
+  const body = `<p class="mod-longer">${text}</p>`;
+  return rows.some((r) => r.current) ? body : nextOnly(body, "div");
 }
 
 // One help line's text in the page's language: the addon translates either the whole line
@@ -699,14 +718,13 @@ const FEATURE_SHOTS = {
 function featureCard(m, model, loc) {
   const off = startsOff(m, model) ? ` <span class="badge plain">${loc.t("feat.offBadge")}</span>` : "";
   const more = moreOf(m, model);
-  const longer = longerOf(m.key).map((s) => loc.p(s));
   const name = esc(loc.addon(m.name));
   return `<article class="card mod" id="${m.id}" data-module="${esc(m.key)}" data-count${m.inRel ? "" : ' data-avail="next"'}>
   <h3>${name} ${badge(m.inRel, m.inNext, model.version, loc)}${off}</h3>
   ${m.desc ? `<p>${esc(loc.addon(m.desc))}</p>` : ""}
   <details class="mod-details"><summary>${loc.p("More<span class=\"visually-hidden\"> about {name}</span>", { name })}</summary>
   ${(FEATURE_SHOTS[m.key] || []).map((f) => shotFigure(shotByFile(f), { loc })).join("")}
-  ${more ? `<p class="mod-more">${esc(loc.p(more))}</p>` : ""}${longer.length ? `\n  <p class="mod-longer">${esc(longer.join(" "))}</p>` : ""}
+  ${moreParagraph(more, loc)}${longerParagraph(m, model, loc)}
   ${featureFacts(m, model, loc)}
   ${featureSource(m, more, loc)}
   </details>

@@ -436,6 +436,13 @@ export function longerOf(key) {
   return (LONGER[key] || []).map((x) => x.s);
 }
 
+// A module's longer sentences with whether the release's README backs each one: { s, current }. A
+// sentence pinned only to the addon's code counts as current only while the release is the pinned source
+// (same), since the code at the release is not read at build time.
+export function longerRows(key, releaseReadme, same) {
+  return (LONGER[key] || []).map((x) => ({ s: x.s, current: x.readme?.length ? x.readme.every((p) => readmeSays(releaseReadme, p)) : same }));
+}
+
 // A phrase as the addon's feature pages may start a paragraph with it: capitalised.
 export const capitalised = (phrase) => phrase.charAt(0).toUpperCase() + phrase.slice(1);
 

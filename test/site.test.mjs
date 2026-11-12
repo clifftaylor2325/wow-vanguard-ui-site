@@ -774,6 +774,17 @@ function behindModel() {
   return { model, read: { rel: specReader(relReader), next: specReader(nextReader) } };
 }
 
+// With the release behind the source, a longer text only the next README backs is hidden with the Next release badge.
+test("Features tags a module's longer text that the release's README does not say", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const body = featuresPage(behind.model).body;
+  const card = (key) => body.split("<article ").find((a) => a.includes(`data-module="${key}"`)) || "";
+  assert.match(card("UnitFrames"), /<div data-avail="next"><p class="mod-more">[^]*?badge next[^]*?<\/p><\/div>/, "UnitFrames' More is the next release's");
+  assert.match(card("CastBars"), /<p class="mod-more">(?:(?!badge)[^<])*<\/p>/, "CastBars' More is in v0.9.4 too, so untagged");
+  assert.match(card("GroupThreat"), /data-avail="next"[^>]*> It is off until you turn it on/, "a longer sentence the release lacks is tagged");
+});
+
 // With the release behind the source, the wizard is the release's, and what only the next release adds is tagged.
 test("Getting started tags the wizard layouts only the next release has", () => {
   const behind = behindModel();
