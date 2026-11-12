@@ -206,20 +206,41 @@ function settingRef(ctx, text, depth = 0) {
   for (const call of text.matchAll(/\b([A-Za-z_]\w*)\(\s*(?:"(\w+)")?\s*\)/g)) {
     if (!defs.has(call[1]) || call[1] === "check") continue;
     const body = m.code.slice(defs.get(call[1]).from, defs.get(call[1]).to);
-    const reload = /NeedReload\(\)/.test(body) && !/if reload/.test(body);
     const viaKey = call[2] ? body.replace(/\bkey\b/g, `"${call[2]}"`) : body;
     let inner = null;
     if (call[2] && /ns\.MoverOptions\(\)\[key\]/.test(body)) inner = { scope: "movers", key: call[2], reload: false };
     else if (call[2] && /T\.Settings\(\)\[key\]/.test(body)) inner = { scope: "theme", key: call[2], reload: false };
     else inner = settingRef(ctx, viaKey, depth + 1);
-    if (inner) return { ...inner, reload: inner.reload || reload };
+    if (inner) return inner;
   }
   return null;
 }
 
+// The names a file calls O.ReloadRow by: "O.ReloadRow" itself and each local assigned it
+// (`local essential, reloadRow = O.Essential, O.ReloadRow`).
+function reloadRowNames(code) {
+  const names = new Set(["O.ReloadRow"]);
+  for (const decl of code.matchAll(/^local\s+([\w\s,]+?)\s*=\s*([^\n]+)$/gm)) {
+    const values = decl[2].split(",").map((v) => v.trim());
+    decl[1].split(",").forEach((name, i) => { if (values[i] === "O.ReloadRow") names.add(name.trim()); });
+  }
+  return names;
+}
+
+// Whether the row starting at `at` is the argument of O.ReloadRow (or a local alias of it), however many
+// calls (essential(...)) sit between: the options window gives such a row the Needs reload tag. The
+// release before v0.9.6 has no O.ReloadRow, so this reads nothing there.
+function wrappedInReloadRow(ctx, at) {
+  ctx.reloadNames ??= reloadRowNames(ctx.m.code);
+  const before = ctx.m.code.slice(Math.max(0, at - 160), at);
+  const call = before.match(/((?:[\w.]+\(\s*)+)$/);
+  if (!call) return false;
+  return call[1].split("(").some((name) => ctx.reloadNames.has(name.trim()));
+}
+
 // One row: kind, caption (with "<n>"-style placeholders for concatenated
 // values), choices or range, and where its value lives.
-function makeRow(ctx, kind, caption, extraParts, loop) {
+function makeRow(ctx, kind, caption, extraParts, loop, wrapped = false) {
   const { m, defs } = ctx;
   const row = { kind, caption };
   const rest = extraParts.map(([a, b]) => m.code.slice(a, b)).join(", ");
@@ -231,7 +252,7 @@ function makeRow(ctx, kind, caption, extraParts, loop) {
     if (kind === "check" && typeof last === "boolean") row.literalDefault = last;
   }
   if (loop) row.loop = loop;
-  row.reload = /\(reload\)/.test(caption) || !!row.ref?.reload;
+  row.reload = / \(reload\)$/.test(caption) || wrapped || !!row.ref?.reload;
   return row;
 }
 
@@ -440,7 +461,7 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
     if (!caps.length) ctx.skipped.push(`${ctx.m.file}:${m.code.slice(0, f.at).split("\n").length}`);
     for (const cap of caps) {
       const loopFor = cap.variable && here && here.variable === cap.variable ? here : null;
-      const row = makeRow(ctx, kind, cap.caption, parts.slice(capIdx + 1), loopFor);
+      const row = makeRow(ctx, kind, cap.caption, parts.slice(capIdx + 1), loopFor, wrappedInReloadRow(ctx, f.at));
       if (cap.key) row.key = cap.key;
       if (cap.retail) Object.assign(row, { clientOnly: "retail", retailName: true });
       if (cap.entryKey) row.ref ??= entryRef(m.code.slice(open, close), cap.entryKey);

@@ -1408,3 +1408,23 @@ test("Settings marks the rows from Retail-only files, and no other row", () => {
   assert.equal((html.match(/Retail only/g) || []).length, 5);
   assert.match(page("de/settings"), /Nur Retail/);
 });
+
+// The Settings row whose caption starts with `name`: its whole <tr>, or "" when there is none.
+function settingsRow(html, name) {
+  const at = html.indexOf(`class="opt-cap">${esc(name)}`);
+  return at < 0 ? "" : html.slice(html.lastIndexOf("<tr", at), html.indexOf("</tr>", at));
+}
+
+// A row wears the Needs reload tag when the options window gives it one (row.reload): its caption ends " (reload)",
+// it is wrapped in O.ReloadRow (also through a local alias, or inside essential(...)), or its setter is reloadSetting.
+// A helper that calls O.NeedReload() somewhere in its body (the Theme variant switch) is not enough.
+test("Settings tags the rows O.ReloadRow wraps and not a row whose helper only sometimes needs a reload", () => {
+  const html = page("settings");
+  const files = ["Core/Options.lua", "Core/OptionsFrames.lua", "Core/OptionsBars.lua", "Core/OptionsChat.lua", "Core/OptionsBags.lua"];
+  const wrapped = files.flatMap((f) => [...show(cfg.sourceRef, f).matchAll(/[rR]eloadRow\(\s*(?:\{\s*"\w+",\s*|(?:\w+\()?check\(\s*(?:ns\.Format\(\s*)?)"([^"]+)"/g)].map((m) => m[1].replace(/\{(\w+)\}/g, "<$1>")));
+  assert.ok(wrapped.length >= 10, `read ${wrapped.length} ReloadRow rows from the addon`);
+  assert.ok(wrapped.includes("Show bar <n>"), "the reader sees the bar switch");
+  const untagged = wrapped.filter((name) => !settingsRow(html, name).includes('class="badge reload"'));
+  assert.deepEqual(untagged, [], "ReloadRow rows without the Needs reload tag");
+  assert.ok(!settingsRow(html, "Theme variant").includes('class="badge reload"'), "Theme variant applies at once");
+});
