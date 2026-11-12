@@ -471,7 +471,7 @@ function wizardMoveStep(setup, w, loc) {
   const { A } = w;
   return `${stepHeading(setup, "move", 4, "setup-move", loc, w)}
 <p>${loc.p("On this step your frames are unlocked, and the wizard says:")}</p>
-<ul>${setup.moveLines.map((l) => `<li>“${A(l)}”</li>`).join("")}</ul>
+<ul>${setup.moveLines.map((l) => `<li>${loc.quote(A(l))}</li>`).join("")}</ul>
 <p>${loc.p("Arrow keys are <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd>; hold <kbd>Shift</kbd> to move 10 px at a time.")}</p>
 `;
 }
@@ -500,8 +500,8 @@ function wizardProfileStep(setup, w, loc) {
   return `<h3 id="setup-profile">${loc.p("A new character: the {name} step", { name: A(setup.profileName) })}</h3>
 <p>${loc.p("Once setup is finished on your account, each new character gets it too, with one more step first. It asks: “{question}” and offers two choices:", { question: A(setup.profileQuestion) })}</p>
 <ul>
-  <li><strong>“${loc.english ? `${says(S, "Core/Setup.lua", "Share profile ")}<em>name</em>${says(S, "Core/Setup.lua", " with your other characters")}` : shareText}”</strong>: ${w.s("Changes here change them too.")}</li>
-  <li><strong>“${loc.english ? `${own}<em>character</em>` : ownText}”</strong>: ${loc.english ? `a profile named after the character. It ${says(S, "Core/Setup.lua", "Starts as a copy of ").toLowerCase()}the shared one${says(S, "Core/Setup.lua", "; changes here stay on this character.")}` : `${loc.p("a profile named after the character.")} ${copy}`} ${loc.p("It then starts on your role's layout, and <strong>{back}</strong> doesn't return to this step.", { back: lab(S, "Core/Setup.lua", "Back") })}</li>
+  <li><strong>${loc.quote(loc.english ? `${says(S, "Core/Setup.lua", "Share profile ")}<em>name</em>${says(S, "Core/Setup.lua", " with your other characters")}` : shareText)}</strong>: ${w.s("Changes here change them too.")}</li>
+  <li><strong>${loc.quote(loc.english ? `${own}<em>character</em>` : ownText)}</strong>: ${loc.english ? `a profile named after the character. It ${says(S, "Core/Setup.lua", "Starts as a copy of ").toLowerCase()}the shared one${says(S, "Core/Setup.lua", "; changes here stay on this character.")}` : `${loc.p("a profile named after the character.")} ${copy}`} ${loc.p("It then starts on your role's layout, and <strong>{back}</strong> doesn't return to this step.", { back: lab(S, "Core/Setup.lua", "Back") })}</li>
 </ul>
 <p>${loc.p("Characters that played before this step came in aren't asked.")}</p>
 
@@ -527,8 +527,8 @@ function wizardFinish(setup, w, loc) {
 ${ends}
 <p>${loc.p("If setup changed something that needs a reload, it then asks, with <strong>{reload}</strong> and <strong>{later}</strong> buttons:", { reload: lab(w.D, "Core/Dialog.lua", "Reload"), later: lab(w.D, "Core/Dialog.lua", "Later") })}</p>
 <ul>
-  <li>“${reloadAsk(setup.reloadModule)}” ${loc.p("(for example after <strong>{healing}</strong> turned the raid frames on)", { healing })}</li>
-  <li>“${reloadAsk(setup.reloadTile)}”</li>
+  <li>${loc.quote(reloadAsk(setup.reloadModule))} ${loc.p("(for example after <strong>{healing}</strong> turned the raid frames on)", { healing })}</li>
+  <li>${loc.quote(reloadAsk(setup.reloadTile))}</li>
 </ul>
 ${shotFigure(shotByFile("02-setup-wizard"), { loc })}`;
 }

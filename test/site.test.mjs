@@ -1530,3 +1530,18 @@ test("the Changelog names click casting's unit-frame switch as the addon does", 
   assert.ok(de, "the addon translates it in German");
   assert.ok(page("de/changelog").includes(`Klickzauberei ${esc(de.replace(/\s*\([^)]*\)$/, ""))} lässt`), "German: the addon's words, bracket stripped");
 });
+
+// The marks round the addon's own text and a changelog label's colon belong to the page's language (loc.quote, loc.label),
+// not to the generator: German “Deine Fenster…” was set in English marks, Chinese used an ASCII colon.
+test("quoted addon text and changelog labels use the page's language's marks", () => {
+  for (const dir of ["de/", "fr/", "es/", "ru/", "zh-tw/"]) {
+    const start = page(`${dir}start`);
+    assert.ok(!/<li>“|<strong>“/.test(start), `${dir}start: English opening marks round addon text`);
+  }
+  assert.match(page("de/start"), /<li>„Deine Fenster/);
+  for (const dir of ["zh-cn/", "zh-tw/"]) {
+    const log = page(`${dir}changelog`);
+    assert.ok(/<strong>[^<]+：<\/strong>/.test(log), `${dir}: a full-width colon after a label`);
+    assert.ok(!/<strong>[^<]+:<\/strong>/.test(log), `${dir}: no ASCII colon after a label`);
+  }
+});

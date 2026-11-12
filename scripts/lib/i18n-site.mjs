@@ -324,6 +324,8 @@ function uiWords(template, translations) {
 //   has(text)          whether the addon translates text in this language
 //   p(english, values) a page's own sentence (HTML) in this language, English when untranslated;
 //                      {ui:Text} in it is the addon's own words for Text, so a translation never retypes them
+//   quote(html)        the addon's text in this language's quotation marks (“ ” in English, „ “ in German)
+//   label(html)        a bold label and its colon (a full-width one in Chinese)
 //   pn(forms, count, v) the same for a count: forms is { one, other } in English, keyed by other
 //   href(path)         a site path in this language's folder
 //   list(items)        "a, b and c" in this language
@@ -336,7 +338,7 @@ export function siteLocale(locale = ENGLISH, translations = new Map(), prose = l
   };
   const prefix = locale === ENGLISH ? "" : `/${locale.code}`;
   const conj = new Intl.ListFormat(locale.lang, { type: "conjunction" });
-  return {
+  const loc = {
     ...locale,
     english: locale === ENGLISH,
     addonLocale: locale.addon,
@@ -361,6 +363,9 @@ export function siteLocale(locale = ENGLISH, translations = new Map(), prose = l
     href: (path) => `${prefix}${path}`,
     list: (items) => (locale === ENGLISH ? englishList(items) : conj.format(items)),
   };
+  loc.quote = (html) => loc.p("“{text}”", { text: html });
+  loc.label = (html) => loc.p("<strong>{label}:</strong>", { label: html });
+  return loc;
 }
 
 // The English context, for generators called without one.

@@ -178,7 +178,7 @@ function profileChatTable(w, news, loc) {
 ${row("/vg profile new &lt;name&gt;", loc.p("Makes an empty profile. You stay on the one you're using."), loc.p("“{a}” or “{b}”", { a: created, b: qa("slash", "That name is taken or not allowed.") }))}
 ${row("/vg profile copy &lt;name&gt;", loc.p("Copies that profile's settings over the one you'll use after the reload, then offers a reload.") + profileAsk(news, loc, asks.copy), loc.p("“{a}” or “{b}”", { a: reloadAsk(copied), b: noOther }))}
 ${row("/vg profile delete &lt;name&gt;", deleteDoes, loc.p("“{a}” or “{b}”", { a: deleted, b: qa("slash", "Can't delete that one (missing, or in use).") }))}
-${row("/vg profile reset", loc.p("Asks first (“{ask}”), keeps a copy of the profile you're using, then puts every setting in it back to its default; reload to apply.", { ask: qa("opt", "Reset this profile?") }), `“${saved}”`)}
+${row("/vg profile reset", loc.p("Asks first (“{ask}”), keeps a copy of the profile you're using, then puts every setting in it back to its default; reload to apply.", { ask: qa("opt", "Reset this profile?") }), loc.quote(saved))}
 </tbody></table></div>`;
 }
 
@@ -681,7 +681,7 @@ function readyBug(model, read, templates, loc) {
   const failLine = grab(read.rel("Core/Modules.lua"), /string\.format\("(module %s failed to load: %s)"/);
   const errorsStep = relErrors
     ? loc.p("<strong>Type <code>/vg errors</code></strong> and copy all of it.")
-    : `${loc.p("<strong>Copy any error lines</strong>. v{version} has no <code>/vg errors</code> yet; if chat showed {line}, copy that whole line.", { version: esc(v), line: failLine ? `“${esc(failLine.replace(/%s/g, "…"))}”` : loc.p("an error") })}${nextOnly(` ${NEXT} ${loc.p("<code>/vg errors</code> lists the errors Vanguard caught this session, with stacks and counts, ready for a bug report.")}`)}`;
+    : `${loc.p("<strong>Copy any error lines</strong>. v{version} has no <code>/vg errors</code> yet; if chat showed {line}, copy that whole line.", { version: esc(v), line: failLine ? loc.quote(esc(failLine.replace(/%s/g, "…"))) : loc.p("an error") })}${nextOnly(` ${NEXT} ${loc.p("<code>/vg errors</code> lists the errors Vanguard caught this session, with stacks and counts, ready for a bug report.")}`)}`;
   return `<section class="card" aria-labelledby="bug">
 <h3 id="bug">${loc.p("Report a bug")}</h3>
 <ol class="steps">
@@ -752,7 +752,7 @@ function notesOf(body) {
 
 // One "What's coming" group: its heading and its bullets.
 function nextGroup(g, loc) {
-  const items = g.items.map((i) => `<li><strong>${esc(loc.p(i.label))}:</strong> ${esc(loc.p(i.text))}</li>`);
+  const items = g.items.map((i) => `<li>${loc.label(esc(loc.p(i.label)))} ${esc(loc.p(i.text))}</li>`);
   return `<h3 id="next-${g.id}">${esc(loc.p(g.title))}</h3>\n<ul class="changes">${items.join("")}</ul>`;
 }
 
@@ -776,7 +776,7 @@ ${NEXT_RELEASE.groups.map((g) => nextGroup(g, loc)).join("\n")}
 // A release's grouped notes (New, Improved, Fixed), each group folded under its heading (one level under the release's own).
 function groupedNotes(r, groups, level, loc) {
   return groups.map((g) => disclosure({ id: `rel-${esc(r.tagName)}-${g.id}`, level: level + 1, title: esc(loc.p(g.title)), meta: loc.pn({ one: "{n} change", other: "{n} changes" }, g.items.length),
-    body: `<ul class="changes">${g.items.map((i) => `<li><strong>${esc(loc.p(i.label))}:</strong> ${esc(loc.p(i.text))}</li>`).join("")}</ul>` })).join("\n");
+    body: `<ul class="changes">${g.items.map((i) => `<li>${loc.label(esc(loc.p(i.label)))} ${esc(loc.p(i.text))}</li>`).join("")}</ul>` })).join("\n");
 }
 
 // A release's bullets: the player-language notes (grouped for a big release), else its release note titles.
@@ -825,7 +825,7 @@ export function changelogPage(model, loc = EN) {
 function feedNotes(r, loc) {
   const own = RELEASE_NOTES[r.tagName];
   const list = (items) => `<ul>${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
-  if (own?.groups) return own.groups.map((g) => `<h3>${esc(loc.p(g.title))}</h3>${list(g.items.map((i) => `<strong>${esc(loc.p(i.label))}:</strong> ${esc(loc.p(i.text))}`))}`).join("");
+  if (own?.groups) return own.groups.map((g) => `<h3>${esc(loc.p(g.title))}</h3>${list(g.items.map((i) => `${loc.label(esc(loc.p(i.label)))} ${esc(loc.p(i.text))}`))}`).join("");
   const notes = own?.map((n) => loc.p(n.text)) || notesOf(r.body);
   return notes.length ? list(notes.map(esc)) : `<p>${loc.p("No notes.")}</p>`;
 }

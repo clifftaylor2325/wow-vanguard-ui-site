@@ -1300,5 +1300,7 @@
  "On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>: it asks “{question}” first, then keeps a copy of the profile and resets it. The options window then shows its <strong>{ui:Reload now}</strong> button.": "在“配置文件”页面上，<strong>{reset}</strong> 的作用与 <code>/vg profile reset</code> 相同：它会先询问“{question}”，然后保留一份该配置文件的副本并将其重置。选项窗口随后会显示它的 <strong>{ui:Reload now}</strong> 按钮。",
  "The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner.": "游戏中的默认布局：玩家和目标框体位于角色两侧，施法条在两者之间，动作条在下方，任务追踪和信息条在方形小地图下面，背包和菜单栏在角落。",
  "You may use the crest and the share card in articles and videos about Vanguard. For anything else, ask on Discord first.": "你可以在介绍 Vanguard 的文章和视频中使用徽记和分享卡片。其他用途请先在 Discord 询问。",
- "Earlier releases": "更早的版本"
+ "Earlier releases": "更早的版本",
+ "“{text}”": "“{text}”",
+ "<strong>{label}:</strong>": "<strong>{label}：</strong>"
 }

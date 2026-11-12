@@ -1315,5 +1315,7 @@
  "On the Profiles page, <strong>{reset}</strong> does the same as <code>/vg profile reset</code>: it asks “{question}” first, then keeps a copy of the profile and resets it. The options window then shows its <strong>{ui:Reload now}</strong> button.": "На странице «Профили» кнопка <strong>{reset}</strong> делает то же, что и <code>/vg profile reset</code>: сначала она спрашивает «{question}», затем сохраняет копию профиля и сбрасывает его. После этого в окне настроек появляется кнопка <strong>{ui:Reload now}</strong>.",
  "The default layout in the game: player and target frames either side of your character, your cast bar between them, the action bars underneath, the quest tracker and an info strip under the square minimap, and the bag and menu bar in the corner.": "Расположение по умолчанию в игре: рамки игрока и цели по обе стороны от вашего персонажа, между ними полоса заклинаний, ниже панели команд, а список заданий и инфополоса под квадратной мини-картой, в углу сумки и панель меню.",
  "You may use the crest and the share card in articles and videos about Vanguard. For anything else, ask on Discord first.": "Герб и карточку для ссылок можно использовать в статьях и видео о Vanguard. Для всего остального сначала спросите в Discord.",
- "Earlier releases": "Предыдущие версии"
+ "Earlier releases": "Предыдущие версии",
+ "“{text}”": "«{text}»",
+ "<strong>{label}:</strong>": "<strong>{label}:</strong>"
 }
