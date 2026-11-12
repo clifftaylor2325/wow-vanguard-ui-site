@@ -101,7 +101,7 @@ export function extractModules(reader, files) {
       const name = readString(m.code, hit.index + hit[0].length - 1).value;
       const open = m.bare.indexOf("{", hit.index);
       const def = open >= 0 && open < m.bare.indexOf(")", hit.index + hit[0].length + name.length + 1) + 2 ? parseTable(m, open) : null;
-      out.push({ name, file, defaults: moduleDefaults(m, def) });
+      out.push({ name, file, defaults: moduleDefaults(m, def), live: def?.fields?.live === true });
     }
   }
   return out;
@@ -186,12 +186,15 @@ function rangeOf(m, v) {
   return typeof r?.min === "number" && typeof r?.max === "number" ? { min: r.min, max: r.max, step: r.step, percent } : null;
 }
 
-// Where a row's value lives: { scope, key, reload } from the setter expression
+// Where a row's value lives: { scope, key, reload } (restart: true for O.RestartSetting, which applies at once
+// while its module is live and needs a reload otherwise: applyRestart sets that) from the setter expression
 // text, following small helper functions (themeSetting("x"), stripSetting("x"),
 // enchantSetting()) into their bodies.
 function settingRef(ctx, text, depth = 0) {
   const { m, defs, fileModule } = ctx;
-  let hit = text.match(/\b(reloadSetting|setting|liveSetting)\(\s*"(\w+)"\s*,\s*"(\w+)"\s*(,\s*true)?/);
+  let hit = text.match(/\bO\.RestartSetting\(\s*"(\w+)"\s*,\s*"(\w+)"/);
+  if (hit) return { scope: hit[1], key: hit[2], reload: true, restart: true };
+  hit = text.match(/\b(reloadSetting|setting|liveSetting)\(\s*"(\w+)"\s*,\s*"(\w+)"\s*(,\s*true)?/);
   if (hit) return { scope: hit[2], key: hit[3], reload: hit[1] === "reloadSetting" || !!hit[4] };
   hit = text.match(/\b(?:setting|switch)\(\s*"(\w+)"\s*(,\s*true)?\s*\)/);
   if (hit && fileModule) return { scope: fileModule, key: hit[1], reload: !!hit[2] };
@@ -523,6 +526,7 @@ export function extractPages(reader, files, modules, skipped = []) {
   for (const p of pages) p.rows = withoutEmptyGroups(dedupe(p.rows));
   pages.sort((a, b) => a.order - b.order);
   applyDefaults(pages, modules, reader);
+  applyRestart(pages, modules);
   return pages;
 }
 
@@ -619,6 +623,17 @@ function addedRows(ctx, pages) {
 function resolveConst(m, name) {
   const hit = m.code.match(new RegExp(`local\\s+${name}\\s*=\\s*"([^"]*)"`));
   return hit ? hit[1] : name.toLowerCase();
+}
+
+// A row set by O.RestartSetting applies at once when its module declares live = true, and needs a reload
+// otherwise; appliesLive tells the page to draw its caption without the "(reload)" words.
+function applyRestart(pages, modules) {
+  const live = new Set(modules.filter((x) => x.live).map((x) => x.name));
+  for (const r of pages.flatMap((p) => p.rows)) {
+    if (!r.ref?.restart) continue;
+    r.appliesLive = live.has(r.ref.scope);
+    r.reload = !r.appliesLive;
+  }
 }
 
 // Fills row.default from the module/theme/mover defaults tables (literal values only).

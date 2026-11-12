@@ -1259,6 +1259,17 @@ test("Settings lists the Calm HUD parts, the mana bar, the Dungeon card and the 
   assert.ok(!/had a caption|left off/.test(html));
 });
 
+// O.RestartSetting rebuilds a live module at once, so its row has no reload words and no Needs reload tag; the
+// row's id (a deep link) keeps the full caption.
+test("a restart setting of a live module is not tagged as needing a reload", () => {
+  const html = page("settings");
+  const row = html.match(/id="cooldowns-gaps-row-reload"[^>]*>(<th.*?<\/th>)/s)?.[1] || "";
+  assert.match(row, /class="opt-cap">Gaps row /);
+  assert.ok(!/\(reload\)|Needs reload/.test(row), row);
+  const german = page("de/settings").match(/id="cooldowns-gaps-row-reload"[^>]*>(<th.*?<\/th>)/s)?.[1] || "";
+  assert.ok(german && !/\(|Needs reload|Neustart/.test(german.replace(/<span[^>]*>.*?<\/span>/g, "")), german);
+});
+
 test("Settings marks the rows from Retail-only files, and no other row", () => {
   const toc = "Modules/A.lua\nModules/RetailWindows.lua [AllowLoadGameType standard] [ExcludeLoadGameType camelot]\nModules/Forever.lua [AllowLoadGameType camelot] [ExcludeLoadGameType standard]\n";
   assert.deepEqual([...tocRetailOnly(toc)], ["Modules/RetailWindows.lua"]);

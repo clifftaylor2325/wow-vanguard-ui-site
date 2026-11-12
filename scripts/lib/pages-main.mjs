@@ -1013,7 +1013,8 @@ function groupRow(html, attrs) {
 // A row's caption in the page's language, as plain text. A ns.Format caption is looked up by its
 // {slot} text, as the game does, and its slots show as <slot>.
 function rowCaption(r, loc) {
-  return r.key ? showSlots(loc.addon(r.key)) : loc.addon(r.caption);
+  const text = r.key ? showSlots(loc.addon(r.key)) : loc.addon(r.caption);
+  return r.appliesLive && / \(reload\)$/.test(r.caption) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
 }
 
 // A heading or note row from the addon, spanning the table.
