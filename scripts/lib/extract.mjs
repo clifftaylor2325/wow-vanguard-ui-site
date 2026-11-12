@@ -289,11 +289,41 @@ function captionAt(ctx, i) {
   return [{ caption: `${s.value}${shown}${tail ? tail.value : ""}`, variable: name.includes(".") ? null : name, end: tail ? tail.end : s.end }];
 }
 
+// Rows that show a note or a heading: a constant caption is left off for them, since a note kept in a
+// constant is usually one the window shows only in some state (CG.OFF, CG.EMPTY).
+const TEXT_KINDS = new Set(["text", "header"]);
+
 // A caption that is a name (portraitRow's `label`, a loop's `g[2]`) rather than a string: one caption for
 // each string captionChoices finds for it; none when the name can't be resolved.
 function captionNames(ctx, i) {
-  const text = ctx.m.code.slice(i).match(/^[A-Za-z_]\w*(?:\[\d+\])?/);
-  return text ? (captionChoices(ctx, text[0], i) || []).map((value) => ({ caption: value, variable: null, end: i + text[0].length })) : [];
+  const text = ctx.m.code.slice(i).match(/^[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*(?:\[\d+\])?/);
+  if (!text) return [];
+  const entries = fieldEntries(ctx, text[0], i);
+  if (entries) return entries.map((e) => ({ caption: e.value, variable: null, end: i + text[0].length, entryKey: e.key }));
+  const retail = new Set((ctx.constants?.get(text[0]) || []).filter((c) => c.retail).map((c) => c.text));
+  const constant = ctx.constants?.has(text[0]);
+  return (captionChoices(ctx, text[0], i) || []).map((value) => ({ caption: value, variable: null, end: i + text[0].length, retail: retail.has(value), constant }));
+}
+
+// The rows of a constant table a loop walks, when the caption is one field of its loop variable
+// (`for _, cat in ipairs(CF.Available()) ... check(cat.switch, setting("ChatFilter", cat.key))`): one
+// { value, key } for each entry that has the field as a string, key being the entry's own `key`; null otherwise.
+function fieldEntries(ctx, text, at) {
+  const field = text.match(/^([A-Za-z_]\w*)\.([A-Za-z_]\w*)$/);
+  if (!field || ctx.constants?.has(text)) return null;
+  const loops = [...ctx.m.bare.slice(0, at).matchAll(new RegExp(`\\bfor\\s+\\w+\\s*,\\s*${field[1]}\\s+in\\s+ipairs\\(\\s*([\\w.]+(?:\\(\\))?)\\s*\\)`, "g"))];
+  const table = loops.length ? loopTable(ctx, loops.pop()[1]) : null;
+  const rows = (table?.array || []).map((row) => ({ value: row.fields?.[field[2]], key: row.fields?.key })).filter((e) => typeof e.value === "string");
+  return rows.length && rows.length === table.array.length ? rows : null;
+}
+
+// The table a loop's ipairs() argument names: the constant table itself, or the one the named function filters.
+function loopTable(ctx, expr) {
+  const contexts = ctx.contexts || [ctx];
+  const fn = expr.endsWith("()") ? expr.slice(0, -2) : null;
+  const body = fn ? contexts.map((c) => (c.defs.has(fn) ? c.m.bare.slice(c.defs.get(fn).from, c.defs.get(fn).to) : null)).find(Boolean) : null;
+  const name = fn ? (body?.match(/ipairs\(\s*([\w.]+)\s*\)/) || [])[1] : expr;
+  return name ? contexts.map((c) => findTable(c.m, name)).find(Boolean) || null : null;
 }
 
 // The strings a name can stand for at code[at], read from the code: a local of the function around it (an
@@ -304,6 +334,8 @@ function captionChoices(ctx, text, at, depth = 0) {
   if (depth > 3) return null;
   const literal = text.trim().match(/^(["'])/);
   if (literal) return [readString(text.trim(), 0).value];
+  const constant = ctx.constants?.get(text.trim());
+  if (constant) return constant.map((c) => c.text);
   const entry = text.trim().match(/^([A-Za-z_]\w*)\[(\d+)\]$/);
   if (entry) return loopTableStrings(ctx, entry[1], Number(entry[2]), at);
   const name = text.trim().match(/^[A-Za-z_]\w*$/);
@@ -336,7 +368,8 @@ function enclosingFunction(ctx, at) {
 // The strings every call of a function in this file gives its parameter number `index`; null when one is no string.
 function callArguments(ctx, name, index, depth) {
   const { m } = ctx;
-  const calls = [...m.bare.matchAll(new RegExp(`(?<![\\w.:])${name.split(".").pop()}\\(`, "g"))].filter((c) => !/function\s+$/.test(m.bare.slice(Math.max(0, c.index - 12), c.index)));
+  const names = [name.split(".").pop(), ...[...m.bare.matchAll(new RegExp(`\\blocal\\s+(\\w+)\\s*=\\s*${name.split(".").pop()}\\s*(?:\\n|$)`, "g"))].map((x) => x[1])];
+  const calls = names.flatMap((n) => [...m.bare.matchAll(new RegExp(`(?<![\\w.:])${n}\\(`, "g"))]).filter((c) => !/function\s+$/.test(m.bare.slice(Math.max(0, c.index - 12), c.index)));
   const found = calls.map((c) => {
     const open = c.index + c[0].length - 1;
     const part = splitTop(m.bare, open + 1, matchBracket(m.bare, open) - 1)[index];
@@ -399,19 +432,27 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
     const capIdx = f.type === "lit" ? 1 : 0;
     if (!parts[capIdx]) continue;
     const capStart = parts[capIdx][0] + (m.code.slice(parts[capIdx][0]).length - m.code.slice(parts[capIdx][0]).trimStart().length);
-    const caps = captionAt(ctx, capStart);
-    if (!caps.length) ctx.skipped.push(`${ctx.m.file}:${m.code.slice(0, f.at).split("\n").length}`);
     const kind = f.type === "lit" ? f.h[1] : f.type === "check" ? "check" : "visibility";
+    const caps = captionAt(ctx, capStart).filter((c) => !(c.constant && TEXT_KINDS.has(kind)));
+    if (!caps.length) ctx.skipped.push(`${ctx.m.file}:${m.code.slice(0, f.at).split("\n").length}`);
     for (const cap of caps) {
       const loopFor = cap.variable && here && here.variable === cap.variable ? here : null;
       const row = makeRow(ctx, kind, cap.caption, parts.slice(capIdx + 1), loopFor);
       if (cap.key) row.key = cap.key;
+      if (cap.retail) row.clientOnly = "retail";
+      if (cap.entryKey) row.ref ??= entryRef(m.code.slice(open, close), cap.entryKey);
       if (kind === "visibility") row.choices = ctx.visibility(m.code.slice(open, close));
       if (here && !loopFor) row.repeated = here;
       rows.push(row);
     }
   }
   return rows;
+}
+
+// Where a row made for a table entry keeps its value: setting("Module", cat.key) with cat.key read from the entry.
+function entryRef(callText, key) {
+  const hit = callText.match(/\bsetting\(\s*"(\w+)"\s*,\s*\w+\.key\b/);
+  return hit && typeof key === "string" ? { scope: hit[1], key, reload: false } : undefined;
 }
 
 // The rows functions of other files that code[from..to) names (O.CalmRows(), ns.QuestGuide.Rows,
@@ -475,7 +516,8 @@ export function extractPages(reader, files, modules, skipped = []) {
   const retailOnly = tocRetailOnly(reader.read("Vanguard.toc") || reader.read("ForeverUI.toc") || "");
   for (const ctx of contexts) ctx.retailOnly = retailOnly.has(ctx.file);
   const globals = rowFunctions(contexts);
-  for (const ctx of contexts) ctx.globals = globals;
+  const constants = captionConstants(contexts);
+  for (const ctx of contexts) Object.assign(ctx, { globals, constants, contexts });
   const pages = contexts.flatMap((ctx) => filePages(ctx));
   for (const ctx of contexts) addedRows(ctx, pages);
   for (const p of pages) p.rows = withoutEmptyGroups(dedupe(p.rows));
@@ -490,6 +532,23 @@ function pageContext(reader, file, visibility, skipped) {
   if (!m) return null;
   const fileModule = (m.code.match(/ns\.Module\(\s*"(\w+)"/) || [])[1] || null;
   return { file, m, defs: blocks(m), fileModule, visibility, skipped };
+}
+
+// The string constants rows take their captions from, across the TOC's files: name -> [{ text, retail }].
+// `DC.NAME = "Dungeon card"` (also under the name the file publishes the table as, ns.DungeonCard), and
+// `O.NAME = ns.ClientData({ forever = "...", retail = "..." })`, which gives the Forever text and the
+// Retail one (retail: true, so its row shows for Retail only).
+function captionConstants(contexts) {
+  const out = new Map();
+  for (const { m } of contexts) {
+    const published = new Map([...m.code.matchAll(/^ns\.(\w+)\s*=\s*(\w+)\s*$/gm)].map((x) => [x[2], `ns.${x[1]}`]));
+    const plainOnes = [...m.code.matchAll(/^([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*=\s*"((?:[^"\\\n]|\\.)*)"\s*$/gm)].map((x) => [x[1], x[2], [{ text: x[3], retail: false }]]);
+    const perClient = [...m.code.matchAll(/^([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*=\s*ns\.ClientData\(\{\s*forever\s*=\s*"((?:[^"\\\n]|\\.)*)",\s*retail\s*=\s*"((?:[^"\\\n]|\\.)*)",?\s*\}\)/gm)].map((x) => [x[1], x[2], [{ text: x[3], retail: false }, { text: x[4], retail: true }]]);
+    for (const [table, field, values] of [...plainOnes, ...perClient]) {
+      for (const name of [table, published.get(table)].filter(Boolean)) out.set(`${name}.${field}`, values);
+    }
+  }
+  return out;
 }
 
 // The functions of any file that build option rows, by every name other files call them by (O.CalmRows,

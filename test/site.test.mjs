@@ -1247,12 +1247,24 @@ test("a renamed setting is one row: its short name, with the old caption as its 
 });
 
 // The rows a Retail-only file adds are marked "Retail only", read from the TOC's load flags rather than typed.
+// Rows whose caption the build reads through a call by a local alias (the Calm HUD parts), a dotted constant
+// (the mana bar and Dungeon card names) or a field of a loop's table (the chat filter's three categories).
+test("Settings lists the Calm HUD parts, the mana bar, the Dungeon card and the chat filter categories", () => {
+  const html = page("settings");
+  const names = ["Unit frames", "Action bars", "Your buffs and debuffs", "Info strip, menu bar and broker strip", "XP and rep bars", "Damage meter and fight history", "Minimap", "Druid mana in bear and cat form", "Dungeon card", "Gold selling", "Boosting", "Guild recruiting"];
+  for (const name of names) assert.ok(html.includes(`>${name}`), `${name} is on Settings`);
+  const data = JSON.parse(fs.readFileSync(path.join(dist, "site-data.json"), "utf8"));
+  assert.ok(JSON.stringify(data).includes("Mana under the player frame"));
+  assert.match(html, /Mana under the player frame[^<]*(?:<[^>]*>\s*)*[^]{0,200}Retail only/);
+  assert.ok(!/had a caption|left off/.test(html));
+});
+
 test("Settings marks the rows from Retail-only files, and no other row", () => {
   const toc = "Modules/A.lua\nModules/RetailWindows.lua [AllowLoadGameType standard] [ExcludeLoadGameType camelot]\nModules/Forever.lua [AllowLoadGameType camelot] [ExcludeLoadGameType standard]\n";
   assert.deepEqual([...tocRetailOnly(toc)], ["Modules/RetailWindows.lua"]);
   const html = page("settings");
   const marked = [...html.matchAll(/<th scope="row" class="opt-cap">([^<]*?)(?: \(reload\))? (?:<span class="badge reload">[^<]*<\/span> )?<span class="badge plain">Retail only<\/span>/g)].map((m) => m[1]);
-  assert.deepEqual(marked, ["Group finder and PvP windows", "Great Vault window", "Great Vault progress on the info strip", "Expansion and transmog windows"]);
-  assert.equal((html.match(/Retail only/g) || []).length, 4);
+  assert.deepEqual(marked, ["Mana under the player frame", "Group finder and PvP windows", "Great Vault window", "Great Vault progress on the info strip", "Expansion and transmog windows"]);
+  assert.equal((html.match(/Retail only/g) || []).length, 5);
   assert.match(page("de/settings"), /Nur Retail/);
 });
