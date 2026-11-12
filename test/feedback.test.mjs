@@ -781,6 +781,12 @@ test("the error line reader and normalize give the same fingerprints as before",
   assert.equal(await fingerprint(parseReport(ERRORS)), await fingerprint(parseReport(ERRORS.replace(/\(x\d+\)/g, "(x9)"))));
 });
 
+test("starting over clears the 'Filled in from what you pasted' line", () => {
+  const script = fs.readFileSync(path.join(root, "src/assets/feedback.js"), "utf8");
+  const again = script.slice(script.indexOf("function again()"));
+  assert.ok(again.slice(0, again.indexOf("\n}")).includes('say(filled, "")'));
+});
+
 // ------------------------------------------------------------- rate caps
 
 const slots = (env, kind) => [...env.FEEDBACK_KV.map.keys()].filter((k) => k.startsWith(`rl:${kind}:`));

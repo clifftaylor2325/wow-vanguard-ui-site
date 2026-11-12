@@ -230,6 +230,7 @@ function again() {
   showKind();
   showContact();
   showErrors({});
+  say(filled, "");
   suggest();
   step("form");
   el("title").focus();
