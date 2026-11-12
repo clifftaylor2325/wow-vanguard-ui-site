@@ -874,7 +874,8 @@ test("Home, Screenshots and Credits mention pictures only while some are ready",
   assert.equal(page("").includes("More pictures are on"), ready);
   assert.equal(page("screenshots").includes("The same pictures sit beside their module"), ready);
   assert.equal(/the share card and the screenshots in articles/.test(page("credits")), ready);
-  assert.ok(/You may use the crest (?:, the share card )?and the (?:share card|screenshots)/.test(page("credits")));
+  const sentence = ready ? "You may use the crest, the share card and the screenshots in articles" : "You may use the crest and the share card in articles";
+  assert.ok(page("credits").includes(sentence), sentence);
 });
 
 // Credits is a reference page: it opens folded and fits one screen (npm run shots checks the fit).
