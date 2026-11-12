@@ -1287,7 +1287,7 @@
  "Auctions": "拍卖行",
  "Frames and auras": "框体与光环",
  "Keys, quests and chat": "按键、任务与聊天",
- "Many modules switch off and on at once under Modules, with no reload: the chat modules, the data bars, the broker strip and HUD text, Situations and the cooldown tools among them. A switch made in a fight applies when it ends.": "许多模块现在可以在“模块”中立即开关，无需重载：包括聊天模块、数据条、信息条与 HUD 文字、情境以及冷却工具等。在战斗中切换会在战斗结束后生效。",
+ "Many modules switch off and on at once under Modules, with no reload: the chat modules, the data bars, the broker strip and HUD text, Situations and the cooldown tools among them. A switch made in a fight applies when it ends.": "许多模块现在可以在“模块”中立即开关，无需重载：包括聊天模块、数据条、Broker信息条与 HUD 文字、情境以及冷却工具等。在战斗中切换会在战斗结束后生效。",
  "Options search finds the pages you changed and Safer colours by its translated words, settings that need a reload carry the reload tag, and {ui:Undo setup} puts your UI scale back and says what it undid.": "选项搜索能找到你改过的页面，并能用翻译后的词找到“更安全的颜色”；需要重载的设置带有重载标记；{ui:Undo setup}会恢复你的界面缩放并说明撤销了什么。",
  "A profession bag's empty slots get their own section (“Empty: herb bag”), so the combined bag no longer counts them as room for anything. {ui:Train all} runs once and its summary matches what you learned, and Mail's {ui:Take all} leaves game master mail.": "专业包的空格有了自己的分区（“空位：草药包”），合并背包不再把它们算作可放任何东西的空间。{ui:Train all}只运行一次，摘要与实际学到的一致；邮件的{ui:Take all}会保留游戏管理员的邮件。",
  "The Cancel question names the item, Post waits for the sell card's price check, and a per-stack price is for the stack that goes up next.": "取消的确认会写出物品名称，上架会等待出售卡片的价格检查，每组价格指的是接下来上架的那一组。",

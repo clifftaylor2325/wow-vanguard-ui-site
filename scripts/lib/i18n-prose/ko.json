@@ -1287,7 +1287,7 @@
  "Auctions": "경매장",
  "Frames and auras": "프레임과 효과",
  "Keys, quests and chat": "키, 퀘스트와 대화",
- "Many modules switch off and on at once under Modules, with no reload: the chat modules, the data bars, the broker strip and HUD text, Situations and the cooldown tools among them. A switch made in a fight applies when it ends.": "많은 모듈을 모듈에서 재시작 없이 바로 켜고 끌 수 있습니다. 대화 모듈, 데이터 바, 브로커 줄과 HUD 글자, 상황, 재사용 대기시간 도구 등이 그렇습니다. 전투 중의 전환은 전투가 끝나면 적용됩니다.",
+ "Many modules switch off and on at once under Modules, with no reload: the chat modules, the data bars, the broker strip and HUD text, Situations and the cooldown tools among them. A switch made in a fight applies when it ends.": "많은 모듈을 모듈에서 재시작 없이 바로 켜고 끌 수 있습니다. 대화 모듈, 데이터 바, 브로커 띠와 HUD 글자, 상황, 재사용 대기시간 도구 등이 그렇습니다. 전투 중의 전환은 전투가 끝나면 적용됩니다.",
  "Options search finds the pages you changed and Safer colours by its translated words, settings that need a reload carry the reload tag, and {ui:Undo setup} puts your UI scale back and says what it undid.": "옵션 검색이 바꾼 페이지와 번역된 단어로 더 안전한 색상을 찾고, 재시작이 필요한 설정에는 재시작 표시가 붙으며, {ui:Undo setup}은(는) UI 크기를 되돌리고 무엇을 되돌렸는지 알려 줍니다.",
  "A profession bag's empty slots get their own section (“Empty: herb bag”), so the combined bag no longer counts them as room for anything. {ui:Train all} runs once and its summary matches what you learned, and Mail's {ui:Take all} leaves game master mail.": "전문 기술 가방의 빈 칸은 따로 구역을 얻어(“빈 칸: 약초 가방”) 통합 가방이 더 이상 그것을 아무거나 넣을 자리로 세지 않습니다. {ui:Train all}은(는) 한 번만 실행되고 요약이 배운 것과 맞으며, 우편의 {ui:Take all}은(는) 게임 마스터 우편을 남겨 둡니다.",
  "The Cancel question names the item, Post waits for the sell card's price check, and a per-stack price is for the stack that goes up next.": "취소 질문이 아이템 이름을 말하고, 등록은 판매 카드의 가격 확인을 기다리며, 묶음당 가격은 다음에 올라가는 묶음에 대한 것입니다.",

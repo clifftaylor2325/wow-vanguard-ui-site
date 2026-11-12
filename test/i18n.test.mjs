@@ -258,8 +258,8 @@ test("a prose line names no new addon control bare: it uses {ui:Text}", () => {
 // Every translated text is read (the page prose, the Troubleshooting and Support drafts, the site strings); es-mx also takes es's.
 const DRIFTED_TERMS = {
   de: [/Schlagtimer/, /Würfelverfolger/, /Schrott/, /HUD-Look| -Look\b/, /Gruppentafel/, /Chat-Wächter/, /Nebenhand/, /Questverfolgung/],
-  ru: [/рамки персонажей/, /таймер ударов/, /кликкастинг/, /счётчик урона/, /панел[а-я]* действий/, /Улучшения экипировки/, /странице отзывов/, /Другие аддоны»/, /тренер/, /Автоприём/, /Более безопасные цвета/, /помощник Legacy/],
-  ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /퀘스트 일지/, /Retail/, /측정기/, /정보 (바|막대)/, /픽셀 퍼펙트/, /재능/, /옵션 창/, /(?<!단축)키 설정/, /개체 창/, /공격대 프레임/],
+  ru: [/рамки персонажей/, /таймер ударов/, /кликкастинг/, /счётчик урона/, /панел[а-я]* действий/, /Улучшения экипировки/, /странице отзывов/, /Другие аддоны»/, /тренер/, /Автоприём/, /Более безопасные цвета/, /помощник Legacy/, /панель брокеров/],
+  ko: [/유닛 프레임/, /채팅/, /평타 타이머/, /장비 향상/, /장비 개선/, /굴림 추적기/, /퀘스트 기록/, /퀘스트 일지/, /Retail/, /측정기/, /정보 (바|막대)/, /픽셀 퍼펙트/, /재능/, /옵션 창/, /(?<!단축)키 설정/, /개체 창/, /공격대 프레임/, /브로커 줄/],
   es: [/cronômetro/, /temporizador de golpes/, /página de Feedback/, /entrenador/, /cola de fabricación/, /registro de tiradas/, /tira de información/, /más se vende/],
   "es-mx": [/calabozo/, /«|»/],
   fr: [/page Feedback/, /minuteur de coups/, /barres? d’info\b/, /(?<![\w/-])chat(?![\w/-])/, /(?<![{\w])looks?(?![}\w])/i, /\bdu HUD\b/, /lancer au clic/, /panneau du personnage/, /bandeau d’infos/, /entraîneur/],
