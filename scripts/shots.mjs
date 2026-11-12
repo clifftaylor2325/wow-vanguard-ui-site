@@ -27,6 +27,8 @@
 // go to the stub, never to GitHub.
 //   SHOTS_BASE=http://localhost:8788 npm run shots
 import fs from "node:fs";
+import os from "node:os";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { chromium } from "playwright-core";
 import { loadConfig, root } from "./lib/config.mjs";
@@ -458,6 +460,40 @@ async function checkLanguage(browser, base, loc, failures) {
   await checkTitleClear(browser, base, loc, failures);
 }
 
+// Builds the site once more into a temp folder with the release before the current one as "current",
+// the state between releases (the pinned source is ahead), and checks every reference page still fits
+// one screen there in every language: the version boxes and the next-release counts add rows then.
+async function checkReleaseBehind(browser, failures) {
+  const cfg = loadConfig();
+  const meta = JSON.parse(fs.readFileSync(cfg.releaseJson, "utf8"));
+  const before = meta.releases[1];
+  if (!before) return console.log("skip release-behind pass: no earlier release in the metadata");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vg-behind-"));
+  const json = path.join(dir, "release.json");
+  fs.writeFileSync(json, JSON.stringify({ ...meta, current: before.tagName }));
+  const out = path.join(dir, "site");
+  execFileSync(process.execPath, [path.join(root, "scripts", "build.mjs")], { cwd: root, stdio: "ignore", env: { ...process.env, SITE_OUT: out, SITE_RELEASE_JSON: json } });
+  const server = await serve(out, 0);
+  const base = `http://127.0.0.1:${server.address().port}`;
+  try {
+    for (const [width, height] of [[1280, 800], [390, 844]]) {
+      const page = await browser.newPage({ viewport: { width, height } });
+      await stubFeedbackApi(page);
+      for (const loc of [{ code: "" }, ...builtLocales(out)]) {
+        for (const n of NAV.filter((x) => !OPEN_PAGES.has(x.path))) {
+          await page.goto(`${base}${loc.code ? `/${loc.code}` : ""}${n.path}`, { waitUntil: "load" });
+          await page.evaluate(() => document.fonts.ready);
+          await fitsOneScreen(page, `release behind (${before.tagName}) ${loc.code || "en"}${n.path} at ${width}x${height}`, failures);
+        }
+      }
+      await page.close();
+    }
+  } finally {
+    server.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 // Entry point.
 async function main() {
   const server = await serve(loadConfig().outDir, Number(process.env.SHOTS_PORT || 0));
@@ -507,6 +543,7 @@ async function main() {
     }
     await checkSearch(browser, base, failures);
     for (const loc of builtLocales(loadConfig().outDir)) await checkLanguage(browser, base, loc, failures);
+    await checkReleaseBehind(browser, failures);
     for (const width of [1280, 390]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 800 } });
       watchErrors(page, failures);

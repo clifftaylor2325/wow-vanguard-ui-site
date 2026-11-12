@@ -5,6 +5,7 @@
 //   SITE_LOCALES languages to publish besides English, comma separated (default: `locales`;
 //                "all" for every language scripts/lib/i18n-site.mjs knows, for tests and previews)
 //   SITE_OUT     where the site is built (default: outDir)
+//   SITE_RELEASE_JSON  a release.json to read instead of .cache/release.json (npm run shots builds a release-behind site with it)
 //   SITE_ADDON_DRAFTS  a folder of the addon's unreviewed translation drafts (<locale>.csv), laid
 //                under its Locales/ rows for a preview build only; never set for the live site
 import fs from "node:fs";
@@ -34,6 +35,6 @@ export function loadConfig() {
     outDir: path.resolve(root, process.env.SITE_OUT || raw.outDir),
     locales: localeCodes(process.env.SITE_LOCALES, raw.locales),
     addonDrafts: process.env.SITE_ADDON_DRAFTS ? path.resolve(process.env.SITE_ADDON_DRAFTS) : null,
-    releaseJson: path.join(cacheDir, "release.json"),
+    releaseJson: process.env.SITE_RELEASE_JSON ? path.resolve(process.env.SITE_RELEASE_JSON) : path.join(cacheDir, "release.json"),
   };
 }

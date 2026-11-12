@@ -366,6 +366,8 @@ html.nav-open .lang-offer { display: none; }
 .filters label { display: inline-flex; align-items: center; gap: 6px; }
 .filters input[type=checkbox]:not(.switch input) { accent-color: var(--accent); }
 .count { margin: 6px 0 0; font-size: var(--fs-sm); color: var(--text2); }
+/* From 900px the version boxes and the live count share one row under the search box, so a release behind the pinned source still leaves Settings on one screen. */
+@media (min-width: 900px) { .search { display: flex; flex-wrap: wrap; align-items: center; column-gap: 18px; } .search-label, .search input[type=search] { flex: 0 0 100%; } .search .filters { flex: 0 1 auto; margin-top: 6px; } .search .count { margin-left: auto; } }
 .search-empty { margin-top: var(--sp-3); }
 .search-clear { font: inherit; font-size: var(--fs-sm); cursor: pointer; padding: 4px 10px; border: 1px solid var(--ui-line); border-radius: var(--r-2); background: var(--panel); color: var(--text); }
 
