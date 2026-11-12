@@ -1465,3 +1465,20 @@ test("Settings shows the default of a percent slider as a percent", () => {
   assert.equal(defaultOf("Glow when this much is left"), "30%", "a whole number keeps its value");
   assert.equal(defaultOf("Durability warning under"), "50%");
 });
+
+// With the release behind the source, a page's visible setting count is what the release lists (rel and old rows), and
+// the next release's extra settings are counted apart, behind the next-release switch.
+test("Settings counts a page's settings as the release has them, the next release's apart", () => {
+  const behind = behindModel();
+  if (!behind) return;
+  const sections = settingsPage(behind.model, behind.read).body.split('<details class="opt-page').slice(1);
+  assert.ok(sections.length > 10, "pages read");
+  for (const sec of sections) {
+    const rows = [...sec.matchAll(/<tr class="opt-row opt-item" id="[^"]*" data-count data-avail="(\w+)"/g)].map((m) => m[1]);
+    const meta = sec.match(/<span class="dis-meta">(.*?)<\/span><\/summary>/s)[1];
+    const visible = Number(meta.replace(/<span data-avail="next">.*?<\/span>/g, "").match(/^(\d+)/)?.[1] || 0);
+    assert.equal(visible, rows.filter((a) => a !== "next").length, `${sec.match(/<h2 id="([^"]*)"/)[1]}: visible count`);
+    const more = rows.filter((a) => a === "next").length;
+    assert.equal(/data-avail="next">[^<]*\d/.test(meta), more > 0, "the next-only count shows when the page has such rows");
+  }
+});

@@ -1128,13 +1128,21 @@ function modulesRow(p, model, loc) {
   return `<tr class="opt-row t"><td colspan="${COLS.length}">${loc.t("set.modulesRow", { modules: mods })}</td></tr>`;
 }
 
+// A page's setting count: the settings the release has, and "+ n next release" behind the next-release switch for the
+// ones only the next release adds (a page of a release behind the source would otherwise count what it does not list).
+function pageCount(p, loc) {
+  const settings = p.rows.filter(countsAsSetting);
+  const rel = settings.filter((r) => r.inRel).length;
+  const more = settings.length - rel;
+  return `${rel ? loc.n("set.count", rel) : ""}${more ? nextOnly(`${rel ? " + " : ""}${loc.t("group.moreNext", { n: more })}`) : ""}`;
+}
+
 // One options page, folded: its heading opens a table of its settings (one card per row on narrow screens).
 function pageSection(p, model, used, loc) {
   const head = `<thead><tr>${COLS.map((c) => `<th scope="col">${loc.t(c)}</th>`).join("")}</tr></thead>`;
-  const n = p.rows.filter(countsAsSetting).length;
   const b = badge(p.inRel, p.inNext, model.version, loc);
   return `<details class="opt-page disclosure" data-page="${esc(p.key)}"${p.inRel ? "" : ' data-avail="next"'}>
-<summary><h2 id="${p.id}">${esc(loc.addon(p.title))}</h2><span class="dis-meta">${loc.n("set.count", n)}${b ? ` ${b}` : ""}</span></summary>
+<summary><h2 id="${p.id}">${esc(loc.addon(p.title))}</h2><span class="dis-meta">${pageCount(p, loc)}${b ? ` ${b}` : ""}</span></summary>
 <div class="dis-body">
 <table class="opt-table" aria-labelledby="${p.id}">${head}<tbody>
 ${pageRows(p, model.version, used, loc)}
