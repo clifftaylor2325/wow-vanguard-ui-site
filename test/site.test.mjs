@@ -1355,7 +1355,7 @@ test("a renamed setting is one row: its short name, with the old caption as its 
   const { renamed } = extractRowTips(gitReader(cfg.sourcePath, cfg.sourceRef));
   const html = page("settings");
   const at = (name) => `class="opt-cap">${esc(name)} <`;
-  const caption = (name) => (html.includes(at(name)) ? at(name) : `class="opt-cap">${esc(name)} (reload) <`);
+  const caption = at;
   const shown = [...renamed].filter(([name]) => html.includes(caption(name)));
   const missing = [...renamed.keys()].filter((name) => !html.includes(caption(name)));
   assert.deepEqual(missing, [], "renamed rows missing from /settings/");
@@ -1443,4 +1443,15 @@ test("a Settings search for 'reload' matches the rows with the Needs reload tag"
     const wrong = rows.filter((r) => /reload/i.test(r.search) !== r.tagged);
     assert.deepEqual(wrong.map((r) => r.search.slice(0, 60)), [], `${dir}: rows whose 'reload' search and tag disagree`);
   }
+});
+
+// The game's window shows a setting's name without " (reload)" and only the tag says it: so does the page, in every
+// language, whether or not the row applies at once.
+test("Settings names carry no '(reload)' words beside the Needs reload tag", () => {
+  for (const dir of LANG_DIRS) {
+    const names = [...page(`${dir}settings`).matchAll(/<th scope="row" class="opt-cap">([^<]*)/g)].map((m) => m[1]);
+    assert.ok(names.length > 300, `${dir}: names read`);
+    assert.deepEqual(names.filter((n) => /\(reload\)/i.test(n)), [], `${dir}: names still with (reload)`);
+  }
+  assert.ok(settingsRow(page("settings"), "Safer colours").includes('class="badge reload"'), "the tag still says it");
 });

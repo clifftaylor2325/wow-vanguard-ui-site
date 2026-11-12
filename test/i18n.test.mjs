@@ -154,7 +154,7 @@ const DE = LOCALES.find((l) => l.code === "de");
 test("Settings shows the addon's translation of a caption, page title and choice, English where it has none", () => {
   const p = model.pages.find((x) => x.rows.some((r) => r.kind === "cycle" && r.choices?.length));
   const row = p.rows.find((r) => r.kind === "cycle" && r.choices?.length);
-  const other = p.rows.find((r) => r.kind === "check" && r.caption !== row.caption);
+  const other = p.rows.find((r) => r.kind === "check" && r.caption !== row.caption && !/ \(reload\)$/.test(r.caption));
   const t = new Map([[p.title, "TEST-ONLY Seite"], [row.caption, "TEST-ONLY Zeile"], [row.choices[0][1], "TEST-ONLY Wahl"]]);
   const html = settingsPage(model, read, siteLocale(DE, t)).body;
   assert.ok(html.includes(`<h2 id="${p.id}">TEST-ONLY Seite</h2>`), "the page title, its id still the English one");

@@ -1037,11 +1037,20 @@ function groupRow(html, attrs) {
   return `</tbody><tbody><tr class="opt-row h" ${attrs}><th scope="rowgroup" colspan="${COLS.length}">${html}</th></tr>`;
 }
 
+// The kinds of row that are a setting with a value (the window gives them the Needs reload tag).
+const SETTING_KINDS = ["check", "cycle", "slider"];
+
+// A caption's or tip's words without the " (reload)" bracket the game's window moves into the Needs reload tag:
+// the bracket is dropped from `text` (its translation or itself) when `english` ends with it.
+function withoutReloadWords(english, text) {
+  return / \(reload\)$/.test(english) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
+}
+
 // A row's caption in the page's language, as plain text. A ns.Format caption is looked up by its
 // {slot} text, as the game does, and its slots show as <slot>.
 function rowCaption(r, loc) {
   const text = r.key ? showSlots(loc.addon(r.key)) : loc.addon(r.caption);
-  return r.appliesLive && / \(reload\)$/.test(r.caption) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
+  return SETTING_KINDS.includes(r.kind) ? withoutReloadWords(r.caption, text) : text;
 }
 
 // A heading or note row from the addon, spanning the table.
@@ -1051,16 +1060,10 @@ function wideRow(r, attrs, version, loc) {
   return `<tr class="opt-row t opt-item" ${attrs}><td colspan="${COLS.length}">${esc(rowCaption(r, loc))}${b}</td></tr>`;
 }
 
-// A caption's or tip's words without the " (reload)" bracket the game's window moves into the Needs reload tag:
-// the bracket is dropped from `text` (its translation or itself) when `english` ends with it.
-function withoutReloadWords(english, text) {
-  return / \(reload\)$/.test(english) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
-}
-
 // The words the search box matches for a row: its page, caption and choices,
 // in English and in the page's language, and the tag's words when the row wears it (as the game's own search does).
 function rowSearch(r, pageTitle, loc) {
-  const caption = withoutReloadWords(r.caption, r.caption);
+  const caption = SETTING_KINDS.includes(r.kind) ? withoutReloadWords(r.caption, r.caption) : r.caption;
   const tip = r.tip ? withoutReloadWords(r.tip, r.tip) : "";
   const words = [pageTitle, caption, ...(tip ? [tip] : []), ...(r.choices || []).map((c) => c[1])];
   const translated = [pageTitle, r.caption, ...(r.tip ? [r.tip] : []), ...(r.choices || []).map((c) => c[1])].map((w) => withoutReloadWords(w, loc.addon(w)));
@@ -1074,8 +1077,7 @@ function rowSearch(r, pageTitle, loc) {
 function rowTip(r, loc) {
   if (!r.tip) return "";
   const text = loc.addon(r.tip);
-  const plain = / \(reload\)$/.test(r.tip) ? text.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : text;
-  return `<span class="opt-tip">${esc(plain)}</span>`;
+  return `<span class="opt-tip">${esc(withoutReloadWords(r.tip, text))}</span>`;
 }
 
 // Whether a row is one setting to count: not a heading or note, and not the Retail wording of a switch that is
