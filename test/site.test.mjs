@@ -836,13 +836,17 @@ test("Features shows a module's command help as the release prints it, with the 
   if (!behind) return;
   const changed = behind.model.commands.entries.filter((e) => e.changed && e.modules.length);
   assert.ok(changed.length >= 1, "a module's command help changed between the release and the pins");
+  // When no real command between the two pins only changed its syntax (v0.9.7: /vg talents was reworded too), one
+  // reworded command takes back the release's text, so the syntax-only path is still drawn and checked.
+  const reworded = (e) => e.relLines[0].text !== e.nextLines[0].text;
+  const spare = changed.filter(reworded);
+  if (changed.every(reworded) && spare.length > 1) spare[0].nextLines = [{ ...spare[0].nextLines[0], text: spare[0].relLines[0].text }, ...spare[0].nextLines.slice(1)];
   const body = featuresPage(behind.model).body;
   for (const e of changed) {
     const card = body.split("<article ").find((a) => a.includes(`data-module="${e.modules[0]}"`)) || "";
     const row = card.match(new RegExp(`/vg ${e.id}</code></a>([^]*?)</dd>`))?.[1] || "";
     assert.ok(row.startsWith(` ${esc(e.relLines[0].text)}`), `${e.id}: the release's text first: ${row}`);
-    const reworded = e.relLines[0].text !== e.nextLines[0].text;
-    if (reworded) assert.match(row, /^[^<]*<span data-avail="next">[^]*badge next/, `${e.id}: the next text is tagged`);
+    if (reworded(e)) assert.match(row, /^[^<]*<span data-avail="next">[^]*badge next/, `${e.id}: the next text is tagged`);
     else assert.ok(!row.includes("data-avail"), `${e.id}: only the syntax changed, so the same text is not repeated: ${row}`);
   }
   assert.ok(changed.some((e) => e.relLines[0].text !== e.nextLines[0].text), "at least one command is reworded");
