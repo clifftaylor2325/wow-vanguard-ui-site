@@ -496,10 +496,21 @@ RELEASE_NOTES["v0.9.6"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.9.7"] = { groups: [
+    { id: "fixed", title: "Fixed", items: [
+      { label: "HUD and frames", text: "Under {ui:The keep} the frames stand inside the wall, move out for bigger buttons and give way to the bars beside them; {ui:Standards} needs a screen about 1180 wide; under {ui:Tabs} the party pets and the focus cast bar keep clear of the party column; and a layout picked in a fight shows at once.", from: [884, 887, 890, 891] },
+      { label: "Auras, plates and raid frames", text: "Enchant cells and long buff lists draw right, plate debuffs follow a target change in a fight, a friend's cast gets no interrupt mark, and raid tiles redraw after a change of direction, with a mark for each missing buff you ticked.", from: [887, 891] },
+      { label: "Keys and click casting", text: "Key setup leaves a rank you placed by hand, Apply stops when the key set or the gamepad changed under it, and click casting knows your ranks at login and after a talent switch.", from: [884, 887, 890, 891] },
+      { label: "Options and profiles", text: "Escape closes the options window, and on an open dropdown only the menu; a hand-picked profile survives a spec swap and back, an imported UI scale is kept, and a profile switch taken back closes its reload offer.", from: [884, 886, 888, 889, 890] },
+      { label: "Windows, auctions and town", text: "Popups keep their panel where the game hides the UI, the sell card shows a cheapest price several sellers share, banked reagents are not bought again, and junk sells after a visit to Buyback.", from: [884, 885, 886, 888, 889, 890] },
+      { label: "Quests, map and chat", text: "The hand-in page hides the rewards the game hides, the minimap drawer closes with its last button, floating chat windows keep their spot, and the main chat window keeps its size.", from: [884, 886, 889, 890] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.9.6 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.9.7 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.9.6",
+  after: "v0.9.7",
   groups: [],
 };
