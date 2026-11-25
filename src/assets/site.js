@@ -235,11 +235,12 @@
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "expand-all";
-    var allOpen = function () { for (var i = 0; i < all.length; i++) if (!all[i].open) return false; return true; };
+    var seen = function (d) { return d.getClientRects().length > 0; };
+    var allOpen = function () { for (var i = 0; i < all.length; i++) if (seen(all[i]) && !all[i].open) return false; return true; };
     var label = function () { btn.textContent = allOpen() ? say("collapse", "Collapse all") : say("expand", "Expand all"); };
     btn.addEventListener("click", function () {
       var open = !allOpen();
-      for (var i = 0; i < all.length; i++) all[i].open = open;
+      for (var i = 0; i < all.length; i++) if (seen(all[i])) all[i].open = open;
       label();
     });
     for (var i = 0; i < all.length; i++) all[i].addEventListener("toggle", label);

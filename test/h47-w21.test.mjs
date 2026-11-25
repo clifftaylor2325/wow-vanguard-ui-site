@@ -52,3 +52,9 @@ test("H47-21-103: a next-release-only search result carries the Next release bad
     if (dir === "") assert.ok(page.includes(`data-next="${word}"`));
   }
 });
+test("H47-21-4: Expand all counts and toggles only the sections the reader can see", () => {
+  const js = src("site.js");
+  assert.ok(js.includes("d.getClientRects().length > 0"));
+  assert.ok(js.includes("if (seen(all[i]) && !all[i].open) return false;"));
+  assert.ok(js.includes("if (seen(all[i])) all[i].open = open;"));
+});
