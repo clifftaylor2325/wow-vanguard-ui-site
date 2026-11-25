@@ -547,9 +547,10 @@ test("a language's sidebar, header and footer are in that language, with no Engl
   }
 });
 
-test("every page names its Open Graph locale after its html lang", () => {
+test("every page names its Open Graph locale as language_TERRITORY for its html lang", () => {
+  const territory = { en: "en_US", de: "de_DE", fr: "fr_FR", es: "es_ES", "es-MX": "es_MX", it: "it_IT", "pt-BR": "pt_BR", ru: "ru_RU", ko: "ko_KR", "zh-CN": "zh_CN", "zh-TW": "zh_TW" };
   for (const l of ALL) {
-    const want = l === ENGLISH ? "en_US" : l.lang.replace("-", "_");
+    const want = territory[l.lang];
     assert.ok(html(folder(l), "/").includes(`<meta property="og:locale" content="${want}">`), `${l.code} og:locale`);
   }
 });

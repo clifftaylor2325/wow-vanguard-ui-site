@@ -261,6 +261,9 @@ export function hreflangTags(alts) {
   return `${[...tags, `<link rel="alternate" hreflang="x-default" href="${esc(alts[0].url)}">`].join("\n")}\n`;
 }
 
+// Open Graph asks for og:locale as language_TERRITORY: the territory each language's pages are written for.
+const OG_LOCALES = { en: "en_US", de: "de_DE", fr: "fr_FR", es: "es_ES", "es-MX": "es_MX", it: "it_IT", "pt-BR": "pt_BR", ru: "ru_RU", ko: "ko_KR", "zh-CN": "zh_CN", "zh-TW": "zh_TW" };
+
 // The page's canonical URL and the Open Graph and Twitter card tags, so a link pasted in Discord,
 // Reddit or a forum unfurls with the crest. Only real pages get them (the 404 page has no URL of
 // its own); every page shares the one Open Graph image.
@@ -271,7 +274,7 @@ export function socialTags({ path, title, description, imageAlt, lang = "en", si
     `<link rel="canonical" href="${esc(url)}">`,
     `<meta property="og:type" content="website">`,
     `<meta property="og:site_name" content="Vanguard">`,
-    `<meta property="og:locale" content="${esc(lang.replace("-", "_").replace(/^en$/, "en_US"))}">`,
+    `<meta property="og:locale" content="${esc(OG_LOCALES[lang] || lang.replace("-", "_"))}">`,
     `<meta property="og:title" content="${esc(title)}">`,
     `<meta property="og:description" content="${esc(description)}">`,
     `<meta property="og:url" content="${esc(url)}">`,

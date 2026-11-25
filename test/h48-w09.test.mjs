@@ -7,6 +7,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { loadConfig } from "../scripts/lib/config.mjs";
 import { publishedLocales } from "../scripts/lib/i18n-site.mjs";
+import { socialTags } from "../scripts/lib/html.mjs";
 
 const cfg = loadConfig();
 const data = JSON.parse(fs.readFileSync(path.join(cfg.outDir, "site-data.json"), "utf8"));
@@ -98,4 +99,12 @@ test("H48-9-5: every switch the options files tie to a module setting shows that
   }
   assert.deepEqual(wrong, []);
   assert.ok(compared >= 40, `only ${compared} switches compared`);
+});
+
+test("H48-9-7: og:locale is language_TERRITORY on every language's pages (ogp.me: of the format language_TERRITORY)", () => {
+  const tag = (lang) => socialTags({ path: "/x/", title: "T", description: "D", imageAlt: "A", lang, site: { url: "https://example.com" } }).match(/og:locale" content="([^"]+)"/)[1];
+  const expected = { en: "en_US", de: "de_DE", fr: "fr_FR", es: "es_ES", "es-MX": "es_MX", it: "it_IT", "pt-BR": "pt_BR", ru: "ru_RU", ko: "ko_KR", "zh-CN": "zh_CN", "zh-TW": "zh_TW" };
+  for (const l of publishedLocales(cfg.locales)) assert.equal(tag(l.lang), expected[l.lang], l.lang);
+  const de = fs.readFileSync(path.join(cfg.outDir, "de", "index.html"), "utf8");
+  assert.ok(de.includes('og:locale" content="de_DE"'), "the built German page");
 });
