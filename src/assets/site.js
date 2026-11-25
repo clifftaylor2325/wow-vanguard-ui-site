@@ -357,7 +357,7 @@
         nav.parentNode.insertBefore(backdrop, nav);
       }
       if (backdrop) backdrop.hidden = !on;
-      if (on) { var first = nav.querySelector("a"); if (first) first.focus(); }
+      if (on) { var first = nav.querySelector("button, input, a"); if (first) first.focus(); }
     };
     btn.addEventListener("click", function () { open(!nav.classList.contains("open")); });
     var close = nav.querySelector(".nav-close");

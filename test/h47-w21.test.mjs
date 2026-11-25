@@ -61,3 +61,6 @@ test("H47-21-4: Expand all counts and toggles only the sections the reader can s
 test("H47-21-5: the open drawer also hides the skip link and the notice from Tab", () => {
   assert.match(src("site.js"), /var BEHIND_DRAWER = "\.skip, \.site-notice, /);
 });
+test("H47-21-6: opening the drawer focuses its first control, not the Discord link", () => {
+  assert.ok(src("site.js").includes('nav.querySelector("button, input, a")'));
+});
