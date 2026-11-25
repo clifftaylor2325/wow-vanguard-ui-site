@@ -188,7 +188,7 @@ html:not(.js) .site-search { display: none; }
 main { min-width: 0; padding: var(--sp-3) 0 var(--sp-6); }
 @media (min-width: 900px) {
   .shell { display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); column-gap: var(--sp-6); }
-  .sidebar { position: sticky; top: var(--header-h); align-self: start; max-height: calc(100vh - var(--header-h)); overflow-y: auto; padding: var(--sp-5) var(--sp-3) var(--sp-5) 0; border-right: 1px solid var(--divider); }
+  .sidebar { position: sticky; top: var(--header-h); align-self: start; max-height: calc(100vh - var(--header-h)); overflow-y: auto; padding: var(--sp-5) var(--sp-3) var(--sp-5) 4px; border-right: 1px solid var(--divider); }
   .has-sidebar main { max-width: var(--content-max); padding-top: var(--sp-3); }
 }
 .lede { font-size: 1.1rem; color: var(--text); max-width: 64ch; }
@@ -272,6 +272,9 @@ details.disclosure.aside > summary { min-height: 38px; }
 details.disclosure.aside > summary > :is(h2, h3) { font-size: var(--fs-sm); color: var(--text2); }
 .dis-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2); margin: 0 0 var(--sp-2); }
 .dis-grid > details.disclosure { margin: 0; }
+/* A folded card's summary fills the card the grid row stretched, so every name on a row centres at one height. */
+.dis-grid > details.disclosure:not([open]) { display: flex; flex-direction: column; }
+.dis-grid > details.disclosure:not([open]) > summary { flex: 1; }
 .dis-grid > details[open], .dis-grid > :has(> details[open]) { grid-column: 1 / -1; }
 .dis-grid > .help-entry { margin: 0; }
 details.disclosure > summary > h2 { overflow-wrap: anywhere; hyphens: auto; }
@@ -414,6 +417,8 @@ caption { caption-side: top; text-align: left; padding: 0 0 8px; color: var(--te
 @media (min-width: 900px) {
   .opt-page[open] > summary { position: sticky; top: var(--header-h); z-index: 3; background: var(--panel); }
   .opt-page[open] > summary:hover { background: var(--raised); }
+  /* A linked row lands below that sticky heading (36px tall) and the usual gap, not under it. */
+  .opt-page .opt-row[id] { scroll-margin-top: 48px; }
 }
 @media (max-width: 899px) {
   /* Each row becomes a card; cells carry their column label. */

@@ -235,11 +235,12 @@
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "expand-all";
-    var allOpen = function () { for (var i = 0; i < all.length; i++) if (!all[i].open) return false; return true; };
+    var seen = function (d) { return d.getClientRects().length > 0; };
+    var allOpen = function () { for (var i = 0; i < all.length; i++) if (seen(all[i]) && !all[i].open) return false; return true; };
     var label = function () { btn.textContent = allOpen() ? say("collapse", "Collapse all") : say("expand", "Expand all"); };
     btn.addEventListener("click", function () {
       var open = !allOpen();
-      for (var i = 0; i < all.length; i++) all[i].open = open;
+      for (var i = 0; i < all.length; i++) if (seen(all[i])) all[i].open = open;
       label();
     });
     for (var i = 0; i < all.length; i++) all[i].addEventListener("toggle", label);
@@ -331,7 +332,7 @@
 
   // What sits behind the open drawer: Tab and screen readers skip it. The Menu
   // button stays live so the drawer can be closed from the keyboard.
-  var BEHIND_DRAWER = ".shell > main, .site-footer, .site-header .brand, .site-header .lang-menu";
+  var BEHIND_DRAWER = ".skip, .site-notice, .shell > main, .site-footer, .site-header .brand, .site-header .lang-menu";
   function setBehindDrawer(inert) {
     var parts = document.querySelectorAll(BEHIND_DRAWER);
     for (var i = 0; i < parts.length; i++) parts[i].inert = inert;
@@ -356,7 +357,7 @@
         nav.parentNode.insertBefore(backdrop, nav);
       }
       if (backdrop) backdrop.hidden = !on;
-      if (on) { var first = nav.querySelector("a"); if (first) first.focus(); }
+      if (on) { var first = nav.querySelector("button, input, a"); if (first) first.focus(); }
     };
     btn.addEventListener("click", function () { open(!nav.classList.contains("open")); });
     var close = nav.querySelector(".nav-close");
@@ -528,7 +529,7 @@
     hits.sort(function (a, b) { return b.score - a.score; });
     return hits.slice(0, 8).map(function (h) { return h.e; });
   }
-  function resultItem(e) {
+  function resultItem(e, nextLabel) {
     var li = document.createElement("li");
     var a = document.createElement("a");
     a.href = e.u;
@@ -539,6 +540,12 @@
       span.textContent = part[1];
       a.appendChild(span);
     });
+    if (e.n && nextLabel) {
+      var badge = document.createElement("span");
+      badge.className = "badge next";
+      badge.textContent = nextLabel;
+      a.firstChild.appendChild(badge);
+    }
     li.appendChild(a);
     return li;
   }
@@ -548,18 +555,21 @@
     var list = box.querySelector("ul");
     var note = box.querySelector(".ss-note");
     var url = form.getAttribute("data-index");
+    var setShown = function (on) { box.hidden = !on; input.setAttribute("aria-expanded", on ? "true" : "false"); };
     var show = function () {
       var q = input.value.trim();
-      if (!q) { box.hidden = true; return; }
+      if (!q) { list.replaceChildren(); note.textContent = ""; setShown(false); return; }
       loadIndex(url).then(function (index) {
         if (input.value.trim() !== q) return;
         var hits = siteMatches(index, q);
-        list.replaceChildren.apply(list, hits.map(resultItem));
-        note.textContent = hits.length ? "" : form.getAttribute("data-none");
-        box.hidden = false;
+        list.replaceChildren.apply(list, hits.map(function (e) { return resultItem(e, form.getAttribute("data-next")); }));
+        note.textContent = hits.length ? say("results", "Results: {n}", { n: hits.length }) : form.getAttribute("data-none");
+        note.classList.toggle("visually-hidden", hits.length > 0);
+        setShown(true);
       }, function () {
+        note.classList.remove("visually-hidden");
         note.textContent = form.getAttribute("data-failed");
-        box.hidden = false;
+        setShown(true);
       });
     };
     var links = function () { return Array.prototype.slice.call(list.querySelectorAll("a")); };
@@ -567,22 +577,23 @@
     input.addEventListener("input", show);
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var first = links()[0];
+      var first = box.hidden ? null : links()[0];
       if (first) first.click();
     });
     form.addEventListener("keydown", function (e) {
       var all = links();
       var at = all.indexOf(document.activeElement);
-      if (e.key === "ArrowDown" && all.length) { e.preventDefault(); all[Math.min(at + 1, all.length - 1)].focus(); }
+      if (e.key === "ArrowDown" && all.length && !box.hidden) { e.preventDefault(); all[Math.min(at + 1, all.length - 1)].focus(); }
       if (e.key === "ArrowUp" && at >= 0) { e.preventDefault(); (at === 0 ? input : all[at - 1]).focus(); }
-      if (e.key === "Escape" && !box.hidden) { e.stopPropagation(); box.hidden = true; input.focus(); }
+      if (e.key === "Escape" && !box.hidden) { e.stopPropagation(); setShown(false); input.focus(); }
     });
+    form.addEventListener("focusout", function (e) { if (e.relatedTarget && !form.contains(e.relatedTarget)) setShown(false); });
     list.addEventListener("click", function () {
-      box.hidden = true;
+      setShown(false);
       var close = form.closest(".nav") && document.querySelector(".nav.open .nav-close");
       if (close) close.click();
     });
-    document.addEventListener("click", function (e) { if (!form.contains(e.target)) box.hidden = true; });
+    document.addEventListener("click", function (e) { if (!form.contains(e.target)) setShown(false); });
   }
 
   document.documentElement.classList.add("js");

@@ -345,9 +345,9 @@ function footerLines(site, loc, translated) {
 // of the Menu drawer below that. It needs scripts, so without them it isn't shown.
 function siteSearch(loc, where) {
   const label = loc.p("Search the site");
-  return `<form class="site-search ss-${where}" role="search" data-index="${loc.href("/search.json")}" data-none="${esc(loc.p("Nothing on the site matches that."))}" data-failed="${esc(loc.p("The search couldn't load. Check your connection and try again."))}">
-<label class="visually-hidden" for="ss-${where}">${label}</label><input id="ss-${where}" type="search" placeholder="${esc(label)}" autocomplete="off" enterkeyhint="search">
-<div class="ss-results" hidden><p class="ss-note" role="status"></p><ul></ul></div>
+  return `<form class="site-search ss-${where}" role="search" data-index="${loc.href("/search.json")}" data-none="${esc(loc.p("Nothing on the site matches that."))}" data-failed="${esc(loc.p("The search couldn't load. Check your connection and try again."))}" data-next="${esc(loc.t("badge.next"))}">
+<label class="visually-hidden" for="ss-${where}">${label}</label><input id="ss-${where}" type="search" aria-controls="ss-box-${where}" aria-expanded="false" placeholder="${esc(label)}" autocomplete="off" enterkeyhint="search">
+<div class="ss-results" id="ss-box-${where}" hidden><p class="ss-note" role="status"></p><ul></ul></div>
 </form>`;
 }
 

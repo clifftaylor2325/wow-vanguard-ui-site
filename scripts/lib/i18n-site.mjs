@@ -111,6 +111,7 @@ export const ENGLISH_STRINGS = {
   "js.spellingOrBoxes": "Check the spelling, or tick the Show boxes above.",
   "js.spellingOrFewer": "Check the spelling, or try fewer words.",
   "js.tickBoxes": "Tick the Show boxes above.",
+  "js.results": "Results: {n}",
   "js.count.settings": { one: "{n} setting shown", other: "{n} settings shown" },
   "js.count.commands": { one: "{n} command shown", other: "{n} commands shown" },
   "js.count.modules": { one: "{n} module shown", other: "{n} modules shown" },
