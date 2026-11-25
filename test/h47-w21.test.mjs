@@ -58,3 +58,6 @@ test("H47-21-4: Expand all counts and toggles only the sections the reader can s
   assert.ok(js.includes("if (seen(all[i]) && !all[i].open) return false;"));
   assert.ok(js.includes("if (seen(all[i])) all[i].open = open;"));
 });
+test("H47-21-5: the open drawer also hides the skip link and the notice from Tab", () => {
+  assert.match(src("site.js"), /var BEHIND_DRAWER = "\.skip, \.site-notice, /);
+});

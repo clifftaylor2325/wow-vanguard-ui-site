@@ -332,7 +332,7 @@
 
   // What sits behind the open drawer: Tab and screen readers skip it. The Menu
   // button stays live so the drawer can be closed from the keyboard.
-  var BEHIND_DRAWER = ".shell > main, .site-footer, .site-header .brand, .site-header .lang-menu";
+  var BEHIND_DRAWER = ".skip, .site-notice, .shell > main, .site-footer, .site-header .brand, .site-header .lang-menu";
   function setBehindDrawer(inert) {
     var parts = document.querySelectorAll(BEHIND_DRAWER);
     for (var i = 0; i < parts.length; i++) parts[i].inert = inert;
