@@ -54,7 +54,7 @@ test("H47-21-103: a next-release-only search result carries the Next release bad
   for (const [dir, word] of [["", "Next release"], ["de/", "Nächste Version"]]) {
     const page = fs.readFileSync(path.join(dist, dir, "settings/index.html"), "utf8");
     assert.match(page, /<form class="site-search ss-head"[^>]* data-next="([^"]+)"/);
-    if (dir === "") assert.ok(page.includes(`data-next="${word}"`));
+    assert.ok(page.includes(`data-next="${word}"`), `${dir || "en"}: the search form's Next release word is "${word}"`);
   }
 });
 test("H47-21-4: Expand all counts and toggles only the sections the reader can see", () => {

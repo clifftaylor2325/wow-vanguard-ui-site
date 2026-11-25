@@ -83,13 +83,14 @@ function inline(n, ctx) {
 }
 
 // A span's Markdown: a tag ("Needs reload", "Next release") in brackets, a setting's kind after a
-// dot, anything else as it is.
+// dot and its tip after a dash, anything else as it is.
 function spanText(n, inner) {
   const t = inner.trim();
   const cls = ` ${n.attrs.class || ""} `;
   if (!t) return inner;
   if (cls.includes(" badge ")) return ` [${t}] `;
   if (cls.includes(" opt-kind ")) return ` · ${t}`;
+  if (cls.includes(" opt-tip ")) return ` - ${t}`;
   return inner;
 }
 
