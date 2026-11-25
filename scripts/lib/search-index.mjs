@@ -8,9 +8,9 @@ import { parseHtml } from "./markdown.mjs";
 const SNIPPET = 120;
 
 // Elements whose text is a separate run from what's next to it.
-const BLOCKS = new Set(["p", "div", "li", "ul", "ol", "td", "th", "tr", "dt", "dd", "h2", "h3", "figcaption", "details", "section", "article", "table", "tbody", "thead", "br"]);
+const BLOCKS = new Set(["p", "div", "li", "ul", "ol", "td", "th", "tr", "dt", "dd", "h2", "h3", "figure", "figcaption", "details", "section", "article", "table", "tbody", "thead", "br"]);
 // Elements a snippet leaves out: controls, drawings, and the summaries of folds ("More").
-const UNSAID = new Set(["script", "style", "svg", "button", "input", "select", "option", "textarea", "template", "summary"]);
+const UNSAID = new Set(["script", "style", "svg", "button", "input", "select", "option", "textarea", "template", "summary", "thead"]);
 
 // A node's text for a snippet (controls, fold summaries and hidden parts left out).
 function textOf(n) {
@@ -23,7 +23,7 @@ function textOf(n) {
 // (Copy) and screen-reader text left out.
 function nameOf(n) {
   if (typeof n === "string") return n;
-  if (/\b(badge|opt-kind|visually-hidden)\b/.test(n.attrs.class || "") || (UNSAID.has(n.tag) && n.tag !== "summary")) return "";
+  if (/\b(badge|opt-kind|opt-tip|visually-hidden)\b/.test(n.attrs.class || "") || (UNSAID.has(n.tag) && n.tag !== "summary")) return "";
   return n.kids.map(nameOf).join("");
 }
 
@@ -81,6 +81,24 @@ function entry(title, page, url, body, node) {
   return e;
 }
 
+// A row caption's tip (the grey line under its name), kept for the snippet since the title leaves it out.
+function tipOf(n) {
+  if (typeof n === "string") return "";
+  if (/\bopt-tip\b/.test(n.attrs.class || "")) return textOf(n);
+  return n.kids.map(tipOf).join(" ");
+}
+
+// A cell with a card label (Values, Default) says it, as the phone layout does: the label and the
+// value, closed with a stop unless the value has one, in the full-width marks when the label is Chinese.
+function cell(c) {
+  const said = clean(textOf(c));
+  const label = c.attrs["data-label"];
+  if (!said || !label) return said;
+  const wide = /[\u3400-\u9fff]/.test(label);
+  const stopped = /[.。!?…]$/.test(said);
+  return `${label}${wide ? "：" : ": "}${said}${stopped ? "" : wide ? "。" : "."}`;
+}
+
 // One element's entry, when it's something a reader can land on.
 function entryFor(n, page, url) {
   const id = n.attrs.id;
@@ -91,9 +109,7 @@ function entryFor(n, page, url) {
   }
   if (n.tag === "tr") {
     const [first, ...rest] = n.kids.filter((k) => typeof k !== "string");
-    // A cell with a card label (Values, Default) says it, as the phone layout does.
-    const cell = (c) => { const said = clean(textOf(c)); return said && c.attrs["data-label"] ? `${c.attrs["data-label"]}: ${said}.` : said; };
-    return first && entry(nameOf(first), page, `${url}#${id}`, rest.map(cell).join(" "), n);
+    return first && entry(nameOf(first), page, `${url}#${id}`, [tipOf(first), ...rest.map(cell)].join(" "), n);
   }
   return null;
 }

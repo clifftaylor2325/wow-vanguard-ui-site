@@ -71,3 +71,17 @@ test("H47-21-102: switches and sliders built with liveMethod, direct or through 
   assert.equal(defaultOf("Fade players out of range"), "On", "statusSetting(\"rangeFade\") wraps liveMethod");
   assert.equal(defaultOf("Button spacing"), "2", "a slider through liveMethod");
 });
+
+test("H47-21-101: search entries keep a setting's tip out of its title, the table heads out of snippets, and stops single", () => {
+  const read = (dir) => JSON.parse(fs.readFileSync(path.join(dist, dir, "search.json"), "utf8"));
+  const en = read("");
+  const deck = en.find((e) => e.u === "/settings/#unit-frames-versus-deck");
+  assert.equal(deck.t, "Versus deck");
+  assert.match(deck.x, /^Versus deck: your frame/, "the tip leads the snippet");
+  assert.ok(!en.some((e) => /^Setting Values Default/.test(e.x)), "no column heads in a section snippet");
+  assert.ok(!en.some((e) => /soonThe/.test(e.x)), "a figure's text is not glued to the next");
+  assert.ok(!en.find((e) => e.u === "/commands/#entry-help").x.endsWith(".."));
+  assert.ok(!read("ru").some((e) => /Вкл\.\.|Выкл\.\./.test(e.x)), "no doubled stop after Вкл.");
+  const zh = read("zh-cn").find((e) => /^默认：/.test(e.x));
+  assert.match(zh.x, /^默认：[^.]*。$/, "Chinese labels use full-width marks");
+});
