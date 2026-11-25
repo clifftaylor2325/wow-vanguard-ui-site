@@ -577,6 +577,7 @@
       if (e.key === "ArrowUp" && at >= 0) { e.preventDefault(); (at === 0 ? input : all[at - 1]).focus(); }
       if (e.key === "Escape" && !box.hidden) { e.stopPropagation(); box.hidden = true; input.focus(); }
     });
+    form.addEventListener("focusout", function (e) { if (e.relatedTarget && !form.contains(e.relatedTarget)) box.hidden = true; });
     list.addEventListener("click", function () {
       box.hidden = true;
       var close = form.closest(".nav") && document.querySelector(".nav.open .nav-close");

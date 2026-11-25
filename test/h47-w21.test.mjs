@@ -29,3 +29,6 @@ test("H47-21-2: an emptied search box drops its old results, and Enter and Down 
   assert.ok(js.includes("var first = box.hidden ? null : links()[0];"), "Enter needs a shown list");
   assert.ok(js.includes('e.key === "ArrowDown" && all.length && !box.hidden'), "Down needs a shown list");
 });
+test("H47-21-3: tabbing out of the site search closes its result box", () => {
+  assert.ok(src("site.js").includes('form.addEventListener("focusout", function (e) { if (e.relatedTarget && !form.contains(e.relatedTarget)) box.hidden = true; });'));
+});
