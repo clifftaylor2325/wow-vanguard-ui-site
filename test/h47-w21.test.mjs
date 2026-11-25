@@ -12,3 +12,9 @@ const src = (f) => fs.readFileSync(fileURLToPath(new URL(`../src/assets/${f}`, i
 test("H47-21-1: a linked Settings row lands below the page's sticky heading", () => {
   assert.match(src("site.css"), /@media \(min-width: 900px\) \{[^@]*\.opt-page \.opt-row\[id\] \{ scroll-margin-top: 48px; \}/);
 });
+
+test("H47-21-104: a folded card's summary fills the card so names on a row line up", () => {
+  const css = src("site.css");
+  assert.match(css, /\.dis-grid > details\.disclosure:not\(\[open\]\) \{ display: flex; flex-direction: column; \}/);
+  assert.match(css, /\.dis-grid > details\.disclosure:not\(\[open\]\) > summary \{ flex: 1; \}/);
+});

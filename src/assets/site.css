@@ -272,6 +272,9 @@ details.disclosure.aside > summary { min-height: 38px; }
 details.disclosure.aside > summary > :is(h2, h3) { font-size: var(--fs-sm); color: var(--text2); }
 .dis-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2); margin: 0 0 var(--sp-2); }
 .dis-grid > details.disclosure { margin: 0; }
+/* A folded card's summary fills the card the grid row stretched, so every name on a row centres at one height. */
+.dis-grid > details.disclosure:not([open]) { display: flex; flex-direction: column; }
+.dis-grid > details.disclosure:not([open]) > summary { flex: 1; }
 .dis-grid > details[open], .dis-grid > :has(> details[open]) { grid-column: 1 / -1; }
 .dis-grid > .help-entry { margin: 0; }
 details.disclosure > summary > h2 { overflow-wrap: anywhere; hyphens: auto; }
