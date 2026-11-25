@@ -550,7 +550,7 @@
     var url = form.getAttribute("data-index");
     var show = function () {
       var q = input.value.trim();
-      if (!q) { box.hidden = true; return; }
+      if (!q) { list.replaceChildren(); note.textContent = ""; box.hidden = true; return; }
       loadIndex(url).then(function (index) {
         if (input.value.trim() !== q) return;
         var hits = siteMatches(index, q);
@@ -567,13 +567,13 @@
     input.addEventListener("input", show);
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var first = links()[0];
+      var first = box.hidden ? null : links()[0];
       if (first) first.click();
     });
     form.addEventListener("keydown", function (e) {
       var all = links();
       var at = all.indexOf(document.activeElement);
-      if (e.key === "ArrowDown" && all.length) { e.preventDefault(); all[Math.min(at + 1, all.length - 1)].focus(); }
+      if (e.key === "ArrowDown" && all.length && !box.hidden) { e.preventDefault(); all[Math.min(at + 1, all.length - 1)].focus(); }
       if (e.key === "ArrowUp" && at >= 0) { e.preventDefault(); (at === 0 ? input : all[at - 1]).focus(); }
       if (e.key === "Escape" && !box.hidden) { e.stopPropagation(); box.hidden = true; input.focus(); }
     });

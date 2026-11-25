@@ -22,3 +22,10 @@ test("H47-21-104: a folded card's summary fills the card so names on a row line 
 test("H47-21-105: the sidebar leaves room on its left for the focus ring of its links", () => {
   assert.match(src("site.css"), /\.sidebar \{ position: sticky;[^}]*overflow-y: auto; padding: var\(--sp-5\) var\(--sp-3\) var\(--sp-5\) 4px;/);
 });
+
+test("H47-21-2: an emptied search box drops its old results, and Enter and Down act only on a shown list", () => {
+  const js = src("site.js");
+  assert.ok(js.includes('if (!q) { list.replaceChildren(); note.textContent = ""; '), "the list is cleared with the query");
+  assert.ok(js.includes("var first = box.hidden ? null : links()[0];"), "Enter needs a shown list");
+  assert.ok(js.includes('e.key === "ArrowDown" && all.length && !box.hidden'), "Down needs a shown list");
+});
