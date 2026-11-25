@@ -64,3 +64,10 @@ test("H47-21-5: the open drawer also hides the skip link and the notice from Tab
 test("H47-21-6: opening the drawer focuses its first control, not the Discord link", () => {
   assert.ok(src("site.js").includes('nav.querySelector("button, input, a")'));
 });
+test("H47-21-102: switches and sliders built with liveMethod, direct or through a helper, list their default", () => {
+  const html = fs.readFileSync(path.join(dist, "settings/index.html"), "utf8");
+  const defaultOf = (name) => html.match(new RegExp(`<th scope="row" class="opt-cap">${name}[\\s\\S]*?data-label="Default">([^<]*)`))?.[1];
+  assert.equal(defaultOf("Red when out of range"), "On", "liveMethod(\"ActionBars\", \"rangeTint\", ...)");
+  assert.equal(defaultOf("Fade players out of range"), "On", "statusSetting(\"rangeFade\") wraps liveMethod");
+  assert.equal(defaultOf("Button spacing"), "2", "a slider through liveMethod");
+});
