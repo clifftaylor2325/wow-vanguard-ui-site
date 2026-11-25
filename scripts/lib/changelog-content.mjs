@@ -507,10 +507,27 @@ RELEASE_NOTES["v0.9.7"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.9.8"] = { groups: [
+    { id: "new", title: "New", items: [
+      { label: "Dungeon plates", text: "A switch under Nameplates, {ui:Friendly players as names only (the game's setting)}, keeps your group's plates to their names in dungeons and raids, where the game keeps friendly players' plates; enemy plates keep Vanguard's look.", from: [893] },
+      { label: "Your HoTs on group frames", text: "On WoW Forever your HoTs show at the bottom right of each party and raid tile, with a sweep, the one ending soonest rightmost; a long buff you cast shows only in a slot they leave free.", from: [894] },
+      { label: "Graphics, shields and healing", text: "{ui:Check graphics}, {ui:Apply graphics} and {ui:Undo graphics} sit on General under the Layout tab and do what /vg graphics does; the player, target and party frames mark an overshield; and raid healing's typed buffs get their own {ui:Buffs to watch} tab.", from: [896] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Unit frames and cast bars", text: "Names stop short of the power text, a frame too narrow for its level hides it, the status marks start past the raid target icon, and a cast bar's spell name ends where its seconds begin.", from: [896, 897] },
+      { label: "Auras, plates and raid frames", text: "The target's buff row stops short of the threat percent, the smallest aura icons draw a smaller stack count, a name-only plate's raid icon stands over the name, and raid tile names keep room for seven letters.", from: [896] },
+      { label: "Options and setup", text: "The settings search closes on Escape or a page change, {ui:Reset profile} clears the changed dots, {ui:Exit without saving} puts back the layout chosen before unlock, and the setup window can be dragged by its title on every step.", from: [896] },
+      { label: "Popups and game windows", text: "Stacked popups share one joined panel, skinned game windows paint opaque, the quest reward page has {ui:Goodbye}, and a second Accept while its question is open declines nothing.", from: [895, 897] },
+      { label: "Auctions, bags and town", text: "{ui:Relist} and Cancel widen to their labels, the bag search boxes keep their magnifier, the combined bag falls back to the game's grid when it won't fit the screen, and the craft queue's {ui:Clear} asks first.", from: [895, 896] },
+      { label: "Bars and click casting", text: "Flyouts open away from their bar and show their spells' cooldowns, keybind mode shows hidden bars while it is on, and click casting's names and buttons fit their room.", from: [895, 896, 897] },
+      { label: "Map, quests and chat", text: "A waypoint's edge arrow is tinted in the accent, the expanded quest tracker keeps clear of the target of target frame, the AFK screen's clock follows the game clock, and /vg history says 1 day.", from: [895, 896] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.9.7 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.9.8 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.9.7",
+  after: "v0.9.8",
   groups: [],
 };
