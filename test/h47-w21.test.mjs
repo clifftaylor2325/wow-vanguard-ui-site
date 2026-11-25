@@ -29,6 +29,17 @@ test("H47-21-2: an emptied search box drops its old results, and Enter and Down 
   assert.ok(js.includes("var first = box.hidden ? null : links()[0];"), "Enter needs a shown list");
   assert.ok(js.includes('e.key === "ArrowDown" && all.length && !box.hidden'), "Down needs a shown list");
 });
+
 test("H47-21-3: tabbing out of the site search closes its result box", () => {
-  assert.ok(src("site.js").includes('form.addEventListener("focusout", function (e) { if (e.relatedTarget && !form.contains(e.relatedTarget)) box.hidden = true; });'));
+  assert.ok(src("site.js").includes('form.addEventListener("focusout", function (e) { if (e.relatedTarget && !form.contains(e.relatedTarget)) setShown(false); });'));
+});
+
+test("H47-21-7: the site search says how many results it found, and tells assistive tech when its box is open", () => {
+  const js = src("site.js");
+  assert.ok(js.includes('say("results", "Results: {n}", { n: hits.length })'));
+  assert.ok(js.includes('note.classList.toggle("visually-hidden", hits.length > 0)'), "the count is for screen readers only");
+  assert.ok(js.includes('input.setAttribute("aria-expanded"'));
+  const page = fs.readFileSync(path.join(dist, "settings/index.html"), "utf8");
+  assert.match(page, /<input id="ss-head" type="search" aria-controls="ss-box-head" aria-expanded="false"/);
+  assert.ok(page.includes('<div class="ss-results" id="ss-box-head" hidden>'));
 });

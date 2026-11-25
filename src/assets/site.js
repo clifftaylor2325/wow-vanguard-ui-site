@@ -548,18 +548,21 @@
     var list = box.querySelector("ul");
     var note = box.querySelector(".ss-note");
     var url = form.getAttribute("data-index");
+    var setShown = function (on) { box.hidden = !on; input.setAttribute("aria-expanded", on ? "true" : "false"); };
     var show = function () {
       var q = input.value.trim();
-      if (!q) { list.replaceChildren(); note.textContent = ""; box.hidden = true; return; }
+      if (!q) { list.replaceChildren(); note.textContent = ""; setShown(false); return; }
       loadIndex(url).then(function (index) {
         if (input.value.trim() !== q) return;
         var hits = siteMatches(index, q);
         list.replaceChildren.apply(list, hits.map(resultItem));
-        note.textContent = hits.length ? "" : form.getAttribute("data-none");
-        box.hidden = false;
+        note.textContent = hits.length ? say("results", "Results: {n}", { n: hits.length }) : form.getAttribute("data-none");
+        note.classList.toggle("visually-hidden", hits.length > 0);
+        setShown(true);
       }, function () {
+        note.classList.remove("visually-hidden");
         note.textContent = form.getAttribute("data-failed");
-        box.hidden = false;
+        setShown(true);
       });
     };
     var links = function () { return Array.prototype.slice.call(list.querySelectorAll("a")); };
@@ -575,15 +578,15 @@
       var at = all.indexOf(document.activeElement);
       if (e.key === "ArrowDown" && all.length && !box.hidden) { e.preventDefault(); all[Math.min(at + 1, all.length - 1)].focus(); }
       if (e.key === "ArrowUp" && at >= 0) { e.preventDefault(); (at === 0 ? input : all[at - 1]).focus(); }
-      if (e.key === "Escape" && !box.hidden) { e.stopPropagation(); box.hidden = true; input.focus(); }
+      if (e.key === "Escape" && !box.hidden) { e.stopPropagation(); setShown(false); input.focus(); }
     });
-    form.addEventListener("focusout", function (e) { if (e.relatedTarget && !form.contains(e.relatedTarget)) box.hidden = true; });
+    form.addEventListener("focusout", function (e) { if (e.relatedTarget && !form.contains(e.relatedTarget)) setShown(false); });
     list.addEventListener("click", function () {
-      box.hidden = true;
+      setShown(false);
       var close = form.closest(".nav") && document.querySelector(".nav.open .nav-close");
       if (close) close.click();
     });
-    document.addEventListener("click", function (e) { if (!form.contains(e.target)) box.hidden = true; });
+    document.addEventListener("click", function (e) { if (!form.contains(e.target)) setShown(false); });
   }
 
   document.documentElement.classList.add("js");
