@@ -18,3 +18,7 @@ test("H47-21-104: a folded card's summary fills the card so names on a row line 
   assert.match(css, /\.dis-grid > details\.disclosure:not\(\[open\]\) \{ display: flex; flex-direction: column; \}/);
   assert.match(css, /\.dis-grid > details\.disclosure:not\(\[open\]\) > summary \{ flex: 1; \}/);
 });
+
+test("H47-21-105: the sidebar leaves room on its left for the focus ring of its links", () => {
+  assert.match(src("site.css"), /\.sidebar \{ position: sticky;[^}]*overflow-y: auto; padding: var\(--sp-5\) var\(--sp-3\) var\(--sp-5\) 4px;/);
+});

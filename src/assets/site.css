@@ -188,7 +188,7 @@ html:not(.js) .site-search { display: none; }
 main { min-width: 0; padding: var(--sp-3) 0 var(--sp-6); }
 @media (min-width: 900px) {
   .shell { display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); column-gap: var(--sp-6); }
-  .sidebar { position: sticky; top: var(--header-h); align-self: start; max-height: calc(100vh - var(--header-h)); overflow-y: auto; padding: var(--sp-5) var(--sp-3) var(--sp-5) 0; border-right: 1px solid var(--divider); }
+  .sidebar { position: sticky; top: var(--header-h); align-self: start; max-height: calc(100vh - var(--header-h)); overflow-y: auto; padding: var(--sp-5) var(--sp-3) var(--sp-5) 4px; border-right: 1px solid var(--divider); }
   .has-sidebar main { max-width: var(--content-max); padding-top: var(--sp-3); }
 }
 .lede { font-size: 1.1rem; color: var(--text); max-width: 64ch; }
