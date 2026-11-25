@@ -223,7 +223,7 @@ function settingRef(ctx, text, depth = 0) {
   if (hit) return { scope: hit[1], key: hit[2], reload: true, restart: true };
   hit = text.match(/\b(reloadSetting|setting|liveSetting|liveMethod)\(\s*"(\w+)"\s*,\s*"(\w+)"\s*(,\s*true)?/);
   if (hit) return { scope: hit[2], key: hit[3], reload: hit[1] === "reloadSetting" || !!hit[4] };
-  hit = text.match(/\b(?:setting|switch)\(\s*"(\w+)"\s*(,\s*true)?\s*\)/);
+  hit = text.match(/\b(?:setting|switch)\(\s*"(\w+)"\s*(,\s*true)?\s*[,)]/);
   if (hit && fileModule) return { scope: fileModule, key: hit[1], reload: !!hit[2] };
   hit = text.match(/T\.Settings\(\)\.(\w+)/);
   if (hit) return { scope: "theme", key: hit[1], reload: false };
@@ -241,6 +241,36 @@ function settingRef(ctx, text, depth = 0) {
     if (inner) return inner;
   }
   return null;
+}
+
+// Where a row's value lives when its setter names the key by a parameter of the helper the row is written in
+// (`slider(caption, key)` returning `{ "slider", caption, RANGE[key], setting(key, apply) }`): the key each call
+// of the helper passes with the row's caption. null when the row is not written that way.
+function helperRef(ctx, at, restText, capText, caption) {
+  const fn = enclosingFunction(ctx, at);
+  const param = restText.match(/\b(?:setting|switch)\(\s*([A-Za-z_]\w*)\s*[,)]/)?.[1];
+  const [keyAt, capAt] = [fn?.params.indexOf(param), fn?.params.indexOf(capText.trim())];
+  if (!fn || !param || keyAt < 0 || capAt < 0) return null;
+  const { m } = ctx;
+  const name = fn.name.split(".").pop();
+  for (const call of m.bare.matchAll(new RegExp(`(?<![\\w.:])${name}\\(`, "g"))) {
+    const open = call.index + call[0].length - 1;
+    if (/function\s+$/.test(m.bare.slice(Math.max(0, call.index - 12), call.index))) continue;
+    const parts = splitTop(m.bare, open + 1, matchBracket(m.bare, open) - 1).map(([a, b]) => m.code.slice(a, b).trim());
+    if (parts[capAt] && /^["']/.test(parts[capAt]) && readString(parts[capAt], 0).value === caption && /^["']\w+["']$/.test(parts[keyAt] || "")) {
+      return settingRef(ctx, restText.replace(new RegExp(`(\\b(?:setting|switch)\\(\\s*)${param}\\b`), `$1${parts[keyAt]}`));
+    }
+  }
+  return null;
+}
+
+// Gives a check, choice or slider row without a ref the one helperRef finds; parts are the call's arguments
+// and capIdx the caption's place among them.
+function addHelperRef(ctx, row, at, parts, capIdx) {
+  const ref = helperRef(ctx, at, parts.slice(capIdx + 1).join(", "), parts[capIdx], row.key ?? row.caption);
+  if (!ref) return;
+  row.ref = ref;
+  row.reload ||= ref.reload;
 }
 
 // The names a file calls O.ReloadRow by: "O.ReloadRow" itself and each local assigned it
@@ -495,6 +525,7 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
       if (cap.retail) Object.assign(row, { clientOnly: "retail", retailName: true });
       if (cap.forever) row.clientOnly = "forever";
       if (cap.entryKey) row.ref ??= entryRef(m.code.slice(open, close), cap.entryKey);
+      if (row.ref === null) addHelperRef(ctx, row, f.at, parts.map(([a, b]) => m.code.slice(a, b)), capIdx);
       if (kind === "visibility") row.choices = ctx.visibility(m.code.slice(open, close));
       if (here && !loopFor) row.repeated = here;
       rows.push(row);
