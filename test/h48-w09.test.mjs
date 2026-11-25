@@ -64,3 +64,38 @@ test("H48-9-4: Troubleshooting names no colour for the error count by the addons
     assert.doesNotMatch(question, colours, `${l.code}: ${question}`);
   }
 });
+
+// Every file of the addon at the source ref whose path matches.
+function addonFiles(pattern) {
+  const list = execFileSync("git", ["ls-tree", "-r", "--name-only", cfg.sourceRef], { cwd: cfg.sourcePath, maxBuffer: 64 << 20 }).toString().split("\n");
+  return list.filter((f) => pattern.test(f));
+}
+
+// Each module's literal on/off defaults, by module name, read from the `ns.Module("Name", { defaults = { ... } })` calls.
+function moduleDefaults() {
+  const out = new Map();
+  for (const file of addonFiles(/^(Core|Modules)\/[\w]+\.lua$/)) {
+    for (const hit of addonFile(file).matchAll(/ns\.Module\(\s*"(\w+)"\s*,[^\n]{0,200}?defaults\s*=\s*\{([^{}]*)\}/g)) {
+      out.set(hit[1], Object.fromEntries([...hit[2].matchAll(/\b(\w+)\s*=\s*(true|false)\b/g)].map((x) => [x[1], x[2] === "true" ? "On" : "Off"])));
+    }
+  }
+  return out;
+}
+
+test("H48-9-5: every switch the options files tie to a module setting shows that module's default on the Settings page", () => {
+  const defaults = moduleDefaults();
+  const rows = data.settings.flatMap((p) => p.rows.filter((r) => r.kind === "check"));
+  const wrong = [];
+  let compared = 0;
+  for (const file of addonFiles(/^Core\/Options\w*\.lua$/)) {
+    for (const hit of addonFile(file).matchAll(/\bcheck\(\s*"([^"]+)"\s*,\s*(?:reload|live)?[sS]etting\(\s*"(\w+)"\s*,\s*"(\w+)"\s*\)/g)) {
+      const want = defaults.get(hit[2])?.[hit[3]];
+      const page = rows.filter((r) => r.caption === hit[1]);
+      if (!want || !page.length) continue;
+      compared++;
+      for (const r of page) if (r.releaseDefault !== want) wrong.push(`${hit[1]}: page ${r.releaseDefault}, ${hit[2]}.${hit[3]} is ${want}`);
+    }
+  }
+  assert.deepEqual(wrong, []);
+  assert.ok(compared >= 40, `only ${compared} switches compared`);
+});
