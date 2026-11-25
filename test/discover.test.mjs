@@ -69,6 +69,17 @@ test("a summary heading keeps the badges of its dis-meta in the Markdown copy, a
   assert.match(out, /^## Plain$/m);
 });
 
+test("a setting's kind and tip stay apart in the Markdown copy (H48-9-1)", () => {
+  const main = `<table><tr><th scope="row">Scale <span class="opt-kind">Switch</span><span class="opt-tip">Bigger windows</span></th><td>On</td></tr></table>`;
+  const out = pageMarkdown({ title: "T", description: "", main, path: "/x/", base: "https://example.com" });
+  assert.match(out, /Scale · Switch - Bigger windows/);
+});
+
+test("the built Settings Markdown never runs a kind into its tip (H48-9-1)", () => {
+  const md = fs.readFileSync(path.join(dist, "settings", "index.md"), "utf8");
+  assert.doesNotMatch(md, /\b(Switch|Choice|Slider|Button)[A-Z]/);
+});
+
 test("the built Settings Markdown marks the Talents heading as WoW Forever only", () => {
   const md = fs.readFileSync(path.join(dist, "settings", "index.md"), "utf8");
   assert.match(md, /^## Talents \[WoW Forever only\]$/m);
