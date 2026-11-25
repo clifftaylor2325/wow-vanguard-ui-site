@@ -121,7 +121,7 @@ export const SECTIONS = [
     { id: "edit-layout", q: "Chat says my profile uses an Edit Mode layout this account doesn't have",
       a: `<p>A profile remembers which of the game's Edit Mode layouts you use with it. When a character loads that profile, Vanguard switches Edit Mode to the layout of that name, if your account has one. If it doesn't, Vanguard says “{editMissing}” and leaves Edit Mode as it is.</p>`,
       src: ["Core/Profiles.lua (Edit Mode layout)", "README.md (Look and layout)"] },
-    { id: "errors-badge", q: "There's a red number on the addons button",
+    { id: "errors-badge", q: "There's a number beside the addons button",
       a: `<p>That's how many errors Vanguard caught this session. The options window's footer says the same (“{footerLine}”). Click that line or type <code>/vg errors</code> to list them; the list's <strong>{errorsReport}</strong> button opens Vanguard's feedback form on a bug with the list attached, or you can paste it into a <a href="/feedback/">bug report</a> here. Its <strong>{errorsClear}</strong> button (or <code>/vg errors clear</code>) empties the list, and the number goes away. With nothing caught, <code>/vg errors</code> says “{noErrors}”</p>`,
       src: ["Core/ErrorBadge.lua", "Core/Slash.lua (errors)", "Core/Dialog.lua (errors window)", "README.md (Options)"] },
     { id: "language", q: "Is Vanguard in my language?",

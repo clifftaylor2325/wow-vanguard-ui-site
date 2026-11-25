@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { loadConfig } from "../scripts/lib/config.mjs";
+import { publishedLocales } from "../scripts/lib/i18n-site.mjs";
 
 const cfg = loadConfig();
 const data = JSON.parse(fs.readFileSync(path.join(cfg.outDir, "site-data.json"), "utf8"));
@@ -50,4 +51,16 @@ test("H48-9-3: rows whose default a helper, a loop table or a module's defaults 
   assert.equal(shown("quests", "Quest spots on the minimap"), addonDefault("Modules/QuestMinimap.lua", "show"), "QM.defaults.show");
   assert.equal(shown("map", "Arrow to a Ctrl-clicked waypoint"), addonDefault("Modules/Waypoints.lua", "follow"), "followSetting()");
   assert.equal(shown("tools", "Soft-reserve list"), addonDefault("Modules/OfficerLoot.lua", "on"), "ns.Options.LiveSetting");
+});
+
+test("H48-9-4: Troubleshooting names no colour for the error count by the addons button, in any language", () => {
+  const badge = addonFile("Core/ErrorBadge.lua");
+  assert.match(badge, /T\.Capsule\(b, BADGE_H, "accent"/, "the badge is a capsule in the accent colour, not a red one");
+  assert.match(badge, /SetPoint\("RIGHT", button, "LEFT"/, "and it sits beside the addons button");
+  const colours = /\b(red|rot|rote|rouge|rojo|rosso|vermelho)\b|красн|빨간|红色|紅色/i;
+  for (const l of publishedLocales(cfg.locales)) {
+    const page = fs.readFileSync(path.join(cfg.outDir, l.code === "en" ? "" : l.code, "help", "index.html"), "utf8");
+    const question = page.match(/errors-badge-q">\s*([^<\s][^<]*)</)[1];
+    assert.doesNotMatch(question, colours, `${l.code}: ${question}`);
+  }
 });
