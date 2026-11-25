@@ -1324,7 +1324,7 @@
  "Unit frames and cast bars": "单位框体与施法条",
  "Names stop short of the power text, a frame too narrow for its level hides it, the status marks start past the raid target icon, and a cast bar's spell name ends where its seconds begin.": "名字在能量文字之前结束，太窄放不下等级的框体会隐藏等级，状态标记从团队目标图标之后开始，施法条上的法术名在秒数开始处结束。",
  "The target's buff row stops short of the threat percent, the smallest aura icons draw a smaller stack count, a name-only plate's raid icon stands over the name, and raid tile names keep room for seven letters.": "目标的增益行在仇恨百分比之前结束，最小的光环图标会用更小的字显示层数，只显示名字的姓名板上的团队图标位于名字上方，团队格上的名字保留七个字母的空间。",
- "The settings search closes on Escape or a page change, {ui:Reset profile} clears the changed dots, {ui:Exit without saving} puts back the HUD layout chosen before unlock, and the setup window can be dragged by its title on every step.": "设置搜索在按 Esc 或换页时关闭，“{ui:Reset profile}”会清除改动标记点，“{ui:Exit without saving}”会恢复解锁前选好的 HUD 布局，设置窗口在每一步都能拖动标题移动。",
+ "The settings search closes on Escape or a page change, {ui:Reset profile} clears the changed dots, {ui:Exit without saving} puts back the layout chosen before unlock, and the setup window can be dragged by its title on every step.": "设置搜索在按 Esc 或换页时关闭，“{ui:Reset profile}”会清除改动标记点，“{ui:Exit without saving}”会恢复解锁前选好的 HUD 布局，设置窗口在每一步都能拖动标题移动。",
  "Popups and game windows": "弹出窗口与游戏窗口",
  "Stacked popups share one joined panel, skinned game windows paint opaque, the quest reward page has {ui:Goodbye}, and a second Accept while its question is open declines nothing.": "叠在一起的弹出窗口共用一块相连的面板，换了外观的游戏窗口不再透明，任务奖励页有“{ui:Goodbye}”，在问题还开着时再点一次接受不会拒绝任何东西。",
  "Auctions, bags and town": "拍卖、背包与城镇",
