@@ -573,7 +573,12 @@
       });
     };
     var links = function () { return Array.prototype.slice.call(list.querySelectorAll("a")); };
-    input.addEventListener("focus", function () { loadIndex(url).catch(function () {}); });
+    // Focus coming back from outside the form shows the list again for words still in the box (focus leaving closed it,
+    // and Enter and Down act only while it shows); focus moving within the form (Escape from a result) leaves it shut.
+    input.addEventListener("focus", function (e) {
+      loadIndex(url).catch(function () {});
+      if (box.hidden && input.value.trim() && !(e.relatedTarget && form.contains(e.relatedTarget))) show();
+    });
     input.addEventListener("input", show);
     form.addEventListener("submit", function (e) {
       e.preventDefault();
