@@ -85,3 +85,12 @@ test("H47-21-101: search entries keep a setting's tip out of its title, the tabl
   const zh = read("zh-cn").find((e) => /^默认：/.test(e.x));
   assert.match(zh.x, /^默认：[^.]*。$/, "Chinese labels use full-width marks");
 });
+
+test("H47-21-106: German and Italian feedback errors quote the field's label, so a label ending in the verb reads right", () => {
+  const prose = (code) => JSON.parse(fs.readFileSync(fileURLToPath(new URL(`../scripts/lib/i18n-prose/${code}.json`, import.meta.url)), "utf8"));
+  for (const [code, open, close] of [["de", "„", "“"], ["it", "«", "»"]]) {
+    for (const key of ["{label} is required.", "{label} needs at least {min} characters.", "{label} can be at most {max} characters (it has {length})."]) {
+      assert.ok(prose(code)[key].includes(`${open}{label}${close}`), `${code}: ${key}`);
+    }
+  }
+});
