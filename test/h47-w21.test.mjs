@@ -43,3 +43,12 @@ test("H47-21-7: the site search says how many results it found, and tells assist
   assert.match(page, /<input id="ss-head" type="search" aria-controls="ss-box-head" aria-expanded="false"/);
   assert.ok(page.includes('<div class="ss-results" id="ss-box-head" hidden>'));
 });
+test("H47-21-103: a next-release-only search result carries the Next release badge in its language", () => {
+  const js = src("site.js");
+  assert.ok(js.includes('resultItem(e, form.getAttribute("data-next"))') && js.includes('if (e.n && nextLabel)'));
+  for (const [dir, word] of [["", "Next release"], ["de/", "Nächste Version"]]) {
+    const page = fs.readFileSync(path.join(dist, dir, "settings/index.html"), "utf8");
+    assert.match(page, /<form class="site-search ss-head"[^>]* data-next="([^"]+)"/);
+    if (dir === "") assert.ok(page.includes(`data-next="${word}"`));
+  }
+});

@@ -528,7 +528,7 @@
     hits.sort(function (a, b) { return b.score - a.score; });
     return hits.slice(0, 8).map(function (h) { return h.e; });
   }
-  function resultItem(e) {
+  function resultItem(e, nextLabel) {
     var li = document.createElement("li");
     var a = document.createElement("a");
     a.href = e.u;
@@ -539,6 +539,12 @@
       span.textContent = part[1];
       a.appendChild(span);
     });
+    if (e.n && nextLabel) {
+      var badge = document.createElement("span");
+      badge.className = "badge next";
+      badge.textContent = nextLabel;
+      a.firstChild.appendChild(badge);
+    }
     li.appendChild(a);
     return li;
   }
@@ -555,7 +561,7 @@
       loadIndex(url).then(function (index) {
         if (input.value.trim() !== q) return;
         var hits = siteMatches(index, q);
-        list.replaceChildren.apply(list, hits.map(resultItem));
+        list.replaceChildren.apply(list, hits.map(function (e) { return resultItem(e, form.getAttribute("data-next")); }));
         note.textContent = hits.length ? say("results", "Results: {n}", { n: hits.length }) : form.getAttribute("data-none");
         note.classList.toggle("visually-hidden", hits.length > 0);
         setShown(true);
