@@ -414,6 +414,8 @@ caption { caption-side: top; text-align: left; padding: 0 0 8px; color: var(--te
 @media (min-width: 900px) {
   .opt-page[open] > summary { position: sticky; top: var(--header-h); z-index: 3; background: var(--panel); }
   .opt-page[open] > summary:hover { background: var(--raised); }
+  /* A linked row lands below that sticky heading (36px tall) and the usual gap, not under it. */
+  .opt-page .opt-row[id] { scroll-margin-top: 48px; }
 }
 @media (max-width: 899px) {
   /* Each row becomes a card; cells carry their column label. */
