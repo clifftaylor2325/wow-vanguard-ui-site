@@ -221,12 +221,17 @@ function settingRef(ctx, text, depth = 0) {
   const { m, defs, fileModule } = ctx;
   let hit = text.match(/\bO\.RestartSetting\(\s*"(\w+)"\s*,\s*"(\w+)"/);
   if (hit) return { scope: hit[1], key: hit[2], reload: true, restart: true };
-  hit = text.match(/\b(reloadSetting|setting|liveSetting|liveMethod)\(\s*"(\w+)"\s*,\s*"(\w+)"\s*(,\s*true)?/);
-  if (hit) return { scope: hit[2], key: hit[3], reload: hit[1] === "reloadSetting" || !!hit[4] };
+  hit = text.match(/\b([Rr]eloadSetting|setting|[Ll]iveSetting|[Ll]iveMethod)\(\s*"(\w+)"\s*,\s*"(\w+)"\s*(,\s*true)?/);
+  if (hit) return { scope: hit[2], key: hit[3], reload: /^[Rr]eloadSetting$/.test(hit[1]) || !!hit[4] };
   hit = text.match(/\b(?:setting|switch)\(\s*"(\w+)"\s*(,\s*true)?\s*[,)]/);
   if (hit && fileModule) return { scope: fileModule, key: hit[1], reload: !!hit[2] };
   hit = text.match(/T\.Settings\(\)\.(\w+)/);
   if (hit) return { scope: "theme", key: hit[1], reload: false };
+  hit = text.match(/\bns\.MoverDefault\(\s*"(\w+)"\s*\)/);
+  if (hit) return { scope: "movers", key: hit[1], reload: false };
+  hit = text.match(/\b([A-Za-z_]\w*)\.defaults\.(\w+)\b/);
+  const owner = hit && m.code.match(new RegExp(`\\blocal\\s+${hit[1]}\\s*=\\s*ns\\.Module\\(\\s*"(\\w+)"`));
+  if (owner) return { scope: owner[1], key: hit[2], reload: false };
   hit = text.match(/moduleSettings\("(\w+)"\)\.(\w+)/);
   if (hit) return { scope: hit[1], key: hit[2], reload: /NeedReload/.test(text) };
   if (depth > 3) return null;
@@ -264,10 +269,25 @@ function helperRef(ctx, at, restText, capText, caption) {
   return null;
 }
 
-// Gives a check, choice or slider row without a ref the one helperRef finds; parts are the call's arguments
+// Where a row's value lives when its get/set/default are locals the function around it took from a helper
+// (`local get, set, default = setting("QuestHistory", "track")` above `check(caption, get, ..., default)`): the
+// ref of the call the locals are assigned from. null when the row names no such local.
+function localRef(ctx, at, restText) {
+  const fn = enclosingFunction(ctx, at);
+  if (!fn) return null;
+  for (const decl of ctx.m.code.slice(fn.from, at).matchAll(/\blocal\s+([\w, ]+?)\s*=\s*([^\n]+)/g)) {
+    const used = decl[1].split(",").map((n) => n.trim()).some((n) => new RegExp(`\\b${n}\\b`).test(restText));
+    const ref = used ? settingRef(ctx, decl[2]) : null;
+    if (ref) return ref;
+  }
+  return null;
+}
+
+// Gives a check, choice or slider row without a ref the one helperRef or localRef finds; parts are the call's arguments
 // and capIdx the caption's place among them.
 function addHelperRef(ctx, row, at, parts, capIdx) {
-  const ref = helperRef(ctx, at, parts.slice(capIdx + 1).join(", "), parts[capIdx], row.key ?? row.caption);
+  const rest = parts.slice(capIdx + 1).join(", ");
+  const ref = helperRef(ctx, at, rest, parts[capIdx], row.key ?? row.caption) ?? localRef(ctx, at, rest);
   if (!ref) return;
   row.ref = ref;
   row.reload ||= ref.reload;
@@ -380,7 +400,7 @@ const TEXT_KINDS = new Set(["text", "header"]);
 function captionNames(ctx, i) {
   const text = ctx.m.code.slice(i).match(/^[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*(?:\[\d+\])?/);
   if (!text) return [];
-  const entries = fieldEntries(ctx, text[0], i);
+  const entries = fieldEntries(ctx, text[0], i) || indexEntries(ctx, text[0], i);
   if (entries) return entries.map((e) => ({ caption: e.value, variable: null, end: i + text[0].length, entryKey: e.key }));
   const own = (flag) => new Set((ctx.constants?.get(text[0]) || []).filter((c) => c[flag]).map((c) => c.text));
   const [retail, forever] = [own("retail"), own("forever")];
@@ -398,6 +418,17 @@ function fieldEntries(ctx, text, at) {
   const table = loops.length ? loopTable(ctx, loops.pop()[1]) : null;
   const rows = (table?.array || []).map((row) => ({ value: row.fields?.[field[2]], key: row.fields?.key })).filter((e) => typeof e.value === "string");
   return rows.length && rows.length === table.array.length ? rows : null;
+}
+
+// The rows of a local table of { key, caption } pairs a loop walks, when the caption is the second item of the loop
+// variable (`for _, g in ipairs(WINDOW_GROUPS) ... check(g[2], reloadSetting("Windows", g[1]))`): one { value, key }
+// for each row; null when it is not such a table of strings.
+function indexEntries(ctx, text, at) {
+  const item = text.match(/^([A-Za-z_]\w*)\[2\]$/);
+  const loops = item ? [...ctx.m.bare.slice(0, at).matchAll(new RegExp(`\\bfor\\s+\\w+\\s*,\\s*${item[1]}\\s+in\\s+ipairs\\(\\s*([A-Za-z_]\\w*)\\s*\\)`, "g"))] : [];
+  const table = loops.length ? findTable(ctx.m, `local ${loops.pop()[1]}`) : null;
+  const rows = (table?.array || []).map((row) => plain(row)).map((pair) => ({ value: pair?.[1], key: pair?.[0] }));
+  return rows.length && rows.every((e) => typeof e.value === "string" && typeof e.key === "string") ? rows : null;
 }
 
 // The table a loop's ipairs() argument names: the constant table itself, or the one the named function filters.
@@ -536,7 +567,7 @@ function expandRows(ctx, from, to, stack = [], loop = null) {
 
 // Where a row made for a table entry keeps its value: setting("Module", cat.key) with cat.key read from the entry.
 function entryRef(callText, key) {
-  const hit = callText.match(/\bsetting\(\s*"(\w+)"\s*,\s*\w+\.key\b/);
+  const hit = callText.match(/\b(?:[Rr]eloadSetting|setting)\(\s*"(\w+)"\s*,\s*\w+(?:\.key|\[1\])/);
   return hit && typeof key === "string" ? { scope: hit[1], key, reload: false } : undefined;
 }
 

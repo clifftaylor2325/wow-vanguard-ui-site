@@ -40,3 +40,14 @@ test("H48-9-2: rows built with setting(key, after) and the slider helper show th
     assert.equal(shown("quests", caption), addonDefault("Modules/QuestArrow.lua", key), `Quests: ${caption}`);
   }
 });
+
+test("H48-9-3: rows whose default a helper, a loop table or a module's defaults field gives show it", () => {
+  assert.equal(shown("general", "Show a grid while moving"), addonDefault("Core/Movers.lua", "grid"));
+  assert.equal(shown("general", "Grid spacing"), addonDefault("Core/Movers.lua", "gridSize"));
+  assert.equal(shown("quests", "Remember who finished each quest"), addonDefault("Modules/QuestHistory.lua", "track"));
+  assert.equal(shown("windows", "Popups (reload)"), addonDefault("Modules/Windows.lua", "popups"), "a loop over { key, caption } pairs");
+  assert.equal(shown("windows", "Drag game windows by their title bar (reload)"), addonDefault("Modules/Windows.lua", "movable"));
+  assert.equal(shown("quests", "Quest spots on the minimap"), addonDefault("Modules/QuestMinimap.lua", "show"), "QM.defaults.show");
+  assert.equal(shown("map", "Arrow to a Ctrl-clicked waypoint"), addonDefault("Modules/Waypoints.lua", "follow"), "followSetting()");
+  assert.equal(shown("tools", "Soft-reserve list"), addonDefault("Modules/OfficerLoot.lua", "on"), "ns.Options.LiveSetting");
+});
