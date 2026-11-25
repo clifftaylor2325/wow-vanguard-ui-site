@@ -34,6 +34,11 @@ test("H47-21-3: tabbing out of the site search closes its result box", () => {
   assert.ok(src("site.js").includes('form.addEventListener("focusout", function (e) { if (e.relatedTarget && !form.contains(e.relatedTarget)) setShown(false); });'));
 });
 
+test("H47-22-53: focus coming back to the site search from outside shows its list again for the words still in it", () => {
+  const js = src("site.js");
+  assert.ok(js.includes("if (box.hidden && input.value.trim() && !(e.relatedTarget && form.contains(e.relatedTarget))) show();"));
+});
+
 test("H47-21-7: the site search says how many results it found, and tells assistive tech when its box is open", () => {
   const js = src("site.js");
   assert.ok(js.includes('say("results", "Results: {n}", { n: hits.length })'));
