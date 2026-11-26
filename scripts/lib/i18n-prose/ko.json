@@ -1332,5 +1332,16 @@
  "Bars and click casting": "바와 클릭 시전",
  "Flyouts open away from their bar and show their spells' cooldowns, keybind mode shows hidden bars while it is on, and click casting's names and buttons fit their room.": "펼침 목록은 바에서 먼 쪽으로 열리고 주문의 재사용 대기시간을 보여 주며, 단축키 지정 모드는 켜져 있는 동안 숨긴 바를 보여 주고, 클릭 시전의 이름과 버튼은 제자리에 맞게 들어갑니다.",
  "Map, quests and chat": "지도, 퀘스트와 대화",
- "A waypoint's edge arrow is tinted in the accent, the expanded quest tracker keeps clear of the target of target frame, the AFK screen's clock follows the game clock, and /vg history says 1 day.": "지점의 가장자리 화살표는 강조색으로 물들고, 펼친 퀘스트 추적기는 대상의 대상 프레임을 비켜 가며, 자리 비움 화면의 시계는 게임 시계를 따르고, /vg history는 1일이라고 말합니다."
+ "A waypoint's edge arrow is tinted in the accent, the expanded quest tracker keeps clear of the target of target frame, the AFK screen's clock follows the game clock, and /vg history says 1 day.": "지점의 가장자리 화살표는 강조색으로 물들고, 펼친 퀘스트 추적기는 대상의 대상 프레임을 비켜 가며, 자리 비움 화면의 시계는 게임 시계를 따르고, /vg history는 1일이라고 말합니다.",
+ "Questions first": "먼저 묻기",
+ "{ui:Reset all positions}, {ui:Reset theme}, and {ui:Delete} and {ui:Copy here} on the Profiles page ask a danger question first, so a double click does nothing; {ui:Import stat weights} asks before it replaces weights you set by hand.": "{ui:Reset all positions}, {ui:Reset theme}, 그리고 프로필 페이지의 {ui:Delete}와(과) {ui:Copy here}은(는) 먼저 위험 질문을 하므로 두 번 눌러도 아무 일도 일어나지 않습니다. {ui:Import stat weights}은(는) 직접 정한 가중치를 바꾸기 전에 묻습니다.",
+ "Unit frames and bars": "프레임과 바",
+ "Under the {ui:Calm HUD}, right-click anywhere on your frame or your target's opens its menu again; icon insets, combo points and your buffs' rows are placed again after a UI scale change; and bar 1 shows in a vehicle, a possess or an override bar.": "{ui:Calm HUD}에서 내 프레임이나 대상 프레임의 아무 곳이나 오른쪽 클릭하면 다시 메뉴가 열리고, 아이콘 여백, 연계 점수, 내 강화 효과 줄은 UI 크기 변경 후 다시 놓이며, 1번 바는 탈것, 정신 지배, 대체 바 상태에서도 보입니다.",
+ "Raid tiles settle once as members join, your heals stay on your own tile after the roster shifts, a names-only plate has no click area, as the game's own, and Enter in the {ui:Buffs to watch} box saves the list.": "공격대 칸은 구성원이 들어올 때 한 번만 정리되고, 구성이 바뀌어도 내 치유는 내 칸에 남으며, 이름만 있는 이름표에는 게임의 것처럼 클릭 영역이 없고, {ui:Buffs to watch} 칸에서 Enter를 누르면 목록이 저장됩니다.",
+ "Bank and auctions": "은행과 경매",
+ "The bank you leave in a hurry is still remembered, a big auction scan ends smoothly and survives a reload, the auction Filters dialog closes with the house, and an item typed by its ID takes its name when the game loads it.": "급히 닫은 은행도 기억되고, 큰 경매장 검색은 끊김 없이 끝나며 다시 불러오기 후에도 남고, 경매장 필터 창은 경매장과 함께 닫히며, ID로 입력한 아이템은 게임이 불러오면 이름을 얻습니다.",
+ "Other languages": "다른 언어",
+ "Profile names keep the letters of every language, a typed decimal comma counts on a comma client, large numbers use the client's thousands mark, and the group board reads Chinese posts written without spaces.": "프로필 이름은 어느 언어의 글자도 그대로 지키고, 입력한 소수점 쉼표는 쉼표를 쓰는 클라이언트에서 인식되며, 큰 숫자는 클라이언트의 천 단위 구분 기호를 쓰고, 파티 게시판은 띄어쓰기 없는 중국어 글도 읽습니다.",
+ "Quests, chat and tools": "퀘스트, 대화와 도구",
+ "Quest reward cards link on Shift-click and try on with Ctrl-click, Shift-click on a quest links it while a chat box is open, a module switched off in a fight does nothing it had queued, and a fade that turns back starts from where it is.": "퀘스트 보상 카드는 Shift-클릭으로 링크되고 Ctrl-클릭으로 미리 입어 볼 수 있으며, 대화 입력 칸이 열려 있을 때 퀘스트를 Shift-클릭하면 링크되고, 전투 중에 끈 모듈은 미뤄 둔 일을 하지 않으며, 되돌아가는 페이드는 지금 있는 곳에서 시작합니다."
 }

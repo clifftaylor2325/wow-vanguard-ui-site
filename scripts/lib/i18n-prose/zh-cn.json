@@ -1332,5 +1332,16 @@
  "Bars and click casting": "动作条与点击施法",
  "Flyouts open away from their bar and show their spells' cooldowns, keybind mode shows hidden bars while it is on, and click casting's names and buttons fit their room.": "弹出列表会朝远离动作条的方向打开并显示其法术的冷却，按键绑定模式开启时会显示隐藏的动作条，点击施法的名字和按钮都能放进各自的位置。",
  "Map, quests and chat": "地图、任务与聊天",
- "A waypoint's edge arrow is tinted in the accent, the expanded quest tracker keeps clear of the target of target frame, the AFK screen's clock follows the game clock, and /vg history says 1 day.": "路径点的屏幕边缘箭头染上强调色，展开的任务追踪会避开目标的目标框体，暂离画面的时钟跟随游戏时钟，/vg history 会说 1 天。"
+ "A waypoint's edge arrow is tinted in the accent, the expanded quest tracker keeps clear of the target of target frame, the AFK screen's clock follows the game clock, and /vg history says 1 day.": "路径点的屏幕边缘箭头染上强调色，展开的任务追踪会避开目标的目标框体，暂离画面的时钟跟随游戏时钟，/vg history 会说 1 天。",
+ "Questions first": "先问一句",
+ "{ui:Reset all positions}, {ui:Reset theme}, and {ui:Delete} and {ui:Copy here} on the Profiles page ask a danger question first, so a double click does nothing; {ui:Import stat weights} asks before it replaces weights you set by hand.": "“{ui:Reset all positions}”、“{ui:Reset theme}”，以及配置文件页上的“{ui:Delete}”和“{ui:Copy here}”会先提出危险确认，所以双击不会做任何事；“{ui:Import stat weights}”在替换你手动设定的权重前会先询问。",
+ "Unit frames and bars": "单位框体与动作条",
+ "Under the {ui:Calm HUD}, right-click anywhere on your frame or your target's opens its menu again; icon insets, combo points and your buffs' rows are placed again after a UI scale change; and bar 1 shows in a vehicle, a possess or an override bar.": "在“{ui:Calm HUD}”下，右键点击你的框体或目标框体的任何位置都会重新打开菜单；图标边距、连击点和你的增益行在界面缩放改变后会重新摆放；动作条 1 在载具、精神控制或替代动作条状态下也会显示。",
+ "Raid tiles settle once as members join, your heals stay on your own tile after the roster shifts, a names-only plate has no click area, as the game's own, and Enter in the {ui:Buffs to watch} box saves the list.": "团队格在成员加入时只整理一次，阵容变动后你的治疗仍留在你自己的格子上，只显示名字的姓名板和游戏自己的一样没有点击区域，在“{ui:Buffs to watch}”框中按回车会保存列表。",
+ "Bank and auctions": "银行与拍卖",
+ "The bank you leave in a hurry is still remembered, a big auction scan ends smoothly and survives a reload, the auction Filters dialog closes with the house, and an item typed by its ID takes its name when the game loads it.": "匆忙离开的银行仍会被记住，大规模拍卖扫描会平稳结束并在重载后保留，拍卖筛选对话框会随拍卖行一起关闭，按 ID 输入的物品在游戏载入后会得到名称。",
+ "Other languages": "其他语言",
+ "Profile names keep the letters of every language, a typed decimal comma counts on a comma client, large numbers use the client's thousands mark, and the group board reads Chinese posts written without spaces.": "配置文件名称保留任何语言的字母，在用逗号作小数点的客户端上输入的小数逗号会被识别，大数字使用客户端的千位分隔符，队伍公告板能读取不带空格的中文帖子。",
+ "Quests, chat and tools": "任务、聊天与工具",
+ "Quest reward cards link on Shift-click and try on with Ctrl-click, Shift-click on a quest links it while a chat box is open, a module switched off in a fight does nothing it had queued, and a fade that turns back starts from where it is.": "任务奖励卡可以 Shift-点击链接、Ctrl-点击试穿，聊天输入框打开时 Shift-点击任务会链接它，战斗中关闭的模块不会再执行它排好的事，回头的渐隐会从当前位置开始。"
 }
