@@ -524,10 +524,23 @@ RELEASE_NOTES["v0.9.8"] = { groups: [
     ] },
 ] };
 
+RELEASE_NOTES["v0.9.9"] = { groups: [
+    { id: "improved", title: "Improved", items: [
+      { label: "Questions first", text: "{ui:Reset all positions}, {ui:Reset theme}, and {ui:Delete} and {ui:Copy here} on the Profiles page ask a danger question first, so a double click does nothing; {ui:Import stat weights} asks before it replaces weights you set by hand.", from: [899] },
+    ] },
+    { id: "fixed", title: "Fixed", items: [
+      { label: "Unit frames and bars", text: "Under the {ui:Calm HUD}, right-click anywhere on your frame or your target's opens its menu again; icon insets, combo points and your buffs' rows are placed again after a UI scale change; and bar 1 shows in a vehicle, a possess or an override bar.", from: [900, 902, 903] },
+      { label: "Raid frames and nameplates", text: "Raid tiles settle once as members join, your heals stay on your own tile after the roster shifts, a names-only plate has no click area, as the game's own, and Enter in the {ui:Buffs to watch} box saves the list.", from: [899, 901, 903, 905] },
+      { label: "Bank and auctions", text: "The bank you leave in a hurry is still remembered, a big auction scan ends smoothly and survives a reload, the auction Filters dialog closes with the house, and an item typed by its ID takes its name when the game loads it.", from: [899, 900] },
+      { label: "Other languages", text: "Profile names keep the letters of every language, a typed decimal comma counts on a comma client, large numbers use the client's thousands mark, and the group board reads Chinese posts written without spaces.", from: [905] },
+      { label: "Quests, chat and tools", text: "Quest reward cards link on Shift-click and try on with Ctrl-click, Shift-click on a quest links it while a chat box is open, a module switched off in a fight does nothing it had queued, and a fade that turns back starts from where it is.", from: [899, 905] },
+    ] },
+] };
+
 // What's merged since the release named in `after`: shown only while that is
 // still the current release, so it can't go stale after the next one ships.
-// Nothing yet: v0.9.8 is the current release, and the pinned source is its commit.
+// Nothing yet: v0.9.9 is the current release, and the pinned source is its commit.
 export const NEXT_RELEASE = {
-  after: "v0.9.8",
+  after: "v0.9.9",
   groups: [],
 };

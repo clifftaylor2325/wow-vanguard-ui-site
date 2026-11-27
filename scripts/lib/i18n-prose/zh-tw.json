@@ -501,7 +501,7 @@
  "<strong>{use}</strong>: this character switches to that profile at your next reload.": "<strong>{use}</strong>：這個角色會在你下次重新載入時切換到該設定檔。",
  "<strong>{copy}</strong>: copies that profile's settings over the profile you'll use after the reload.": "<strong>{copy}</strong>：把該設定檔的設定複製到重新載入後你將使用的設定檔上。",
  "<strong>{delete}</strong>: deletes that profile.": "<strong>{delete}</strong>：刪除該設定檔。",
- "<strong>{copy}</strong> and <strong>{delete}</strong> can't be undone, so the first click only changes the button to “{sure}”. Click again to do it.": "<strong>{copy}</strong> 和 <strong>{delete}</strong> 無法復原，所以第一次點擊只會把按鈕變成「{sure}」。再點擊一次才會執行。",
+ "<strong>{copy}</strong> and <strong>{delete}</strong> can't be undone, so a click asks a question first. Nothing happens until you answer yes.": "<strong>{copy}</strong> 和 <strong>{delete}</strong> 無法復原，所以點擊後會先提出一個問題。你回答「是」之前什麼都不會發生。",
  "Next to the names you'll see “{inUse}”, or, while a switch waits for a reload, “{untilReload}” on the profile you're using now and “{afterReload}” on the one that takes over. The profile that takes over has no buttons. The one you're using now only has <strong>{use}</strong>, which cancels the switch.": "名稱旁邊你會看到「{inUse}」，或者在切換等待重新載入時，你目前使用的設定檔上會顯示「{untilReload}」，而接手的設定檔上會顯示「{afterReload}」。接手的設定檔沒有按鈕。你目前使用的那一個只有 <strong>{use}</strong>，它會取消切換。",
  "At the bottom, type a name in the <strong>{box}</strong> box and click <strong>{create}</strong> (or press <kbd>Enter</kbd>). The new profile is empty, and this character switches to it at your next reload. If the name is already used or has characters that aren't allowed, the box says “{taken}”.": "在底部的 <strong>{box}</strong> 框中輸入名稱並點擊 <strong>{create}</strong>（或按 <kbd>Enter</kbd>）。新的設定檔是空的，而這個角色會在你下次重新載入時切換到它。如果名稱已被使用或含有不允許的字元，框中會顯示「{taken}」。",
  "Type": "輸入",
@@ -1332,5 +1332,16 @@
  "Bars and click casting": "快捷列與點擊施法",
  "Flyouts open away from their bar and show their spells' cooldowns, keybind mode shows hidden bars while it is on, and click casting's names and buttons fit their room.": "展開列表會朝遠離快捷列的方向開啟並顯示其法術的冷卻，按鍵綁定模式開啟時會顯示隱藏的快捷列，點擊施法的名字和按鈕都能放進各自的位置。",
  "Map, quests and chat": "地圖、任務與聊天",
- "A waypoint's edge arrow is tinted in the accent, the expanded quest tracker keeps clear of the target of target frame, the AFK screen's clock follows the game clock, and /vg history says 1 day.": "路徑點的螢幕邊緣箭頭染上強調色，展開的任務追蹤會避開目標的目標框架，離開畫面的時鐘跟隨遊戲時鐘，/vg history 會說 1 天。"
+ "A waypoint's edge arrow is tinted in the accent, the expanded quest tracker keeps clear of the target of target frame, the AFK screen's clock follows the game clock, and /vg history says 1 day.": "路徑點的螢幕邊緣箭頭染上強調色，展開的任務追蹤會避開目標的目標框架，離開畫面的時鐘跟隨遊戲時鐘，/vg history 會說 1 天。",
+ "Questions first": "先問一句",
+ "{ui:Reset all positions}, {ui:Reset theme}, and {ui:Delete} and {ui:Copy here} on the Profiles page ask a danger question first, so a double click does nothing; {ui:Import stat weights} asks before it replaces weights you set by hand.": "「{ui:Reset all positions}」、「{ui:Reset theme}」，以及設定檔頁面上的「{ui:Delete}」和「{ui:Copy here}」會先提出危險確認，所以按兩下不會做任何事；「{ui:Import stat weights}」在取代你手動設定的權重前會先詢問。",
+ "Unit frames and bars": "單位框架與快捷列",
+ "Under the {ui:Calm HUD}, right-click anywhere on your frame or your target's opens its menu again; icon insets, combo points and your buffs' rows are placed again after a UI scale change; and bar 1 shows in a vehicle, a possess or an override bar.": "在「{ui:Calm HUD}」下，右鍵點擊你的框架或目標框架的任何位置都會重新開啟選單；圖示邊距、連擊點和你的增益列在介面縮放改變後會重新擺放；快捷列 1 在載具、精神控制或替代快捷列狀態下也會顯示。",
+ "Raid tiles settle once as members join, your heals stay on your own tile after the roster shifts, a names-only plate has no click area, as the game's own, and Enter in the {ui:Buffs to watch} box saves the list.": "團隊格在成員加入時只整理一次，陣容變動後你的治療仍留在你自己的格子上，只顯示名字的名條和遊戲自己的一樣沒有點擊區域，在「{ui:Buffs to watch}」框中按 Enter 會儲存清單。",
+ "Bank and auctions": "銀行與拍賣",
+ "The bank you leave in a hurry is still remembered, a big auction scan ends smoothly and survives a reload, the auction Filters dialog closes with the house, and an item typed by its ID takes its name when the game loads it.": "匆忙離開的銀行仍會被記住，大規模拍賣掃描會平順結束並在重新載入後保留，拍賣篩選對話框會隨拍賣場一起關閉，以 ID 輸入的物品在遊戲載入後會得到名稱。",
+ "Other languages": "其他語言",
+ "Profile names keep the letters of every language, a typed decimal comma counts on a comma client, large numbers use the client's thousands mark, and the group board reads Chinese posts written without spaces.": "設定檔名稱保留任何語言的字母，在以逗號作小數點的用戶端上輸入的小數逗號會被辨識，大數字使用用戶端的千位分隔符號，隊伍公告板能讀取不帶空格的中文貼文。",
+ "Quests, chat and tools": "任務、聊天與工具",
+ "Quest reward cards link on Shift-click and try on with Ctrl-click, Shift-click on a quest links it while a chat box is open, a module switched off in a fight does nothing it had queued, and a fade that turns back starts from where it is.": "任務獎勵卡可以 Shift-點擊連結、Ctrl-點擊試穿，聊天輸入框開啟時 Shift-點擊任務會連結它，戰鬥中關閉的模組不會再執行它排好的事，回頭的淡出會從目前位置開始。"
 }
